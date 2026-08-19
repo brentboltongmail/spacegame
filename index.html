@@ -1797,30 +1797,30 @@
             ventralFinR.rotation.z = 0.5;
             playerShip.add(ventralFinR);
 
-            // 6. Quad Engine Thrusters (2 Main + 2 Upper Maneuvering)
+            // 6. Sleeker Quad Engine Thrusters (Scaled down for sleeker fighter silhouette)
             playerShip.userData.engineLights = [];
             const enginePositions = [
-                { x: -0.55, y: 0.05, z: 2.0, size: 0.44 },
-                { x:  0.55, y: 0.05, z: 2.0, size: 0.44 },
-                { x: -0.35, y: 0.65, z: 1.8, size: 0.28 },
-                { x:  0.35, y: 0.65, z: 1.8, size: 0.28 }
+                { x: -0.50, y: 0.05, z: 1.8, size: 0.32 },
+                { x:  0.50, y: 0.05, z: 1.8, size: 0.32 },
+                { x: -0.30, y: 0.55, z: 1.6, size: 0.20 },
+                { x:  0.30, y: 0.55, z: 1.6, size: 0.20 }
             ];
 
             enginePositions.forEach(eng => {
-                const nacelleGeo = new THREE.CylinderGeometry(eng.size, eng.size * 1.15, 1.4, 16);
+                const nacelleGeo = new THREE.CylinderGeometry(eng.size, eng.size * 1.15, 1.0, 16);
                 nacelleGeo.rotateX(Math.PI / 2);
                 const nacelle = new THREE.Mesh(nacelleGeo, darkArmorMat);
                 nacelle.position.set(eng.x, eng.y, eng.z);
                 playerShip.add(nacelle);
 
-                const nozzleGeo = new THREE.CylinderGeometry(eng.size * 0.75, eng.size * 0.65, 0.3, 16);
+                const nozzleGeo = new THREE.CylinderGeometry(eng.size * 0.75, eng.size * 0.65, 0.25, 16);
                 nozzleGeo.rotateX(Math.PI / 2);
                 const nozzle = new THREE.Mesh(nozzleGeo, cyanGlowMat);
-                nozzle.position.set(eng.x, eng.y, eng.z + 0.7);
+                nozzle.position.set(eng.x, eng.y, eng.z + 0.5);
                 playerShip.add(nozzle);
 
-                const engineLight = new THREE.PointLight(0x00f0ff, 3.5, 22);
-                engineLight.position.set(eng.x, eng.y, eng.z + 1.0);
+                const engineLight = new THREE.PointLight(0x00f0ff, 2.8, 18);
+                engineLight.position.set(eng.x, eng.y, eng.z + 0.7);
                 playerShip.add(engineLight);
                 playerShip.userData.engineLights.push(engineLight);
             });
@@ -2085,10 +2085,10 @@
             }
 
             const nozzleOffsets = [
-                new THREE.Vector3(-0.55, 0.05, 2.7),
-                new THREE.Vector3( 0.55, 0.05, 2.7),
-                new THREE.Vector3(-0.35, 0.65, 2.5),
-                new THREE.Vector3( 0.35, 0.65, 2.5)
+                new THREE.Vector3(-0.50, 0.05, 2.3),
+                new THREE.Vector3( 0.50, 0.05, 2.3),
+                new THREE.Vector3(-0.30, 0.55, 2.1),
+                new THREE.Vector3( 0.30, 0.55, 2.1)
             ];
 
             const shipQuat = playerShip.quaternion;
