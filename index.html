@@ -2893,67 +2893,84 @@
             const textureLoader = new THREE.TextureLoader();
 
             const dreadHullTex = textureLoader.load('docs/images/dreadnought_hull_texture.jpg');
-            dreadHullTex.wrapS = THREE.RepeatWrapping;
-            dreadHullTex.wrapT = THREE.RepeatWrapping;
+            dreadHullTex.wrapS = THREE.RepeatWrapping; dreadHullTex.wrapT = THREE.RepeatWrapping;
             dreadHullTex.repeat.set(8, 8);
 
             const dreadGreebleTex = textureLoader.load('docs/images/dreadnought_greeble_texture.jpg');
-            dreadGreebleTex.wrapS = THREE.RepeatWrapping;
-            dreadGreebleTex.wrapT = THREE.RepeatWrapping;
+            dreadGreebleTex.wrapS = THREE.RepeatWrapping; dreadGreebleTex.wrapT = THREE.RepeatWrapping;
             dreadGreebleTex.repeat.set(4, 4);
+
+            const dreadDarkMetalTex = textureLoader.load('docs/images/dreadnought_dark_metal_texture.jpg');
+            dreadDarkMetalTex.wrapS = THREE.RepeatWrapping; dreadDarkMetalTex.wrapT = THREE.RepeatWrapping;
+            dreadDarkMetalTex.repeat.set(8, 8);
+
+            const dreadGoldTrimTex = textureLoader.load('docs/images/dreadnought_gold_trim_texture.jpg');
+            dreadGoldTrimTex.wrapS = THREE.RepeatWrapping; dreadGoldTrimTex.wrapT = THREE.RepeatWrapping;
+            dreadGoldTrimTex.repeat.set(3, 3);
+
+            const dreadHangarFloorTex = textureLoader.load('docs/images/dreadnought_hangar_floor_texture.jpg');
+            dreadHangarFloorTex.wrapS = THREE.RepeatWrapping; dreadHangarFloorTex.wrapT = THREE.RepeatWrapping;
+            dreadHangarFloorTex.repeat.set(2, 6);
 
             const dreadCrystalTex = textureLoader.load('docs/images/dreadnought_crystal_texture.jpg');
 
+            // Procedural grid emissive texture for windows
+            function createWindowGridTexture(colorHex) {
+                const cvs = document.createElement('canvas');
+                cvs.width = 512; cvs.height = 128;
+                const ctx = cvs.getContext('2d');
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(0, 0, 512, 128);
+                ctx.fillStyle = colorHex;
+                for(let x=16; x<512; x+=32) {
+                    for(let y=16; y<128; y+=32) {
+                        ctx.fillRect(x, y, 16, 16);
+                    }
+                }
+                const tex = new THREE.CanvasTexture(cvs);
+                tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping;
+                return tex;
+            }
+            const goldWindowTex = createWindowGridTexture('#fbbf24');
+            const cyanWindowTex = createWindowGridTexture('#00f0ff');
+
             // Standard Materials
             const hullMat = new THREE.MeshStandardMaterial({
-                map: dreadHullTex,
-                color: 0x8090a5,
-                roughness: 0.45,
-                metalness: 0.85
+                map: dreadHullTex, color: 0x8090a5, roughness: 0.45, metalness: 0.85
             });
 
             const armorPlateMat = new THREE.MeshStandardMaterial({
-                map: dreadHullTex,
-                color: 0x475569,
-                roughness: 0.35,
-                metalness: 0.90
+                map: dreadHullTex, color: 0x475569, roughness: 0.35, metalness: 0.90
             });
 
             const greebleMat = new THREE.MeshStandardMaterial({
-                map: dreadGreebleTex,
-                color: 0x334155,
-                roughness: 0.6,
-                metalness: 0.8
+                map: dreadGreebleTex, color: 0x334155, roughness: 0.6, metalness: 0.8
             });
 
             const goldTrimMat = new THREE.MeshStandardMaterial({
-                color: 0xfbbf24,
-                roughness: 0.25,
-                metalness: 0.95
+                map: dreadGoldTrimTex, color: 0xffffff, roughness: 0.25, metalness: 0.95
             });
 
             const darkMetalMat = new THREE.MeshStandardMaterial({
-                color: 0x0f172a,
-                roughness: 0.5,
-                metalness: 0.9
+                map: dreadDarkMetalTex, color: 0xffffff, roughness: 0.5, metalness: 0.9
             });
 
             const engineNozzleMat = new THREE.MeshStandardMaterial({
-                color: 0x1e293b,
-                roughness: 0.2,
-                metalness: 0.95
+                map: dreadDarkMetalTex, color: 0x888888, roughness: 0.2, metalness: 0.95
             });
 
-            const engineGlowMat = new THREE.MeshBasicMaterial({
-                color: 0x00f0ff
-            });
+            const engineGlowMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
 
             const windowGlowMat = new THREE.MeshBasicMaterial({
-                color: 0xfbbf24
+                map: goldWindowTex, color: 0xffffff
             });
 
             const cyanWindowGlowMat = new THREE.MeshBasicMaterial({
-                color: 0x00f0ff
+                map: cyanWindowTex, color: 0xffffff
+            });
+
+            const runwayMat = new THREE.MeshBasicMaterial({
+                map: dreadHangarFloorTex, color: 0xaaaaaa
             });
 
             // --- ROUND 1: HULL BASE GEOMETRY & LAYERED BATTLESHIP ARCHITECTURE ---
@@ -2978,7 +2995,7 @@
             const prowGeo = new THREE.CylinderGeometry(0, 54, 80, 4);
             const prow = new THREE.Mesh(prowGeo, armorPlateMat);
             prow.rotation.y = Math.PI / 4;
-            prow.rotation.x = Math.PI / 2;
+            prow.rotation.x = -Math.PI / 2;
             prow.position.set(0, 4, -180);
             prow.scale.set(1, 1, 0.7);
             capitalShip.add(prow);
@@ -3137,8 +3154,7 @@
 
             // Internal Lit Runway Deck
             const runwayGeo = new THREE.BoxGeometry(14, 1, 52);
-            const runwayMat = new THREE.MeshBasicMaterial({ color: 0x052e16 });
-            const runway = new THREE.Mesh(runwayGeo, runwayMat);
+            const runway = new THREE.Mesh(runwayGeo, runwayMat); // Uses globally defined runwayMat with texture
             runway.position.set(-2, -8, 0);
             hangarBay.add(runway);
 
@@ -3149,11 +3165,10 @@
             hangarBay.add(guideLights);
 
             // Yellow Caution Stripe Border Frame around Hangar Aperture
-            const borderMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
-            const topBorder = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 55), borderMat);
+            const topBorder = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 55), goldTrimMat);
             topBorder.position.set(-4, 9, 0);
             hangarBay.add(topBorder);
-            const botBorder = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 55), borderMat);
+            const botBorder = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 55), goldTrimMat);
             botBorder.position.set(-4, -9, 0);
             hangarBay.add(botBorder);
 
@@ -3161,13 +3176,13 @@
             for (let f = 0; f < 3; f++) {
                 const fighterGroup = new THREE.Group();
                 const fBodyGeo = new THREE.ConeGeometry(1.2, 4, 3);
-                const fBodyMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.8 });
-                const fBody = new THREE.Mesh(fBodyGeo, fBodyMat);
+                // Use dark metal texture for fighters instead of solid blue
+                const fBody = new THREE.Mesh(fBodyGeo, darkMetalMat);
                 fBody.rotation.x = Math.PI / 2;
                 fighterGroup.add(fBody);
 
                 const fWingGeo = new THREE.BoxGeometry(4.5, 0.3, 1.8);
-                const fWing = new THREE.Mesh(fWingGeo, fBodyMat);
+                const fWing = new THREE.Mesh(fWingGeo, darkMetalMat);
                 fighterGroup.add(fWing);
 
                 fighterGroup.position.set(-12 - f * 14, -6 + f * 3, f * 12);
@@ -5134,8 +5149,8 @@
             if (spaceSun && mapSunMesh) {
                 mapSunMesh.position.set(spaceSun.position.x * 0.00008, spaceSun.position.y * 0.00008, spaceSun.position.z * 0.00008);
             }
-            if (spaceGate && mapGateMesh) {
-                mapGateMesh.position.set(spaceGate.position.x * scaleFactor, spaceGate.position.y * scaleFactor, spaceGate.position.z * scaleFactor);
+            if (wormholeGate && mapGateMesh) {
+                mapGateMesh.position.set(wormholeGate.position.x * scaleFactor, wormholeGate.position.y * scaleFactor, wormholeGate.position.z * scaleFactor);
             }
             if (capitalShip && mapDreadMesh) {
                 mapDreadMesh.position.set(capitalShip.position.x * scaleFactor, capitalShip.position.y * scaleFactor, capitalShip.position.z * scaleFactor);
