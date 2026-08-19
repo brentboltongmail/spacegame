@@ -1439,30 +1439,123 @@
             planet.add(ring);
         }
 
+        // --- PROCEDURAL VOID INTERCEPTOR HULL TEXTURE GENERATORS ---
+        function createVoidHullTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512; canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#0b1329';
+            ctx.fillRect(0, 0, 512, 512);
+
+            // Metallic carbon weave pattern
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 512; i += 8) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 512); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(512, i); ctx.stroke();
+            }
+
+            // Dark alloy armor seams
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(16, 16, 480, 480);
+            ctx.strokeRect(48, 48, 416, 416);
+
+            // Luminescent Cyan Circuit Trimming
+            ctx.strokeStyle = '#00f0ff';
+            ctx.shadowColor = '#00f0ff';
+            ctx.shadowBlur = 10;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(48, 256); ctx.lineTo(160, 256); ctx.lineTo(256, 160); ctx.lineTo(256, 48);
+            ctx.moveTo(464, 256); ctx.lineTo(352, 256); ctx.lineTo(256, 352); ctx.lineTo(256, 464);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            return texture;
+        }
+
+        function createVoidBumpMap() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512; canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#808080';
+            ctx.fillRect(0, 0, 512, 512);
+
+            ctx.fillStyle = '#b0b0b0'; // Raised armor plates
+            ctx.fillRect(48, 48, 416, 416);
+
+            ctx.strokeStyle = '#000000'; // Recessed armor seams
+            ctx.lineWidth = 5;
+            ctx.strokeRect(16, 16, 480, 480);
+            ctx.strokeRect(48, 48, 416, 416);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            return texture;
+        }
+
         function createPlayerShip() {
             playerShip = new THREE.Group();
 
-            // Metallic Materials
-            const darkArmorMat = new THREE.MeshStandardMaterial({ color: 0x0b1329, metalness: 0.92, roughness: 0.25 });
-            const silverPlateMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.88, roughness: 0.3 });
+            const hullMap = createVoidHullTexture();
+            const bumpMap = createVoidBumpMap();
+
+            // High-Detail Metallic Materials
+            const darkArmorMat = new THREE.MeshStandardMaterial({ 
+                color: 0x0b1329, 
+                metalness: 0.95, 
+                roughness: 0.2, 
+                map: hullMap, 
+                bumpMap: bumpMap, 
+                bumpScale: 0.08 
+            });
+            const silverPlateMat = new THREE.MeshStandardMaterial({ 
+                color: 0x334155, 
+                metalness: 0.90, 
+                roughness: 0.25, 
+                map: hullMap, 
+                bumpMap: bumpMap, 
+                bumpScale: 0.05 
+            });
+            const goldTrimMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.95, roughness: 0.15 });
             const cyanGlowMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
             const canopyGlassMat = new THREE.MeshPhysicalMaterial({ 
                 color: 0x00f0ff, 
-                roughness: 0.1, 
-                metalness: 0.85, 
-                transmission: 0.8, 
-                opacity: 0.9, 
+                roughness: 0.08, 
+                metalness: 0.90, 
+                transmission: 0.85, 
+                opacity: 0.88, 
                 transparent: true,
                 clearcoat: 1.0 
             });
 
-            // 1. Sleek Fuselage Core (Sharp Angular Stealth Nose)
-            const noseGeo = new THREE.ConeGeometry(0.75, 4.2, 4);
+            // 1. Sleek Fuselage Core & Nose Needle Probe
+            const noseGeo = new THREE.ConeGeometry(0.75, 4.4, 4);
             noseGeo.rotateX(Math.PI / 2);
-            noseGeo.rotateZ(Math.PI / 4); // Diamond cross section
+            noseGeo.rotateZ(Math.PI / 4); // Diamond stealth cross section
             const nose = new THREE.Mesh(noseGeo, darkArmorMat);
-            nose.position.set(0, 0, -1.2);
+            nose.position.set(0, 0, -1.3);
             playerShip.add(nose);
+
+            // Forward Sensor Needle Probe
+            const probeGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.2, 8);
+            probeGeo.rotateX(Math.PI / 2);
+            const probe = new THREE.Mesh(probeGeo, cyanGlowMat);
+            probe.position.set(0, 0, -3.8);
+            playerShip.add(probe);
+
+            // Ventral Air Scoop Intake
+            const scoopGeo = new THREE.BoxGeometry(0.8, 0.3, 1.8);
+            const scoop = new THREE.Mesh(scoopGeo, darkArmorMat);
+            scoop.position.set(0, -0.4, -0.6);
+            playerShip.add(scoop);
 
             // Main Cockpit Body Hull
             const mainHullGeo = new THREE.BoxGeometry(1.4, 0.9, 3.8);
@@ -1470,32 +1563,43 @@
             mainHull.position.set(0, -0.1, 0.5);
             playerShip.add(mainHull);
 
-            // Armor Spine Ridge
-            const spineGeo = new THREE.BoxGeometry(0.5, 0.35, 3.2);
+            // Armor Spine Ridge with Gold Accent Trim
+            const spineGeo = new THREE.BoxGeometry(0.55, 0.35, 3.2);
             const spine = new THREE.Mesh(spineGeo, silverPlateMat);
             spine.position.set(0, 0.45, 0.2);
             playerShip.add(spine);
 
-            // 2. Cockpit Glass Canopy
+            const spineGold = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.38, 3.0), goldTrimMat);
+            spineGold.position.set(0, 0.46, 0.2);
+            playerShip.add(spineGold);
+
+            // 2. Cockpit Glass Canopy & Internal Pilot Yoke Seat
             const canopyGeo = new THREE.SphereGeometry(0.55, 16, 16);
             canopyGeo.scale(0.85, 0.6, 1.8);
             const canopy = new THREE.Mesh(canopyGeo, canopyGlassMat);
             canopy.position.set(0, 0.4, -0.6);
             playerShip.add(canopy);
 
-            // 3. Swept-Forward Main Wings (Left & Right)
+            // Interior Flight Seat
+            const seatGeo = new THREE.BoxGeometry(0.4, 0.5, 0.4);
+            const seatMat = new THREE.MeshStandardMaterial({ color: 0x020617, roughness: 0.8 });
+            const seat = new THREE.Mesh(seatGeo, seatMat);
+            seat.position.set(0, 0.2, -0.4);
+            playerShip.add(seat);
+
+            // 3. Swept-Forward Main Wings (Left & Right Batteries)
             const createSweptWing = (isLeft) => {
                 const wingGroup = new THREE.Group();
 
-                // Main Swept Blade
+                // Main Swept Wing Blade
                 const wingShape = new THREE.Shape();
                 wingShape.moveTo(0, 0);
-                wingShape.lineTo(2.8, -1.2);  // Sweep out
-                wingShape.lineTo(2.4, -2.6);  // Forward tip
-                wingShape.lineTo(0, -1.8);    // Attach back to body
+                wingShape.lineTo(3.2, -1.4);  // Sweep out
+                wingShape.lineTo(2.7, -3.0);  // Forward tip
+                wingShape.lineTo(0, -2.0);    // Attach back to body
                 wingShape.closePath();
 
-                const extrudeSettings = { depth: 0.12, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.03, bevelThickness: 0.03 };
+                const extrudeSettings = { depth: 0.12, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.04, bevelThickness: 0.04 };
                 const wingGeo = new THREE.ExtrudeGeometry(wingShape, extrudeSettings);
                 wingGeo.rotateX(Math.PI / 2);
                 
@@ -1503,28 +1607,40 @@
                 wingGroup.add(wing);
 
                 // Wing Armor Plate Panel
-                const plateGeo = new THREE.BoxGeometry(1.8, 0.08, 1.2);
+                const plateGeo = new THREE.BoxGeometry(2.0, 0.08, 1.4);
                 const plate = new THREE.Mesh(plateGeo, darkArmorMat);
-                plate.position.set(1.4, 0, -1.0);
+                plate.position.set(1.6, 0, -1.2);
                 wingGroup.add(plate);
 
-                // Plasma Cannon Pod Assembly
-                const cannonBaseGeo = new THREE.CylinderGeometry(0.12, 0.15, 1.8, 12);
-                cannonBaseGeo.rotateX(Math.PI / 2);
-                const cannonBase = new THREE.Mesh(cannonBaseGeo, darkArmorMat);
-                cannonBase.position.set(2.4, -0.1, -1.5);
-                wingGroup.add(cannonBase);
+                // Gold Winglet Endcap Fin
+                const endcapGeo = new THREE.BoxGeometry(0.12, 0.6, 1.2);
+                const endcap = new THREE.Mesh(endcapGeo, goldTrimMat);
+                endcap.position.set(2.8, 0, -2.2);
+                wingGroup.add(endcap);
 
-                // Plasma Barrel Tip
-                const barrelGeo = new THREE.CylinderGeometry(0.06, 0.06, 1.2, 12);
-                barrelGeo.rotateX(Math.PI / 2);
-                const barrel = new THREE.Mesh(barrelGeo, cyanGlowMat);
-                barrel.position.set(2.4, -0.1, -2.4);
-                wingGroup.add(barrel);
+                // Dual Plasma Cannon Battery Pod Assembly (2 barrels per wing!)
+                for (let b = -0.15; b <= 0.15; b += 0.3) {
+                    const cannonBaseGeo = new THREE.CylinderGeometry(0.10, 0.12, 1.8, 12);
+                    cannonBaseGeo.rotateX(Math.PI / 2);
+                    const cannonBase = new THREE.Mesh(cannonBaseGeo, darkArmorMat);
+                    cannonBase.position.set(2.7 + b, -0.1, -1.6);
+                    wingGroup.add(cannonBase);
 
-                if (isLeft) {
-                    wingGroup.scale.set(-1, 1, 1);
+                    const barrelGeo = new THREE.CylinderGeometry(0.05, 0.05, 1.4, 12);
+                    barrelGeo.rotateX(Math.PI / 2);
+                    const barrel = new THREE.Mesh(barrelGeo, cyanGlowMat);
+                    barrel.position.set(2.7 + b, -0.1, -2.6);
+                    wingGroup.add(barrel);
                 }
+
+                // Underwing Torpedo Missile Hardpoints
+                const missileGeo = new THREE.ConeGeometry(0.14, 1.2, 8);
+                missileGeo.rotateX(Math.PI / 2);
+                const missile = new THREE.Mesh(missileGeo, darkArmorMat);
+                missile.position.set(1.6, -0.25, -1.2);
+                wingGroup.add(missile);
+
+                if (isLeft) wingGroup.scale.set(-1, 1, 1);
                 return wingGroup;
             };
 
@@ -1532,49 +1648,60 @@
             playerShip.add(createSweptWing(true));  // Left Wing
 
             // 4. Forward Canard Stabilizer Winglets
-            const canardGeo = new THREE.BoxGeometry(1.2, 0.06, 0.6);
+            const canardGeo = new THREE.BoxGeometry(1.4, 0.06, 0.6);
             const canardR = new THREE.Mesh(canardGeo, silverPlateMat);
-            canardR.position.set(0.9, 0.1, -1.8);
+            canardR.position.set(1.0, 0.1, -2.0);
             canardR.rotation.y = -0.3;
             playerShip.add(canardR);
 
             const canardL = new THREE.Mesh(canardGeo, silverPlateMat);
-            canardL.position.set(-0.9, 0.1, -1.8);
+            canardL.position.set(-1.0, 0.1, -2.0);
             canardL.rotation.y = 0.3;
             playerShip.add(canardL);
 
-            // 5. Twin Heavy Engine Thrusters & Cyan Plasma Glow
-            const engineNacelleGeo = new THREE.CylinderGeometry(0.42, 0.48, 1.4, 16);
-            engineNacelleGeo.rotateX(Math.PI / 2);
+            // 5. Dorsal & Ventral Tail Stabilization Fins
+            const finGeo = new THREE.BoxGeometry(0.08, 1.2, 1.6);
 
-            const nacelleL = new THREE.Mesh(engineNacelleGeo, darkArmorMat);
-            nacelleL.position.set(-0.55, 0.05, 2.0);
-            playerShip.add(nacelleL);
+            const dorsalFin = new THREE.Mesh(finGeo, silverPlateMat);
+            dorsalFin.position.set(0, 1.0, 1.2);
+            dorsalFin.rotation.x = -0.3;
+            playerShip.add(dorsalFin);
 
-            const nacelleR = new THREE.Mesh(engineNacelleGeo, darkArmorMat);
-            nacelleR.position.set(0.55, 0.05, 2.0);
-            playerShip.add(nacelleR);
+            const ventralFinL = new THREE.Mesh(finGeo, silverPlateMat);
+            ventralFinL.position.set(-0.6, -0.6, 1.2);
+            ventralFinL.rotation.z = -0.5;
+            playerShip.add(ventralFinL);
 
-            // Plasma Engine Exhaust Nozzles
-            const nozzleGeo = new THREE.CylinderGeometry(0.32, 0.28, 0.3, 16);
-            nozzleGeo.rotateX(Math.PI / 2);
+            const ventralFinR = new THREE.Mesh(finGeo, silverPlateMat);
+            ventralFinR.position.set(0.6, -0.6, 1.2);
+            ventralFinR.rotation.z = 0.5;
+            playerShip.add(ventralFinR);
 
-            const nozzleL = new THREE.Mesh(nozzleGeo, cyanGlowMat);
-            nozzleL.position.set(-0.55, 0.05, 2.7);
-            playerShip.add(nozzleL);
+            // 6. Quad Engine Thrusters (2 Main + 2 Upper Maneuvering)
+            const enginePositions = [
+                { x: -0.55, y: 0.05, z: 2.0, size: 0.44 },
+                { x:  0.55, y: 0.05, z: 2.0, size: 0.44 },
+                { x: -0.35, y: 0.65, z: 1.8, size: 0.28 },
+                { x:  0.35, y: 0.65, z: 1.8, size: 0.28 }
+            ];
 
-            const nozzleR = new THREE.Mesh(nozzleGeo, cyanGlowMat);
-            nozzleR.position.set(0.55, 0.05, 2.7);
-            playerShip.add(nozzleR);
+            enginePositions.forEach(eng => {
+                const nacelleGeo = new THREE.CylinderGeometry(eng.size, eng.size * 1.15, 1.4, 16);
+                nacelleGeo.rotateX(Math.PI / 2);
+                const nacelle = new THREE.Mesh(nacelleGeo, darkArmorMat);
+                nacelle.position.set(eng.x, eng.y, eng.z);
+                playerShip.add(nacelle);
 
-            // Cyan Engine Exhaust Point Lights
-            const engineLightL = new THREE.PointLight(0x00f0ff, 3, 20);
-            engineLightL.position.set(-0.55, 0.05, 3.0);
-            playerShip.add(engineLightL);
+                const nozzleGeo = new THREE.CylinderGeometry(eng.size * 0.75, eng.size * 0.65, 0.3, 16);
+                nozzleGeo.rotateX(Math.PI / 2);
+                const nozzle = new THREE.Mesh(nozzleGeo, cyanGlowMat);
+                nozzle.position.set(eng.x, eng.y, eng.z + 0.7);
+                playerShip.add(nozzle);
 
-            const engineLightR = new THREE.PointLight(0x00f0ff, 3, 20);
-            engineLightR.position.set(0.55, 0.05, 3.0);
-            playerShip.add(engineLightR);
+                const engineLight = new THREE.PointLight(0x00f0ff, 3.5, 22);
+                engineLight.position.set(eng.x, eng.y, eng.z + 1.0);
+                playerShip.add(engineLight);
+            });
 
             playerShip.position.set(0, 0, 0);
             scene.add(playerShip);
