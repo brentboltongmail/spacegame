@@ -1236,7 +1236,7 @@
                         <div style="position: absolute; text-align: center; pointer-events: none;">
                             <div style="font-size: 0.7rem; color: var(--text-muted); font-family: Orbitron; letter-spacing: 1px;">THROTTLE</div>
                             <div id="throttle-pct-text" style="font-size: 2.1rem; font-weight: 900; font-family: Orbitron; color: var(--accent-gold); text-shadow: 0 0 12px rgba(245,158,11,0.8); line-height: 1.1;">50%</div>
-                            <div id="throttle-speed-subtext" style="font-size: 0.68rem; color: #fef08a; margin-top: 2px;">1,073 km/h</div>
+                            <div id="throttle-speed-subtext" style="font-size: 0.68rem; color: #fef08a; margin-top: 2px;">50,000 km/h</div>
                         </div>
                     </div>
                 </div>
@@ -4009,7 +4009,7 @@
             // Update Cockpit Engine Sound Pitch, Muffling & Volume dynamically (0% -> 100% Throttle)
             updateEngineAudio(currentSpeed / maxSpeedCap, cameraMode === 0);
 
-            const postedSpeed = Math.round(currentSpeed * 10.725); // Posted speed scaled 10x (max 2,145 km/h matching concept art HUD)
+            const postedSpeed = Math.round(currentSpeed * 500); // Posted speed scaled to max 100,000 km/h (at maxSpeedCap 200)
             const speedElem = document.getElementById('hud-speed');
             if (speedElem) speedElem.innerText = `SPEED: ${postedSpeed.toLocaleString()} km/h ${currentSpeed > 160 ? '[MAX THROTTLE]' : ''}`;
 
@@ -4538,7 +4538,7 @@
 
             const speedSubtext = document.getElementById('throttle-speed-subtext');
             if (speedSubtext) {
-                const postedSpeed = Math.round(currentSpeed * 10.725);
+                const postedSpeed = Math.round(currentSpeed * 500);
                 speedSubtext.innerText = `${postedSpeed.toLocaleString()} km/h`;
             }
 
