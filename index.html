@@ -3160,6 +3160,9 @@
             drawTacticalRadar();
             drawShieldGauge();
             drawThrottleGauge();
+            if (isTacticalMapOpen) {
+                renderTacticalMap3D();
+            }
             renderer.render(scene, camera);
         }
 
@@ -4102,15 +4105,17 @@
                 if (!mapRenderer) {
                     initTacticalMap3D();
                 }
-                const container = document.getElementById('map-canvas-container');
-                if (container && mapRenderer && mapCamera) {
-                    const w = container.clientWidth || 800;
-                    const h = container.clientHeight || 550;
-                    mapCamera.aspect = w / h;
-                    mapCamera.updateProjectionMatrix();
-                    mapRenderer.setSize(w, h);
-                }
-                renderTacticalMap3D();
+                setTimeout(() => {
+                    const container = document.getElementById('map-canvas-container');
+                    if (container && mapRenderer && mapCamera) {
+                        const w = container.clientWidth || (window.innerWidth - 80);
+                        const h = container.clientHeight || (window.innerHeight - 150);
+                        mapCamera.aspect = w / h;
+                        mapCamera.updateProjectionMatrix();
+                        mapRenderer.setSize(w, h);
+                    }
+                    renderTacticalMap3D();
+                }, 40);
                 showToast("🌐 3D TACTICAL SYSTEM STAR MAP OPEN (SEMI-REALTIME TRACKING)");
             } else {
                 if (modal) modal.style.display = 'none';
