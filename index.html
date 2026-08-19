@@ -2476,11 +2476,99 @@
             return texture;
         }
 
+        // --- PROCEDURAL IMPERIAL GOLD TEXTURE & BUMP MAP GENERATORS ---
+        function createGoldHullTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512; canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            // Rich Metallic Gold Gradient
+            const grad = ctx.createLinearGradient(0, 0, 512, 512);
+            grad.addColorStop(0, '#f59e0b');
+            grad.addColorStop(0.3, '#fbbf24');
+            grad.addColorStop(0.7, '#d97706');
+            grad.addColorStop(1, '#b45309');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 512, 512);
+
+            // Fine brushed metallic micro-grain
+            ctx.strokeStyle = 'rgba(255, 245, 204, 0.18)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 512; i += 4) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i + 128, 512);
+                ctx.stroke();
+            }
+
+            // Engraved Tech Grid & Gold Trim Seams
+            ctx.strokeStyle = 'rgba(180, 83, 9, 0.45)';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(20, 20, 472, 472);
+            ctx.strokeRect(50, 50, 412, 412);
+
+            ctx.beginPath();
+            for (let x = 60; x < 460; x += 80) {
+                ctx.moveTo(x, 20); ctx.lineTo(x, 492);
+                ctx.moveTo(20, x); ctx.lineTo(492, x);
+            }
+            ctx.stroke();
+
+            // Luminous Gold Energy Circuit Trimming
+            ctx.strokeStyle = '#fef08a';
+            ctx.shadowColor = '#fbbf24';
+            ctx.shadowBlur = 8;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(50, 256); ctx.lineTo(150, 150); ctx.lineTo(362, 150); ctx.lineTo(462, 256);
+            ctx.moveTo(50, 256); ctx.lineTo(150, 362); ctx.lineTo(362, 362); ctx.lineTo(462, 256);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            return texture;
+        }
+
+        function createGoldBumpMap() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512; canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#808080';
+            ctx.fillRect(0, 0, 512, 512);
+
+            ctx.fillStyle = '#cfcfcf'; // Raised gold filigree plates
+            ctx.fillRect(50, 50, 412, 412);
+
+            ctx.strokeStyle = '#101010'; // Recessed bevel channels
+            ctx.lineWidth = 6;
+            ctx.strokeRect(20, 20, 472, 472);
+            ctx.strokeRect(50, 50, 412, 412);
+
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            for (let x = 60; x < 460; x += 80) {
+                ctx.moveTo(x, 20); ctx.lineTo(x, 492);
+                ctx.moveTo(20, x); ctx.lineTo(492, x);
+            }
+            ctx.stroke();
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            return texture;
+        }
+
         function createPlayerShip() {
             playerShip = new THREE.Group();
 
             const hullMap = createVoidHullTexture();
             const bumpMap = createVoidBumpMap();
+
+            const goldMap = createGoldHullTexture();
+            const goldBump = createGoldBumpMap();
 
             // High-Detail Metallic Materials (Brightened for crisp 3D detail visibility)
             const darkArmorMat = new THREE.MeshStandardMaterial({ 
@@ -2499,7 +2587,16 @@
                 bumpMap: bumpMap, 
                 bumpScale: 0.05 
             });
-            const goldTrimMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.95, roughness: 0.15 });
+            const goldTrimMat = new THREE.MeshStandardMaterial({ 
+                color: 0xf59e0b, 
+                metalness: 0.96, 
+                roughness: 0.18,
+                map: goldMap,
+                bumpMap: goldBump,
+                bumpScale: 0.05,
+                emissive: 0x3b1a03,
+                emissiveIntensity: 0.4
+            });
             const cyanGlowMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
             const canopyGlassMat = new THREE.MeshPhysicalMaterial({ 
                 color: 0x00f0ff, 
@@ -2511,40 +2608,48 @@
                 clearcoat: 1.0 
             });
 
-            // 1. Sleek Forward Stealth Nose Cone & Sensor Probe (Tip facing FORWARD towards -Z)
-            const noseGeo = new THREE.ConeGeometry(0.75, 4.4, 4);
+            // 1. Extended Sleek Forward Stealth Nose Cone & Sensor Probe
+            const noseGeo = new THREE.ConeGeometry(0.75, 5.6, 4);
             noseGeo.rotateX(-Math.PI / 2); // Rotates sharp tip FORWARD towards -Z!
             noseGeo.rotateZ(Math.PI / 4);  // Diamond stealth cross section
             const nose = new THREE.Mesh(noseGeo, darkArmorMat);
-            nose.position.set(0, -0.05, -1.8);
+            nose.position.set(0, -0.05, -2.4);
             playerShip.add(nose);
 
             // Upper Tapered Armor Cowl (Stealth Chine Nose Plate)
-            const upperNoseGeo = new THREE.ConeGeometry(0.55, 2.6, 4);
+            const upperNoseGeo = new THREE.ConeGeometry(0.55, 3.4, 4);
             upperNoseGeo.rotateX(-Math.PI / 2); // Tip facing forward
             upperNoseGeo.rotateZ(Math.PI / 4);
             const upperNose = new THREE.Mesh(upperNoseGeo, silverPlateMat);
-            upperNose.position.set(0, 0.12, -2.1);
+            upperNose.position.set(0, 0.12, -2.5);
             playerShip.add(upperNose);
 
-            // Gold Nose Ridge Trim Line
-            const noseGoldGeo = new THREE.BoxGeometry(0.08, 0.12, 2.2);
+            // Detailed Tiered Gold Nose Ridge Trim Line
+            const noseGoldGeo = new THREE.BoxGeometry(0.10, 0.14, 2.6);
             const noseGold = new THREE.Mesh(noseGoldGeo, goldTrimMat);
-            noseGold.position.set(0, 0.28, -2.3);
+            noseGold.position.set(0, 0.28, -2.6);
             playerShip.add(noseGold);
 
-            // Forward Luminescent Sensor Needle Probe
-            const probeGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.4, 8);
+            const noseGoldRidge = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.16, 2.4), goldTrimMat);
+            noseGoldRidge.position.set(0, 0.30, -2.6);
+            playerShip.add(noseGoldRidge);
+
+            // Forward Luminescent Sensor Needle Probe (Extended sleek sensor)
+            const probeGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.8, 8);
             probeGeo.rotateX(Math.PI / 2);
             const probe = new THREE.Mesh(probeGeo, cyanGlowMat);
-            probe.position.set(0, -0.05, -4.3);
+            probe.position.set(0, -0.05, -5.7);
             playerShip.add(probe);
 
-            // Ventral Air Scoop Intake
+            // Ventral Air Scoop Intake with Gold Accent Bezel
             const scoopGeo = new THREE.BoxGeometry(0.8, 0.3, 1.8);
             const scoop = new THREE.Mesh(scoopGeo, darkArmorMat);
             scoop.position.set(0, -0.4, -0.6);
             playerShip.add(scoop);
+
+            const scoopGold = new THREE.Mesh(new THREE.BoxGeometry(0.86, 0.08, 1.84), goldTrimMat);
+            scoopGold.position.set(0, -0.4, -0.6);
+            playerShip.add(scoopGold);
 
             // Main Cockpit Body Hull
             const mainHullGeo = new THREE.BoxGeometry(1.4, 0.9, 3.8);
@@ -2601,6 +2706,13 @@
                 plate.position.set(1.6, 0, -1.2);
                 wingGroup.add(plate);
 
+                // Gold Wing Leading Edge Chevron Inlay
+                const wingGoldGeo = new THREE.BoxGeometry(2.2, 0.06, 0.22);
+                const wingGold = new THREE.Mesh(wingGoldGeo, goldTrimMat);
+                wingGold.position.set(1.5, 0.05, -1.7);
+                wingGold.rotation.y = -0.38;
+                wingGroup.add(wingGold);
+
                 // Gold Winglet Endcap Fin
                 const endcapGeo = new THREE.BoxGeometry(0.12, 0.6, 1.2);
                 const endcap = new THREE.Mesh(endcapGeo, goldTrimMat);
@@ -2614,6 +2726,13 @@
                     const cannonBase = new THREE.Mesh(cannonBaseGeo, darkArmorMat);
                     cannonBase.position.set(2.7 + b, -0.1, -1.6);
                     wingGroup.add(cannonBase);
+
+                    // Gold Cannon Housing Bezel Ring
+                    const cannonGoldGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.2, 12);
+                    cannonGoldGeo.rotateX(Math.PI / 2);
+                    const cannonGold = new THREE.Mesh(cannonGoldGeo, goldTrimMat);
+                    cannonGold.position.set(2.7 + b, -0.1, -1.0);
+                    wingGroup.add(cannonGold);
 
                     const barrelGeo = new THREE.CylinderGeometry(0.05, 0.05, 1.4, 12);
                     barrelGeo.rotateX(Math.PI / 2);
@@ -2636,17 +2755,27 @@
             playerShip.add(createSweptWing(false)); // Right Wing
             playerShip.add(createSweptWing(true));  // Left Wing
 
-            // 4. Forward Canard Stabilizer Winglets
+            // 4. Forward Canard Stabilizer Winglets with Gold Edge Trim
             const canardGeo = new THREE.BoxGeometry(1.4, 0.06, 0.6);
             const canardR = new THREE.Mesh(canardGeo, silverPlateMat);
             canardR.position.set(1.0, 0.1, -2.0);
             canardR.rotation.y = -0.3;
             playerShip.add(canardR);
 
+            const canardGoldR = new THREE.Mesh(new THREE.BoxGeometry(1.44, 0.08, 0.10), goldTrimMat);
+            canardGoldR.position.set(1.0, 0.11, -1.8);
+            canardGoldR.rotation.y = -0.3;
+            playerShip.add(canardGoldR);
+
             const canardL = new THREE.Mesh(canardGeo, silverPlateMat);
             canardL.position.set(-1.0, 0.1, -2.0);
             canardL.rotation.y = 0.3;
             playerShip.add(canardL);
+
+            const canardGoldL = new THREE.Mesh(new THREE.BoxGeometry(1.44, 0.08, 0.10), goldTrimMat);
+            canardGoldL.position.set(-1.0, 0.11, -1.8);
+            canardGoldL.rotation.y = 0.3;
+            playerShip.add(canardGoldL);
 
             // 5. Dorsal & Ventral Tail Stabilization Fins
             const finGeo = new THREE.BoxGeometry(0.08, 1.2, 1.6);
@@ -2655,6 +2784,11 @@
             dorsalFin.position.set(0, 1.0, 1.2);
             dorsalFin.rotation.x = -0.3;
             playerShip.add(dorsalFin);
+
+            const dorsalGold = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.12, 1.64), goldTrimMat);
+            dorsalGold.position.set(0, 1.58, 1.2);
+            dorsalGold.rotation.x = -0.3;
+            playerShip.add(dorsalGold);
 
             const ventralFinL = new THREE.Mesh(finGeo, silverPlateMat);
             ventralFinL.position.set(-0.6, -0.6, 1.2);
@@ -2666,7 +2800,7 @@
             ventralFinR.rotation.z = 0.5;
             playerShip.add(ventralFinR);
 
-            // 6. Sleeker Quad Engine Thrusters (Scaled down for sleeker fighter silhouette)
+            // 6. Sleeker Quad Engine Thrusters with Gold Ring Bezels
             playerShip.userData.engineLights = [];
             const enginePositions = [
                 { x: -0.50, y: 0.05, z: 1.8, size: 0.32 },
@@ -2681,6 +2815,12 @@
                 const nacelle = new THREE.Mesh(nacelleGeo, darkArmorMat);
                 nacelle.position.set(eng.x, eng.y, eng.z);
                 playerShip.add(nacelle);
+
+                const nacelleGoldGeo = new THREE.CylinderGeometry(eng.size * 1.06, eng.size * 1.06, 0.14, 16);
+                nacelleGoldGeo.rotateX(Math.PI / 2);
+                const nacelleGold = new THREE.Mesh(nacelleGoldGeo, goldTrimMat);
+                nacelleGold.position.set(eng.x, eng.y, eng.z - 0.2);
+                playerShip.add(nacelleGold);
 
                 const nozzleGeo = new THREE.CylinderGeometry(eng.size * 0.75, eng.size * 0.65, 0.25, 16);
                 nozzleGeo.rotateX(Math.PI / 2);
