@@ -3088,6 +3088,9 @@
                 setTimeout(() => { hangarShieldMesh.material.opacity = 0.0; }, 1200);
             }
 
+            showToast(`✨ UPGRADED ${mod.name.toUpperCase()} TO LEVEL ${mod.level}!`);
+        }
+
         // --- COCKPIT SPACECRAFT ENGINE AUDIO SYNTHESIZER (WEB AUDIO API) ---
         let audioCtx = null;
         let engineMasterGain = null;
