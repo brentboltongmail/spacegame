@@ -1518,6 +1518,23 @@
         let isShipInvincible = false;
         let cinematicAngle = 0;
 
+        let isGamePaused = false;
+        let playerCredits = 125000;
+        let upgradeHangarScene, upgradeHangarCamera, upgradeHangarRenderer, upgradeHangarShip, hangarShieldMesh;
+        let isHangarDragging = false;
+        let previousHangarMousePosition = { x: 0, y: 0 };
+        let hangarTargetRotationY = 0;
+        let hangarTargetRotationX = 0;
+        let hangarCamTargetPos = new THREE.Vector3(0, 1.8, 11);
+        let hangarCamLookAtPos = new THREE.Vector3(0, 0, 0);
+
+        const shipUpgrades = {
+            blasters: { level: 3, maxLevel: 5, cost: 15000, name: 'Quantum Plasma Blasters' },
+            shields:  { level: 4, maxLevel: 5, cost: 22000, name: 'Deflector Shield Generator' },
+            thrusters: { level: 3, maxLevel: 5, cost: 18000, name: 'Ion Thruster Nacelles' },
+            sensors:  { level: 4, maxLevel: 5, cost: 12000, name: 'Tactical Sensor Array' }
+        };
+
         function toggleCameraMode() {
             cameraMode = (cameraMode + 1) % 4;
             isShipInvincible = (cameraMode === 3);
@@ -1757,8 +1774,6 @@
             const flareHalo = new THREE.Mesh(flareGeo, flareMat);
             spaceSun.add(flareHalo);
         }
-
-        let spacePlanet;
 
         function createPlanetSurfaceTexture() {
             const canvas = document.createElement('canvas');
@@ -2678,23 +2693,6 @@
         }
 
         // --- PILOT PROFILE & 3D SHIP UPGRADE HANGAR RENDERER & LOGIC ---
-        let isGamePaused = false;
-        let playerCredits = 125000;
-        let upgradeHangarScene, upgradeHangarCamera, upgradeHangarRenderer, upgradeHangarShip, hangarShieldMesh;
-        let isHangarDragging = false;
-        let previousHangarMousePosition = { x: 0, y: 0 };
-        let hangarTargetRotationY = 0;
-        let hangarTargetRotationX = 0;
-        let hangarCamTargetPos = new THREE.Vector3(0, 1.8, 11);
-        let hangarCamLookAtPos = new THREE.Vector3(0, 0, 0);
-
-        const shipUpgrades = {
-            blasters: { level: 3, maxLevel: 5, cost: 15000, name: 'Quantum Plasma Blasters' },
-            shields:  { level: 4, maxLevel: 5, cost: 22000, name: 'Deflector Shield Generator' },
-            thrusters: { level: 3, maxLevel: 5, cost: 18000, name: 'Ion Thruster Nacelles' },
-            sensors:  { level: 4, maxLevel: 5, cost: 12000, name: 'Tactical Sensor Array' }
-        };
-
         function initUpgradeHangar3D() {
             const container = document.getElementById('hangar-canvas-container');
             const canvas = document.getElementById('upgrade-ship-canvas');
