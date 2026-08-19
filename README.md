@@ -1,4 +1,4 @@
-# 🌌 Astra Heir: 3D Space Game Concept & Prototype
+# 🌌 Solaris Horizon: Emergence — 3D Space Game Concept & Prototype
 
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Status](https://img.shields.io/badge/Status-In%20Development-green.svg)
@@ -6,9 +6,11 @@
 
 An action-packed 3D space warfare, exploration, and flight simulation game.
 
+![Solaris Horizon Concept Artwork](docs/images/solaris_horizon_concept.jpg)
+
 ## 🚀 Overview
 
-**Astra Heir** combines high-speed 6-DOF fighter dogfighting, massive capital ship fleet warfare, and a wormhole highway network with a deep narrative.
+**Solaris Horizon: Emergence** combines high-speed 6-DOF fighter dogfighting, massive capital ship fleet warfare, and a wormhole highway network with a deep narrative.
 
 ### 📖 Story Premise
 You start as a fighter pilot for the **United Earth Space Force (UESF)** patrolling outer Sol system mining corridors. Raised on an orbital colony by an adoptive parent with only an unknown titanium-crystal pendant, your life changes when a rogue alien attack triggers a dormant **Precursor Wormhole Gate**.

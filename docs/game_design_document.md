@@ -1,7 +1,9 @@
-# 🌌 Game Design Document: Astra Heir (3D Space Action RPG)
+# 🌌 Game Design Document: Solaris Horizon: Emergence (3D Space Action RPG)
 
 > **Project Concept**: Action-Packed 3D Space Warfare & Exploration Game  
 > **Key Themes**: High-Speed Dogfighting, Capital Ship Subsystem Combat, Ancient Precursor Wormholes, Adopted Earth Pilot -> Royal Heir Mystery
+
+![Solaris Horizon Concept Artwork](file:///d:/github/spacegame/docs/images/solaris_horizon_concept.jpg)
 
 ---
 
@@ -9,7 +11,7 @@
 
 | # | Proposed Game Title | Vibe & Focus | Tagline |
 |---|---------------------|--------------|---------|
-| 1 | **Astra Heir: Emergence** *(Selected)* | Sci-Fi Narrative + Action | *"An Earth cadet. An ancient crown. A galaxy at war."* |
+| 1 | **Solaris Horizon: Emergence** *(Selected)* | Sci-Fi Narrative + Action | *"An Earth cadet. An ancient crown. A galaxy at war."* |
 | 2 | **Starbound Scion: Void Vanguard** | High-Octane Space Fleet Warfare | *"Burn through the wormhole. Claim your birthright."* |
 | 3 | **Wormhole Genesis: Royal Blood** | Precursor Exploration & Combat | *"Beyond the rift lies a forgotten empire."* |
 | 4 | **Chronicles of Aethelgard: The Lost Sovereign** | Epic Space Opera RPG | *"Adopted on Earth. Destined for the Stars."* |
@@ -28,6 +30,8 @@
 - **Name**: Lieutenant Kaelen / Jax Vance (Callsign: *"Apex"*)
 - **Background**: Raised on Earth’s orbital colonies by an adoptive parent, Marcus Vance (a retired Earth Defense mechanic). Your only heirloom is an unidentified titanium-crystal artifact left in your pod as a baby.
 - **The Twist**: You are not human. You are the last bloodline heir to **House Aethelgard**, the ruling sovereign house of the distant *Sovereign Reach* star system, which was overthrown 20 years ago by an aggressive military junta known as **The Iron Dominion**.
+
+![Precursor Civilization & Royal Lineage Concept Artwork](file:///d:/github/spacegame/docs/images/precursor_ruins_concept.jpg)
 
 ### Narrative Pacing (Low Politics, High Action)
 - **Act I — Sol Defense (Tutorial & Hook)**: You pilot standard Earth Space Force fighters defending asteroid mining routes. An unknown alien warship attacks; your pendant reacts and activates an ancient dormant wormhole gate, pulling your squadron through.
@@ -51,6 +55,8 @@
 - **Stable Wormholes**: Connect main star sectors as strategic jump gates (chokepoints guarded by orbital space stations).
 - **Unstable Wormholes**: Dynamic spatial anomalies that lead to hidden precursor ruins, rare ship blueprints, or alien mini-boss encounters.
 
+![Orbital Station & Wormhole Highway Docking Concept Artwork](file:///d:/github/spacegame/docs/images/wormhole_highway_concept.jpg)
+
 ---
 
 ## 4. Ship Class Matrix
@@ -62,11 +68,23 @@
 | **Gunship Corvette** | Convoy Escort | ⭐⭐⭐ | ⭐⭐⭐⭐ | Dual Turrets & Flak Missiles | Heavy firepower support |
 | **Royal Battlecruiser** | Fleet Flagship | ⭐ | ⭐⭐⭐⭐⭐ | Precursor Lance Beams & Broadside Batteries | Tactical command & orbital siege |
 
+### Ship Class Visual Showcase
+
+#### Void Interceptor (Scout / Dogfighter)
+![Void Interceptor Concept Artwork](file:///d:/github/spacegame/docs/images/void_interceptor.jpg)
+
+#### Heavy Strike Fighter (Anti-Bomber / Raider)
+![Heavy Strike Fighter Concept Artwork](file:///d:/github/spacegame/docs/images/heavy_strike_fighter.jpg)
+
+#### Gunship Corvette (Convoy Escort)
+![Gunship Corvette Concept Artwork](file:///d:/github/spacegame/docs/images/gunship_corvette.jpg)
+
+#### Royal Battlecruiser (Fleet Flagship)
+![Royal Battlecruiser Flagship Concept Artwork](file:///d:/github/spacegame/docs/images/royal_battlecruiser.jpg)
+
 ---
 
 ## 5. Technical Stack & Engine Recommendations
-
-For a 3D Space Game with big ships, small ships, and particle-dense wormholes:
 
 1. **Unreal Engine 5 (Recommended for AAA Visuals)**
    - *Pros*: Built-in Chaos Physics, Niagara particle engine (incredible wormholes & laser explosions), Nanite (handling massive capital ship polygon detail).

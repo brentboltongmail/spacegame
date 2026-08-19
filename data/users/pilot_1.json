@@ -1,0 +1,17 @@
+{
+  "username": "pilot_1",
+  "boxPositions": {
+    "drag-mouse-targeting-controls": {
+      "x": -426,
+      "y": -11
+    }
+  },
+  "settings": {
+    "controls": "mouse_follow",
+    "maxSpeed": 500
+  },
+  "progress": {
+    "act": 1,
+    "sector": "SOL OUTER RIM"
+  }
+}
