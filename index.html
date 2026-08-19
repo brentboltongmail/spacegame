@@ -1922,7 +1922,7 @@
 
             // --- SINGULARITY-FREE 360° QUATERNION FLIGHT (LOOPS & ROLLS WITHOUT FLIPPING) ---
             const deadzone = 0.03;
-            const turnRate = 0.0104; // Smooth max turn velocity at screen edge
+            const turnRate = 0.0052; // Reduced by 50% for smooth precision maneuvering
 
             const normX = Math.abs(normalizedMouse.x) <= deadzone ? 0 : Math.min((Math.abs(normalizedMouse.x) - deadzone) / (1.0 - deadzone), 1.0);
             const normY = Math.abs(normalizedMouse.y) <= deadzone ? 0 : Math.min((Math.abs(normalizedMouse.y) - deadzone) / (1.0 - deadzone), 1.0);
