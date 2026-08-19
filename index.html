@@ -819,8 +819,7 @@
                 </div>
 
                 <!-- Shield Percentage Gauge Box (Bottom Left Draggable with Thin Accent Handle Bar) -->
-                <div class="hud-card draggable-box" id="hud-shield-card" style="position: absolute; bottom: 85px; left: 25px; width: 200px; padding: 10px; z-index: 20; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px;">
-                    <div class="drag-handle-bar"></div>
+                <div class="hud-card draggable-box" id="hud-shield-card" style="position: absolute; bottom: 85px; left: 25px; width: 200px; padding: 10px; z-index: 40; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px;">
                     <div class="hud-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; margin-top: 4px;">
                         <span style="font-size: 0.85rem; color: var(--accent-cyan);">🛡️ SHIELD MATRIX</span>
                         <span style="color: var(--accent-cyan); font-size: 0.75rem; font-weight: 700;">ONLINE</span>
@@ -837,7 +836,6 @@
 
                 <!-- Tactical Radar Box (Draggable with Thin Accent Handle Bar) -->
                 <div class="hud-card draggable-box" id="hud-radar-card" style="position: absolute; bottom: 85px; right: 25px; width: 220px; padding: 10px; z-index: 40; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px;">
-                    <div class="drag-handle-bar"></div>
                     <div class="hud-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; margin-top: 4px;">
                         <span style="font-size: 0.85rem; color: var(--accent-cyan);">📡 TACTICAL RADAR</span>
                         <span style="color: var(--accent-cyan); font-size: 0.75rem; font-weight: 700;">25.0 KM RANGE</span>
@@ -1326,7 +1324,7 @@
         function init3DSimulator() {
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x070913, 0.0005);
+            scene.fog = new THREE.FogExp2(0x070913, 0.00003); // 16x lighter fog for crystal clear space visibility!
 
             camera = new THREE.PerspectiveCamera(65, container.clientWidth / container.clientHeight, 0.1, 40000);
             camera.position.set(0, 3, 12);
@@ -1501,20 +1499,30 @@
         }
 
         function createSpacePlanet() {
-            const textureLoader = new THREE.TextureLoader();
-            const planetTex = textureLoader.load('docs/images/space_planet_surface.jpg');
-            const ringTex = textureLoader.load('docs/images/space_planet_rings.jpg');
+            // High-Resolution Procedural Surface Map (Guaranteed Fallback)
+            const fallbackTex = createPlanetSurfaceTexture();
 
             const planetGeo = new THREE.SphereGeometry(4500, 128, 128); // 15x larger radius!
             const planetMat = new THREE.MeshStandardMaterial({ 
-                map: planetTex,
-                roughness: 0.65, 
-                metalness: 0.15 
+                map: fallbackTex,
+                roughness: 0.55, 
+                metalness: 0.20,
+                emissive: 0x0284c7,
+                emissiveIntensity: 0.20 // Radiant self-illuminating glow!
             });
+
+            // Async load AI planet texture map with fallback
+            new THREE.TextureLoader().load(
+                'docs/images/space_planet_surface.jpg',
+                (tex) => {
+                    planetMat.map = tex;
+                    planetMat.needsUpdate = true;
+                }
+            );
             
             spacePlanet = new THREE.Mesh(planetGeo, planetMat);
-            // Position colossal planet far off on deep space horizon (~26,000 units away)
-            spacePlanet.position.set(-14000, -6000, -22000);
+            // Position colossal planet 5,500 units away so it looms crystal clear in front field of view!
+            spacePlanet.position.set(-3800, -1400, -5500);
             scene.add(spacePlanet);
 
             // Glowing Cyan Atmospheric Horizon Rim Halo
@@ -1522,20 +1530,29 @@
             const atmoMat = new THREE.MeshBasicMaterial({
                 color: 0x00f0ff,
                 transparent: true,
-                opacity: 0.28,
+                opacity: 0.35,
                 side: THREE.BackSide
             });
             const atmosphere = new THREE.Mesh(atmoGeo, atmoMat);
             spacePlanet.add(atmosphere);
 
-            // Gigantic Planetary Ring System (17,600 units diameter) with AI Ring Texture
+            // Gigantic Planetary Ring System (17,600 units diameter)
             const ringGeo = new THREE.RingGeometry(5600, 8800, 128);
             const ringMat = new THREE.MeshBasicMaterial({ 
-                map: ringTex,
+                color: 0x38bdf8, 
                 side: THREE.DoubleSide, 
                 transparent: true, 
-                opacity: 0.85 
+                opacity: 0.65 
             });
+
+            new THREE.TextureLoader().load(
+                'docs/images/space_planet_rings.jpg',
+                (tex) => {
+                    ringMat.map = tex;
+                    ringMat.needsUpdate = true;
+                }
+            );
+
             const ring = new THREE.Mesh(ringGeo, ringMat);
             ring.rotation.x = Math.PI / 2.3;
             ring.rotation.y = -Math.PI / 8;
