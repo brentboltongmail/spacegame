@@ -1754,8 +1754,8 @@
                     // Mode 2: Rear Third-Person Far
                     targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 6.0, 22.0).applyQuaternion(playerShip.quaternion));
                 } else if (cameraMode === 3) {
-                    // Mode 3: Cinematic Orbiting Showcase (Ship Invincible)
-                    cinematicAngle += 0.012;
+                    // Mode 3: Cinematic Orbiting Showcase (Ship Invincible, 75% Slower Panning)
+                    cinematicAngle += 0.003; // Reduced by 75% for ultra-majestic slow cinematic sweeps
                     const radius = 22;
                     const height = Math.sin(cinematicAngle * 0.7) * 5 + 4;
                     const orbitOffset = new THREE.Vector3(
@@ -1768,7 +1768,7 @@
                 }
             }
 
-            camera.position.lerp(targetCamPos, cameraMode === 3 ? 0.04 : 0.15);
+            camera.position.lerp(targetCamPos, cameraMode === 3 ? 0.02 : 0.15);
             camera.lookAt(targetLookAtPos);
 
             if (capitalShip) capitalShip.rotation.y += 0.001;
