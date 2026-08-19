@@ -1984,6 +1984,7 @@
             createCapitalShip();
             createWormholeGate();
             spawnEnemySwarm();
+            initTacticalMap3D();
 
             // Event Listeners for Mouse Targeting & Key Controls
             window.addEventListener('resize', onWindowResize);
@@ -3939,18 +3940,22 @@
             const canvas = document.getElementById('tactical-map-canvas');
             if (!container || !canvas) return;
 
-            mapScene = new THREE.Scene();
-            mapScene.background = new THREE.Color(0x030610);
+            const w = (container.clientWidth && container.clientWidth > 50) ? container.clientWidth : Math.max(window.innerWidth - 120, 600);
+            const h = (container.clientHeight && container.clientHeight > 50) ? container.clientHeight : Math.max(window.innerHeight - 180, 450);
+            const aspect = w / h;
 
-            mapCamera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 5000);
+            mapScene = new THREE.Scene();
+            mapScene.background = new THREE.Color(0x040817);
+
+            mapCamera = new THREE.PerspectiveCamera(50, aspect, 0.1, 5000);
             mapCamera.position.copy(mapTargetCamPos);
             mapCamera.lookAt(0, 0, 0);
 
-            mapRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-            mapRenderer.setSize(container.clientWidth, container.clientHeight);
+            mapRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false });
+            mapRenderer.setSize(w, h);
             mapRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-            const amb = new THREE.AmbientLight(0xffffff, 2.2);
+            const amb = new THREE.AmbientLight(0xffffff, 2.8);
             mapScene.add(amb);
 
             mapGroup = new THREE.Group();
@@ -4058,6 +4063,18 @@
             }, { passive: false });
         }
 
+        function resizeTacticalMapCanvas() {
+            const container = document.getElementById('map-canvas-container');
+            if (container && mapRenderer && mapCamera) {
+                const w = container.clientWidth > 50 ? container.clientWidth : Math.max(window.innerWidth - 120, 600);
+                const h = container.clientHeight > 50 ? container.clientHeight : Math.max(window.innerHeight - 180, 450);
+                mapCamera.aspect = w / h;
+                mapCamera.updateProjectionMatrix();
+                mapRenderer.setSize(w, h);
+                mapRenderer.render(mapScene, mapCamera);
+            }
+        }
+
         function renderTacticalMap3D() {
             if (!mapRenderer || !mapGroup) return;
 
@@ -4107,17 +4124,11 @@
                 if (!mapRenderer) {
                     initTacticalMap3D();
                 }
-                setTimeout(() => {
-                    const container = document.getElementById('map-canvas-container');
-                    if (container && mapRenderer && mapCamera) {
-                        const w = container.clientWidth || (window.innerWidth - 80);
-                        const h = container.clientHeight || (window.innerHeight - 150);
-                        mapCamera.aspect = w / h;
-                        mapCamera.updateProjectionMatrix();
-                        mapRenderer.setSize(w, h);
-                    }
+                resizeTacticalMapCanvas();
+                requestAnimationFrame(() => {
+                    resizeTacticalMapCanvas();
                     renderTacticalMap3D();
-                }, 40);
+                });
                 showToast("🌐 3D TACTICAL SYSTEM STAR MAP OPEN (SEMI-REALTIME TRACKING)");
             } else {
                 if (modal) modal.style.display = 'none';
