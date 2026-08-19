@@ -4550,9 +4550,15 @@
                 if (e.userData && e.userData.hp > 0 && playerShip) {
                     const toEnemy = e.position.clone().sub(playerShip.position);
                     const dist = toEnemy.length();
-                    if (dist < closestDist) {
-                        closestDist = dist;
-                        closestEnemy = e;
+                    
+                    // Angle check: only lock if target is within the screen FOV (dot > 0.85)
+                    // If we are flying away or it's off-screen, it drops the lock.
+                    if (dist > 0) {
+                        const dot = toEnemy.clone().normalize().dot(fwdDir);
+                        if (dist < closestDist && dot > 0.85) {
+                            closestDist = dist;
+                            closestEnemy = e;
+                        }
                     }
                 }
             });
