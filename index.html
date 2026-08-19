@@ -2520,17 +2520,17 @@
             playerShip.add(nose);
 
             // Upper Tapered Armor Cowl (Stealth Chine Nose Plate)
-            const upperNoseGeo = new THREE.ConeGeometry(0.55, 3.6, 4);
+            const upperNoseGeo = new THREE.ConeGeometry(0.55, 2.6, 4);
             upperNoseGeo.rotateX(-Math.PI / 2); // Tip facing forward
             upperNoseGeo.rotateZ(Math.PI / 4);
             const upperNose = new THREE.Mesh(upperNoseGeo, silverPlateMat);
-            upperNose.position.set(0, 0.12, -1.6);
+            upperNose.position.set(0, 0.12, -2.1);
             playerShip.add(upperNose);
 
             // Gold Nose Ridge Trim Line
-            const noseGoldGeo = new THREE.BoxGeometry(0.08, 0.12, 3.2);
+            const noseGoldGeo = new THREE.BoxGeometry(0.08, 0.12, 2.2);
             const noseGold = new THREE.Mesh(noseGoldGeo, goldTrimMat);
-            noseGold.position.set(0, 0.28, -1.6);
+            noseGold.position.set(0, 0.28, -2.3);
             playerShip.add(noseGold);
 
             // Forward Luminescent Sensor Needle Probe
@@ -2552,14 +2552,14 @@
             mainHull.position.set(0, -0.1, 0.5);
             playerShip.add(mainHull);
 
-            // Armor Spine Ridge with Gold Accent Trim
-            const spineGeo = new THREE.BoxGeometry(0.55, 0.35, 3.2);
+            // Armor Spine Ridge with Gold Accent Trim (Shortened & pulled back behind canopy)
+            const spineGeo = new THREE.BoxGeometry(0.55, 0.35, 1.8);
             const spine = new THREE.Mesh(spineGeo, silverPlateMat);
-            spine.position.set(0, 0.45, 0.2);
+            spine.position.set(0, 0.45, 1.3);
             playerShip.add(spine);
 
-            const spineGold = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.38, 3.0), goldTrimMat);
-            spineGold.position.set(0, 0.46, 0.2);
+            const spineGold = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.38, 1.7), goldTrimMat);
+            spineGold.position.set(0, 0.46, 1.35);
             playerShip.add(spineGold);
 
             // 2. Cockpit Glass Canopy & Internal Pilot Yoke Seat
