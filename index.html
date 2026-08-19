@@ -170,7 +170,7 @@
             justify-content: space-between;
             padding: 24px;
             box-sizing: border-box;
-            z-index: 10;
+            z-index: 30; /* Higher than cockpit canopy overlay (z-index 5) */
         }
 
         .hud-top {
@@ -696,7 +696,7 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 12;
+            z-index: 5; /* Lower than HUD windows (z-index 30) */
             display: none;
         }
         .cockpit-svg-frame {
@@ -741,6 +741,11 @@
             <div id="cockpit-canopy-overlay" class="cockpit-overlay-container">
                 <svg viewBox="0 0 1920 1080" preserveAspectRatio="none" class="cockpit-svg-frame">
                     <defs>
+                        <!-- AI Generated Dark Carbon Fiber Metallic Texture Pattern -->
+                        <pattern id="aiCarbonTexture" patternUnits="userSpaceOnUse" width="400" height="400">
+                            <image href="docs/images/cockpit_carbon_texture.jpg" x="0" y="0" width="400" height="400" />
+                        </pattern>
+
                         <!-- Dark Sci-Fi Ship Texture Gradients -->
                         <linearGradient id="darkShipMetalLeft" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stop-color="#0a0e1a" />
@@ -754,9 +759,6 @@
                             <stop offset="65%" stop-color="#0d1322" />
                             <stop offset="100%" stop-color="#050810" />
                         </linearGradient>
-                        <pattern id="carbonGrid" width="12" height="12" patternUnits="userSpaceOnUse">
-                            <path d="M 0,6 L 12,6 M 6,0 L 6,12" stroke="rgba(255,255,255,0.04)" stroke-width="1" />
-                        </pattern>
                         <radialGradient id="glassTint" cx="50%" cy="50%" r="65%">
                             <stop offset="60%" stop-color="transparent" />
                             <stop offset="90%" stop-color="rgba(0, 240, 255, 0.03)" />
@@ -767,24 +769,24 @@
                     <!-- Canopy Glass Tint -->
                     <rect x="0" y="0" width="1920" height="1080" fill="url(#glassTint)" />
 
-                    <!-- Sleek Ultra-Thin Top-Left Canopy Strut Bar -->
-                    <path d="M 0,0 L 180,0 L 50,480 L 0,600 Z" fill="url(#darkShipMetalLeft)" stroke="#00f0ff" stroke-width="1.5" opacity="0.95" />
-                    <path d="M 0,0 L 180,0 L 50,480 L 0,600 Z" fill="url(#carbonGrid)" opacity="0.6" />
-                    <path d="M 180,0 L 50,480" fill="none" stroke="#00f0ff" stroke-width="2" opacity="0.8" />
-                    <circle cx="160" cy="50" r="3.5" fill="#38bdf8" />
-                    <circle cx="90" cy="270" r="3.5" fill="#38bdf8" />
+                    <!-- Sleek Top-Left Canopy Strut Bar with AI Carbon Fiber Armor Texture -->
+                    <path d="M 0,0 L 220,0 L 60,520 L 0,650 Z" fill="url(#darkShipMetalLeft)" stroke="#00f0ff" stroke-width="1.5" opacity="0.95" />
+                    <path d="M 0,0 L 220,0 L 60,520 L 0,650 Z" fill="url(#aiCarbonTexture)" opacity="0.85" />
+                    <path d="M 220,0 L 60,520" fill="none" stroke="#00f0ff" stroke-width="2.5" opacity="0.9" />
+                    <circle cx="200" cy="50" r="4" fill="#00f0ff" />
+                    <circle cx="110" cy="300" r="4" fill="#00f0ff" />
 
-                    <!-- Sleek Ultra-Thin Top-Right Canopy Strut Bar -->
-                    <path d="M 1920,0 L 1740,0 L 1870,480 L 1920,600 Z" fill="url(#darkShipMetalRight)" stroke="#00f0ff" stroke-width="1.5" opacity="0.95" />
-                    <path d="M 1920,0 L 1740,0 L 1870,480 L 1920,600 Z" fill="url(#carbonGrid)" opacity="0.6" />
-                    <path d="M 1740,0 L 1870,480" fill="none" stroke="#00f0ff" stroke-width="2" opacity="0.8" />
-                    <circle cx="1760" cy="50" r="3.5" fill="#38bdf8" />
-                    <circle cx="1830" cy="270" r="3.5" fill="#38bdf8" />
+                    <!-- Sleek Top-Right Canopy Strut Bar with AI Carbon Fiber Armor Texture -->
+                    <path d="M 1920,0 L 1700,0 L 1860,520 L 1920,650 Z" fill="url(#darkShipMetalRight)" stroke="#00f0ff" stroke-width="1.5" opacity="0.95" />
+                    <path d="M 1920,0 L 1700,0 L 1860,520 L 1920,650 Z" fill="url(#aiCarbonTexture)" opacity="0.85" />
+                    <path d="M 1700,0 L 1860,520" fill="none" stroke="#00f0ff" stroke-width="2.5" opacity="0.9" />
+                    <circle cx="1720" cy="50" r="4" fill="#00f0ff" />
+                    <circle cx="1810" cy="300" r="4" fill="#00f0ff" />
 
                     <!-- Sleek Low-Profile Bottom Console Frame -->
-                    <path d="M 540,1080 L 620,985 L 1300,985 L 1380,1080 Z" fill="url(#darkShipMetalLeft)" stroke="rgba(0,240,255,0.6)" stroke-width="2" />
-                    <path d="M 540,1080 L 620,985 L 1300,985 L 1380,1080 Z" fill="url(#carbonGrid)" opacity="0.5" />
-                    <line x1="620" y1="985" x2="1300" y2="985" stroke="#00f0ff" stroke-width="3" />
+                    <path d="M 520,1080 L 600,970 L 1320,970 L 1400,1080 Z" fill="url(#darkShipMetalLeft)" stroke="rgba(0,240,255,0.7)" stroke-width="2" />
+                    <path d="M 520,1080 L 600,970 L 1320,970 L 1400,1080 Z" fill="url(#aiCarbonTexture)" opacity="0.8" />
+                    <line x1="600" y1="970" x2="1320" y2="970" stroke="#00f0ff" stroke-width="3" />
                 </svg>
             </div>
             
@@ -834,11 +836,11 @@
                 </div>
 
                 <!-- Tactical Radar Box (Draggable with Thin Accent Handle Bar) -->
-                <div class="hud-card draggable-box" id="hud-radar-card" style="position: absolute; bottom: 85px; right: 25px; width: 220px; padding: 10px; z-index: 20; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px;">
+                <div class="hud-card draggable-box" id="hud-radar-card" style="position: absolute; bottom: 85px; right: 25px; width: 220px; padding: 10px; z-index: 40; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px;">
                     <div class="drag-handle-bar"></div>
                     <div class="hud-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; margin-top: 4px;">
                         <span style="font-size: 0.85rem; color: var(--accent-cyan);">📡 TACTICAL RADAR</span>
-                        <span style="color: var(--text-muted); font-size: 0.75rem;">2.5 KM RANGE</span>
+                        <span style="color: var(--accent-cyan); font-size: 0.75rem; font-weight: 700;">25.0 KM RANGE</span>
                     </div>
                     <div style="position: relative; width: 190px; height: 190px; margin: 0 auto; background: rgba(7, 13, 26, 0.9); border-radius: 50%; border: 1px solid rgba(0, 240, 255, 0.4); overflow: hidden; box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.25);">
                         <canvas id="radar-canvas" width="190" height="190"></canvas>
@@ -1319,12 +1321,14 @@
         let normalizedMouse = { x: 0, y: 0 };
         const keys = { KeyW: false, KeyS: false, KeyA: false, KeyD: false, KeyQ: false, KeyE: false, Space: false };
 
+        let isFlightLocked = false;
+
         function init3DSimulator() {
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene();
             scene.fog = new THREE.FogExp2(0x070913, 0.0005);
 
-            camera = new THREE.PerspectiveCamera(65, container.clientWidth / container.clientHeight, 0.1, 20000);
+            camera = new THREE.PerspectiveCamera(65, container.clientWidth / container.clientHeight, 0.1, 40000);
             camera.position.set(0, 3, 12);
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -1358,8 +1362,10 @@
             window.addEventListener('resize', onWindowResize);
             
             container.addEventListener('mousemove', (e) => {
-                normalizedMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-                normalizedMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                if (!isFlightLocked) {
+                    normalizedMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                    normalizedMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                }
 
                 const crosshair = document.querySelector('.hud-center-crosshair');
                 if (crosshair) {
@@ -1368,18 +1374,32 @@
                 }
             });
 
+            // Left Click (0) AND Right Click (2) both fire plasma blasters!
             container.addEventListener('mousedown', (e) => {
-                if (e.button === 0) { // Left Click weapon fire
+                if (e.button === 0 || e.button === 2) {
                     if (!e.target.closest('.hud-card') && !e.target.closest('.hud-action-bar') && !e.target.closest('.nav-item')) {
                         firePlasmaLaser();
                     }
                 }
             });
 
+            // Disable browser right-click popup menu on canvas
+            container.addEventListener('contextmenu', e => e.preventDefault());
+
             window.addEventListener('keydown', (e) => {
                 if (keys.hasOwnProperty(e.code)) keys[e.code] = true;
                 if (e.code === 'Space') firePlasmaLaser();
                 if (e.code === 'KeyC') toggleCameraMode();
+                if (e.code === 'KeyL') {
+                    isFlightLocked = !isFlightLocked;
+                    if (isFlightLocked) {
+                        normalizedMouse.x = 0;
+                        normalizedMouse.y = 0;
+                        showToast("🔒 PILOT FLIGHT LOCK ENGAGED! Ship flying straight — Free mouse to drag windows!");
+                    } else {
+                        showToast("🔓 PILOT FLIGHT UNLOCKED! Mouse flight steering active");
+                    }
+                }
             });
             window.addEventListener('keyup', (e) => {
                 if (keys.hasOwnProperty(e.code)) keys[e.code] = false;
@@ -1481,7 +1501,10 @@
         }
 
         function createSpacePlanet() {
-            const planetTex = createPlanetSurfaceTexture();
+            const textureLoader = new THREE.TextureLoader();
+            const planetTex = textureLoader.load('docs/images/space_planet_surface.jpg');
+            const ringTex = textureLoader.load('docs/images/space_planet_rings.jpg');
+
             const planetGeo = new THREE.SphereGeometry(4500, 128, 128); // 15x larger radius!
             const planetMat = new THREE.MeshStandardMaterial({ 
                 map: planetTex,
@@ -1490,8 +1513,8 @@
             });
             
             spacePlanet = new THREE.Mesh(planetGeo, planetMat);
-            // Position colossal planet right alongside the pilot's flight corridor
-            spacePlanet.position.set(-3200, -1800, -3500);
+            // Position colossal planet far off on deep space horizon (~26,000 units away)
+            spacePlanet.position.set(-14000, -6000, -22000);
             scene.add(spacePlanet);
 
             // Glowing Cyan Atmospheric Horizon Rim Halo
@@ -1505,13 +1528,13 @@
             const atmosphere = new THREE.Mesh(atmoGeo, atmoMat);
             spacePlanet.add(atmosphere);
 
-            // Gigantic Planetary Ring System (17,600 units diameter)
+            // Gigantic Planetary Ring System (17,600 units diameter) with AI Ring Texture
             const ringGeo = new THREE.RingGeometry(5600, 8800, 128);
             const ringMat = new THREE.MeshBasicMaterial({ 
-                color: 0x38bdf8, 
+                map: ringTex,
                 side: THREE.DoubleSide, 
                 transparent: true, 
-                opacity: 0.45 
+                opacity: 0.85 
             });
             const ring = new THREE.Mesh(ringGeo, ringMat);
             ring.rotation.x = Math.PI / 2.3;
@@ -1879,19 +1902,19 @@
         }
 
         function spawnEnemySwarm() {
-            for (let i = 0; i < 4; i++) {
-                const enemyGeo = new THREE.TetrahedronGeometry(2);
+            for (let i = 0; i < 6; i++) {
+                const enemyGeo = new THREE.TetrahedronGeometry(4);
                 const enemyMat = new THREE.MeshBasicMaterial({ color: 0xff3b5c, wireframe: true });
                 const enemy = new THREE.Mesh(enemyGeo, enemyMat);
                 enemy.position.set(
-                    playerShip.position.x + (Math.random() - 0.5) * 120,
-                    playerShip.position.y + (Math.random() - 0.5) * 60,
-                    playerShip.position.z - 150 - Math.random() * 100
+                    playerShip.position.x + (Math.random() - 0.5) * 8000,
+                    playerShip.position.y + (Math.random() - 0.5) * 3000,
+                    playerShip.position.z - 6000 - Math.random() * 8000
                 );
                 scene.add(enemy);
                 enemyShips.push(enemy);
             }
-            showToast("4 ENEMY IRON COVENANT INTERCEPTORS DETECTED!");
+            showToast("⚠️ 6 ENEMY INTERCEPTORS DETECTED ON LONG-RANGE RADAR! (6.0 - 14.0 KM)");
         }
 
         function approachCapitalShip() {
@@ -2157,11 +2180,11 @@
             const h = canvas.height;
             const cx = w / 2;
             const cy = h / 2;
-            const maxRange = 650; // 650 meters radar sweep range
+            const maxRange = 25000; // 25.0 KM Long-Range Tactical Radar Sweep
 
             ctx.clearRect(0, 0, w, h);
 
-            // Radar Concentric Grid Rings
+            // Radar Concentric Grid Rings (8 KM, 16 KM, 25 KM)
             ctx.strokeStyle = 'rgba(0, 240, 255, 0.25)';
             ctx.lineWidth = 1;
             ctx.beginPath();
@@ -2177,11 +2200,6 @@
             ctx.stroke();
 
             if (!playerShip) return;
-
-            // Get ship heading orientation vectors
-            const shipQuat = playerShip.quaternion;
-            const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(shipQuat);
-            const right = new THREE.Vector3(1, 0, 0).applyQuaternion(shipQuat);
 
             // Draw Center Player Craft Icon (Cyan Glowing Triangle)
             ctx.fillStyle = '#00f0ff';
@@ -2221,6 +2239,11 @@
                     ctx.fill();
                 }
                 ctx.shadowBlur = 0;
+            }
+
+            // Draw Space Planet Blip (Cyan Glowing Circle)
+            if (spacePlanet && spacePlanet.position) {
+                drawBlip(spacePlanet.position, '#00f0ff', 8, false);
             }
 
             // Draw Red Blips for Enemy Ships
