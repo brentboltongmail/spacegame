@@ -3062,41 +3062,62 @@
             const bridgeTower = new THREE.Group();
             bridgeTower.position.set(0, 26, -55);
 
-            // Tier 1: Superstructure Base
+            // Tier 1: Superstructure Base (Stepped, with overhang)
             const bTier1Geo = new THREE.BoxGeometry(52, 18, 70);
             const bTier1 = new THREE.Mesh(bTier1Geo, hullMat);
             bTier1.position.set(0, 9, 0);
             bridgeTower.add(bTier1);
+            
+            // Tier 1 Overhang Deck Lip
+            const bTier1Lip = new THREE.Mesh(new THREE.BoxGeometry(56, 2, 74), armorPlateMat);
+            bTier1Lip.position.set(0, 18, 0);
+            bridgeTower.add(bTier1Lip);
 
-            // Tier 2: Mid Command Deck
-            const bTier2Geo = new THREE.BoxGeometry(40, 16, 54);
+            // Tier 2: Mid Command Deck (Slanted forward)
+            const bTier2Geo = new THREE.CylinderGeometry(20, 26, 50, 4);
             const bTier2 = new THREE.Mesh(bTier2Geo, armorPlateMat);
-            bTier2.position.set(0, 24, -5);
+            bTier2.rotation.y = Math.PI / 4;
+            bTier2.rotation.x = Math.PI / 2;
+            bTier2.scale.set(1.1, 1.1, 0.4);
+            bTier2.position.set(0, 27, -5);
             bridgeTower.add(bTier2);
 
             // Tier 3: Main Navigation Bridge (Viewport Strip)
             const bTier3Geo = new THREE.BoxGeometry(32, 12, 38);
             const bTier3 = new THREE.Mesh(bTier3Geo, hullMat);
-            bTier3.position.set(0, 37, -10);
+            bTier3.position.set(0, 39, -10);
             bridgeTower.add(bTier3);
+            
+            // Tier 3 Roof / Overhang shadowing the viewports
+            const bTier3Roof = new THREE.Mesh(new THREE.BoxGeometry(36, 2, 42), armorPlateMat);
+            bTier3Roof.position.set(0, 45, -8);
+            bridgeTower.add(bTier3Roof);
 
-            // Main Bridge Panoramic Viewport Glass Strip
-            const windowStripGeo = new THREE.BoxGeometry(32.4, 3.5, 20);
+            // Main Bridge Panoramic Viewport Glass Strip (Recessed)
+            const windowStripGeo = new THREE.BoxGeometry(30, 4.5, 20);
             const windowStrip = new THREE.Mesh(windowStripGeo, windowGlowMat);
-            windowStrip.position.set(0, 39, -15);
+            windowStrip.position.set(0, 41, -15);
             bridgeTower.add(windowStrip);
 
-            // Tier 4: Admiral's Observation Spire
-            const bTier4Geo = new THREE.BoxGeometry(20, 10, 24);
-            const bTier4 = new THREE.Mesh(bTier4Geo, armorPlateMat);
-            bTier4.position.set(0, 47, -12);
+            // Tier 4: Admiral's Observation Spire (Hexagonal instead of square)
+            const bTier4Geo = new THREE.CylinderGeometry(8, 12, 16, 6);
+            const bTier4 = new THREE.Mesh(bTier4Geo, darkMetalMat);
+            bTier4.position.set(0, 52, -12);
             bridgeTower.add(bTier4);
 
             // Top Skybridge Viewports
-            const skyViewGeo = new THREE.BoxGeometry(20.4, 2.5, 12);
+            const skyViewGeo = new THREE.CylinderGeometry(8.5, 12.5, 3, 6);
             const skyView = new THREE.Mesh(skyViewGeo, cyanWindowGlowMat);
-            skyView.position.set(0, 48, -14);
+            skyView.position.set(0, 50, -12);
             bridgeTower.add(skyView);
+            
+            // Sensor Arrays & Comm Masts attached to sides of Tier 3
+            [-18, 18].forEach(sideX => {
+                const arrayGeo = new THREE.BoxGeometry(6, 6, 10);
+                const array = new THREE.Mesh(arrayGeo, greebleMat);
+                array.position.set(sideX, 39, -5);
+                bridgeTower.add(array);
+            });
 
             // Shield Generator Domes (Port & Starboard Superstructure Wings)
             [-28, 28].forEach(sideX => {
@@ -3228,10 +3249,10 @@
 
             // --- ROUND 5: HEAVY TRIPLE-BARREL MAIN TURRETS & BROADSIDE BATTERIES ---
             const turretPositions = [
-                { x: 0, y: 27, z: 80, scale: 1.0 },
-                { x: 0, y: 27, z: 30, scale: 1.1 },
-                { x: 0, y: 27, z: -105, scale: 1.0 },
-                { x: 0, y: 27, z: -145, scale: 0.9 }
+                { x: 0, y: 27.5, z: 80, scale: 1.0 },
+                { x: 0, y: 27.5, z: 30, scale: 1.1 },
+                { x: 0, y: 27.5, z: -105, scale: 1.0 },
+                { x: 0, y: 27.5, z: -145, scale: 0.9 }
             ];
 
             turretPositions.forEach(pos => {
@@ -3239,39 +3260,58 @@
                 turret.position.set(pos.x, pos.y, pos.z);
                 turret.scale.set(pos.scale, pos.scale, pos.scale);
 
-                // Circular Barbette Base
-                const barbetteGeo = new THREE.CylinderGeometry(11, 13, 4, 24);
-                const barbette = new THREE.Mesh(barbetteGeo, darkMetalMat);
-                barbette.position.set(0, 2, 0);
-                turret.add(barbette);
+                // Detailed Barbette Base (tier 1 and tier 2 rings)
+                const barbetteBaseGeo = new THREE.CylinderGeometry(13, 14, 2, 24);
+                const barbetteBase = new THREE.Mesh(barbetteBaseGeo, darkMetalMat);
+                barbetteBase.position.set(0, 1, 0);
+                turret.add(barbetteBase);
+                
+                const barbetteRingGeo = new THREE.CylinderGeometry(11, 11, 2, 24);
+                const barbetteRing = new THREE.Mesh(barbetteRingGeo, goldTrimMat);
+                barbetteRing.position.set(0, 3, 0);
+                turret.add(barbetteRing);
 
-                // Armored Gun Housing
-                const houseGeo = new THREE.BoxGeometry(16, 7.5, 18);
+                // Armored Gun Housing (Faceted stealth block)
+                const houseGeo = new THREE.CylinderGeometry(10, 14, 8, 6);
                 const house = new THREE.Mesh(houseGeo, armorPlateMat);
-                house.position.set(0, 7, 0);
+                house.position.set(0, 8, 0);
+                house.rotation.y = Math.PI / 2; // Orient hexagon point forward
+                house.scale.set(1.4, 1.0, 1.2);
                 turret.add(house);
-
-                const slopeGeo = new THREE.BoxGeometry(16.2, 5, 10);
-                const slope = new THREE.Mesh(slopeGeo, goldTrimMat);
-                slope.position.set(0, 6.5, -5);
-                slope.rotation.x = -Math.PI / 6;
-                turret.add(slope);
+                
+                // Rear Ammo Bustle
+                const bustleGeo = new THREE.BoxGeometry(16, 6, 8);
+                const bustle = new THREE.Mesh(bustleGeo, darkMetalMat);
+                bustle.position.set(0, 7.5, 6);
+                turret.add(bustle);
 
                 // 3 Heavy Cannon Barrels
                 [-4.5, 0, 4.5].forEach(bx => {
-                    const barrelGeo = new THREE.CylinderGeometry(1.1, 1.3, 26, 12);
-                    const barrelMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.95, roughness: 0.2 });
-                    const barrel = new THREE.Mesh(barrelGeo, barrelMat);
-                    barrel.rotation.x = Math.PI / 2;
-                    barrel.position.set(bx, 7, -15);
-                    turret.add(barrel);
-
-                    // Recoil Sleeve Ring
-                    const sleeveGeo = new THREE.CylinderGeometry(1.5, 1.5, 8, 12);
-                    const sleeve = new THREE.Mesh(sleeveGeo, goldTrimMat);
+                    const gunSystem = new THREE.Group();
+                    gunSystem.position.set(bx, 8, -6);
+                    
+                    // Blast Bag / Recoil Sleeve Ring
+                    const sleeveGeo = new THREE.CylinderGeometry(1.6, 2.0, 6, 8);
+                    const sleeve = new THREE.Mesh(sleeveGeo, darkMetalMat);
                     sleeve.rotation.x = Math.PI / 2;
-                    sleeve.position.set(bx, 7, -8);
-                    turret.add(sleeve);
+                    sleeve.position.set(0, 0, -3);
+                    gunSystem.add(sleeve);
+                    
+                    // Main Barrel
+                    const barrelGeo = new THREE.CylinderGeometry(1.0, 1.4, 22, 12);
+                    const barrel = new THREE.Mesh(barrelGeo, darkMetalMat);
+                    barrel.rotation.x = Math.PI / 2;
+                    barrel.position.set(0, 0, -16);
+                    gunSystem.add(barrel);
+                    
+                    // Muzzle Flange / Brake
+                    const muzzleGeo = new THREE.CylinderGeometry(1.5, 1.1, 4, 12);
+                    const muzzle = new THREE.Mesh(muzzleGeo, goldTrimMat);
+                    muzzle.rotation.x = Math.PI / 2;
+                    muzzle.position.set(0, 0, -28);
+                    gunSystem.add(muzzle);
+                    
+                    turret.add(gunSystem);
                 });
 
                 capitalShip.add(turret);
@@ -3580,6 +3620,7 @@
                 try {
                     const src = audioCtx.createBufferSource();
                     src.buffer = elevenLabsBuffers.fire;
+                    src.playbackRate.value = 1 / 3; // Tripled the length of the MP3 sound
                     const gain = audioCtx.createGain();
                     gain.gain.setValueAtTime(0.45, audioCtx.currentTime);
                     src.connect(gain);
@@ -3589,7 +3630,7 @@
             } else if (audioCtx && audioCtx.state === 'running' && !isAudioMuted) {
                 try {
                     const now = audioCtx.currentTime;
-                    const duration = 0.22;
+                    const duration = 0.66; // Tripled from 0.22
 
                     // Main Sci-Fi Energy Beam Zap (High Frequency Sawtooth Sweep - Crisp Beam)
                     const lOsc = audioCtx.createOscillator();
@@ -3615,12 +3656,12 @@
                         filter.Q.setValueAtTime(3.0, now);
                         const nGain = audioCtx.createGain();
                         nGain.gain.setValueAtTime(0.09, now);
-                        nGain.gain.linearRampToValueAtTime(0.001, now + 0.08);
+                        nGain.gain.linearRampToValueAtTime(0.001, now + 0.24); // Tripled from 0.08
                         nNode.connect(filter);
                         filter.connect(nGain);
                         nGain.connect(audioCtx.destination);
                         nNode.start(now);
-                        nNode.stop(now + 0.08);
+                        nNode.stop(now + 0.24); // Tripled from 0.08
                     }
                 } catch (e) {}
             }
