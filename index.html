@@ -3262,17 +3262,7 @@
                 staticHighPass.connect(engineStaticGain);
                 engineStaticGain.connect(hullResonanceFilter);
 
-                // --- LAYER 8: LFO Tremolo Modulation ---
-                engineLfoOsc = audioCtx.createOscillator();
-                engineLfoOsc.type = 'sine';
-                engineLfoOsc.frequency.setValueAtTime(10, now);
-
-                engineLfoGain = audioCtx.createGain();
-                engineLfoGain.gain.setValueAtTime(0.04, now);
-                engineLfoOsc.connect(engineLfoGain);
-                engineLfoOsc.connect(engineMasterGain.gain);
-
-                // --- LAYER 9: Stereo Panner Width ---
+                // --- LAYER 8: Stereo Panner Width ---
                 let pannerNode = null;
                 if (audioCtx.createStereoPanner) {
                     pannerNode = audioCtx.createStereoPanner();
@@ -3289,7 +3279,7 @@
                 }
                 engineMasterGain.connect(audioCtx.destination);
 
-                // Start All Generators
+                // Start All Sound Layer Generators (100% Constant Smooth Rocket Thrust)
                 engineSubOsc.start();
                 engineDetuneOsc.start();
                 engineMidOsc.start();
@@ -3297,7 +3287,6 @@
                 engineWhineOsc.start();
                 engineNoiseNode.start();
                 engineStaticNode.start();
-                engineLfoOsc.start();
 
                 // Power-On Sub Drop Chime
                 const chimeOsc = audioCtx.createOscillator();
