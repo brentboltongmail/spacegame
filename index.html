@@ -1678,6 +1678,7 @@
             playerShip.add(ventralFinR);
 
             // 6. Quad Engine Thrusters (2 Main + 2 Upper Maneuvering)
+            playerShip.userData.engineLights = [];
             const enginePositions = [
                 { x: -0.55, y: 0.05, z: 2.0, size: 0.44 },
                 { x:  0.55, y: 0.05, z: 2.0, size: 0.44 },
@@ -1701,6 +1702,7 @@
                 const engineLight = new THREE.PointLight(0x00f0ff, 3.5, 22);
                 engineLight.position.set(eng.x, eng.y, eng.z + 1.0);
                 playerShip.add(engineLight);
+                playerShip.userData.engineLights.push(engineLight);
             });
 
             playerShip.position.set(0, 0, 0);
@@ -1882,12 +1884,18 @@
             let targetLookAtPos = playerShip.position.clone().add(new THREE.Vector3(0, 0, -10).applyQuaternion(playerShip.quaternion));
 
             if (cameraMode === 0) {
-                // Mode 0: Cockpit View (First-Person) - Hide exterior ship model so it does not block cockpit view
+                // Mode 0: Cockpit View (First-Person) - Hide exterior ship model & engine lights so they do not block cockpit view
                 playerShip.visible = false;
+                if (playerShip.userData && playerShip.userData.engineLights) {
+                    playerShip.userData.engineLights.forEach(l => l.visible = false);
+                }
                 targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 0.45, -0.1).applyQuaternion(playerShip.quaternion));
                 targetLookAtPos = playerShip.position.clone().add(new THREE.Vector3(0, 0.45, -25).applyQuaternion(playerShip.quaternion));
             } else {
                 playerShip.visible = true;
+                if (playerShip.userData && playerShip.userData.engineLights) {
+                    playerShip.userData.engineLights.forEach(l => l.visible = true);
+                }
                 if (cameraMode === 1) {
                     // Mode 1: Rear Third-Person Close
                     targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 2.2, 7.5).applyQuaternion(playerShip.quaternion));
@@ -1943,11 +1951,23 @@
         }
 
         let engineParticles = [];
-        const particleGeo = new THREE.SphereGeometry(0.18, 8, 8);
-        const particleMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.85 });
+        const particleGeo = new THREE.SphereGeometry(0.10, 8, 8);
+        const particleMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.8 });
 
         function updateEngineParticleTrails() {
             if (!playerShip) return;
+
+            // Completely hide and clear engine particles in Cockpit View (cameraMode === 0)
+            if (cameraMode === 0) {
+                for (let i = engineParticles.length - 1; i >= 0; i--) {
+                    const p = engineParticles[i];
+                    scene.remove(p);
+                    p.geometry.dispose();
+                    p.material.dispose();
+                }
+                engineParticles = [];
+                return;
+            }
 
             const nozzleOffsets = [
                 new THREE.Vector3(-0.55, 0.05, 2.7),
@@ -1959,21 +1979,21 @@
             const shipQuat = playerShip.quaternion;
             const backwardDir = new THREE.Vector3(0, 0, 1).applyQuaternion(shipQuat);
 
-            // Spawn cyan exhaust particles from quad thrusters if moving
+            // Spawn cyan exhaust particles (50% shorter trail length)
             if (currentSpeed > 2) {
                 nozzleOffsets.forEach(offset => {
                     const worldPos = offset.clone().applyQuaternion(shipQuat).add(playerShip.position);
                     const pMesh = new THREE.Mesh(particleGeo, particleMat.clone());
                     pMesh.position.copy(worldPos);
 
-                    const vel = backwardDir.clone().multiplyScalar(0.4 + currentSpeed * 0.003).add(
-                        new THREE.Vector3((Math.random() - 0.5) * 0.12, (Math.random() - 0.5) * 0.12, (Math.random() - 0.5) * 0.12)
+                    const vel = backwardDir.clone().multiplyScalar(0.18 + currentSpeed * 0.0012).add(
+                        new THREE.Vector3((Math.random() - 0.5) * 0.06, (Math.random() - 0.5) * 0.06, (Math.random() - 0.5) * 0.06)
                     );
 
                     pMesh.userData = {
                         velocity: vel,
                         age: 0,
-                        maxAge: 18 + Math.floor(Math.random() * 8) // Capped max age for short, crisp trail!
+                        maxAge: 7 + Math.floor(Math.random() * 4) // 50% shorter trail lifespan!
                     };
 
                     scene.add(pMesh);
@@ -1988,8 +2008,8 @@
                 p.position.add(p.userData.velocity);
 
                 const lifeRatio = p.userData.age / p.userData.maxAge;
-                p.material.opacity = (1.0 - lifeRatio) * 0.85;
-                p.scale.setScalar(1.0 + lifeRatio * 1.3);
+                p.material.opacity = (1.0 - lifeRatio) * 0.8;
+                p.scale.setScalar(1.0 + lifeRatio * 0.8);
 
                 if (p.userData.age >= p.userData.maxAge) {
                     scene.remove(p);
