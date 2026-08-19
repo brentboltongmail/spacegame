@@ -898,12 +898,6 @@
             
             <div class="hud-overlay">
                 <div class="hud-top">
-                    <div class="hud-card">
-                        <div class="hud-title">INTERCEPTOR STATUS</div>
-                        <div class="hud-stat" id="hud-speed">SPEED: 1,073 km/h</div>
-                        <div style="color: var(--accent-cyan); font-size: 0.85rem; margin-top: 4px;">SOL SPACE FORCE - MODEL F-90</div>
-                    </div>
-                    
                     <div class="hud-card hud-controls-card">
                         <div class="hud-title" style="color: var(--accent-cyan); border-bottom: 1px solid rgba(0, 240, 255, 0.2); padding-bottom: 6px; margin-bottom: 8px;">
                             <span style="font-size: 1rem;">🕹️</span> MOUSE TARGETING CONTROLS
@@ -1584,7 +1578,7 @@
             scene.add(ambientLight);
 
             const sunLight = new THREE.DirectionalLight(0xfffaed, 4.5); // Primary solar star directional light
-            sunLight.position.set(180000, 90000, -450000); // Aligned directly with deep space Solar Star position!
+            sunLight.position.set(750000, 400000, 500000); // Aligned with 1,000,000-unit distant Solar Star position!
             scene.add(sunLight);
 
             const fillRimLight = new THREE.DirectionalLight(0x38bdf8, 2.5); // Secondary cyan-blue rim light
@@ -1734,7 +1728,7 @@
 
         function createSolarSun() {
             const fallbackTex = createSunSurfaceTexture();
-            const sunGeo = new THREE.SphereGeometry(60000, 128, 128); // 60,000 unit radius (120,000 unit diameter!)
+            const sunGeo = new THREE.SphereGeometry(30000, 128, 128); // 30,000 unit radius (60,000 unit diameter!)
             const sunMat = new THREE.MeshBasicMaterial({ 
                 map: fallbackTex,
                 color: 0xfffaed,
@@ -1750,12 +1744,12 @@
             );
 
             spaceSun = new THREE.Mesh(sunGeo, sunMat);
-            // Position primary solar star 450,000 units deep into space (180,000 X, 90,000 Y, -450,000 Z)
-            spaceSun.position.set(180000, 90000, -450000);
+            // Position primary solar star 1 million units away in upper-right deep space (750,000 X, 400,000 Y, 500,000 Z)
+            spaceSun.position.set(750000, 400000, 500000);
             scene.add(spaceSun);
 
-            // Inner Radiant Golden Corona Halo (63,000 radius)
-            const coronaGeo = new THREE.SphereGeometry(63000, 64, 64);
+            // Inner Radiant Golden Corona Halo (32,000 radius)
+            const coronaGeo = new THREE.SphereGeometry(32000, 64, 64);
             const coronaMat = new THREE.MeshBasicMaterial({
                 color: 0xfbbf24,
                 transparent: true,
@@ -1766,8 +1760,8 @@
             const corona = new THREE.Mesh(coronaGeo, coronaMat);
             spaceSun.add(corona);
 
-            // Outer Fiery Solar Flare Prominence Halo (68,000 radius)
-            const flareGeo = new THREE.SphereGeometry(68000, 64, 64);
+            // Outer Fiery Solar Flare Prominence Halo (35,000 radius)
+            const flareGeo = new THREE.SphereGeometry(35000, 64, 64);
             const flareMat = new THREE.MeshBasicMaterial({
                 color: 0xff8f00,
                 transparent: true,
@@ -2874,38 +2868,50 @@
         let isAudioMuted = false;
 
         function initEngineAudio() {
-            if (isAudioInitialized) return;
-            try {
-                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContextClass();
+            if (!audioCtx) {
+                try {
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                    audioCtx = new AudioContextClass();
+                } catch (e) {
+                    console.error("Web Audio Engine Init Error:", e);
+                    return;
+                }
+            }
 
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            if (isAudioInitialized) return;
+
+            try {
                 // Master Gain
                 engineMasterGain = audioCtx.createGain();
-                engineMasterGain.gain.setValueAtTime(0.32, audioCtx.currentTime);
+                engineMasterGain.gain.setValueAtTime(isAudioMuted ? 0 : 0.45, audioCtx.currentTime);
 
                 // Acoustic Muffling Biquad Low-Pass Filter (Simulates Cockpit Armor Soundproofing)
                 engineLowPassFilter = audioCtx.createBiquadFilter();
                 engineLowPassFilter.type = 'lowpass';
-                engineLowPassFilter.frequency.setValueAtTime(220, audioCtx.currentTime);
+                engineLowPassFilter.frequency.setValueAtTime(280, audioCtx.currentTime);
                 engineLowPassFilter.Q.setValueAtTime(2.5, audioCtx.currentTime);
 
                 // Sub-Bass Engine Rumble Oscillator (Sawtooth)
                 engineSubOsc = audioCtx.createOscillator();
                 engineSubOsc.type = 'sawtooth';
-                engineSubOsc.frequency.setValueAtTime(42, audioCtx.currentTime);
+                engineSubOsc.frequency.setValueAtTime(55, audioCtx.currentTime);
 
                 const subGain = audioCtx.createGain();
-                subGain.gain.setValueAtTime(0.45, audioCtx.currentTime);
+                subGain.gain.setValueAtTime(0.55, audioCtx.currentTime);
                 engineSubOsc.connect(subGain);
                 subGain.connect(engineLowPassFilter);
 
-                // Mid-Thrust Tone Oscillator (Sine)
+                // Mid-Thrust Tone Oscillator (Triangle Wave for Warm Cockpit Thruster Sound)
                 engineMidOsc = audioCtx.createOscillator();
-                engineMidOsc.type = 'sine';
-                engineMidOsc.frequency.setValueAtTime(84, audioCtx.currentTime);
+                engineMidOsc.type = 'triangle';
+                engineMidOsc.frequency.setValueAtTime(110, audioCtx.currentTime);
 
                 const midGain = audioCtx.createGain();
-                midGain.gain.setValueAtTime(0.30, audioCtx.currentTime);
+                midGain.gain.setValueAtTime(0.40, audioCtx.currentTime);
                 engineMidOsc.connect(midGain);
                 midGain.connect(engineLowPassFilter);
 
@@ -2914,7 +2920,7 @@
                 const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
                 const output = noiseBuffer.getChannelData(0);
                 for (let i = 0; i < bufferSize; i++) {
-                    output[i] = (Math.random() * 2 - 1) * 0.20;
+                    output[i] = (Math.random() * 2 - 1) * 0.25;
                 }
 
                 engineNoiseNode = audioCtx.createBufferSource();
@@ -2922,7 +2928,7 @@
                 engineNoiseNode.loop = true;
 
                 const noiseGain = audioCtx.createGain();
-                noiseGain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+                noiseGain.gain.setValueAtTime(0.25, audioCtx.currentTime);
                 engineNoiseNode.connect(noiseGain);
                 noiseGain.connect(engineLowPassFilter);
 
@@ -2936,9 +2942,9 @@
                 engineNoiseNode.start();
 
                 isAudioInitialized = true;
-                showToast("🔊 COCKPIT ENGINE AUDIO INITIALIZED");
+                showToast("🔊 COCKPIT ENGINE AUDIO ACTIVE");
             } catch (e) {
-                console.error("Web Audio Engine Init Error:", e);
+                console.error("Web Audio Engine Setup Error:", e);
             }
         }
 
