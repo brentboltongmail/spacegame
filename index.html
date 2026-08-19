@@ -4238,8 +4238,8 @@
             }
 
             // --- W / S Throttle Speed Controls (W = Accelerate, S = Decelerate) ---
-            const accelRate = 0.22; // Cut in half for smooth, heavy-fighter momentum acceleration
-            const maxSpeedCap = 200;
+            const accelRate = 0.44; // Scaled up to match doubled max speed
+            const maxSpeedCap = 400;
 
             if (keys.KeyW) targetSpeed = Math.min(targetSpeed + accelRate, maxSpeedCap);
             if (keys.KeyS) targetSpeed = Math.max(targetSpeed - accelRate, 0);
@@ -4248,9 +4248,9 @@
             // Update Cockpit Engine Sound Pitch, Muffling & Volume dynamically (0% -> 100% Throttle)
             updateEngineAudio(currentSpeed / maxSpeedCap, cameraMode === 0);
 
-            const postedSpeed = Math.round(currentSpeed * 500); // Posted speed scaled to max 100,000 km/h (at maxSpeedCap 200)
+            const postedSpeed = Math.round(currentSpeed * 500); // Posted speed scaled to max 200,000 km/h
             const speedElem = document.getElementById('hud-speed');
-            if (speedElem) speedElem.innerText = `SPEED: ${postedSpeed.toLocaleString()} km/h ${currentSpeed > 160 ? '[MAX THROTTLE]' : ''}`;
+            if (speedElem) speedElem.innerText = `SPEED: ${postedSpeed.toLocaleString()} km/h ${currentSpeed > 360 ? '[MAX THROTTLE]' : ''}`;
 
             // --- SINGULARITY-FREE 360° QUATERNION FLIGHT (LOOPS & ROLLS WITHOUT FLIPPING) ---
             const deadzone = 0.03;
