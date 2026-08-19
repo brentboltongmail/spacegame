@@ -2513,17 +2513,17 @@
             spawnWingtipMuzzleFlash(posL, playerShip.quaternion);
             spawnWingtipMuzzleFlash(posR, playerShip.quaternion);
 
-            // Play Synthesized Twin Plasma Laser Sound Effect (75% volume reduction, 50% duration extension)
+            // Play Synthesized Twin Plasma Laser Sound Effect (Lowered pitch: 880 Hz -> 120 Hz)
             if (audioCtx && !isAudioMuted) {
                 try {
                     const now = audioCtx.currentTime;
-                    const duration = 0.18; // Extended by 50% (0.12s -> 0.18s)
+                    const duration = 0.18;
                     const lOsc = audioCtx.createOscillator();
                     const lGain = audioCtx.createGain();
                     lOsc.type = 'sawtooth';
-                    lOsc.frequency.setValueAtTime(1150, now);
-                    lOsc.frequency.exponentialRampToValueAtTime(160, now + duration);
-                    lGain.gain.setValueAtTime(0.087, now); // Reduced volume by 75% (0.35 -> 0.087)
+                    lOsc.frequency.setValueAtTime(880, now);
+                    lOsc.frequency.exponentialRampToValueAtTime(120, now + duration);
+                    lGain.gain.setValueAtTime(0.087, now);
                     lGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
                     lOsc.connect(lGain);
                     lGain.connect(audioCtx.destination);
