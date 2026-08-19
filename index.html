@@ -1630,15 +1630,29 @@
         }
 
         function firePlasmaLaser() {
-            const laserGeo = new THREE.CylinderGeometry(0.12, 0.12, 6, 8);
+            const laserGeo = new THREE.CylinderGeometry(0.14, 0.14, 7, 8);
             laserGeo.rotateX(Math.PI / 2);
             const laserMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
+
+            // Forward vector matching exact ship heading
+            const fwdDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
+
+            // Wingtip plasma cannon positions transformed by ship orientation
+            const offsetL = new THREE.Vector3(-2.4, -0.1, -2.4).applyQuaternion(playerShip.quaternion);
+            const offsetR = new THREE.Vector3(2.4, -0.1, -2.4).applyQuaternion(playerShip.quaternion);
 
             const laserL = new THREE.Mesh(laserGeo, laserMat);
             const laserR = new THREE.Mesh(laserGeo, laserMat);
 
-            laserL.position.copy(playerShip.position).add(new THREE.Vector3(-1.8, 0, -2));
-            laserR.position.copy(playerShip.position).add(new THREE.Vector3(1.8, 0, -2));
+            laserL.quaternion.copy(playerShip.quaternion);
+            laserR.quaternion.copy(playerShip.quaternion);
+
+            laserL.position.copy(playerShip.position).add(offsetL);
+            laserR.position.copy(playerShip.position).add(offsetR);
+
+            const speedVec = fwdDir.clone().multiplyScalar(14 + currentSpeed * 0.008);
+            laserL.userData.velocity = speedVec;
+            laserR.userData.velocity = speedVec;
 
             scene.add(laserL);
             scene.add(laserR);
@@ -1776,8 +1790,12 @@
             // Lasers
             for (let i = laserProjectiles.length - 1; i >= 0; i--) {
                 const laser = laserProjectiles[i];
-                laser.translateZ(-6);
-                if (laser.position.distanceTo(playerShip.position) > 600) {
+                if (laser.userData.velocity) {
+                    laser.position.add(laser.userData.velocity);
+                } else {
+                    laser.translateZ(-6);
+                }
+                if (laser.position.distanceTo(playerShip.position) > 1200) {
                     scene.remove(laser);
                     laserProjectiles.splice(i, 1);
                 }
@@ -1894,14 +1912,16 @@
             ctx.fill();
             ctx.shadowBlur = 0;
 
-            // Helper to project and render blips
-            function drawBlip(objPos, color, size, isSquare) {
-                const relPos = objPos.clone().sub(playerShip.position);
-                const localX = relPos.dot(right);
-                const localZ = relPos.dot(forward);
+            // Helper to project and render blips (Inverse quaternion transform to ship local space)
+            const invShipQuat = playerShip.quaternion.clone().invert();
 
-                const rx = cx + (localX / maxRange) * (cx * 0.9);
-                const ry = cy - (localZ / maxRange) * (cy * 0.9);
+            function drawBlip(objPos, color, size, isSquare) {
+                const relLocal = objPos.clone().sub(playerShip.position).applyQuaternion(invShipQuat);
+                // relLocal.x: +Right / -Left
+                // relLocal.z: -Forward / +Backward
+
+                const rx = cx + (relLocal.x / maxRange) * (cx * 0.9);
+                const ry = cy + (relLocal.z / maxRange) * (cy * 0.9); // -Z is forward (above center player icon)
 
                 const dist = Math.hypot(rx - cx, ry - cy);
                 if (dist > cx * 0.94) return;
