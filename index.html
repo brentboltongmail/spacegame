@@ -1575,18 +1575,17 @@
             const postedSpeed = Math.round(currentSpeed * 10.725); // Posted speed scaled 10x (max 2,145 km/h matching concept art HUD)
             document.getElementById('hud-speed').innerText = `SPEED: ${postedSpeed.toLocaleString()} km/h ${currentSpeed > 160 ? '[MAX THROTTLE]' : ''}`;
 
-            // --- Symmetrical Directional Flight Velocity Steering (Left/Right & Up/Down) ---
+            // --- Symmetrical Directional Flight Velocity Steering (Edge of Screen = 100% Max Turn Rate) ---
             const deadzone = 0.03;
-            const turnRate = 0.0104; // Reduced by 60% for smooth precision steering
+            const turnRate = 0.0104; // Smooth max turn velocity at screen edge
 
-            const mouseXEff = Math.abs(normalizedMouse.x) > deadzone ? (normalizedMouse.x - Math.sign(normalizedMouse.x) * deadzone) : 0;
-            const mouseYEff = Math.abs(normalizedMouse.y) > deadzone ? (normalizedMouse.y - Math.sign(normalizedMouse.y) * deadzone) : 0;
+            const normX = Math.abs(normalizedMouse.x) <= deadzone ? 0 : Math.min((Math.abs(normalizedMouse.x) - deadzone) / (1.0 - deadzone), 1.0);
+            const normY = Math.abs(normalizedMouse.y) <= deadzone ? 0 : Math.min((Math.abs(normalizedMouse.y) - deadzone) / (1.0 - deadzone), 1.0);
 
-            // Symmetrical continuous steering:
-            // - Cursor Above center (y > 0) -> ALWAYS pitches UP
-            // - Cursor Below center (y < 0) -> ALWAYS pitches DOWN
-            // - Cursor Left of center (x < 0) -> ALWAYS yaws LEFT
-            // - Cursor Right of center (x > 0) -> ALWAYS yaws RIGHT
+            const mouseXEff = Math.sign(normalizedMouse.x) * normX;
+            const mouseYEff = Math.sign(normalizedMouse.y) * normY;
+
+            // Symmetrical continuous steering (Edge of screen = 100% max turning speed)
             playerShip.rotateX(mouseYEff * turnRate);
             playerShip.rotateY(-mouseXEff * turnRate);
 
