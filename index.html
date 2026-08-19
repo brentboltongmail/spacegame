@@ -2585,10 +2585,12 @@
         function animate() {
             requestAnimationFrame(animate);
 
+            if (isTacticalMapOpen) {
+                renderTacticalMap3D();
+            }
+
             if (isGamePaused) {
-                if (isTacticalMapOpen) {
-                    renderTacticalMap3D();
-                } else {
+                if (!isTacticalMapOpen) {
                     renderUpgradeHangar3D();
                 }
                 return;
@@ -3660,10 +3662,18 @@
                 if (!mapRenderer) {
                     initTacticalMap3D();
                 }
+                setTimeout(() => {
+                    const container = document.getElementById('map-canvas-container');
+                    if (container && mapRenderer && mapCamera) {
+                        mapCamera.aspect = container.clientWidth / container.clientHeight;
+                        mapCamera.updateProjectionMatrix();
+                        mapRenderer.setSize(container.clientWidth, container.clientHeight);
+                    }
+                }, 30);
                 showToast("🌐 3D TACTICAL SYSTEM STAR MAP OPEN (SEMI-REALTIME TRACKING)");
             } else {
                 if (modal) modal.style.display = 'none';
-                showToast("▶️ RESUMED FULL VIEW");
+                showToast("▶️ RESUMED FULL FLIGHT VIEW");
             }
         }
 
