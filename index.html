@@ -2116,7 +2116,7 @@
 
             const crosshair = document.querySelector('.hud-center-crosshair');
             if (crosshair) {
-                crosshair.style.opacity = (cameraMode === 3) ? '0.25' : '1';
+                crosshair.style.opacity = (cameraMode === 0) ? '1' : '0';
             }
 
             const cockpitOverlay = document.getElementById('cockpit-canopy-overlay');
@@ -4306,7 +4306,7 @@
             // Update Cockpit Engine Sound Pitch, Muffling & Volume dynamically (0% -> 100% Throttle)
             updateEngineAudio(currentSpeed / maxSpeedCap, cameraMode === 0);
 
-            const postedSpeed = Math.round(currentSpeed * 500); // Posted speed scaled to max 200,000 km/h
+            const postedSpeed = Math.round(currentSpeed * 250); // Posted speed scaled to max 100,000 km/h
             const speedElem = document.getElementById('hud-speed');
             if (speedElem) speedElem.innerText = `SPEED: ${postedSpeed.toLocaleString()} km/h ${currentSpeed > 360 ? '[MAX THROTTLE]' : ''}`;
 
