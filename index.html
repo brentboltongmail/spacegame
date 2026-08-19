@@ -3159,6 +3159,63 @@
                 dome.scale.set(1, 0.5, 1);
                 capitalShip.add(dome);
             }
+            
+            // --- ROUND 6: VENTRAL SPINAL RAILGUN & HEAT SINKS ---
+            const ventralRailgun = new THREE.Group();
+            ventralRailgun.position.set(0, -36, -50);
+            
+            // Railgun Main Barrel Housing
+            const rgBarrel = new THREE.Mesh(new THREE.BoxGeometry(6, 4, 120), darkMetalMat);
+            ventralRailgun.add(rgBarrel);
+            
+            // Railgun Magnetic Accelerator Rings
+            for(let j=0; j<8; j++) {
+                const ringGeo = new THREE.BoxGeometry(8, 6, 4);
+                const ring = new THREE.Mesh(ringGeo, goldTrimMat);
+                ring.position.set(0, 0, -40 + j * 12);
+                ventralRailgun.add(ring);
+                
+                // Inner Plasma Coils
+                const coilGeo = new THREE.BoxGeometry(6.5, 4.5, 2);
+                const coil = new THREE.Mesh(coilGeo, engineGlowMat);
+                coil.position.set(0, 0, -40 + j * 12);
+                ventralRailgun.add(coil);
+            }
+            
+            capitalShip.add(ventralRailgun);
+            
+            // Ventral VTOL Hover Thrusters and Heat Radiators under the Cheeks
+            [-1, 1].forEach(side => {
+                for(let k=0; k<6; k++) {
+                    const zPos = -60 + k * 30;
+                    
+                    // Downward Thruster Bell
+                    const vThruster = new THREE.Mesh(new THREE.CylinderGeometry(4, 3, 6, 12), engineNozzleMat);
+                    vThruster.position.set(side * 30, -10, zPos);
+                    capitalShip.add(vThruster);
+                    
+                    const vGlow = new THREE.Mesh(new THREE.CircleGeometry(3.5, 12), engineGlowMat);
+                    vGlow.rotation.x = Math.PI / 2; // Pointing down
+                    vGlow.position.set(side * 30, -13.1, zPos);
+                    capitalShip.add(vGlow);
+                    
+                    // Underbelly Heat Radiator Fins
+                    const radiatorGroup = new THREE.Group();
+                    radiatorGroup.position.set(side * 20, -10, zPos + 15);
+                    for(let r=0; r<4; r++) {
+                        const fin = new THREE.Mesh(new THREE.BoxGeometry(0.5, 4, 8), darkMetalMat);
+                        fin.position.set(side * (r * 1.5 - 2.25), 0, 0);
+                        radiatorGroup.add(fin);
+                    }
+                    capitalShip.add(radiatorGroup);
+                }
+                
+                // Ventral Interlocking Armor Plates
+                const vArmor = new THREE.Mesh(new THREE.BoxGeometry(16, 2, 200), armorPlateMat);
+                vArmor.position.set(side * 18, -12, 10);
+                vArmor.rotation.z = side * 0.15;
+                capitalShip.add(vArmor);
+            });
 
             // 5. Multi-faceted Ram Bow (Prow)
             const prowGroup = new THREE.Group();
