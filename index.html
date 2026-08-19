@@ -1982,6 +1982,8 @@
             createSpacePlanet();
             createPlayerShip();
             createCapitalShip();
+            createWormholeGate();
+            spawnEnemySwarm();
 
             // Event Listeners for Mouse Targeting & Key Controls
             window.addEventListener('resize', onWindowResize);
@@ -3003,7 +3005,7 @@
                     if (!enemy.userData || enemy.userData.hp <= 0) continue;
 
                     const dist = laser.position.distanceTo(enemy.position);
-                    if (dist < 18) { // Laser hit collision!
+                    if (dist < 28) { // Laser hit collision (extended hit volume)!
                         hitEnemy = true;
                         spawnLaserImpactSparks(laser.position);
                         playLaserImpactAudio();
@@ -3025,26 +3027,26 @@
                             }
                             showToast("💥 TARGET DESTROYED! +500 SC AWARDED!");
 
-                            // Auto-respawn replacement enemy fighter after 5 seconds
+                            // Auto-respawn replacement enemy fighter after 4 seconds
                             setTimeout(() => {
                                 if (enemyShips.length < 8 && playerShip) {
                                     const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
                                     const newEnemy = createEnemyInterceptorMesh();
-                                    newEnemy.position.copy(playerShip.position).add(fwd.clone().multiplyScalar(1200)).add(new THREE.Vector3(
-                                        (Math.random() - 0.5) * 600,
-                                        (Math.random() - 0.5) * 300,
-                                        (Math.random() - 0.5) * 400
+                                    newEnemy.position.copy(playerShip.position).add(fwd.clone().multiplyScalar(1500)).add(new THREE.Vector3(
+                                        (Math.random() - 0.5) * 800,
+                                        (Math.random() - 0.5) * 400,
+                                        (Math.random() - 0.5) * 600
                                     ));
                                     scene.add(newEnemy);
                                     enemyShips.push(newEnemy);
                                 }
-                            }, 5000);
+                            }, 4000);
                         }
                         break;
                     }
                 }
 
-                if (hitEnemy || laser.position.distanceTo(playerShip.position) > 2800) {
+                if (hitEnemy || laser.position.distanceTo(playerShip.position) > 10500) {
                     scene.remove(laser);
                     laserProjectiles.splice(i, 1);
                 }
@@ -3075,9 +3077,9 @@
 
             if (spaceSun) spaceSun.rotation.y += 0.0002;
 
-            // --- ANIMATE ENEMY INTERCEPTORS & HIT FLASH ---
+            // --- ANIMATE ENEMY INTERCEPTORS & TRIPLED TARGET LOCK SELECTION ---
             let closestEnemy = null;
-            let closestDist = 3500;
+            let closestDist = 10500; // TRIPLED TARGET RANGE: 10,500 Units / 10.5 KM!
             const fwdDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
 
             enemyShips.forEach(e => {
@@ -3092,12 +3094,11 @@
                     e.scale.set(1.0, 1.0, 1.0);
                 }
 
-                // Target Lock Candidate Check
+                // Target Lock Candidate Check (Tripled Range: 10,500 Units / 10.5 KM)
                 if (e.userData && e.userData.hp > 0 && playerShip) {
                     const toEnemy = e.position.clone().sub(playerShip.position);
                     const dist = toEnemy.length();
-                    const dot = toEnemy.clone().normalize().dot(fwdDir);
-                    if (dot > 0.80 && dist < closestDist) {
+                    if (dist < closestDist) {
                         closestDist = dist;
                         closestEnemy = e;
                     }
