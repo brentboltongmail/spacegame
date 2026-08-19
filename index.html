@@ -2497,16 +2497,16 @@
             scene.add(laserR);
             laserProjectiles.push(laserL, laserR);
 
-            // Play Synthesized Twin Plasma Laser Sound Effect (Lowered pitch: 880 Hz -> 120 Hz)
+            // Play Synthesized Twin Plasma Laser Sound Effect (Duration 0.27s, Pitch 792 Hz -> 108 Hz)
             if (audioCtx && !isAudioMuted) {
                 try {
                     const now = audioCtx.currentTime;
-                    const duration = 0.18;
+                    const duration = 0.27;
                     const lOsc = audioCtx.createOscillator();
                     const lGain = audioCtx.createGain();
                     lOsc.type = 'sawtooth';
-                    lOsc.frequency.setValueAtTime(880, now);
-                    lOsc.frequency.exponentialRampToValueAtTime(120, now + duration);
+                    lOsc.frequency.setValueAtTime(792, now);
+                    lOsc.frequency.exponentialRampToValueAtTime(108, now + duration);
                     lGain.gain.setValueAtTime(0.087, now);
                     lGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
                     lOsc.connect(lGain);
