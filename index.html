@@ -4645,85 +4645,83 @@
             const h = canvas.height;
             const cx = w / 2;
             const cy = h / 2;
-            const maxRange = 25000; // 25.0 KM Max Range
 
             ctx.clearRect(0, 0, w, h);
 
-            // Radar Concentric Grid Rings (Non-linear ranges: ~1.8KM, ~10KM, 25KM)
-            ctx.strokeStyle = 'rgba(0, 240, 255, 0.25)';
+            // Radar Concentric Grid Rings (30° FOV Inner, 60° FOV Middle, 90° Outer Horizon)
+            ctx.strokeStyle = 'rgba(0, 240, 255, 0.22)';
             ctx.lineWidth = 1;
             ctx.beginPath();
-            ctx.arc(cx, cy, cx * 0.39, 0, Math.PI * 2); // ~2,500 units
-            ctx.arc(cx, cy, cx * 0.69, 0, Math.PI * 2); // ~10,000 units
-            ctx.arc(cx, cy, cx * 0.95, 0, Math.PI * 2); // 25,000 units
+            ctx.arc(cx, cy, cx * 0.33, 0, Math.PI * 2); // 30° cone
+            ctx.arc(cx, cy, cx * 0.66, 0, Math.PI * 2); // 60° cone
+            ctx.arc(cx, cy, cx * 0.92, 0, Math.PI * 2); // 90° horizon perimeter
             ctx.stroke();
 
-            // Radar Axis Lines
+            // Radar Center Crosshair (Boresight) Lines
+            ctx.strokeStyle = 'rgba(0, 240, 255, 0.35)';
             ctx.beginPath();
-            ctx.moveTo(cx, 0); ctx.lineTo(cx, h);
-            ctx.moveTo(0, cy); ctx.lineTo(w, cy);
+            ctx.moveTo(cx, cy - 14); ctx.lineTo(cx, cy - 4);
+            ctx.moveTo(cx, cy + 4); ctx.lineTo(cx, cy + 14);
+            ctx.moveTo(cx - 14, cy); ctx.lineTo(cx - 4, cy);
+            ctx.moveTo(cx + 4, cy); ctx.lineTo(cx + 14, cy);
             ctx.stroke();
+
+            // Center Boresight Dot / Reticle
+            ctx.fillStyle = 'rgba(0, 240, 255, 0.85)';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 2.5, 0, Math.PI * 2);
+            ctx.fill();
 
             if (!playerShip) return;
 
-            // Draw Center Player Craft Icon (Cyan Glowing Triangle)
-            ctx.fillStyle = '#00f0ff';
-            ctx.shadowColor = '#00f0ff';
-            ctx.shadowBlur = 6;
-            ctx.beginPath();
-            ctx.moveTo(cx, cy - 6);
-            ctx.lineTo(cx - 5, cy + 5);
-            ctx.lineTo(cx + 5, cy + 5);
-            ctx.closePath();
-            ctx.fill();
-            ctx.shadowBlur = 0;
+            // Full 3D Orientation: Transform any world target directly to cockpit local space
+            const invShipQuat = playerShip.quaternion.clone().invert();
 
-            // Extract ONLY the YAW of the ship for 2D radar mapping (ignores pitch/roll so map is always top-down flat)
-            const playerEuler = new THREE.Euler().setFromQuaternion(playerShip.quaternion, 'YXZ');
-            const yaw = playerEuler.y;
-            const cosY = Math.cos(-yaw);
-            const sinY = Math.sin(-yaw);
+            function drawBlip(objPos, color, size, isSquare, label = '') {
+                if (!objPos) return;
 
-            function drawBlip(objPos, color, size, isSquare, worldRadius = 0) {
-                // 1. Calculate 2D World Delta
-                const dx = objPos.x - playerShip.position.x;
-                const dz = objPos.z - playerShip.position.z;
+                // Relative position in player cockpit local space
+                // rel.x: +Right / -Left
+                // rel.y: +Up / -Down
+                // rel.z: -In Front / +Behind
+                const rel = objPos.clone().sub(playerShip.position).applyQuaternion(invShipQuat);
+                const dist = rel.length();
+                if (dist < 1) return;
 
-                // 2. Rotate by inverse heading (-yaw) to make it local to the radar screen
-                const relX = dx * cosY - dz * sinY;
-                const relZ = dx * sinY + dz * cosY;
-
-                // 3. Non-linear mapping to fit 25,000 units but keep close targets readable
-                const dist = Math.hypot(relX, relZ);
-                const angle = Math.atan2(relZ, relX);
+                const isBehind = rel.z > 0;
                 
-                const normalizedDist = Math.min(dist / maxRange, 1.0);
-                // Exponent 0.4 curves the distance (pushes close things outwards, pulls far things in)
-                const mappedDist = Math.pow(normalizedDist, 0.4) * (cx * 0.9);
+                // Normalized direction in player's field of view
+                const nx = rel.x / dist;
+                const ny = rel.y / dist;
 
-                const rx = cx + Math.cos(angle) * mappedDist;
-                const ry = cy + Math.sin(angle) * mappedDist;
+                let rx, ry;
+                if (!isBehind) {
+                    // In Front: Center of radar (cx, cy) is dead ahead
+                    // Anything right in front of the nose (nx=0, ny=0) is dead center in the middle!
+                    const fovOffset = Math.hypot(nx, ny); // 0 at center, 1 at 90°
+                    const radarRadius = fovOffset * (cx * 0.88);
+                    const angle = Math.atan2(-ny, nx); // Canvas Y is inverted relative to 3D Y
+                    rx = cx + Math.cos(angle) * radarRadius;
+                    ry = cy + Math.sin(angle) * radarRadius;
+                } else {
+                    // Behind: Place on outer compass perimeter in direction to turn
+                    const angle = Math.atan2(-ny, nx);
+                    rx = cx + Math.cos(angle) * (cx * 0.92);
+                    ry = cy + Math.sin(angle) * (cy * 0.92);
+                }
 
+                ctx.save();
                 ctx.fillStyle = color;
                 ctx.shadowColor = color;
-                ctx.shadowBlur = 8;
+                ctx.shadowBlur = isBehind ? 2 : 8;
 
-                // If worldRadius is provided (e.g. for a planet), calculate its scaled size on radar
-                if (worldRadius > 0) {
-                    const normRadius = Math.min(worldRadius / maxRange, 1.0);
-                    const mappedRadius = Math.pow(normRadius, 0.4) * (cx * 0.9);
-                    
-                    // Draw outer bound ring for large bodies
+                if (isBehind) {
+                    // Hollow / Ring indicator for targets behind you
                     ctx.strokeStyle = color;
-                    ctx.lineWidth = 2;
+                    ctx.lineWidth = 1.5;
                     ctx.beginPath();
-                    ctx.arc(rx, ry, mappedRadius, 0, Math.PI * 2);
+                    ctx.arc(rx, ry, size * 0.75, 0, Math.PI * 2);
                     ctx.stroke();
-                    
-                    // And a center dot
-                    ctx.beginPath();
-                    ctx.arc(rx, ry, 4, 0, Math.PI * 2);
-                    ctx.fill();
                 } else if (isSquare) {
                     ctx.fillRect(rx - size/2, ry - size/2, size, size);
                 } else {
@@ -4731,31 +4729,36 @@
                     ctx.arc(rx, ry, size, 0, Math.PI * 2);
                     ctx.fill();
                 }
-                ctx.shadowBlur = 0;
+
+                ctx.restore();
             }
 
-            // Draw Radiant Solar Star Blip (Golden Sun Circle - Scaled for 450,000 unit solar star distance)
+            // Draw Radiant Solar Star Blip (Golden)
             if (spaceSun && spaceSun.position) {
-                const sunScaledPos = spaceSun.position.clone().multiplyScalar(0.05);
-                drawBlip(sunScaledPos, '#fbbf24', 9, false);
+                drawBlip(spaceSun.position, '#fbbf24', 6, false, 'SUN');
             }
 
-            // Draw Space Planet Blip (Cyan Glowing Circle) - Pass planet radius (9000)
+            // Draw Space Planet Blip (Cyan)
             if (spacePlanet && spacePlanet.position) {
-                drawBlip(spacePlanet.position, '#00f0ff', 8, false, 9000);
+                drawBlip(spacePlanet.position, '#00f0ff', 7, false, 'PLANET');
             }
 
-            // Draw Red Blips for Enemy Ships
-            enemyShips.forEach(enemy => {
-                if (enemy && enemy.position) {
-                    drawBlip(enemy.position, '#ff3b5c', 4, false);
-                }
-            });
+            // Draw Precursor Wormhole Gate Blip (Purple Ring)
+            if (wormholeGate && wormholeGate.position) {
+                drawBlip(wormholeGate.position, '#8b5cf6', 5, false, 'GATE');
+            }
 
             // Draw Purple Square Blip for Capital Dreadnought
             if (capitalShip && capitalShip.position) {
-                drawBlip(capitalShip.position, '#a855f7', 7, true);
+                drawBlip(capitalShip.position, '#a855f7', 7, true, 'DREADNOUGHT');
             }
+
+            // Draw Red Blips for Active Living Enemy Ships
+            enemyShips.forEach(enemy => {
+                if (enemy && enemy.position && enemy.userData && enemy.userData.hp > 0) {
+                    drawBlip(enemy.position, '#ff3b5c', 4.5, false, 'ENEMY');
+                }
+            });
         }
 
         // --- PILOT PROFILE & 3D SHIP UPGRADE HANGAR RENDERER & LOGIC ---
@@ -5310,7 +5313,7 @@
             const planetIconGeo = new THREE.SphereGeometry(9, 32, 32);
             const planetIconMat = new THREE.MeshBasicMaterial({ color: 0x0284c7 });
             mapPlanetMesh = new THREE.Mesh(planetIconGeo, planetIconMat);
-            mapPlanetMesh.position.set(-38, 5, -45);
+            mapPlanetMesh.position.set(-34, -12, -56);
             mapGroup.add(mapPlanetMesh);
 
             const ringIconGeo = new THREE.RingGeometry(11, 18, 32);
@@ -5320,36 +5323,29 @@
             mapPlanetMesh.add(mapRing);
 
             // 3. Sol Primary Star
-            const sunIconGeo = new THREE.SphereGeometry(15, 32, 32);
+            const sunIconGeo = new THREE.SphereGeometry(14, 32, 32);
             const sunIconMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
             mapSunMesh = new THREE.Mesh(sunIconGeo, sunIconMat);
-            mapSunMesh.position.set(85, 45, 60);
+            mapSunMesh.position.set(65, 25, 45);
             mapGroup.add(mapSunMesh);
 
             // 4. Precursor Wormhole Gate
-            const gateIconGeo = new THREE.TorusGeometry(4.0, 0.9, 16, 32);
+            const gateIconGeo = new THREE.TorusGeometry(3.5, 0.8, 16, 32);
             const gateIconMat = new THREE.MeshBasicMaterial({ color: 0x8b5cf6 });
             mapGateMesh = new THREE.Mesh(gateIconGeo, gateIconMat);
-            mapGateMesh.position.set(-15, 2, -28);
+            mapGateMesh.position.set(-0.6, 0.1, -1.4);
             mapGroup.add(mapGateMesh);
 
             // 5. Royal Capital Dreadnought Flagship
             const dreadIconGeo = new THREE.BoxGeometry(8.5, 3.8, 18);
             const dreadIconMat = new THREE.MeshBasicMaterial({ color: 0xa855f7 });
             mapDreadMesh = new THREE.Mesh(dreadIconGeo, dreadIconMat);
-            mapDreadMesh.position.set(28, 4, -42);
+            mapDreadMesh.position.set(-34, -12, -56);
             mapGroup.add(mapDreadMesh);
 
             // 6. Enemy Interceptors Swarm Group
             mapEnemyGroup = new THREE.Group();
             mapGroup.add(mapEnemyGroup);
-            for (let i = 0; i < 6; i++) {
-                const enemyIconGeo = new THREE.TetrahedronGeometry(1.2);
-                const enemyIconMat = new THREE.MeshBasicMaterial({ color: 0xff3b5c });
-                const mapEnemy = new THREE.Mesh(enemyIconGeo, enemyIconMat);
-                mapEnemy.position.set(-22 + (i % 3) * 7, (i % 2) * 4, -52 - i * 5);
-                mapEnemyGroup.add(mapEnemy);
-            }
 
             // Click & Drag to Orbit/Rotate 3D Star Map (EXACTLY MATCHING PILOT PROFILE)
             container.addEventListener('mousedown', (e) => {
@@ -5426,7 +5422,7 @@
             if (!mapRenderer || !mapScene || !mapCamera || !mapGroup) return;
 
             // Semi-Realtime Tracking: Continuously sync 3D map icon positions to actual spaceflight world coordinates
-            const scaleFactor = 0.005;
+            const scaleFactor = 0.004;
             if (playerShip && mapPlayerMesh) {
                 mapPlayerMesh.position.set(playerShip.position.x * scaleFactor, playerShip.position.y * scaleFactor, playerShip.position.z * scaleFactor);
                 mapPlayerMesh.quaternion.copy(playerShip.quaternion);
@@ -5435,20 +5431,37 @@
                 mapPlanetMesh.position.set(spacePlanet.position.x * scaleFactor, spacePlanet.position.y * scaleFactor, spacePlanet.position.z * scaleFactor);
             }
             if (spaceSun && mapSunMesh) {
-                mapSunMesh.position.set(spaceSun.position.x * 0.00008, spaceSun.position.y * 0.00008, spaceSun.position.z * 0.00008);
+                // Place Sun in its celestial azimuth/elevation on the tactical system map
+                mapSunMesh.position.set(65, 25, 45);
             }
             if (wormholeGate && mapGateMesh) {
                 mapGateMesh.position.set(wormholeGate.position.x * scaleFactor, wormholeGate.position.y * scaleFactor, wormholeGate.position.z * scaleFactor);
             }
             if (capitalShip && mapDreadMesh) {
                 mapDreadMesh.position.set(capitalShip.position.x * scaleFactor, capitalShip.position.y * scaleFactor, capitalShip.position.z * scaleFactor);
+                mapDreadMesh.quaternion.copy(capitalShip.quaternion);
             }
-            if (enemyShips && mapEnemyGroup) {
-                for (let i = 0; i < enemyShips.length && i < mapEnemyGroup.children.length; i++) {
-                    const es = enemyShips[i];
+            if (mapEnemyGroup) {
+                // Keep tactical map enemy markers in 100% sync with active living enemyShips
+                const activeEnemies = enemyShips.filter(e => e && e.userData && e.userData.hp > 0);
+                while (mapEnemyGroup.children.length < activeEnemies.length) {
+                    const enemyIconGeo = new THREE.TetrahedronGeometry(1.2);
+                    const enemyIconMat = new THREE.MeshBasicMaterial({ color: 0xff3b5c });
+                    const mapEnemy = new THREE.Mesh(enemyIconGeo, enemyIconMat);
+                    mapEnemyGroup.add(mapEnemy);
+                }
+                while (mapEnemyGroup.children.length > activeEnemies.length) {
+                    const child = mapEnemyGroup.children[mapEnemyGroup.children.length - 1];
+                    mapEnemyGroup.remove(child);
+                    if (child.geometry) child.geometry.dispose();
+                    if (child.material) child.material.dispose();
+                }
+                for (let i = 0; i < activeEnemies.length; i++) {
+                    const es = activeEnemies[i];
                     const me = mapEnemyGroup.children[i];
                     if (es && me) {
                         me.position.set(es.position.x * scaleFactor, es.position.y * scaleFactor, es.position.z * scaleFactor);
+                        me.quaternion.copy(es.quaternion);
                     }
                 }
             }
@@ -5584,17 +5597,29 @@
             if (!mapGroup) return;
             showToast(`📡 MAP TARGETING: ${targetType.toUpperCase()}`);
             if (targetType === 'player') {
-                mapTargetCamDistance = 60;
+                mapTargetCamDistance = 45;
+                mapTargetRotationX = 0.55;
+                mapTargetRotationY = 0;
             } else if (targetType === 'sun') {
-                mapTargetCamDistance = 150;
-            } else if (targetType === 'planet') {
                 mapTargetCamDistance = 85;
+                mapTargetRotationX = 0.35;
+                mapTargetRotationY = -0.95;
+            } else if (targetType === 'planet') {
+                mapTargetCamDistance = 65;
+                mapTargetRotationX = 0.50;
+                mapTargetRotationY = 0.75;
             } else if (targetType === 'wormhole') {
-                mapTargetCamDistance = 70;
+                mapTargetCamDistance = 35;
+                mapTargetRotationX = 0.55;
+                mapTargetRotationY = 0.10;
             } else if (targetType === 'dreadnought') {
-                mapTargetCamDistance = 80;
+                mapTargetCamDistance = 55;
+                mapTargetRotationX = 0.50;
+                mapTargetRotationY = 0.75;
             } else if (targetType === 'enemies') {
-                mapTargetCamDistance = 95;
+                mapTargetCamDistance = 45;
+                mapTargetRotationX = 0.60;
+                mapTargetRotationY = 0;
             }
         }
 
