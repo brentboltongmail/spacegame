@@ -10,8 +10,8 @@
       "y": 82
     },
     "hud-radar-card": {
-      "x": 3,
-      "y": -25
+      "x": 15,
+      "y": -31
     },
     "drag-interceptor-status": {
       "x": 676,
@@ -42,8 +42,8 @@
       "y": -73
     },
     "hud-action-bar-card": {
-      "x": -15,
-      "y": 30
+      "x": -384,
+      "y": -368
     }
   },
   "settings": {
