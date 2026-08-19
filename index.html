@@ -1637,6 +1637,7 @@
                     🖱️ <strong>Left-Click Drag</strong>: Pan Map | <strong>Right-Click Drag</strong>: Rotate Angle | <strong>Scroll Wheel</strong>: Zoom
                 </div>
             </div>
+        </div>
         <!-- Game & Audio Options Modal Overlay -->
         <div id="options-modal">
             <div class="modal-header">
@@ -2449,8 +2450,8 @@
             
             // Widen the ring significantly
             const innerRadius = 9500;
-            const outerRadius = 24000;
-            const ringThickness = 1200;
+            const outerRadius = 18200; // Reduced width by 40%
+            const ringThickness = 2400; // Doubled thickness
             
             // Planet-like color palette
             const colors = [
@@ -2474,8 +2475,8 @@
                 
                 dummy.position.set(x, y, z);
                 
-                // 60% reduced sizes
-                const scale = (Math.random() * 80 + 10) * 0.4;
+                // Ranging from half previous (2) to double previous (72)
+                const scale = Math.random() * 70 + 2;
                 dummy.scale.set(scale, scale, scale);
                 
                 // Random rotation
@@ -4386,7 +4387,7 @@
 
                 // --- DREADNOUGHT PLANETARY ORBITAL FLIGHT PHYSICS ---
                 if (spacePlanet) {
-                    dreadOrbitAngle += 0.00014; // Slowed by 50% for smoother cinematic orbital cruise
+                    dreadOrbitAngle += 0.00007; // Slowed by 50% again for smoother cinematic orbital cruise
                     const orbitRadius = 11200; // Low-to-mid orbit above atmospheric rim (9,160) & within ring system
                     const orbitInclination = 0.26; // ~15° orbital plane inclination
 
