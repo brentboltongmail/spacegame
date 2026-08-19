@@ -703,6 +703,112 @@
             width: 100%;
             height: 100%;
         }
+
+        /* Pilot Profile & 3D Ship Upgrade Hangar Modal (ESC Key Toggle) */
+        #ship-upgrade-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(4, 8, 20, 0.94);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            padding: 30px 40px;
+            box-sizing: border-box;
+            color: #e2e8f0;
+            font-family: var(--font-body);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.25);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+        .modal-title-group h1 {
+            font-family: var(--font-head);
+            font-size: 1.8rem;
+            color: var(--accent-cyan);
+            letter-spacing: 2px;
+            margin: 0;
+            text-shadow: 0 0 16px rgba(0, 240, 255, 0.4);
+        }
+        .modal-body-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 30px;
+            height: calc(100% - 100px);
+        }
+        .hangar-viewport-card {
+            background: rgba(11, 18, 36, 0.85);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 14px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.15);
+        }
+        .hangar-canvas-container {
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+        .hangar-canvas-container:active {
+            cursor: grabbing;
+        }
+        .hangar-overlay-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 240, 255, 0.15);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-family: var(--font-sub);
+            font-size: 0.82rem;
+            color: var(--accent-cyan);
+            pointer-events: none;
+            text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+        }
+        .upgrade-controls-panel {
+            background: rgba(11, 18, 36, 0.85);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 14px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+        }
+        .profile-stat-box {
+            background: rgba(15, 23, 42, 0.8);
+            border-left: 4px solid var(--accent-gold);
+            padding: 14px 18px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .module-upgrade-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 14px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        .module-upgrade-card:hover {
+            border-color: rgba(0, 240, 255, 0.4);
+            background: rgba(15, 23, 42, 0.9);
+        }
     </style>
 </head>
 <body>
@@ -1043,6 +1149,107 @@
                 </div>
             </div>
         </section>
+
+        <!-- Pilot Profile & 3D Ship Upgrade Hangar Modal Overlay (ESC Key Toggle) -->
+        <div id="ship-upgrade-modal">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <h1>🛠️ PILOT PROFILE & SHIP UPGRADE HANGAR</h1>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Press <kbd style="background: rgba(0,240,255,0.2); border: 1px solid #00f0ff; color: #00f0ff; padding: 2px 6px;">ESC</kbd> or click Resume Flight to unpause & return</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div style="font-size: 1.1rem; font-family: Orbitron; color: var(--accent-gold); font-weight: 700; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); padding: 8px 18px; border-radius: 8px;">
+                        💰 CREDITS: <span id="hangar-credits-display">125,000 SC</span>
+                    </div>
+                    <button class="sim-btn" onclick="togglePauseUpgradeModal()" style="font-size: 1rem; padding: 10px 24px; background: linear-gradient(135deg, #0284c7, #00f0ff); color: #000; font-weight: 700; border: none; cursor: pointer; border-radius: 8px;">
+                        🚀 Resume Flight
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-body-grid">
+                <!-- Left Column: Interactive 3D Ship Viewport (Click & Drag to Rotate) -->
+                <div class="hangar-viewport-card">
+                    <div style="position: absolute; top: 16px; left: 16px; z-index: 10; font-family: Orbitron; font-size: 0.9rem; color: var(--accent-cyan); letter-spacing: 1px;">
+                        🛸 VOID INTERCEPTOR MK-IV [3D INSPECTOR]
+                    </div>
+                    <div id="hangar-canvas-container" class="hangar-canvas-container">
+                        <canvas id="upgrade-ship-canvas"></canvas>
+                    </div>
+                    <div class="hangar-overlay-hint">
+                        🖱️ Click & Drag to Orbit/Rotate 3D Void Interceptor
+                    </div>
+                </div>
+
+                <!-- Right Column: Pilot Profile & Ship Upgrade Modules -->
+                <div class="upgrade-controls-panel">
+                    <div class="profile-stat-box">
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); font-family: Orbitron;">ACTIVE PILOT</div>
+                            <div style="font-size: 1.2rem; font-family: Orbitron; font-weight: 700; color: #fff;">Pilot Apex</div>
+                            <div style="font-size: 0.8rem; color: var(--accent-gold);">Rank: Elite Interceptor Ace</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 0.75rem; color: var(--text-muted); font-family: Orbitron;">VESSEL CLASS</div>
+                            <div style="font-size: 1.1rem; font-family: Orbitron; color: var(--accent-cyan);">Void Interceptor</div>
+                            <div style="font-size: 0.8rem; color: #94a3b8;">Hull Integrity: 100%</div>
+                        </div>
+                    </div>
+
+                    <div style="font-family: Orbitron; font-size: 1rem; color: var(--accent-cyan); margin-top: 6px; border-bottom: 1px solid rgba(0,240,255,0.2); padding-bottom: 6px;">
+                        🔧 SHIP UPGRADE MODULES
+                    </div>
+
+                    <!-- Module 1: Plasma Cannons -->
+                    <div class="module-upgrade-card">
+                        <div>
+                            <div style="font-family: Orbitron; font-weight: 700; color: #fff;">⚡ Quantum Plasma Blasters</div>
+                            <div style="font-size: 0.8rem; color: #94a3b8;">Increases firing rate & energy bolt damage (+20%)</div>
+                            <div id="lbl-mod-blasters" style="font-size: 0.75rem; color: var(--accent-cyan); margin-top: 4px;">Level 3 / 5</div>
+                        </div>
+                        <button id="btn-mod-blasters" class="sim-btn" onclick="buyShipUpgrade('blasters', 15000)" style="font-size: 0.8rem; padding: 8px 14px;">
+                            Upgrade (15,000 SC)
+                        </button>
+                    </div>
+
+                    <!-- Module 2: Deflector Shield Matrix -->
+                    <div class="module-upgrade-card">
+                        <div>
+                            <div style="font-family: Orbitron; font-weight: 700; color: #fff;">🛡️ Deflector Shield Generator</div>
+                            <div style="font-size: 0.8rem; color: #94a3b8;">Increases shield capacity & recharge speed (+25%)</div>
+                            <div id="lbl-mod-shields" style="font-size: 0.75rem; color: var(--accent-cyan); margin-top: 4px;">Level 4 / 5</div>
+                        </div>
+                        <button id="btn-mod-shields" class="sim-btn" onclick="buyShipUpgrade('shields', 22000)" style="font-size: 0.8rem; padding: 8px 14px;">
+                            Upgrade (22,000 SC)
+                        </button>
+                    </div>
+
+                    <!-- Module 3: Ion Thruster Nacelles -->
+                    <div class="module-upgrade-card">
+                        <div>
+                            <div style="font-family: Orbitron; font-weight: 700; color: #fff;">🚀 Ion Thruster Nacelles</div>
+                            <div style="font-size: 0.8rem; color: #94a3b8;">Increases top flight speed & acceleration (+15%)</div>
+                            <div id="lbl-mod-thrusters" style="font-size: 0.75rem; color: var(--accent-cyan); margin-top: 4px;">Level 3 / 5</div>
+                        </div>
+                        <button id="btn-mod-thrusters" class="sim-btn" onclick="buyShipUpgrade('thrusters', 18000)" style="font-size: 0.8rem; padding: 8px 14px;">
+                            Upgrade (18,000 SC)
+                        </button>
+                    </div>
+
+                    <!-- Module 4: Tactical Sensor Array -->
+                    <div class="module-upgrade-card">
+                        <div>
+                            <div style="font-family: Orbitron; font-weight: 700; color: #fff;">📡 Tactical Sensor Array</div>
+                            <div style="font-size: 0.8rem; color: #94a3b8;">Expands long-range radar sweep & target lock (25.0 KM)</div>
+                            <div id="lbl-mod-sensors" style="font-size: 0.75rem; color: var(--accent-cyan); margin-top: 4px;">Level 4 / 5</div>
+                        </div>
+                        <button id="btn-mod-sensors" class="sim-btn" onclick="buyShipUpgrade('sensors', 12000)" style="font-size: 0.8rem; padding: 8px 14px;">
+                            Upgrade (12,000 SC)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <!-- Toast Notification -->
@@ -1402,6 +1609,7 @@
 
             window.addEventListener('keydown', (e) => {
                 if (keys.hasOwnProperty(e.code)) keys[e.code] = true;
+                if (e.code === 'Escape') togglePauseUpgradeModal();
                 if (e.code === 'Space') firePlasmaLaser();
                 if (e.code === 'KeyC') toggleCameraMode();
                 if (e.code === 'KeyL') {
@@ -1972,6 +2180,11 @@
         function animate() {
             requestAnimationFrame(animate);
 
+            if (isGamePaused) {
+                renderUpgradeHangar3D();
+                return;
+            }
+
             // --- W / S Throttle Speed Controls (W = Accelerate, S = Decelerate) ---
             const accelRate = 0.44; // Smooth acceleration step rate
             const maxSpeedCap = 200;
@@ -2368,6 +2581,189 @@
             if (capitalShip && capitalShip.position) {
                 drawBlip(capitalShip.position, '#a855f7', 7, true);
             }
+        }
+
+        // --- PILOT PROFILE & 3D SHIP UPGRADE HANGAR RENDERER & LOGIC ---
+        let isGamePaused = false;
+        let playerCredits = 125000;
+        let upgradeHangarScene, upgradeHangarCamera, upgradeHangarRenderer, upgradeHangarShip, hangarShieldMesh;
+        let isHangarDragging = false;
+        let previousHangarMousePosition = { x: 0, y: 0 };
+        let hangarTargetRotationY = 0;
+        let hangarTargetRotationX = 0;
+        let hangarCamTargetPos = new THREE.Vector3(0, 1.8, 11);
+        let hangarCamLookAtPos = new THREE.Vector3(0, 0, 0);
+
+        const shipUpgrades = {
+            blasters: { level: 3, maxLevel: 5, cost: 15000, name: 'Quantum Plasma Blasters' },
+            shields:  { level: 4, maxLevel: 5, cost: 22000, name: 'Deflector Shield Generator' },
+            thrusters: { level: 3, maxLevel: 5, cost: 18000, name: 'Ion Thruster Nacelles' },
+            sensors:  { level: 4, maxLevel: 5, cost: 12000, name: 'Tactical Sensor Array' }
+        };
+
+        function initUpgradeHangar3D() {
+            const container = document.getElementById('hangar-canvas-container');
+            const canvas = document.getElementById('upgrade-ship-canvas');
+            if (!container || !canvas) return;
+
+            upgradeHangarScene = new THREE.Scene();
+            upgradeHangarScene.background = new THREE.Color(0x060914);
+
+            upgradeHangarCamera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 100);
+            upgradeHangarCamera.position.copy(hangarCamTargetPos);
+            upgradeHangarCamera.lookAt(hangarCamLookAtPos);
+
+            upgradeHangarRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            upgradeHangarRenderer.setSize(container.clientWidth, container.clientHeight);
+            upgradeHangarRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            // Warm Industrial Hangar Spotlighting & Rim Light
+            const amb = new THREE.AmbientLight(0x94a3b8, 3.5);
+            upgradeHangarScene.add(amb);
+
+            const spot = new THREE.SpotLight(0xfffaed, 5);
+            spot.position.set(6, 14, 10);
+            spot.angle = Math.PI / 4;
+            upgradeHangarScene.add(spot);
+
+            const rim = new THREE.DirectionalLight(0x00f0ff, 3);
+            rim.position.set(-8, -4, -6);
+            upgradeHangarScene.add(rim);
+
+            // 3D Holographic Hangar Floor Grid & Energy Ring
+            const grid = new THREE.GridHelper(30, 30, 0x00f0ff, 0x1e293b);
+            grid.position.y = -2.2;
+            upgradeHangarScene.add(grid);
+
+            const padGeo = new THREE.RingGeometry(7.5, 7.8, 64);
+            padGeo.rotateX(Math.PI / 2);
+            const padMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, side: THREE.DoubleSide, transparent: true, opacity: 0.6 });
+            const padRing = new THREE.Mesh(padGeo, padMat);
+            padRing.position.y = -2.18;
+            upgradeHangarScene.add(padRing);
+
+            // Build Hangar Ship Group & Clone Void Interceptor
+            upgradeHangarShip = new THREE.Group();
+            if (playerShip) {
+                const clonedShip = playerShip.clone(true);
+                clonedShip.visible = true;
+                clonedShip.position.set(0, 0, 0);
+                clonedShip.rotation.set(0, 0, 0);
+                upgradeHangarShip.add(clonedShip);
+            }
+            upgradeHangarScene.add(upgradeHangarShip);
+
+            // Holographic Deflector Shield Mesh
+            const shGeo = new THREE.SphereGeometry(4.2, 32, 32);
+            const shMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.0, wireframe: true });
+            hangarShieldMesh = new THREE.Mesh(shGeo, shMat);
+            upgradeHangarShip.add(hangarShieldMesh);
+
+            // Click & Drag to Orbit/Rotate 3D Ship Listeners
+            container.addEventListener('mousedown', (e) => {
+                isHangarDragging = true;
+                previousHangarMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isHangarDragging || !upgradeHangarShip) return;
+                const deltaX = e.clientX - previousHangarMousePosition.x;
+                const deltaY = e.clientY - previousHangarMousePosition.y;
+
+                hangarTargetRotationY += deltaX * 0.008;
+                hangarTargetRotationX += deltaY * 0.008;
+
+                previousHangarMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('mouseup', () => { isHangarDragging = false; });
+        }
+
+        function renderUpgradeHangar3D() {
+            if (!upgradeHangarRenderer || !upgradeHangarShip) return;
+
+            // Smooth rotation lerp
+            upgradeHangarShip.rotation.y += (hangarTargetRotationY - upgradeHangarShip.rotation.y) * 0.12;
+            upgradeHangarShip.rotation.x += (hangarTargetRotationX - upgradeHangarShip.rotation.x) * 0.12;
+
+            // Slow idle spin when not dragging
+            if (!isHangarDragging) {
+                hangarTargetRotationY += 0.003;
+            }
+
+            upgradeHangarCamera.position.lerp(hangarCamTargetPos, 0.1);
+            upgradeHangarCamera.lookAt(hangarCamLookAtPos);
+
+            upgradeHangarRenderer.render(upgradeHangarScene, upgradeHangarCamera);
+        }
+
+        function togglePauseUpgradeModal() {
+            isGamePaused = !isGamePaused;
+            const modal = document.getElementById('ship-upgrade-modal');
+
+            if (isGamePaused) {
+                if (modal) modal.style.display = 'flex';
+                if (!upgradeHangarRenderer) {
+                    initUpgradeHangar3D();
+                } else if (playerShip && upgradeHangarShip) {
+                    upgradeHangarShip.clear();
+                    const clonedShip = playerShip.clone(true);
+                    clonedShip.visible = true;
+                    upgradeHangarShip.add(clonedShip);
+                }
+                showToast("⏸️ GAME PAUSED — PILOT PROFILE & SHIP UPGRADE HANGAR");
+            } else {
+                if (modal) modal.style.display = 'none';
+                showToast("▶️ GAME RESUMED — SPACEFLIGHT ACTIVE");
+            }
+        }
+
+        function buyShipUpgrade(modKey, cost) {
+            const mod = shipUpgrades[modKey];
+            if (!mod) return;
+
+            if (playerCredits < cost) {
+                showToast("❌ INSUFFICIENT CREDITS! Complete missions to earn Star Credits.");
+                return;
+            }
+
+            if (mod.level >= mod.maxLevel) {
+                showToast("⚠️ MODULE ALREADY AT MAXIMUM LEVEL!");
+                return;
+            }
+
+            playerCredits -= cost;
+            mod.level++;
+            mod.cost = Math.round(mod.cost * 1.5);
+
+            // Update Credits UI
+            const credDisp = document.getElementById('hangar-credits-display');
+            if (credDisp) credDisp.innerText = `${playerCredits.toLocaleString()} SC`;
+
+            const lbl = document.getElementById(`lbl-mod-${modKey}`);
+            if (lbl) {
+                lbl.innerText = mod.level >= mod.maxLevel ? `Level ${mod.level} / 5 [MAXED]` : `Level ${mod.level} / 5`;
+                if (mod.level >= mod.maxLevel) lbl.style.color = 'var(--accent-gold)';
+            }
+
+            const btn = document.getElementById(`btn-mod-${modKey}`);
+            if (btn) {
+                if (mod.level >= mod.maxLevel) {
+                    btn.innerText = 'MAX LEVEL';
+                    btn.disabled = true;
+                    btn.style.opacity = '0.5';
+                } else {
+                    btn.innerText = `Upgrade (${mod.cost.toLocaleString()} SC)`;
+                }
+            }
+
+            // Visual shield pulse if shield upgraded
+            if (modKey === 'shields' && hangarShieldMesh) {
+                hangarShieldMesh.material.opacity = 0.6;
+                setTimeout(() => { hangarShieldMesh.material.opacity = 0.0; }, 1200);
+            }
+
+            showToast(`✨ UPGRADED ${mod.name.toUpperCase()} TO LEVEL ${mod.level}!`);
         }
 
         function onWindowResize() {
