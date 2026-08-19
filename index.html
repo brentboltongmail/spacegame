@@ -1872,9 +1872,9 @@
                 if (Math.abs(playerShip.rotation.z) < 0.001) playerShip.rotation.z = 0;
             }
 
-            // Move ship forward
+            // Move ship forward (Physical 3D world movement 60% slower)
             const moveDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
-            playerShip.position.addScaledVector(moveDir, currentSpeed * 0.008);
+            playerShip.position.addScaledVector(moveDir, currentSpeed * 0.0032);
 
             // Keep starfield celestial dome anchored to player position so stars stay far off on horizon
             if (starfield) starfield.position.copy(playerShip.position);
