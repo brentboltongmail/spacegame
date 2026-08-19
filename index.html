@@ -1596,8 +1596,11 @@
             </div>
 
             <div class="map-body-container">
-                <div id="map-canvas-container" class="map-canvas-box">
+                <div id="map-canvas-container" class="map-canvas-box" style="position: relative;">
                     <canvas id="tactical-map-canvas"></canvas>
+                    <div id="map-tooltip" style="position: absolute; top: 0; left: 0; display: none; pointer-events: none; background: rgba(15, 23, 42, 0.9); border: 1px solid #00f0ff; color: #fff; padding: 6px 12px; font-family: Orbitron, sans-serif; font-size: 12px; border-radius: 4px; z-index: 100; box-shadow: 0 0 10px rgba(0,240,255,0.2);">
+                        Target
+                    </div>
                 </div>
 
                 <!-- Left Legend & Object Telemetry Overlay -->
@@ -5288,6 +5291,9 @@
         let isTacticalMapOpen = false;
         let mapScene, mapCamera, mapRenderer, mapGroup;
         let mapPlayerMesh, mapSunMesh, mapPlanetMesh, mapGateMesh, mapDreadMesh, mapEnemyGroup;
+        let mapRaycaster = new THREE.Raycaster();
+        let mapMouse = new THREE.Vector2();
+        let mapHoveredObject = null;
         let isMapDragging = false;
         let previousMapMousePosition = { x: 0, y: 0 };
         let mapTargetRotationY = 0;
@@ -5349,6 +5355,7 @@
             playerIconGeo.rotateX(-Math.PI / 2);
             const playerIconMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
             mapPlayerMesh = new THREE.Mesh(playerIconGeo, playerIconMat);
+            mapPlayerMesh.userData = { label: "Void Interceptor (Player)" };
             mapPlayerMesh.position.set(0, 0, 0);
             mapGroup.add(mapPlayerMesh);
 
@@ -5363,6 +5370,7 @@
             const planetIconGeo = new THREE.SphereGeometry(36, 32, 32); // 9000 * 0.004
             const planetIconMat = new THREE.MeshBasicMaterial({ color: 0x0284c7 });
             mapPlanetMesh = new THREE.Mesh(planetIconGeo, planetIconMat);
+            mapPlanetMesh.userData = { label: "Vanguard Gas Giant" };
             mapPlanetMesh.position.set(-34, -12, -56);
             mapGroup.add(mapPlanetMesh);
 
@@ -5377,6 +5385,7 @@
             const sunIconGeo = new THREE.SphereGeometry(120, 32, 32); // 30000 * 0.004
             const sunIconMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
             mapSunMesh = new THREE.Mesh(sunIconGeo, sunIconMat);
+            mapSunMesh.userData = { label: "Sol Primary Star" };
             mapSunMesh.position.set(3000, 1600, 2000); // 750000, 400000, 500000 * 0.004
             mapGroup.add(mapSunMesh);
 
@@ -5384,6 +5393,7 @@
             const gateIconGeo = new THREE.TorusGeometry(3.5, 0.8, 16, 32);
             const gateIconMat = new THREE.MeshBasicMaterial({ color: 0x8b5cf6 });
             mapGateMesh = new THREE.Mesh(gateIconGeo, gateIconMat);
+            mapGateMesh.userData = { label: "Precursor Wormhole Gate" };
             mapGateMesh.position.set(-0.6, 0.1, -1.4);
             mapGroup.add(mapGateMesh);
 
@@ -5391,6 +5401,7 @@
             const dreadIconGeo = new THREE.BoxGeometry(8.5, 3.8, 18);
             const dreadIconMat = new THREE.MeshBasicMaterial({ color: 0xa855f7 });
             mapDreadMesh = new THREE.Mesh(dreadIconGeo, dreadIconMat);
+            mapDreadMesh.userData = { label: "Royal Dreadnought Flagship" };
             mapDreadMesh.position.set(-34, -12, -56);
             mapGroup.add(mapDreadMesh);
 
@@ -5414,19 +5425,27 @@
             }, { passive: true });
 
             window.addEventListener('mousemove', (e) => {
-                if (!isMapDragging || !mapGroup || !isTacticalMapOpen) return;
-                const deltaX = e.clientX - previousMapMousePosition.x;
-                const deltaY = e.clientY - previousMapMousePosition.y;
+                if (!mapGroup || !isTacticalMapOpen) return;
+                
+                // Track mouse for raycasting hover tooltip
+                const rect = container.getBoundingClientRect();
+                mapMouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+                mapMouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+                
+                if (isMapDragging) {
+                    const deltaX = e.clientX - previousMapMousePosition.x;
+                    const deltaY = e.clientY - previousMapMousePosition.y;
 
-                mapTargetRotationY += deltaX * 0.008;
-                mapTargetRotationX += deltaY * 0.008;
+                    mapTargetRotationY += deltaX * 0.008;
+                    mapTargetRotationX += deltaY * 0.008;
 
-                if (!window._lastDragLog || Date.now() - window._lastDragLog > 400) {
-                    window._lastDragLog = Date.now();
-                    remoteLog(`Map dragging: dX=${deltaX}, dY=${deltaY}, targetRotY=${mapTargetRotationY.toFixed(3)}, targetRotX=${mapTargetRotationX.toFixed(3)}`);
+                    if (!window._lastDragLog || Date.now() - window._lastDragLog > 400) {
+                        window._lastDragLog = Date.now();
+                        remoteLog(`Map dragging: dX=${deltaX}, dY=${deltaY}, targetRotY=${mapTargetRotationY.toFixed(3)}, targetRotX=${mapTargetRotationX.toFixed(3)}`);
+                    }
+
+                    previousMapMousePosition = { x: e.clientX, y: e.clientY };
                 }
-
-                previousMapMousePosition = { x: e.clientX, y: e.clientY };
             });
 
             window.addEventListener('touchmove', (e) => {
@@ -5499,6 +5518,7 @@
                     const enemyIconGeo = new THREE.TetrahedronGeometry(1.2);
                     const enemyIconMat = new THREE.MeshBasicMaterial({ color: 0xff3b5c });
                     const mapEnemy = new THREE.Mesh(enemyIconGeo, enemyIconMat);
+                    mapEnemy.userData = { label: "Enemy Interceptor" };
                     mapEnemyGroup.add(mapEnemy);
                 }
                 while (mapEnemyGroup.children.length > activeEnemies.length) {
@@ -5524,6 +5544,49 @@
 
             mapCamera.position.set(0, 0, mapCamDistance);
             mapCamera.lookAt(0, 0, 0);
+
+            // Map hover tooltip raycasting
+            if (mapRaycaster && mapMouse) {
+                mapRaycaster.setFromCamera(mapMouse, mapCamera);
+                
+                const interactables = [];
+                if (mapPlayerMesh) interactables.push(mapPlayerMesh);
+                if (mapPlanetMesh) interactables.push(mapPlanetMesh);
+                if (mapSunMesh) interactables.push(mapSunMesh);
+                if (mapGateMesh) interactables.push(mapGateMesh);
+                if (mapDreadMesh) interactables.push(mapDreadMesh);
+                if (mapEnemyGroup) interactables.push(...mapEnemyGroup.children);
+                
+                const intersects = mapRaycaster.intersectObjects(interactables, false);
+                const tooltip = document.getElementById('map-tooltip');
+                const container = document.getElementById('map-canvas-container');
+                
+                if (intersects.length > 0 && tooltip && container) {
+                    const obj = intersects[0].object;
+                    if (obj.userData && obj.userData.label) {
+                        tooltip.style.display = 'block';
+                        tooltip.innerText = obj.userData.label;
+                        
+                        const rect = container.getBoundingClientRect();
+                        const x = (mapMouse.x + 1) / 2 * rect.width;
+                        const y = -(mapMouse.y - 1) / 2 * rect.height;
+                        
+                        tooltip.style.left = (x + 15) + 'px';
+                        tooltip.style.top = (y + 15) + 'px';
+                        
+                        if (mapHoveredObject !== obj) {
+                            container.style.cursor = 'crosshair';
+                            mapHoveredObject = obj;
+                        }
+                    }
+                } else {
+                    if (tooltip) tooltip.style.display = 'none';
+                    if (mapHoveredObject && container) {
+                        container.style.cursor = 'default';
+                        mapHoveredObject = null;
+                    }
+                }
+            }
 
             if (!window._lastRenderLog || Date.now() - window._lastRenderLog > 2500) {
                 window._lastRenderLog = Date.now();
