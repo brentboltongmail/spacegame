@@ -817,6 +817,23 @@
                     </div>
                 </div>
 
+                <!-- Shield Percentage Gauge Box (Bottom Left Draggable with Thin Accent Handle Bar) -->
+                <div class="hud-card draggable-box" id="hud-shield-card" style="position: absolute; bottom: 85px; left: 25px; width: 200px; padding: 10px; z-index: 20; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px;">
+                    <div class="drag-handle-bar"></div>
+                    <div class="hud-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; margin-top: 4px;">
+                        <span style="font-size: 0.85rem; color: var(--accent-cyan);">🛡️ SHIELD MATRIX</span>
+                        <span style="color: var(--accent-cyan); font-size: 0.75rem; font-weight: 700;">ONLINE</span>
+                    </div>
+                    <div style="position: relative; width: 170px; height: 170px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                        <canvas id="shield-gauge-canvas" width="170" height="170"></canvas>
+                        <div style="position: absolute; text-align: center; pointer-events: none;">
+                            <div style="font-size: 0.7rem; color: var(--text-muted); font-family: Orbitron; letter-spacing: 1px;">SHIELDS</div>
+                            <div id="shield-pct-text" style="font-size: 2.1rem; font-weight: 900; font-family: Orbitron; color: var(--accent-cyan); text-shadow: 0 0 12px rgba(0,240,255,0.7); line-height: 1.1;">88%</div>
+                            <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;">RECHARGE 94%</div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Tactical Radar Box (Draggable with Thin Accent Handle Bar) -->
                 <div class="hud-card draggable-box" id="hud-radar-card" style="position: absolute; bottom: 85px; right: 25px; width: 220px; padding: 10px; z-index: 20; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px;">
                     <div class="drag-handle-bar"></div>
@@ -1628,7 +1645,62 @@
             });
 
             drawTacticalRadar();
+            drawShieldGauge();
             renderer.render(scene, camera);
+        }
+
+        let shieldPercent = 88;
+
+        function drawShieldGauge() {
+            const canvas = document.getElementById('shield-gauge-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            const cx = w / 2;
+            const cy = h / 2;
+
+            ctx.clearRect(0, 0, w, h);
+
+            const startAngle = -Math.PI * 0.82;
+            const endAngle = Math.PI * 0.82;
+            const totalAngle = endAngle - startAngle;
+
+            // Track Outer Ring
+            ctx.strokeStyle = 'rgba(0, 240, 255, 0.15)';
+            ctx.lineWidth = 9;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.arc(cx, cy, cx - 14, startAngle, endAngle);
+            ctx.stroke();
+
+            // Active Shield Value Arc
+            const fillAngle = startAngle + (shieldPercent / 100) * totalAngle;
+            ctx.strokeStyle = '#00f0ff';
+            ctx.shadowColor = '#00f0ff';
+            ctx.shadowBlur = 12;
+            ctx.lineWidth = 9;
+            ctx.beginPath();
+            ctx.arc(cx, cy, cx - 14, startAngle, fillAngle);
+            ctx.stroke();
+
+            // Inner Secondary Recharge Arc (94%)
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(cx, cy, cx - 28, startAngle, endAngle);
+            ctx.stroke();
+
+            const innerFill = startAngle + 0.94 * totalAngle;
+            ctx.strokeStyle = '#38bdf8';
+            ctx.shadowColor = '#38bdf8';
+            ctx.shadowBlur = 8;
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(cx, cy, cx - 28, startAngle, innerFill);
+            ctx.stroke();
+
+            ctx.shadowBlur = 0;
         }
 
         function drawTacticalRadar() {

@@ -2,8 +2,20 @@
   "username": "pilot_1",
   "boxPositions": {
     "drag-mouse-targeting-controls": {
-      "x": -426,
-      "y": -11
+      "x": -581,
+      "y": 3
+    },
+    "drag-sector-objective": {
+      "x": -163,
+      "y": -20
+    },
+    "hud-radar-card": {
+      "x": 3,
+      "y": -45
+    },
+    "drag-interceptor-status": {
+      "x": 11,
+      "y": 420
     }
   },
   "settings": {
