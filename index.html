@@ -2299,8 +2299,8 @@
         }
 
         let engineParticles = [];
-        const particleGeo = new THREE.SphereGeometry(0.10, 8, 8);
-        const particleMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.8 });
+        const particleGeo = new THREE.SphereGeometry(0.14, 8, 8); // Slightly thicker particle spheres
+        const particleMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.85 });
 
         function updateEngineParticleTrails() {
             if (!playerShip) return;
@@ -2327,25 +2327,32 @@
             const shipQuat = playerShip.quaternion;
             const backwardDir = new THREE.Vector3(0, 0, 1).applyQuaternion(shipQuat);
 
-            // Spawn exhaust particles with color shift from cyan at nozzle to reddish crimson at tail tip
+            // Spawn 3x denser exhaust particle stream per thruster nozzle per frame
             if (currentSpeed > 2) {
                 nozzleOffsets.forEach(offset => {
-                    const worldPos = offset.clone().applyQuaternion(shipQuat).add(playerShip.position);
-                    const pMesh = new THREE.Mesh(particleGeo, particleMat.clone());
-                    pMesh.position.copy(worldPos);
+                    for (let d = 0; d < 3; d++) { // 3x denser particle emission!
+                        const subJitter = new THREE.Vector3(
+                            (Math.random() - 0.5) * 0.08,
+                            (Math.random() - 0.5) * 0.08,
+                            (Math.random() - 0.5) * 0.08
+                        );
+                        const worldPos = offset.clone().add(subJitter).applyQuaternion(shipQuat).add(playerShip.position);
+                        const pMesh = new THREE.Mesh(particleGeo, particleMat.clone());
+                        pMesh.position.copy(worldPos);
 
-                    const vel = backwardDir.clone().multiplyScalar(0.24 + currentSpeed * 0.0015).add(
-                        new THREE.Vector3((Math.random() - 0.5) * 0.05, (Math.random() - 0.5) * 0.05, (Math.random() - 0.5) * 0.05)
-                    );
+                        const vel = backwardDir.clone().multiplyScalar(0.24 + currentSpeed * 0.0015).add(
+                            new THREE.Vector3((Math.random() - 0.5) * 0.05, (Math.random() - 0.5) * 0.05, (Math.random() - 0.5) * 0.05)
+                        );
 
-                    pMesh.userData = {
-                        velocity: vel,
-                        age: 0,
-                        maxAge: 14 + Math.floor(Math.random() * 6) // Slightly longer trail lifespan
-                    };
+                        pMesh.userData = {
+                            velocity: vel,
+                            age: 0,
+                            maxAge: 16 + Math.floor(Math.random() * 8)
+                        };
 
-                    scene.add(pMesh);
-                    engineParticles.push(pMesh);
+                        scene.add(pMesh);
+                        engineParticles.push(pMesh);
+                    }
                 });
             }
 

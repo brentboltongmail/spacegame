@@ -2,8 +2,8 @@
   "username": "pilot_1",
   "boxPositions": {
     "drag-mouse-targeting-controls": {
-      "x": -882,
-      "y": -23
+      "x": -828,
+      "y": -26
     },
     "drag-sector-objective": {
       "x": 9,
@@ -14,8 +14,8 @@
       "y": -25
     },
     "drag-interceptor-status": {
-      "x": -11,
-      "y": 449
+      "x": 676,
+      "y": 835
     },
     "box-5": {
       "x": 11,
@@ -40,6 +40,10 @@
     "drag-core-gameplay-mechanics-matrix": {
       "x": 3,
       "y": -73
+    },
+    "hud-action-bar-card": {
+      "x": -15,
+      "y": 30
     }
   },
   "settings": {
