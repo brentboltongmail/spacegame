@@ -809,6 +809,86 @@
             border-color: rgba(0, 240, 255, 0.4);
             background: rgba(15, 23, 42, 0.9);
         }
+
+        /* 3D Tactical Star Map Modal (M Key Toggle) */
+        #tactical-map-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(3, 6, 16, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            padding: 24px 36px;
+            box-sizing: border-box;
+            color: #e2e8f0;
+            font-family: var(--font-body);
+        }
+        .map-body-container {
+            position: relative;
+            width: 100%;
+            height: calc(100% - 80px);
+            background: rgba(8, 14, 28, 0.85);
+            border: 1px solid rgba(0, 240, 255, 0.35);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(0, 240, 255, 0.15);
+        }
+        .map-canvas-box {
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+        .map-canvas-box:active {
+            cursor: grabbing;
+        }
+        .map-legend-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(11, 18, 36, 0.85);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 10px;
+            padding: 16px;
+            width: 260px;
+            backdrop-filter: blur(12px);
+            pointer-events: auto;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            margin-top: 6px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.82rem;
+        }
+        .legend-item:hover {
+            border-color: rgba(0, 240, 255, 0.5);
+            background: rgba(15, 23, 42, 0.95);
+        }
+        .map-hint-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 240, 255, 0.15);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-family: var(--font-sub);
+            font-size: 0.82rem;
+            color: var(--accent-cyan);
+            pointer-events: none;
+            text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+        }
     </style>
 </head>
 <body>
@@ -1248,6 +1328,65 @@
                 </div>
             </div>
         </div>
+
+        <!-- 3D Tactical Star Map Modal Overlay (M Key Toggle) -->
+        <div id="tactical-map-modal">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <h1>🌐 3D TACTICAL SYSTEM STAR MAP</h1>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Press <kbd style="background: rgba(0,240,255,0.2); border: 1px solid #00f0ff; color: #00f0ff; padding: 2px 6px;">M</kbd> or <kbd style="background: rgba(0,240,255,0.2); border: 1px solid #00f0ff; color: #00f0ff; padding: 2px 6px;">ESC</kbd> to return to spaceflight</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div style="font-size: 0.9rem; font-family: Orbitron; color: var(--accent-cyan); background: rgba(0,240,255,0.1); border: 1px solid rgba(0,240,255,0.3); padding: 8px 16px; border-radius: 8px;">
+                        SECTOR: SOL OUTER RIM & SOVEREIGN REACH
+                    </div>
+                    <button class="sim-btn" onclick="toggleTacticalMapModal()" style="font-size: 1rem; padding: 10px 24px; background: linear-gradient(135deg, #0284c7, #00f0ff); color: #000; font-weight: 700; border: none; cursor: pointer; border-radius: 8px;">
+                        🚀 Return to Flight
+                    </button>
+                </div>
+            </div>
+
+            <div class="map-body-container">
+                <div id="map-canvas-container" class="map-canvas-box">
+                    <canvas id="tactical-map-canvas"></canvas>
+                </div>
+
+                <!-- Left Legend & Object Telemetry Overlay -->
+                <div class="map-legend-overlay">
+                    <div style="font-family: Orbitron; font-size: 0.85rem; color: var(--accent-cyan); letter-spacing: 1px; border-bottom: 1px solid rgba(0,240,255,0.2); padding-bottom: 6px; margin-bottom: 8px;">
+                        📡 SYSTEM OBJECT LEGEND
+                    </div>
+                    <div class="legend-item" onclick="focusMapObject('player')">
+                        <span style="color: #00f0ff; font-weight: 700;">🛸 Void Interceptor</span>
+                        <span style="color: #94a3b8;">PLAYER</span>
+                    </div>
+                    <div class="legend-item" onclick="focusMapObject('sun')">
+                        <span style="color: #fbbf24; font-weight: 700;">☀️ Sol Primary Star</span>
+                        <span style="color: #94a3b8;">1.0M KM</span>
+                    </div>
+                    <div class="legend-item" onclick="focusMapObject('planet')">
+                        <span style="color: #0284c7; font-weight: 700;">🪐 Aethelgard Gas Giant</span>
+                        <span style="color: #94a3b8;">14.0 KM</span>
+                    </div>
+                    <div class="legend-item" onclick="focusMapObject('wormhole')">
+                        <span style="color: #8b5cf6; font-weight: 700;">🌀 Precursor Wormhole</span>
+                        <span style="color: #94a3b8;">3.5 KM</span>
+                    </div>
+                    <div class="legend-item" onclick="focusMapObject('dreadnought')">
+                        <span style="color: #a855f7; font-weight: 700;">🛡️ Royal Dreadnought</span>
+                        <span style="color: #94a3b8;">4.8 KM</span>
+                    </div>
+                    <div class="legend-item" onclick="focusMapObject('enemies')">
+                        <span style="color: #ff3b5c; font-weight: 700;">🎯 Enemy Interceptors (6)</span>
+                        <span style="color: #94a3b8;">8.2 KM</span>
+                    </div>
+                </div>
+
+                <div class="map-hint-overlay">
+                    🖱️ Click & Drag to Orbit/Rotate 3D Star Map | Scroll Wheel to Zoom
+                </div>
+            </div>
+        </div>
     </main>
 
     <!-- Toast Notification -->
@@ -1625,7 +1764,14 @@
 
             window.addEventListener('keydown', (e) => {
                 if (keys.hasOwnProperty(e.code)) keys[e.code] = true;
-                if (e.code === 'Escape') togglePauseUpgradeModal();
+                if (e.code === 'KeyM') toggleTacticalMapModal();
+                if (e.code === 'Escape') {
+                    if (isTacticalMapOpen) {
+                        toggleTacticalMapModal();
+                    } else {
+                        togglePauseUpgradeModal();
+                    }
+                }
                 if (e.code === 'Space') firePlasmaLaser();
                 if (e.code === 'KeyC') toggleCameraMode();
                 if (e.code === 'KeyL') {
@@ -2274,7 +2420,11 @@
             requestAnimationFrame(animate);
 
             if (isGamePaused) {
-                renderUpgradeHangar3D();
+                if (isTacticalMapOpen) {
+                    renderTacticalMap3D();
+                } else {
+                    renderUpgradeHangar3D();
+                }
                 return;
             }
 
@@ -2989,6 +3139,187 @@
                 engineMasterGain.gain.setValueAtTime(isAudioMuted ? 0 : 0.32, audioCtx.currentTime);
             }
             showToast(isAudioMuted ? "🔇 COCKPIT ENGINE AUDIO MUTED" : "🔊 COCKPIT ENGINE AUDIO ACTIVE");
+        }
+
+        // --- 3D TACTICAL SYSTEM STAR MAP RENDERER & INTERACTIVITY ---
+        let isTacticalMapOpen = false;
+        let mapScene, mapCamera, mapRenderer, mapGroup;
+        let isMapDragging = false;
+        let previousMapMousePosition = { x: 0, y: 0 };
+        let mapTargetRotationY = 0;
+        let mapTargetRotationX = 0.4;
+        let mapCamDistance = 120;
+        let mapTargetCamPos = new THREE.Vector3(0, 40, 120);
+
+        function initTacticalMap3D() {
+            const container = document.getElementById('map-canvas-container');
+            const canvas = document.getElementById('tactical-map-canvas');
+            if (!container || !canvas) return;
+
+            mapScene = new THREE.Scene();
+            mapScene.background = new THREE.Color(0x030610);
+
+            mapCamera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 5000);
+            mapCamera.position.copy(mapTargetCamPos);
+            mapCamera.lookAt(0, 0, 0);
+
+            mapRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            mapRenderer.setSize(container.clientWidth, container.clientHeight);
+            mapRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            const amb = new THREE.AmbientLight(0xffffff, 2.2);
+            mapScene.add(amb);
+
+            mapGroup = new THREE.Group();
+            mapScene.add(mapGroup);
+
+            // 3D Holographic System Grid & Range Rings
+            const grid = new THREE.GridHelper(220, 44, 0x00f0ff, 0x1e293b);
+            grid.position.y = -10;
+            mapGroup.add(grid);
+
+            [25, 50, 75, 100].forEach(r => {
+                const ringGeo = new THREE.RingGeometry(r - 0.3, r, 64);
+                ringGeo.rotateX(Math.PI / 2);
+                const ringMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, side: THREE.DoubleSide, transparent: true, opacity: 0.35 });
+                const ring = new THREE.Mesh(ringGeo, ringMat);
+                ring.position.y = -9.8;
+                mapGroup.add(ring);
+            });
+
+            // Populate 3D Map Objects (Scaled to fit tactical system map viewport)
+            // 1. Player Ship (Cyan Fighter Icon)
+            const playerIconGeo = new THREE.ConeGeometry(1.4, 3.5, 8);
+            playerIconGeo.rotateX(Math.PI / 2);
+            const playerIconMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
+            const mapPlayer = new THREE.Mesh(playerIconGeo, playerIconMat);
+            mapPlayer.position.set(0, 0, 0);
+            mapGroup.add(mapPlayer);
+
+            // Pulsing Position Beacon Ring
+            const pRingGeo = new THREE.RingGeometry(2.5, 2.9, 32);
+            pRingGeo.rotateX(Math.PI / 2);
+            const pRingMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, side: THREE.DoubleSide, transparent: true, opacity: 0.8 });
+            const pRing = new THREE.Mesh(pRingGeo, pRingMat);
+            mapPlayer.add(pRing);
+
+            // 2. Gas Giant Planet & Ice Rings
+            const planetIconGeo = new THREE.SphereGeometry(9, 32, 32);
+            const planetIconMat = new THREE.MeshBasicMaterial({ color: 0x0284c7 });
+            const mapPlanet = new THREE.Mesh(planetIconGeo, planetIconMat);
+            mapPlanet.position.set(-38, 5, -45);
+            mapGroup.add(mapPlanet);
+
+            const ringIconGeo = new THREE.RingGeometry(11, 18, 32);
+            ringIconGeo.rotateX(Math.PI / 2);
+            const ringIconMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, side: THREE.DoubleSide, transparent: true, opacity: 0.65 });
+            const mapRing = new THREE.Mesh(ringIconGeo, ringIconMat);
+            mapPlanet.add(mapRing);
+
+            // 3. Sol Primary Star
+            const sunIconGeo = new THREE.SphereGeometry(15, 32, 32);
+            const sunIconMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
+            const mapSun = new THREE.Mesh(sunIconGeo, sunIconMat);
+            mapSun.position.set(85, 45, 60);
+            mapGroup.add(mapSun);
+
+            // 4. Precursor Wormhole Gate
+            const gateIconGeo = new THREE.TorusGeometry(4.0, 0.9, 16, 32);
+            const gateIconMat = new THREE.MeshBasicMaterial({ color: 0x8b5cf6 });
+            const mapGate = new THREE.Mesh(gateIconGeo, gateIconMat);
+            mapGate.position.set(-15, 2, -28);
+            mapGroup.add(mapGate);
+
+            // 5. Royal Capital Dreadnought Flagship
+            const dreadIconGeo = new THREE.BoxGeometry(4.5, 2.2, 10);
+            const dreadIconMat = new THREE.MeshBasicMaterial({ color: 0xa855f7 });
+            const mapDread = new THREE.Mesh(dreadIconGeo, dreadIconMat);
+            mapDread.position.set(28, 4, -42);
+            mapGroup.add(mapDread);
+
+            // 6. Enemy Interceptors Swarm
+            for (let i = 0; i < 6; i++) {
+                const enemyIconGeo = new THREE.TetrahedronGeometry(1.2);
+                const enemyIconMat = new THREE.MeshBasicMaterial({ color: 0xff3b5c });
+                const mapEnemy = new THREE.Mesh(enemyIconGeo, enemyIconMat);
+                mapEnemy.position.set(-22 + (i % 3) * 7, (i % 2) * 4, -52 - i * 5);
+                mapGroup.add(mapEnemy);
+            }
+
+            // Mouse Drag to Orbit & Scroll Wheel Zoom Listeners
+            container.addEventListener('mousedown', (e) => {
+                isMapDragging = true;
+                previousMapMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isMapDragging || !mapGroup) return;
+                const deltaX = e.clientX - previousMapMousePosition.x;
+                const deltaY = e.clientY - previousMapMousePosition.y;
+
+                mapTargetRotationY += deltaX * 0.008;
+                mapTargetRotationX += deltaY * 0.008;
+
+                previousMapMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('mouseup', () => { isMapDragging = false; });
+
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                mapCamDistance += e.deltaY * 0.08;
+                mapCamDistance = Math.min(Math.max(mapCamDistance, 30), 280);
+                mapTargetCamPos.set(0, mapCamDistance * 0.35, mapCamDistance);
+            }, { passive: false });
+        }
+
+        function renderTacticalMap3D() {
+            if (!mapRenderer || !mapGroup) return;
+
+            mapGroup.rotation.y += (mapTargetRotationY - mapGroup.rotation.y) * 0.12;
+            mapGroup.rotation.x += (mapTargetRotationX - mapGroup.rotation.x) * 0.12;
+
+            mapCamera.position.lerp(mapTargetCamPos, 0.1);
+            mapCamera.lookAt(0, 0, 0);
+
+            mapRenderer.render(mapScene, mapCamera);
+        }
+
+        function toggleTacticalMapModal() {
+            isTacticalMapOpen = !isTacticalMapOpen;
+            const modal = document.getElementById('tactical-map-modal');
+
+            if (isTacticalMapOpen) {
+                isGamePaused = true;
+                if (modal) modal.style.display = 'flex';
+                if (!mapRenderer) {
+                    initTacticalMap3D();
+                }
+                showToast("🌐 3D TACTICAL SYSTEM STAR MAP OPEN");
+            } else {
+                isGamePaused = false;
+                if (modal) modal.style.display = 'none';
+                showToast("▶️ RESUMED SPACEFLIGHT");
+            }
+        }
+
+        function focusMapObject(targetType) {
+            if (!mapGroup) return;
+            showToast(`📡 MAP TARGETING: ${targetType.toUpperCase()}`);
+            if (targetType === 'player') {
+                mapTargetRotationY = 0; mapTargetRotationX = 0.4; mapCamDistance = 60;
+            } else if (targetType === 'sun') {
+                mapTargetRotationY = -0.8; mapTargetRotationX = 0.2; mapCamDistance = 140;
+            } else if (targetType === 'planet') {
+                mapTargetRotationY = 0.6; mapTargetRotationX = 0.3; mapCamDistance = 80;
+            } else if (targetType === 'wormhole') {
+                mapTargetRotationY = 0.3; mapTargetRotationX = 0.3; mapCamDistance = 70;
+            } else if (targetType === 'dreadnought') {
+                mapTargetRotationY = -0.4; mapTargetRotationX = 0.3; mapCamDistance = 75;
+            } else if (targetType === 'enemies') {
+                mapTargetRotationY = 0.4; mapTargetRotationX = 0.5; mapCamDistance = 90;
+            }
+            mapTargetCamPos.set(0, mapCamDistance * 0.35, mapCamDistance);
         }
 
         function onWindowResize() {
