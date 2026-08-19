@@ -2,12 +2,12 @@
   "username": "pilot_1",
   "boxPositions": {
     "drag-mouse-targeting-controls": {
-      "x": -707,
-      "y": -26
+      "x": -882,
+      "y": -23
     },
     "drag-sector-objective": {
-      "x": -156,
-      "y": -32
+      "x": 9,
+      "y": 82
     },
     "hud-radar-card": {
       "x": 3,
@@ -22,8 +22,24 @@
       "y": 40
     },
     "hud-shield-card": {
-      "x": 5,
-      "y": 69
+      "x": -24,
+      "y": 81
+    },
+    "hud-throttle-card": {
+      "x": -36,
+      "y": 85
+    },
+    "box-6": {
+      "x": 32,
+      "y": -496
+    },
+    "title-card-4": {
+      "x": -3,
+      "y": 0
+    },
+    "drag-core-gameplay-mechanics-matrix": {
+      "x": 3,
+      "y": -73
     }
   },
   "settings": {

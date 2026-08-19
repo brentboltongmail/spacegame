@@ -847,9 +847,9 @@
             <div id="cockpit-canopy-overlay" class="cockpit-overlay-container">
                 <svg viewBox="0 0 1920 1080" preserveAspectRatio="none" class="cockpit-svg-frame">
                     <defs>
-                        <!-- AI Generated Dark Carbon Fiber Metallic Texture Pattern -->
-                        <pattern id="aiCarbonTexture" patternUnits="userSpaceOnUse" width="400" height="400">
-                            <image href="docs/images/cockpit_carbon_texture.jpg" x="0" y="0" width="400" height="400" />
+                        <!-- AI Generated Dark Carbon Fiber Metallic Texture Pattern (Reduced 60% in scale) -->
+                        <pattern id="aiCarbonTexture" patternUnits="userSpaceOnUse" width="160" height="160">
+                            <image href="docs/images/cockpit_carbon_texture.jpg" x="0" y="0" width="160" height="160" />
                         </pattern>
 
                         <!-- Dark Sci-Fi Ship Texture Gradients -->
@@ -967,11 +967,14 @@
                     </div>
                 </div>
 
-                <div class="hud-action-bar">
-                    <button class="sim-btn" onclick="triggerWormholeJump()">🌀 Wormhole Jump Gate</button>
-                    <button class="sim-btn" onclick="spawnEnemySwarm()">🎯 Spawn Enemy Fighters</button>
-                    <button class="sim-btn" onclick="approachCapitalShip()">🛡️ Target Capital Dreadnought</button>
-                    <button class="sim-btn danger" onclick="resetSimView()">🔄 Reset Spaceflight</button>
+                <!-- Action Bar Container (Tight Fit Card around the 4 Buttons with Centered Drag Handle) -->
+                <div class="hud-card draggable-box" id="hud-action-bar-card" style="position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); width: fit-content; padding: 6px 14px; z-index: 40; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px; display: flex; flex-direction: column; align-items: center;">
+                    <div class="hud-action-bar" style="display: flex; gap: 10px; align-items: center; width: auto; margin-bottom: 0;">
+                        <button class="sim-btn" onclick="triggerWormholeJump()">🌀 Wormhole Jump Gate</button>
+                        <button class="sim-btn" onclick="spawnEnemySwarm()">🎯 Spawn Enemy Fighters</button>
+                        <button class="sim-btn" onclick="approachCapitalShip()">🛡️ Target Capital Dreadnought</button>
+                        <button class="sim-btn danger" onclick="resetSimView()">🔄 Reset Spaceflight</button>
+                    </div>
                 </div>
             </div>
         </section>
