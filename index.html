@@ -668,28 +668,28 @@
 
         .drag-handle {
             width: 100%;
-            height: 8px;
-            padding: 2px 0;
+            height: 18px;
+            padding: 2px 4px;
             margin-bottom: 6px;
             cursor: grab;
             user-select: none;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
         }
 
         .drag-handle-bar {
-            width: 44px;
-            height: 3px;
-            background: linear-gradient(90deg, rgba(0, 240, 255, 0.2), var(--accent-cyan), rgba(0, 240, 255, 0.2));
-            border-radius: 2px;
-            opacity: 0.55;
+            flex: 1;
+            height: 2px;
+            margin: 0 8px;
+            background: linear-gradient(90deg, rgba(0, 240, 255, 0.1), var(--accent-cyan), rgba(0, 240, 255, 0.1));
+            border-radius: 1px;
+            opacity: 0.6;
             transition: all 0.2s ease;
         }
 
         .draggable-box:hover .drag-handle-bar {
             opacity: 1;
-            width: 60px;
             box-shadow: 0 0 8px var(--accent-cyan);
         }
 
@@ -698,8 +698,42 @@
             cursor: grabbing;
             background: var(--accent-cyan);
             opacity: 1;
-            width: 75px;
             box-shadow: 0 0 12px var(--accent-cyan);
+        }
+
+        .btn-minimize {
+            width: 20px;
+            height: 20px;
+            border: 1px solid rgba(0, 240, 255, 0.5);
+            background: rgba(0, 240, 255, 0.15);
+            color: var(--accent-cyan);
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 900;
+            font-family: Orbitron, monospace;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            pointer-events: auto;
+        }
+
+        .btn-minimize:hover {
+            background: var(--accent-cyan);
+            color: #000;
+            border-color: #00f0ff;
+            box-shadow: 0 0 10px var(--accent-cyan);
+        }
+
+        .draggable-box.is-minimized {
+            height: auto !important;
+            min-height: 0 !important;
+            padding-bottom: 6px !important;
+        }
+
+        .draggable-box.is-minimized > *:not(.drag-handle) {
+            display: none !important;
         }
 
         .draggable-box.is-dragging {
@@ -1097,6 +1131,23 @@
                             <div id="throttle-pct-text" style="font-size: 2.1rem; font-weight: 900; font-family: Orbitron; color: var(--accent-gold); text-shadow: 0 0 12px rgba(245,158,11,0.8); line-height: 1.1;">50%</div>
                             <div id="throttle-speed-subtext" style="font-size: 0.68rem; color: #fef08a; margin-top: 2px;">1,073 km/h</div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Top Center Red Glowing Target Damage Progress Bar Card (Draggable HUD Panel) -->
+                <div class="hud-card draggable-box" id="hud-top-target-card" style="position: absolute; top: 75px; left: calc(50vw - 190px); width: 380px; padding: 10px 16px; z-index: 50; background: rgba(11, 18, 36, 0.92); backdrop-filter: blur(16px); border: 1.5px solid rgba(255, 59, 92, 0.75); border-radius: 12px; box-shadow: 0 0 25px rgba(255, 59, 92, 0.45);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 0.9rem; color: #ff3b5c; font-family: Orbitron; font-weight: 700;">🎯 TARGET DAMAGE:</span>
+                            <span id="top-target-name" style="font-family: Orbitron; font-weight: 700; font-size: 0.85rem; color: #fff;">NO TARGET ACQUIRED</span>
+                        </div>
+                        <span id="top-target-dist" style="font-size: 0.78rem; color: #cbd5e1; font-family: Orbitron;">Range: -- KM</span>
+                    </div>
+
+                    <!-- Glowing Crimson Damage Progress Bar -->
+                    <div style="position: relative; width: 100%; height: 16px; background: rgba(15, 23, 42, 0.8); border-radius: 8px; overflow: hidden; border: 1px solid rgba(255, 59, 92, 0.6); box-shadow: inset 0 0 8px rgba(0,0,0,0.8);">
+                        <div id="top-target-hp-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #dc2626, #ff3b5c, #f43f5e); box-shadow: 0 0 16px rgba(255, 59, 92, 0.9); transition: width 0.15s ease;"></div>
+                        <div id="top-target-hp-text" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-family: Orbitron; font-weight: 900; color: #ffffff; text-shadow: 0 0 6px #000;">NO TARGET</div>
                     </div>
                 </div>
 
@@ -1581,8 +1632,16 @@
             if (!box) return;
             box.classList.toggle('is-minimized');
             const isMin = box.classList.contains('is-minimized');
-            btn.innerText = isMin ? '+' : '–';
+            btn.innerHTML = isMin ? '&#43;' : '&ndash;';
             btn.title = isMin ? 'Maximize window' : 'Minimize window';
+
+            // Save minimize state to currentProfile
+            const dragId = box.dataset.dragId || box.id;
+            if (dragId && currentProfile) {
+                if (!currentProfile.minimizedBoxes) currentProfile.minimizedBoxes = {};
+                currentProfile.minimizedBoxes[dragId] = isMin;
+                saveProfileToServerSilent();
+            }
         }
 
         function initDraggableBoxes() {
@@ -1599,28 +1658,39 @@
 
                 box.classList.add('draggable-box');
 
-                // Insert thin subtle drag bar & minimize button if missing
+                // Insert drag handle bar & minimize button if missing
                 if (!box.querySelector('.drag-handle')) {
                     const handle = document.createElement('div');
                     handle.className = 'drag-handle';
-                    handle.title = 'Drag to reposition';
+                    handle.title = 'Drag to reposition window';
                     handle.innerHTML = `
                         <div class="drag-handle-bar"></div>
-                        <button class="btn-minimize" title="Minimize window" onclick="event.stopPropagation(); toggleMinimizeBox(this)">–</button>
+                        <button class="btn-minimize" title="Minimize window" onclick="event.stopPropagation(); toggleMinimizeBox(this)">&ndash;</button>
                     `;
                     box.insertBefore(handle, box.firstChild);
                 }
 
-                // Restore saved position for current profile if exists
-                if (currentProfile && currentProfile.boxPositions && currentProfile.boxPositions[dragId]) {
-                    const { x, y } = currentProfile.boxPositions[dragId];
-                    box.dataset.dragX = x;
-                    box.dataset.dragY = y;
-                    box.style.transform = `translate(${x}px, ${y}px)`;
-                } else {
-                    box.style.transform = 'none';
-                    delete box.dataset.dragX;
-                    delete box.dataset.dragY;
+                // Restore saved position & minimize state for current profile
+                if (currentProfile) {
+                    if (currentProfile.boxPositions && currentProfile.boxPositions[dragId]) {
+                        const { x, y } = currentProfile.boxPositions[dragId];
+                        box.dataset.dragX = x;
+                        box.dataset.dragY = y;
+                        box.style.transform = `translate(${x}px, ${y}px)`;
+                    } else {
+                        box.style.transform = 'none';
+                        delete box.dataset.dragX;
+                        delete box.dataset.dragY;
+                    }
+
+                    if (currentProfile.minimizedBoxes && currentProfile.minimizedBoxes[dragId]) {
+                        box.classList.add('is-minimized');
+                        const minBtn = box.querySelector('.btn-minimize');
+                        if (minBtn) {
+                            minBtn.innerHTML = '&#43;';
+                            minBtn.title = 'Maximize window';
+                        }
+                    }
                 }
 
                 setupDragEvents(box, dragId);
@@ -2950,20 +3020,27 @@
                 }
             });
 
-            // --- UPDATE DYNAMIC TARGET LOCK HUD CARD TELEMETRY ---
+            // --- UPDATE DYNAMIC TARGET LOCK HUD CARDS TELEMETRY (TOP CENTER & SIDE) ---
             const tName = document.getElementById('target-name');
             const tDist = document.getElementById('target-dist');
             const tBar = document.getElementById('target-hp-bar');
             const tHpText = document.getElementById('target-hp-text');
             const tStatus = document.getElementById('target-lock-status');
 
+            const topName = document.getElementById('top-target-name');
+            const topDist = document.getElementById('top-target-dist');
+            const topBar = document.getElementById('top-target-hp-bar');
+            const topHpText = document.getElementById('top-target-hp-text');
+
             if (closestEnemy) {
                 const distKm = (closestDist / 100).toFixed(1);
                 const hp = closestEnemy.userData.hp || 100;
                 const maxHp = closestEnemy.userData.maxHp || 100;
                 const hpPct = Math.max(Math.round((hp / maxHp) * 100), 0);
+                const enemyName = closestEnemy.userData.name || "Void Interceptor";
 
-                if (tName) tName.innerText = closestEnemy.userData.name || "Void Interceptor";
+                // Update Side Panel
+                if (tName) tName.innerText = enemyName;
                 if (tDist) tDist.innerText = `Range: ${distKm} KM`;
                 if (tBar) tBar.style.width = `${hpPct}%`;
                 if (tHpText) tHpText.innerText = `${hp} / ${maxHp} HP`;
@@ -2971,6 +3048,12 @@
                     tStatus.innerText = "LOCKED";
                     tStatus.style.color = "#ff3b5c";
                 }
+
+                // Update Top Center Red Glowing Progress Bar Panel
+                if (topName) topName.innerText = enemyName.toUpperCase();
+                if (topDist) topDist.innerText = `Range: ${distKm} KM`;
+                if (topBar) topBar.style.width = `${hpPct}%`;
+                if (topHpText) topHpText.innerText = `${hp} / ${maxHp} HP (${hpPct}%)`;
             } else {
                 if (tName) tName.innerText = "NO TARGET ACQUIRED";
                 if (tDist) tDist.innerText = "Range: -- KM";
@@ -2980,6 +3063,11 @@
                     tStatus.innerText = "SEARCHING...";
                     tStatus.style.color = "#94a3b8";
                 }
+
+                if (topName) topName.innerText = "NO TARGET ACQUIRED";
+                if (topDist) topDist.innerText = "Range: -- KM";
+                if (topBar) topBar.style.width = "0%";
+                if (topHpText) topHpText.innerText = "NO TARGET";
             }
 
             // Engine Exhaust Particle Trails (Short Crisp Bluish Glow)
