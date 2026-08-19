@@ -2436,32 +2436,43 @@
             // Using a tetrahedron as a low-poly asteroid shape
             const particleGeo = new THREE.TetrahedronGeometry(1, 1);
             const particleMat = new THREE.MeshStandardMaterial({ 
-                color: 0x88ccff,
+                color: 0xffffff, // Base color white to let instance colors shine
                 roughness: 0.8,
                 metalness: 0.2
             });
             const ring = new THREE.InstancedMesh(particleGeo, particleMat, particleCount);
             
             const dummy = new THREE.Object3D();
-            const innerRadius = 11200;
-            const outerRadius = 17600;
-            const ringThickness = 500;
+            
+            // Widen the ring significantly
+            const innerRadius = 9500;
+            const outerRadius = 24000;
+            const ringThickness = 1200;
+            
+            // Planet-like color palette
+            const colors = [
+                new THREE.Color(0x0284c7), // dark blue
+                new THREE.Color(0x00f0ff), // bright cyan
+                new THREE.Color(0x0ea5e9), // sky blue
+                new THREE.Color(0x38bdf8), // light blue
+                new THREE.Color(0x94a3b8), // greyish
+                new THREE.Color(0x072540)  // deep navy
+            ];
             
             for (let i = 0; i < particleCount; i++) {
                 // Random radius between inner and outer
                 const r = innerRadius + Math.random() * (outerRadius - innerRadius);
                 const theta = Math.random() * Math.PI * 2;
                 
-                // Add some width/thickness to the ring
-                const y = (Math.random() - 0.5) * (Math.random() * ringThickness);
-                
+                // Ring particles in XY plane to match the original RingGeometry axis
                 const x = r * Math.cos(theta);
-                const z = r * Math.sin(theta);
+                const y = r * Math.sin(theta);
+                const z = (Math.random() - 0.5) * (Math.random() * ringThickness);
                 
                 dummy.position.set(x, y, z);
                 
-                // Varying sizes
-                const scale = Math.random() * 80 + 10;
+                // 60% reduced sizes
+                const scale = (Math.random() * 80 + 10) * 0.4;
                 dummy.scale.set(scale, scale, scale);
                 
                 // Random rotation
@@ -2473,6 +2484,10 @@
                 
                 dummy.updateMatrix();
                 ring.setMatrixAt(i, dummy.matrix);
+                
+                // Apply color variation
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                ring.setColorAt(i, color);
             }
             
             ring.rotation.x = Math.PI / 2.3;
