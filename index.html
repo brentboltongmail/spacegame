@@ -245,8 +245,56 @@
         .hud-center-crosshair::after {
             content: '';
             width: 4px;
+            .drag-handle-bar {
+            width: 36px;
             height: 4px;
+            background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.7), transparent);
+            border-radius: 2px;
+            box-shadow: 0 0 6px rgba(0, 240, 255, 0.6);
+        }
+        .drag-handle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 4px;
+            cursor: grab;
+        }
+        .btn-minimize {
+            background: rgba(0, 240, 255, 0.15);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            color: var(--accent-cyan);
+            font-size: 0.75rem;
+            font-weight: 700;
+            width: 18px;
+            height: 18px;
+            line-height: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            padding: 0;
+            z-index: 10;
+        }
+        .btn-minimize:hover {
             background: var(--accent-cyan);
+            color: #000;
+            box-shadow: 0 0 8px rgba(0, 240, 255, 0.8);
+        }
+        .draggable-box {
+            transition: max-height 0.25s ease, padding 0.25s ease;
+        }
+        .draggable-box.is-minimized {
+            height: auto !important;
+            min-height: 0 !important;
+            padding-bottom: 6px !important;
+            overflow: hidden !important;
+        }
+        .draggable-box.is-minimized > *:not(.drag-handle):not(.hud-title) {
+            display: none !important;
+        }: var(--accent-cyan);
             border-radius: 50%;
             box-shadow: 0 0 8px var(--accent-cyan);
         }
@@ -978,16 +1026,20 @@
             
             <div class="hud-overlay">
                 <div class="hud-top">
-                    <div class="hud-card hud-controls-card">
+                    <div class="hud-card hud-controls-card draggable-box" id="hud-controls-card">
                         <div class="hud-title" style="color: var(--accent-cyan); border-bottom: 1px solid rgba(0, 240, 255, 0.2); padding-bottom: 6px; margin-bottom: 8px;">
-                            <span style="font-size: 1rem;">🕹️</span> MOUSE TARGETING CONTROLS
+                            <span>🕹️ CONTROLS</span>
                         </div>
-                        <div style="display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: center; font-size: 0.85rem;">
-                            <div><kbd>MOUSE</kbd></div> <div style="color: var(--accent-cyan); font-weight: 600;">Crosshair Targeter Pitch & Yaw</div>
-                            <div><kbd>W</kbd></div> <div style="color: #e2e8f0;">Faster (Accelerate while holding W)</div>
-                            <div><kbd>S</kbd></div> <div style="color: #e2e8f0;">Slower (Decelerate while holding S)</div>
-                            <div><kbd>C</kbd></div> <div style="color: var(--accent-gold); font-weight: 600;">Camera View (Cockpit / Close / Far / Cinematic Invincible)</div>
-                            <div><kbd>LEFT CLICK</kbd> / <kbd>SPACE</kbd></div> <div style="color: var(--accent-gold); font-weight: 600;">Fire Plasma Blasters</div>
+                        <div class="controls-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px 10px; font-size: 0.8rem;">
+                            <div title="Move mouse to aim crosshair targeter and steer ship"><kbd>MOUSE</kbd> Aim</div>
+                            <div title="Hold W to accelerate engine speed"><kbd>W</kbd> Accel</div>
+                            <div title="Hold S to decelerate engine speed"><kbd>S</kbd> Decel</div>
+                            <div title="Left Click to fire twin plasma blasters"><kbd>L-CLICK</kbd> Fire</div>
+                            <div title="Right Click to fire twin plasma blasters"><kbd>R-CLICK</kbd> Fire</div>
+                            <div title="Toggle camera view: Cockpit / Rear Close / Rear Far / Cinematic"><kbd>C</kbd> Camera</div>
+                            <div title="Lock flight straight to free mouse cursor for UI windows"><kbd>L</kbd> Lock</div>
+                            <div title="Open 3D Tactical System Star Map"><kbd>M</kbd> 3D Map</div>
+                            <div title="Pause flight & open Pilot Profile & 3D Ship Upgrade Hangar"><kbd>ESC</kbd> Hangar</div>
                         </div>
                     </div>
 
@@ -1489,6 +1541,15 @@
             showToast("✨ Box layout reset!");
         }
 
+        function toggleMinimizeBox(btn) {
+            const box = btn.closest('.draggable-box');
+            if (!box) return;
+            box.classList.toggle('is-minimized');
+            const isMin = box.classList.contains('is-minimized');
+            btn.innerText = isMin ? '+' : '–';
+            btn.title = isMin ? 'Maximize window' : 'Minimize window';
+        }
+
         function initDraggableBoxes() {
             const selector = '.hud-card, .card, .ship-card, .act-node';
             const boxes = document.querySelectorAll(selector);
@@ -1503,12 +1564,15 @@
 
                 box.classList.add('draggable-box');
 
-                // Insert thin subtle drag bar if missing
+                // Insert thin subtle drag bar & minimize button if missing
                 if (!box.querySelector('.drag-handle')) {
                     const handle = document.createElement('div');
                     handle.className = 'drag-handle';
                     handle.title = 'Drag to reposition';
-                    handle.innerHTML = `<div class="drag-handle-bar"></div>`;
+                    handle.innerHTML = `
+                        <div class="drag-handle-bar"></div>
+                        <button class="btn-minimize" title="Minimize window" onclick="event.stopPropagation(); toggleMinimizeBox(this)">–</button>
+                    `;
                     box.insertBefore(handle, box.firstChild);
                 }
 
@@ -3035,10 +3099,14 @@
             if (!audioCtx) {
                 try {
                     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-                    audioCtx = new AudioContextClass();
+                    audioCtx = new AudioContextClass({ sampleRate: 44100 });
                 } catch (e) {
-                    console.error("Web Audio Engine Init Error:", e);
-                    return;
+                    try {
+                        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    } catch (err) {
+                        console.error("Web Audio Engine Init Error:", err);
+                        return;
+                    }
                 }
             }
 
@@ -3049,33 +3117,33 @@
             if (isAudioInitialized) return;
 
             try {
-                // Master Gain
+                // Master Gain (Boosted to 0.70 for loud & clear Realtek speaker playback)
                 engineMasterGain = audioCtx.createGain();
-                engineMasterGain.gain.setValueAtTime(isAudioMuted ? 0 : 0.45, audioCtx.currentTime);
+                engineMasterGain.gain.setValueAtTime(isAudioMuted ? 0 : 0.70, audioCtx.currentTime);
 
                 // Acoustic Muffling Biquad Low-Pass Filter (Simulates Cockpit Armor Soundproofing)
                 engineLowPassFilter = audioCtx.createBiquadFilter();
                 engineLowPassFilter.type = 'lowpass';
-                engineLowPassFilter.frequency.setValueAtTime(280, audioCtx.currentTime);
+                engineLowPassFilter.frequency.setValueAtTime(360, audioCtx.currentTime);
                 engineLowPassFilter.Q.setValueAtTime(2.5, audioCtx.currentTime);
 
                 // Sub-Bass Engine Rumble Oscillator (Sawtooth)
                 engineSubOsc = audioCtx.createOscillator();
                 engineSubOsc.type = 'sawtooth';
-                engineSubOsc.frequency.setValueAtTime(55, audioCtx.currentTime);
+                engineSubOsc.frequency.setValueAtTime(65, audioCtx.currentTime);
 
                 const subGain = audioCtx.createGain();
-                subGain.gain.setValueAtTime(0.55, audioCtx.currentTime);
+                subGain.gain.setValueAtTime(0.70, audioCtx.currentTime);
                 engineSubOsc.connect(subGain);
                 subGain.connect(engineLowPassFilter);
 
                 // Mid-Thrust Tone Oscillator (Triangle Wave for Warm Cockpit Thruster Sound)
                 engineMidOsc = audioCtx.createOscillator();
                 engineMidOsc.type = 'triangle';
-                engineMidOsc.frequency.setValueAtTime(110, audioCtx.currentTime);
+                engineMidOsc.frequency.setValueAtTime(130, audioCtx.currentTime);
 
                 const midGain = audioCtx.createGain();
-                midGain.gain.setValueAtTime(0.40, audioCtx.currentTime);
+                midGain.gain.setValueAtTime(0.55, audioCtx.currentTime);
                 engineMidOsc.connect(midGain);
                 midGain.connect(engineLowPassFilter);
 
@@ -3084,7 +3152,7 @@
                 const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
                 const output = noiseBuffer.getChannelData(0);
                 for (let i = 0; i < bufferSize; i++) {
-                    output[i] = (Math.random() * 2 - 1) * 0.25;
+                    output[i] = (Math.random() * 2 - 1) * 0.35;
                 }
 
                 engineNoiseNode = audioCtx.createBufferSource();
@@ -3092,7 +3160,7 @@
                 engineNoiseNode.loop = true;
 
                 const noiseGain = audioCtx.createGain();
-                noiseGain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+                noiseGain.gain.setValueAtTime(0.40, audioCtx.currentTime);
                 engineNoiseNode.connect(noiseGain);
                 noiseGain.connect(engineLowPassFilter);
 
@@ -3105,8 +3173,27 @@
                 engineMidOsc.start();
                 engineNoiseNode.start();
 
+                // Sci-Fi Power-On Audio Chime Ping (Loud sweep so you hear audio start instantly on Realtek speakers!)
+                const chimeOsc = audioCtx.createOscillator();
+                const chimeGain = audioCtx.createGain();
+                chimeOsc.type = 'sine';
+                chimeOsc.frequency.setValueAtTime(960, audioCtx.currentTime);
+                chimeOsc.frequency.exponentialRampToValueAtTime(480, audioCtx.currentTime + 0.4);
+                chimeGain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+                chimeGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                chimeOsc.connect(chimeGain);
+                chimeGain.connect(audioCtx.destination);
+                chimeOsc.start();
+                chimeOsc.stop(audioCtx.currentTime + 0.4);
+
                 isAudioInitialized = true;
-                showToast("🔊 COCKPIT ENGINE AUDIO ACTIVE");
+                const btn = document.getElementById('btn-audio-toggle');
+                if (btn) {
+                    btn.innerText = '🔊 COCKPIT AUDIO: ACTIVE';
+                    btn.style.borderColor = '#00f0ff';
+                    btn.style.color = '#00f0ff';
+                }
+                showToast("🔊 REALTEK AUDIO INITIALIZED & UNLOCKED!");
             } catch (e) {
                 console.error("Web Audio Engine Setup Error:", e);
             }
