@@ -4341,9 +4341,12 @@
             playerShip.position.add(frameDisplacement);
             
             // Fix: Add the ship's exact physical displacement to the camera BEFORE lerping.
-            // This perfectly separates translational lag from rotational/orbit lag, 
-            // ensuring cinematic orbits don't break at 100,000 km/h.
-            camera.position.add(frameDisplacement);
+            // This perfectly separates translational lag from rotational/orbit lag for Cinematic mode.
+            // We ONLY do this for Cockpit (0) and Cinematic (3). 
+            // Third Person modes (1 & 2) skip this so they naturally trail behind during acceleration!
+            if (cameraMode === 0 || cameraMode === 3) {
+                camera.position.add(frameDisplacement);
+            }
 
             // Keep starfield celestial dome anchored to player position so stars stay far off on horizon
             if (starfield) starfield.position.copy(playerShip.position);
