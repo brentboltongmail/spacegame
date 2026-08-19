@@ -1916,7 +1916,7 @@
             const postedSpeed = Math.round(currentSpeed * 10.725); // Posted speed scaled 10x (max 2,145 km/h matching concept art HUD)
             document.getElementById('hud-speed').innerText = `SPEED: ${postedSpeed.toLocaleString()} km/h ${currentSpeed > 160 ? '[MAX THROTTLE]' : ''}`;
 
-            // --- ZERO ROLL-DRIFT FLIGHT STEERING (NO Z-SPINNING FROM MOUSE) ---
+            // --- SINGULARITY-FREE 360° QUATERNION FLIGHT (LOOPS & ROLLS WITHOUT FLIPPING) ---
             const deadzone = 0.03;
             const turnRate = 0.0104; // Smooth max turn velocity at screen edge
 
@@ -1926,19 +1926,16 @@
             const mouseXEff = Math.sign(normalizedMouse.x) * normX;
             const mouseYEff = Math.sign(normalizedMouse.y) * normY;
 
-            // Lock Euler rotation order to YXZ to eliminate 100% of Z-axis roll drift from mouse movement
-            playerShip.rotation.order = 'YXZ';
-            playerShip.rotation.x += mouseYEff * turnRate;
-            playerShip.rotation.y -= mouseXEff * turnRate;
+            // Apply local pitch (X) and yaw (Y) quaternion rotations directly
+            // Allows full 360° loop-de-loops over the top without any view snapping or gimbal flips!
+            playerShip.rotateX(mouseYEff * turnRate);
+            playerShip.rotateY(-mouseXEff * turnRate);
 
-            // --- Explicit Roll Control (Z-axis roll stays 0 unless roll keys are pressed) ---
+            // --- Roll Banking Controls (Q / E / D) ---
             if (keys.KeyQ) {
-                playerShip.rotation.z += 0.04;
+                playerShip.rotateZ(0.04);
             } else if (keys.KeyE || keys.KeyD) {
-                playerShip.rotation.z -= 0.04;
-            } else {
-                playerShip.rotation.z *= 0.85; // Instantly lock roll back to 0
-                if (Math.abs(playerShip.rotation.z) < 0.001) playerShip.rotation.z = 0;
+                playerShip.rotateZ(-0.04);
             }
 
             // Move ship forward (Physical 3D world movement 60% slower)
@@ -1985,6 +1982,10 @@
                     targetLookAtPos = playerShip.position.clone();
                 }
             }
+
+            // Sync camera up vector to ship local up vector to allow smooth 360° loop-de-loops
+            const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
+            camera.up.copy(localUp);
 
             camera.position.lerp(targetCamPos, cameraMode === 3 ? 0.02 : 0.15);
             camera.lookAt(targetLookAtPos);
