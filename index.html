@@ -678,6 +678,22 @@
             justify-content: space-between;
         }
 
+        .drag-handle-label {
+            font-family: Orbitron, var(--font-title), sans-serif;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            display: none;
+            margin-right: 6px;
+            text-transform: uppercase;
+        }
+
+        .draggable-box.is-minimized .drag-handle-label {
+            display: inline-block !important;
+        }
+
         .drag-handle-bar {
             flex: 1;
             height: 2px;
@@ -1644,6 +1660,21 @@
             }
         }
 
+        function getBriefCardLabel(id, text) {
+            if (id === 'hud-controls-card') return '🕹️ CONTROLS';
+            if (id === 'hud-shield-card') return '🛡️ SHIELD';
+            if (id === 'hud-throttle-card') return '⚡ THROTTLE';
+            if (id === 'hud-radar-card') return '📡 RADAR';
+            if (id === 'hud-top-target-card') return '🎯 TARGET DAMAGE';
+            if (id === 'hud-target-card') return '🎯 TARGET LOCK';
+            if (id === 'hud-action-bar-card') return '🚀 ACTIONS';
+
+            if (!text) return 'WINDOW';
+            const clean = text.replace(/[\n\r]+/g, ' ').trim();
+            const firstWords = clean.split(' ').slice(0, 2).join(' ');
+            return firstWords.length > 14 ? firstWords.substring(0, 14) + '..' : firstWords;
+        }
+
         function initDraggableBoxes() {
             const selector = '.hud-card, .card, .ship-card, .act-node';
             const boxes = document.querySelectorAll(selector);
@@ -1658,12 +1689,16 @@
 
                 box.classList.add('draggable-box');
 
-                // Insert drag handle bar & minimize button if missing
+                // Insert drag handle bar, title label & minimize button if missing
                 if (!box.querySelector('.drag-handle')) {
+                    const headingText = box.querySelector('.hud-title, .title-name, .act-title, h1, h2, h3')?.innerText || '';
+                    const briefLabel = getBriefCardLabel(box.id || dragId, headingText);
+
                     const handle = document.createElement('div');
                     handle.className = 'drag-handle';
                     handle.title = 'Drag to reposition window';
                     handle.innerHTML = `
+                        <span class="drag-handle-label">${briefLabel}</span>
                         <div class="drag-handle-bar"></div>
                         <button class="btn-minimize" title="Minimize window" onclick="event.stopPropagation(); toggleMinimizeBox(this)">&ndash;</button>
                     `;
