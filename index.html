@@ -2938,37 +2938,48 @@
 
             // Move ship forward (Physical 3D world movement 60% slower)
             const moveDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
-            playerShip.position.addScaledVector(moveDir, currentSpeed * 0.0032);
+            // --- Flight Control Steering ---
+            const pitchSpeed = 0.022;
+            const yawSpeed = 0.022;
+            const rollSpeed = 0.035;
 
-            // Keep starfield celestial dome anchored to player position so stars stay far off on horizon
-            if (starfield) starfield.position.copy(playerShip.position);
+            let targetPitch = -normalizedMouse.y * pitchSpeed;
+            let targetYaw   = -normalizedMouse.x * yawSpeed;
+            let targetRoll  = -normalizedMouse.x * rollSpeed;
 
-            // --- Multi-Mode Camera System (Cockpit / Close / Far / Cinematic Showcase) ---
-            let targetCamPos;
-            let targetLookAtPos = playerShip.position.clone().add(new THREE.Vector3(0, 0, -10).applyQuaternion(playerShip.quaternion));
+            if (keys.KeyA || keys.ArrowLeft)  targetRoll += 0.035;
+            if (keys.KeyD || keys.ArrowRight) targetRoll -= 0.035;
+
+            const rotDelta = new THREE.Quaternion().setFromEuler(new THREE.Euler(targetPitch, targetYaw, targetRoll, 'YXZ'));
+            playerShip.quaternion.multiply(rotDelta);
+
+            // Forward Flight Movement
+            const forwardVector = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
+            const actualMoveSpeed = (currentSpeed / maxSpeedCap) * 12.0;
+            playerShip.position.addScaledVector(forwardVector, actualMoveSpeed);
+
+            // Camera Modes
+            let targetCamPos = new THREE.Vector3();
+            let targetLookAtPos = playerShip.position.clone().add(new THREE.Vector3(0, 0, -60).applyQuaternion(playerShip.quaternion));
 
             if (cameraMode === 0) {
-                // Mode 0: Cockpit View (First-Person) - Hide exterior ship model & engine lights so they do not block cockpit view
-                playerShip.visible = false;
+                // Mode 0: Cockpit First-Person View (Camera inside ship nose canopy)
+                playerShip.visible = true;
                 if (playerShip.userData && playerShip.userData.engineLights) {
                     playerShip.userData.engineLights.forEach(l => l.visible = false);
                 }
-                targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 0.45, -0.1).applyQuaternion(playerShip.quaternion));
-                targetLookAtPos = playerShip.position.clone().add(new THREE.Vector3(0, 0.45, -25).applyQuaternion(playerShip.quaternion));
+                targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 0.45, -0.4).applyQuaternion(playerShip.quaternion));
             } else {
                 playerShip.visible = true;
                 if (playerShip.userData && playerShip.userData.engineLights) {
                     playerShip.userData.engineLights.forEach(l => l.visible = true);
                 }
                 if (cameraMode === 1) {
-                    // Mode 1: Rear Third-Person Close
                     targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 2.2, 7.5).applyQuaternion(playerShip.quaternion));
                 } else if (cameraMode === 2) {
-                    // Mode 2: Rear Third-Person Far
                     targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 6.0, 22.0).applyQuaternion(playerShip.quaternion));
                 } else if (cameraMode === 3) {
-                    // Mode 3: Cinematic Orbiting Showcase (Ship Invincible, 50% Slower Ultra-Majestic Panning)
-                    cinematicAngle += 0.0015; // Reduced by 50% for ultra-filmic slow cinematic sweeps
+                    cinematicAngle += 0.0015;
                     const radius = 22;
                     const height = Math.sin(cinematicAngle * 0.7) * 5 + 4;
                     const orbitOffset = new THREE.Vector3(
@@ -2981,7 +2992,6 @@
                 }
             }
 
-            // Sync camera up vector to ship local up vector to allow smooth 360° loop-de-loops
             const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
             camera.up.copy(localUp);
 
@@ -2989,31 +2999,49 @@
             camera.lookAt(targetLookAtPos);
 
             if (capitalShip) capitalShip.rotation.y += 0.001;
-            if (spacePlanet) spacePlanet.rotation.y += 0.00015; // Slow majestic planet rotation
+            if (spacePlanet) spacePlanet.rotation.y += 0.00015;
 
-            // --- LASER PROJECTILE MOVEMENT & ENEMY COMBAT HIT COLLISION ---
+            // --- LASER PROJECTILE MOVEMENT, AIM-ASSIST & CONTINUOUS SEGMENT COLLISION ---
             for (let i = laserProjectiles.length - 1; i >= 0; i--) {
                 const laser = laserProjectiles[i];
+                const prevPos = laser.position.clone();
+
+                // Dynamic Aim-Assist: Gently curve active plasma bolts towards closest locked target
+                if (typeof closestEnemy !== 'undefined' && closestEnemy && closestEnemy.userData && closestEnemy.userData.hp > 0) {
+                    const toTarget = closestEnemy.position.clone().sub(laser.position).normalize();
+                    if (laser.userData.velocity) {
+                        const curDir = laser.userData.velocity.clone().normalize();
+                        if (curDir.dot(toTarget) > 0.5) {
+                            curDir.lerp(toTarget, 0.14).normalize();
+                            laser.userData.velocity = curDir.multiplyScalar(laser.userData.velocity.length());
+                            laser.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), curDir);
+                        }
+                    }
+                }
+
                 if (laser.userData.velocity) {
                     laser.position.add(laser.userData.velocity);
                 } else {
                     laser.translateZ(-6);
                 }
 
-                // Collision Detection against Enemy Interceptors
+                const currentPos = laser.position.clone();
+
+                // Collision Detection against Enemy Interceptors using Continuous Line-Segment Distance
                 let hitEnemy = false;
                 for (let j = enemyShips.length - 1; j >= 0; j--) {
                     const enemy = enemyShips[j];
                     if (!enemy.userData || enemy.userData.hp <= 0) continue;
 
-                    const dist = laser.position.distanceTo(enemy.position);
-                    if (dist < 28) { // Laser hit collision (extended hit volume)!
+                    // Continuous Line-Segment Distance Check!
+                    const segDist = pointToSegmentDistance(enemy.position, prevPos, currentPos);
+                    if (segDist < 42) { // Guaranteed Hit Collision!
                         hitEnemy = true;
-                        spawnLaserImpactSparks(laser.position);
+                        spawnLaserImpactSparks(currentPos);
                         playLaserImpactAudio();
 
                         // Flash enemy red/white
-                        enemy.userData.flashTimer = 4;
+                        enemy.userData.flashTimer = 5;
                         enemy.userData.hp -= 25; // 4 hits to destroy!
 
                         if (enemy.userData.hp <= 0) {
@@ -4037,23 +4065,38 @@
             }
 
             // Mouse Drag to Orbit & Scroll Wheel Zoom Listeners
-            container.addEventListener('mousedown', (e) => {
+            const modalEl = document.getElementById('tactical-map-modal');
+            const onMapStart = (e) => {
+                if (e.target.closest('button, .legend-item')) return;
                 isMapDragging = true;
-                previousMapMousePosition = { x: e.clientX, y: e.clientY };
-            });
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                previousMapMousePosition = { x: clientX, y: clientY };
+            };
 
-            window.addEventListener('mousemove', (e) => {
+            const onMapMove = (e) => {
                 if (!isMapDragging || !mapGroup) return;
-                const deltaX = e.clientX - previousMapMousePosition.x;
-                const deltaY = e.clientY - previousMapMousePosition.y;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                const deltaX = clientX - previousMapMousePosition.x;
+                const deltaY = clientY - previousMapMousePosition.y;
 
                 mapTargetRotationY += deltaX * 0.008;
                 mapTargetRotationX += deltaY * 0.008;
 
-                previousMapMousePosition = { x: e.clientX, y: e.clientY };
-            });
+                previousMapMousePosition = { x: clientX, y: clientY };
+            };
 
-            window.addEventListener('mouseup', () => { isMapDragging = false; });
+            const onMapEnd = () => { isMapDragging = false; };
+
+            if (modalEl) {
+                modalEl.addEventListener('mousedown', onMapStart);
+                modalEl.addEventListener('touchstart', onMapStart, { passive: true });
+            }
+            window.addEventListener('mousemove', onMapMove);
+            window.addEventListener('touchmove', onMapMove, { passive: true });
+            window.addEventListener('mouseup', onMapEnd);
+            window.addEventListener('touchend', onMapEnd);
 
             container.addEventListener('wheel', (e) => {
                 e.preventDefault();
