@@ -2451,7 +2451,7 @@
             // Widen the ring significantly
             const innerRadius = 9500;
             const outerRadius = 18200; // Reduced width by 40%
-            const ringThickness = 2400; // Doubled thickness
+            const ringThickness = 4800; // Doubled thickness again (top to bottom height)
             
             // Planet-like color palette
             const colors = [
@@ -2469,14 +2469,15 @@
                 const theta = Math.random() * Math.PI * 2;
                 
                 // Ring particles in XY plane to match the original RingGeometry axis
+                // Using Math.random() - 0.5 gives a spread from -thickness/2 to +thickness/2
                 const x = r * Math.cos(theta);
                 const y = r * Math.sin(theta);
                 const z = (Math.random() - 0.5) * (Math.random() * ringThickness);
                 
                 dummy.position.set(x, y, z);
                 
-                // Ranging from half previous (2) to double previous (72)
-                const scale = Math.random() * 70 + 2;
+                // Ranging from very tiny (0.5) to massive (72)
+                const scale = Math.random() * 71.5 + 0.5;
                 dummy.scale.set(scale, scale, scale);
                 
                 // Random rotation
