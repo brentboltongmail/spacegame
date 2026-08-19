@@ -802,9 +802,9 @@
                         </div>
                         <div style="display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: center; font-size: 0.85rem;">
                             <div><kbd>MOUSE</kbd></div> <div style="color: var(--accent-cyan); font-weight: 600;">Crosshair Targeter Pitch & Yaw</div>
-                            <div><kbd>W</kbd></div> <div style="color: #e2e8f0;">Faster (Accelerate)</div>
-                            <div><kbd>S</kbd></div> <div style="color: #e2e8f0;">Slower (Decelerate)</div>
-                            <div><kbd>A</kbd> <kbd>D</kbd></div> <div style="color: #e2e8f0;">Roll Banking (Left / Right)</div>
+                            <div><kbd>A</kbd></div> <div style="color: #e2e8f0;">Faster (Accelerate while holding)</div>
+                            <div><kbd>S</kbd></div> <div style="color: #e2e8f0;">Slower (Decelerate while holding)</div>
+                            <div><kbd>Q</kbd> <kbd>E</kbd></div> <div style="color: #e2e8f0;">Roll Banking (Left / Right)</div>
                             <div><kbd>C</kbd></div> <div style="color: var(--accent-gold); font-weight: 600;">Camera View (Cockpit / Close / Far / Cinematic Invincible)</div>
                             <div><kbd>SPACE</kbd></div> <div style="color: var(--accent-gold); font-weight: 600;">Fire Plasma Blasters</div>
                         </div>
@@ -1318,7 +1318,7 @@
         }
 
         let normalizedMouse = { x: 0, y: 0 };
-        const keys = { KeyW: false, KeyS: false, KeyA: false, KeyD: false, Space: false };
+        const keys = { KeyW: false, KeyS: false, KeyA: false, KeyD: false, KeyQ: false, KeyE: false, Space: false };
 
         function init3DSimulator() {
             const container = document.getElementById('canvas-container');
@@ -1564,13 +1564,13 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            // --- W / S Throttle Speed Controls (67% Slower Acceleration) ---
-            const accelRate = 1.32; // Reduced by 67% (from 4.0)
-            const maxSpeedCap = 200; // Reduced by 67% (from 600)
+            // --- A / S Throttle Speed Controls (A = Accelerate, S = Decelerate, 3x Slower) ---
+            const accelRate = 0.44; // 3x slower acceleration step rate (from 1.32)
+            const maxSpeedCap = 200;
 
-            if (keys.KeyW) targetSpeed = Math.min(targetSpeed + accelRate, maxSpeedCap);
+            if (keys.KeyA) targetSpeed = Math.min(targetSpeed + accelRate, maxSpeedCap);
             if (keys.KeyS) targetSpeed = Math.max(targetSpeed - accelRate, 0);
-            currentSpeed += (targetSpeed - currentSpeed) * 0.033; // 67% smoother acceleration lerp
+            currentSpeed += (targetSpeed - currentSpeed) * 0.011; // 3x smoother acceleration lerp
 
             const postedSpeed = Math.round(currentSpeed * 10.725); // Posted speed scaled 10x (max 2,145 km/h matching concept art HUD)
             document.getElementById('hud-speed').innerText = `SPEED: ${postedSpeed.toLocaleString()} km/h ${currentSpeed > 160 ? '[MAX THROTTLE]' : ''}`;
@@ -1589,10 +1589,10 @@
             playerShip.rotateX(mouseYEff * turnRate);
             playerShip.rotateY(-mouseXEff * turnRate);
 
-            // --- A / D Roll Banking Controls ---
-            if (keys.KeyA) playerShip.rotation.z += 0.04;
-            if (keys.KeyD) playerShip.rotation.z -= 0.04;
-            if (!keys.KeyA && !keys.KeyD) playerShip.rotation.z *= 0.95; // Auto-righting roll
+            // --- Q / E / D Roll Banking Controls ---
+            if (keys.KeyQ) playerShip.rotation.z += 0.04;
+            if (keys.KeyE || keys.KeyD) playerShip.rotation.z -= 0.04;
+            if (!keys.KeyQ && !keys.KeyE && !keys.KeyD) playerShip.rotation.z *= 0.95; // Auto-righting roll
 
             // Move ship forward
             const moveDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
