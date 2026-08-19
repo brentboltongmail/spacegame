@@ -4592,17 +4592,17 @@
             const h = canvas.height;
             const cx = w / 2;
             const cy = h / 2;
-            const maxRange = 25000; // 25.0 KM Long-Range Tactical Radar Sweep
+            const maxRange = 25000; // 25.0 KM Max Range
 
             ctx.clearRect(0, 0, w, h);
 
-            // Radar Concentric Grid Rings (8 KM, 16 KM, 25 KM)
+            // Radar Concentric Grid Rings (Non-linear ranges: ~1.8KM, ~10KM, 25KM)
             ctx.strokeStyle = 'rgba(0, 240, 255, 0.25)';
             ctx.lineWidth = 1;
             ctx.beginPath();
-            ctx.arc(cx, cy, cx * 0.35, 0, Math.PI * 2);
-            ctx.arc(cx, cy, cx * 0.70, 0, Math.PI * 2);
-            ctx.arc(cx, cy, cx * 0.95, 0, Math.PI * 2);
+            ctx.arc(cx, cy, cx * 0.39, 0, Math.PI * 2); // ~2,500 units
+            ctx.arc(cx, cy, cx * 0.69, 0, Math.PI * 2); // ~10,000 units
+            ctx.arc(cx, cy, cx * 0.95, 0, Math.PI * 2); // 25,000 units
             ctx.stroke();
 
             // Radar Axis Lines
@@ -4625,25 +4625,53 @@
             ctx.fill();
             ctx.shadowBlur = 0;
 
-            // Helper to project and render blips (Inverse quaternion transform to ship local space)
-            const invShipQuat = playerShip.quaternion.clone().invert();
+            // Extract ONLY the YAW of the ship for 2D radar mapping (ignores pitch/roll so map is always top-down flat)
+            const playerEuler = new THREE.Euler().setFromQuaternion(playerShip.quaternion, 'YXZ');
+            const yaw = playerEuler.y;
+            const cosY = Math.cos(-yaw);
+            const sinY = Math.sin(-yaw);
 
-            function drawBlip(objPos, color, size, isSquare) {
-                const relLocal = objPos.clone().sub(playerShip.position).applyQuaternion(invShipQuat);
-                // relLocal.x: +Right / -Left
-                // relLocal.z: -Forward / +Backward
+            function drawBlip(objPos, color, size, isSquare, worldRadius = 0) {
+                // 1. Calculate 2D World Delta
+                const dx = objPos.x - playerShip.position.x;
+                const dz = objPos.z - playerShip.position.z;
 
-                const rx = cx + (relLocal.x / maxRange) * (cx * 0.9);
-                const ry = cy + (relLocal.z / maxRange) * (cy * 0.9); // -Z is forward (above center player icon)
+                // 2. Rotate by inverse heading (-yaw) to make it local to the radar screen
+                const relX = dx * cosY - dz * sinY;
+                const relZ = dx * sinY + dz * cosY;
 
-                const dist = Math.hypot(rx - cx, ry - cy);
-                if (dist > cx * 0.94) return;
+                // 3. Non-linear mapping to fit 25,000 units but keep close targets readable
+                const dist = Math.hypot(relX, relZ);
+                const angle = Math.atan2(relZ, relX);
+                
+                const normalizedDist = Math.min(dist / maxRange, 1.0);
+                // Exponent 0.4 curves the distance (pushes close things outwards, pulls far things in)
+                const mappedDist = Math.pow(normalizedDist, 0.4) * (cx * 0.9);
+
+                const rx = cx + Math.cos(angle) * mappedDist;
+                const ry = cy + Math.sin(angle) * mappedDist;
 
                 ctx.fillStyle = color;
                 ctx.shadowColor = color;
                 ctx.shadowBlur = 8;
 
-                if (isSquare) {
+                // If worldRadius is provided (e.g. for a planet), calculate its scaled size on radar
+                if (worldRadius > 0) {
+                    const normRadius = Math.min(worldRadius / maxRange, 1.0);
+                    const mappedRadius = Math.pow(normRadius, 0.4) * (cx * 0.9);
+                    
+                    // Draw outer bound ring for large bodies
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(rx, ry, mappedRadius, 0, Math.PI * 2);
+                    ctx.stroke();
+                    
+                    // And a center dot
+                    ctx.beginPath();
+                    ctx.arc(rx, ry, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (isSquare) {
                     ctx.fillRect(rx - size/2, ry - size/2, size, size);
                 } else {
                     ctx.beginPath();
@@ -4659,9 +4687,9 @@
                 drawBlip(sunScaledPos, '#fbbf24', 9, false);
             }
 
-            // Draw Space Planet Blip (Cyan Glowing Circle)
+            // Draw Space Planet Blip (Cyan Glowing Circle) - Pass planet radius (9000)
             if (spacePlanet && spacePlanet.position) {
-                drawBlip(spacePlanet.position, '#00f0ff', 8, false);
+                drawBlip(spacePlanet.position, '#00f0ff', 8, false, 9000);
             }
 
             // Draw Red Blips for Enemy Ships
