@@ -84,6 +84,7 @@ try {
 }
 
 if ($OpenBrowser) {
-    Write-Host "Opening web browser at http://localhost:$Port..." -ForegroundColor Cyan
-    Start-Process "http://localhost:$Port"
+    Write-Host "Opening web browser at http://localhost:8088..." -ForegroundColor Cyan
+    $cacheBuster = Get-Date -Format "yyyyMMddHHmmss"
+    Start-Process "http://localhost:8088/?v=$cacheBuster"
 }

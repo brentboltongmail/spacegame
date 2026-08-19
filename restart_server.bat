@@ -20,9 +20,9 @@ start "Solaris Horizon Server" python server.py
 
 ping -n 2 127.0.0.1 >nul
 
-:: 3. Open browser
+:: 3. Open browser with cache-buster parameter to force instant code refresh
 echo Opening browser at http://localhost:8088...
-start http://localhost:8088
+start http://localhost:8088/?v=%random%
 
 echo.
 echo SUCCESS: Solaris Horizon server is online at http://localhost:8088!
