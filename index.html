@@ -4858,7 +4858,7 @@
 
             ctx.clearRect(0, 0, w, h);
 
-            const throttleRatio = Math.min(Math.max(currentSpeed / 200, 0), 1);
+            const throttleRatio = Math.min(Math.max(currentSpeed / 400, 0), 1);
             const throttlePct = Math.round(throttleRatio * 100);
 
             const pctText = document.getElementById('throttle-pct-text');
@@ -4872,7 +4872,7 @@
 
             const speedSubtext = document.getElementById('throttle-speed-subtext');
             if (speedSubtext) {
-                const postedSpeed = Math.round(currentSpeed * 500);
+                const postedSpeed = Math.round(currentSpeed * 250);
                 speedSubtext.innerText = `${postedSpeed.toLocaleString()} km/h`;
             }
 
