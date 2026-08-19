@@ -611,20 +611,21 @@
         }
 
         .hud-center-crosshair {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 36px;
-            height: 36px;
-            border: 1.5px solid var(--accent-cyan);
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            width: 44px;
+            height: 44px;
+            border: 2px solid rgba(0, 240, 255, 0.9);
             border-radius: 50%;
             pointer-events: none;
             z-index: 1000;
-            box-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+            box-shadow: 0 0 18px rgba(0, 240, 255, 0.8), inset 0 0 10px rgba(0, 240, 255, 0.4);
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: opacity 0.2s ease;
         }
 
         .hud-center-crosshair::before {
@@ -634,7 +635,18 @@
             height: 6px;
             background: var(--accent-gold);
             border-radius: 50%;
-            box-shadow: 0 0 8px var(--accent-gold);
+            box-shadow: 0 0 12px var(--accent-gold);
+        }
+
+        .hud-center-crosshair::after {
+            content: '';
+            position: absolute;
+            width: 58px;
+            height: 58px;
+            border-left: 2px solid var(--accent-cyan);
+            border-right: 2px solid var(--accent-cyan);
+            opacity: 0.85;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
         }
 
         .hud-action-bar {
@@ -974,6 +986,9 @@
         <section id="sim-section" class="page-section active">
             <div id="canvas-container"></div>
             
+            <!-- Tactical Boresight Cockpit Center Target Reticle -->
+            <div class="hud-center-crosshair" id="cockpit-center-crosshair"></div>
+
             <!-- Cockpit 3D Structural Canopy Overlay (First-Person View) -->
             <div id="cockpit-canopy-overlay" class="cockpit-overlay-container">
                 <svg viewBox="0 0 1920 1080" preserveAspectRatio="none" class="cockpit-svg-frame">
@@ -2422,11 +2437,51 @@
             scene.add(wormholeGate);
         }
 
-        function firePlasmaLaser() {
-            const laserGeo = new THREE.CylinderGeometry(0.14, 0.14, 7, 8);
-            laserGeo.rotateX(Math.PI / 2);
-            const laserMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
+        function createPlasmaBoltMesh() {
+            const boltGroup = new THREE.Group();
 
+            // 1. Inner Superheated Core (White-Hot Energy Cylinder)
+            const coreGeo = new THREE.CylinderGeometry(0.18, 0.18, 12, 8);
+            coreGeo.rotateX(Math.PI / 2);
+            const coreMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+            boltGroup.add(coreMesh);
+
+            // 2. Outer Glowing Neon Plasma Aura (Translucent Cyan/Blue Energy Sheath)
+            const auraGeo = new THREE.CylinderGeometry(0.48, 0.48, 12.5, 8);
+            auraGeo.rotateX(Math.PI / 2);
+            const auraMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.75 });
+            const auraMesh = new THREE.Mesh(auraGeo, auraMat);
+            boltGroup.add(auraMesh);
+
+            // 3. Leading Plasma Tip Energy Cap
+            const tipGeo = new THREE.SphereGeometry(0.55, 12, 12);
+            const tipMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+            const tipMesh = new THREE.Mesh(tipGeo, tipMat);
+            tipMesh.position.set(0, 0, -6.2);
+            boltGroup.add(tipMesh);
+
+            // 4. Dynamic Volumetric Laser Light (Casts real-time cyan light on surroundings)
+            const pLight = new THREE.PointLight(0x00f0ff, 12, 120);
+            pLight.position.set(0, 0, -3.0);
+            boltGroup.add(pLight);
+
+            return boltGroup;
+        }
+
+        let muzzleFlashParticles = [];
+
+        function spawnWingtipMuzzleFlash(pos, quat) {
+            const flashGeo = new THREE.SphereGeometry(1.4, 16, 16);
+            const flashMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 1.0 });
+            const flashMesh = new THREE.Mesh(flashGeo, flashMat);
+            flashMesh.position.copy(pos);
+            flashMesh.quaternion.copy(quat);
+            scene.add(flashMesh);
+            muzzleFlashParticles.push(flashMesh);
+        }
+
+        function firePlasmaLaser() {
             // Forward vector matching exact ship heading
             const fwdDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
 
@@ -2434,23 +2489,47 @@
             const offsetL = new THREE.Vector3(-2.4, -0.1, -2.4).applyQuaternion(playerShip.quaternion);
             const offsetR = new THREE.Vector3(2.4, -0.1, -2.4).applyQuaternion(playerShip.quaternion);
 
-            const laserL = new THREE.Mesh(laserGeo, laserMat);
-            const laserR = new THREE.Mesh(laserGeo, laserMat);
+            const posL = playerShip.position.clone().add(offsetL);
+            const posR = playerShip.position.clone().add(offsetR);
+
+            const laserL = createPlasmaBoltMesh();
+            const laserR = createPlasmaBoltMesh();
 
             laserL.quaternion.copy(playerShip.quaternion);
             laserR.quaternion.copy(playerShip.quaternion);
 
-            laserL.position.copy(playerShip.position).add(offsetL);
-            laserR.position.copy(playerShip.position).add(offsetR);
+            laserL.position.copy(posL);
+            laserR.position.copy(posR);
 
-            const speedVec = fwdDir.clone().multiplyScalar(14 + currentSpeed * 0.008);
+            const speedVec = fwdDir.clone().multiplyScalar(18 + currentSpeed * 0.012);
             laserL.userData.velocity = speedVec;
             laserR.userData.velocity = speedVec;
 
             scene.add(laserL);
             scene.add(laserR);
-
             laserProjectiles.push(laserL, laserR);
+
+            // Spawn Wingtip Muzzle Flash Energy Flares
+            spawnWingtipMuzzleFlash(posL, playerShip.quaternion);
+            spawnWingtipMuzzleFlash(posR, playerShip.quaternion);
+
+            // Play Synthesized Twin Plasma Laser Sound Effect
+            if (audioCtx && !isAudioMuted) {
+                try {
+                    const now = audioCtx.currentTime;
+                    const lOsc = audioCtx.createOscillator();
+                    const lGain = audioCtx.createGain();
+                    lOsc.type = 'sawtooth';
+                    lOsc.frequency.setValueAtTime(1150, now);
+                    lOsc.frequency.exponentialRampToValueAtTime(180, now + 0.12);
+                    lGain.gain.setValueAtTime(0.35, now);
+                    lGain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+                    lOsc.connect(lGain);
+                    lGain.connect(audioCtx.destination);
+                    lOsc.start();
+                    lOsc.stop(now + 0.12);
+                } catch (e) {}
+            }
         }
 
         function triggerWormholeJump() {
@@ -2600,7 +2679,7 @@
             if (capitalShip) capitalShip.rotation.y += 0.001;
             if (spacePlanet) spacePlanet.rotation.y += 0.00015; // Slow majestic planet rotation
 
-            // Lasers
+            // Lasers & Dynamic Plasma Trails
             for (let i = laserProjectiles.length - 1; i >= 0; i--) {
                 const laser = laserProjectiles[i];
                 if (laser.userData.velocity) {
@@ -2608,9 +2687,20 @@
                 } else {
                     laser.translateZ(-6);
                 }
-                if (laser.position.distanceTo(playerShip.position) > 1200) {
+                if (laser.position.distanceTo(playerShip.position) > 2500) {
                     scene.remove(laser);
                     laserProjectiles.splice(i, 1);
+                }
+            }
+
+            // Animate & Decay Wingtip Muzzle Flash Energy Flares
+            for (let i = muzzleFlashParticles.length - 1; i >= 0; i--) {
+                const flash = muzzleFlashParticles[i];
+                flash.scale.addScalar(0.25);
+                flash.material.opacity -= 0.18;
+                if (flash.material.opacity <= 0) {
+                    scene.remove(flash);
+                    muzzleFlashParticles.splice(i, 1);
                 }
             }
 
