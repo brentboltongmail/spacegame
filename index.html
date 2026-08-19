@@ -1334,15 +1334,19 @@
             renderer.shadowMap.enabled = true;
             container.appendChild(renderer.domElement);
 
-            // Lighting
-            const ambientLight = new THREE.AmbientLight(0x223344, 1.5);
+            // Lighting (Brightened for Crisp 3D Ship Detail Visibility)
+            const ambientLight = new THREE.AmbientLight(0x94a3b8, 3.2); // Bright neutral fill light
             scene.add(ambientLight);
 
-            const sunLight = new THREE.DirectionalLight(0xfffaed, 2.5);
-            sunLight.position.set(500, 300, 500);
+            const sunLight = new THREE.DirectionalLight(0xfffaed, 4.0); // Primary sun light
+            sunLight.position.set(400, 500, 400);
             scene.add(sunLight);
 
-            const cyanGlow = new THREE.PointLight(0x00f0ff, 3, 300);
+            const fillRimLight = new THREE.DirectionalLight(0x38bdf8, 2.5); // Secondary cyan-blue rim light
+            fillRimLight.position.set(-400, -300, -300);
+            scene.add(fillRimLight);
+
+            const cyanGlow = new THREE.PointLight(0x00f0ff, 4, 300);
             cyanGlow.position.set(0, 20, -100);
             scene.add(cyanGlow);
 
@@ -1514,19 +1518,19 @@
             canvas.width = 512; canvas.height = 512;
             const ctx = canvas.getContext('2d');
 
-            ctx.fillStyle = '#0b1329';
+            ctx.fillStyle = '#1e293b';
             ctx.fillRect(0, 0, 512, 512);
 
             // Metallic carbon weave pattern
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
             ctx.lineWidth = 1;
             for (let i = 0; i < 512; i += 8) {
                 ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 512); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(512, i); ctx.stroke();
             }
 
-            // Dark alloy armor seams
-            ctx.strokeStyle = '#334155';
+            // Alloy armor seams
+            ctx.strokeStyle = '#64748b';
             ctx.lineWidth = 3;
             ctx.strokeRect(16, 16, 480, 480);
             ctx.strokeRect(48, 48, 416, 416);
@@ -1576,24 +1580,24 @@
             const hullMap = createVoidHullTexture();
             const bumpMap = createVoidBumpMap();
 
-            // High-Detail Metallic Materials
+            // High-Detail Metallic Materials (Brightened for crisp 3D detail visibility)
             const darkArmorMat = new THREE.MeshStandardMaterial({ 
-                color: 0x0b1329, 
-                metalness: 0.95, 
-                roughness: 0.2, 
+                color: 0x1e293b, 
+                metalness: 0.88, 
+                roughness: 0.25, 
                 map: hullMap, 
                 bumpMap: bumpMap, 
                 bumpScale: 0.08 
             });
             const silverPlateMat = new THREE.MeshStandardMaterial({ 
-                color: 0x334155, 
-                metalness: 0.90, 
-                roughness: 0.25, 
+                color: 0x64748b, 
+                metalness: 0.85, 
+                roughness: 0.30, 
                 map: hullMap, 
                 bumpMap: bumpMap, 
                 bumpScale: 0.05 
             });
-            const goldTrimMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.95, roughness: 0.15 });
+            const goldTrimMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.95, roughness: 0.15 });ndardMaterial({ color: 0xd97706, metalness: 0.95, roughness: 0.15 });
             const cyanGlowMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
             const canopyGlassMat = new THREE.MeshPhysicalMaterial({ 
                 color: 0x00f0ff, 
