@@ -2431,24 +2431,50 @@
             const atmosphere = new THREE.Mesh(atmoGeo, atmoMat);
             spacePlanet.add(atmosphere);
 
-            // Gigantic Planetary Ring System (35,200 units diameter)
-            const ringGeo = new THREE.RingGeometry(11200, 17600, 128);
-            const ringMat = new THREE.MeshBasicMaterial({ 
-                color: 0x38bdf8, 
-                side: THREE.DoubleSide, 
-                transparent: true, 
-                opacity: 0.65 
+            // Gigantic Planetary Ring System - Converted to 3D particle asteroids
+            const particleCount = 20000;
+            // Using a tetrahedron as a low-poly asteroid shape
+            const particleGeo = new THREE.TetrahedronGeometry(1, 1);
+            const particleMat = new THREE.MeshStandardMaterial({ 
+                color: 0x88ccff,
+                roughness: 0.8,
+                metalness: 0.2
             });
-
-            new THREE.TextureLoader().load(
-                'docs/images/space_planet_rings.jpg',
-                (tex) => {
-                    ringMat.map = tex;
-                    ringMat.needsUpdate = true;
-                }
-            );
-
-            const ring = new THREE.Mesh(ringGeo, ringMat);
+            const ring = new THREE.InstancedMesh(particleGeo, particleMat, particleCount);
+            
+            const dummy = new THREE.Object3D();
+            const innerRadius = 11200;
+            const outerRadius = 17600;
+            const ringThickness = 500;
+            
+            for (let i = 0; i < particleCount; i++) {
+                // Random radius between inner and outer
+                const r = innerRadius + Math.random() * (outerRadius - innerRadius);
+                const theta = Math.random() * Math.PI * 2;
+                
+                // Add some width/thickness to the ring
+                const y = (Math.random() - 0.5) * (Math.random() * ringThickness);
+                
+                const x = r * Math.cos(theta);
+                const z = r * Math.sin(theta);
+                
+                dummy.position.set(x, y, z);
+                
+                // Varying sizes
+                const scale = Math.random() * 80 + 10;
+                dummy.scale.set(scale, scale, scale);
+                
+                // Random rotation
+                dummy.rotation.set(
+                    Math.random() * Math.PI,
+                    Math.random() * Math.PI,
+                    Math.random() * Math.PI
+                );
+                
+                dummy.updateMatrix();
+                ring.setMatrixAt(i, dummy.matrix);
+            }
+            
             ring.rotation.x = Math.PI / 2.3;
             ring.rotation.y = -Math.PI / 8;
             spacePlanet.add(ring);
