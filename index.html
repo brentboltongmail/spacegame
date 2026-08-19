@@ -3334,19 +3334,19 @@
             const t = Math.min(Math.max(throttleRatio, 0), 1);
             const now = audioCtx.currentTime;
 
-            // 1. Low-Frequency Sub Rumble (42 Hz -> 86 Hz)
-            const subFreq = 42 + t * 44;
-            const detuneFreq = 44 + t * 46;
-            const midFreq = 110 + t * 90;
+            // 1. Lowered Low-Frequency Sub Rumble (36 Hz -> 72 Hz)
+            const subFreq = 36 + t * 36;
+            const detuneFreq = 38 + t * 38;
+            const midFreq = 85 + t * 75;
 
             engineSubOsc.frequency.setTargetAtTime(subFreq, now, 0.08);
             engineDetuneOsc.frequency.setTargetAtTime(detuneFreq, now, 0.08);
             engineMidOsc.frequency.setTargetAtTime(midFreq, now, 0.08);
 
-            // 2. Turbine & Whine (Tamed pitch scaling: 240 Hz -> 520 Hz)
+            // 2. Lowered Turbine & Whine Pitch (180 Hz -> 380 Hz & 280 Hz -> 580 Hz)
             if (engineTurbineOsc && engineTurbineFilter && engineTurbineGain) {
-                const turbinePitch = 240 + t * 280;
-                const turbineCutoff = 320 + t * 380;
+                const turbinePitch = 180 + t * 200;
+                const turbineCutoff = 260 + t * 280;
                 const turbineGainVal = 0.08 + t * 0.12;
 
                 engineTurbineOsc.frequency.setTargetAtTime(turbinePitch, now, 0.08);
@@ -3355,7 +3355,7 @@
             }
 
             if (engineWhineOsc && engineWhineGain) {
-                const whinePitch = 380 + t * 420;
+                const whinePitch = 280 + t * 300;
                 const whineGainVal = 0.06 + t * 0.10;
                 engineWhineOsc.frequency.setTargetAtTime(whinePitch, now, 0.08);
                 engineWhineGain.gain.setTargetAtTime(whineGainVal, now, 0.08);
@@ -3373,9 +3373,9 @@
                 engineStaticGain.gain.setTargetAtTime(staticTarget, now, 0.08);
             }
 
-            // 5. Cockpit Muffling Filter (280 Hz -> 1,200 Hz)
-            const cutoffBase = isCockpitView ? 280 : 550;
-            const cutoffMax = isCockpitView ? 1200 : 2600;
+            // 5. Cockpit Muffling Filter (220 Hz -> 750 Hz)
+            const cutoffBase = isCockpitView ? 220 : 450;
+            const cutoffMax = isCockpitView ? 750 : 1800;
             const targetCutoff = cutoffBase + t * (cutoffMax - cutoffBase);
 
             engineLowPassFilter.frequency.setTargetAtTime(targetCutoff, now, 0.1);
