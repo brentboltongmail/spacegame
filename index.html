@@ -2119,19 +2119,33 @@
                 clearcoat: 1.0 
             });
 
-            // 1. Sleek Fuselage Core & Nose Needle Probe
+            // 1. Sleek Forward Stealth Nose Cone & Sensor Probe (Tip facing FORWARD towards -Z)
             const noseGeo = new THREE.ConeGeometry(0.75, 4.4, 4);
-            noseGeo.rotateX(Math.PI / 2);
-            noseGeo.rotateZ(Math.PI / 4); // Diamond stealth cross section
+            noseGeo.rotateX(-Math.PI / 2); // Rotates sharp tip FORWARD towards -Z!
+            noseGeo.rotateZ(Math.PI / 4);  // Diamond stealth cross section
             const nose = new THREE.Mesh(noseGeo, darkArmorMat);
-            nose.position.set(0, 0, -1.3);
+            nose.position.set(0, -0.05, -1.8);
             playerShip.add(nose);
 
-            // Forward Sensor Needle Probe
-            const probeGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.2, 8);
+            // Upper Tapered Armor Cowl (Stealth Chine Nose Plate)
+            const upperNoseGeo = new THREE.ConeGeometry(0.55, 3.6, 4);
+            upperNoseGeo.rotateX(-Math.PI / 2); // Tip facing forward
+            upperNoseGeo.rotateZ(Math.PI / 4);
+            const upperNose = new THREE.Mesh(upperNoseGeo, silverPlateMat);
+            upperNose.position.set(0, 0.12, -1.6);
+            playerShip.add(upperNose);
+
+            // Gold Nose Ridge Trim Line
+            const noseGoldGeo = new THREE.BoxGeometry(0.08, 0.12, 3.2);
+            const noseGold = new THREE.Mesh(noseGoldGeo, goldTrimMat);
+            noseGold.position.set(0, 0.28, -1.6);
+            playerShip.add(noseGold);
+
+            // Forward Luminescent Sensor Needle Probe
+            const probeGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.4, 8);
             probeGeo.rotateX(Math.PI / 2);
             const probe = new THREE.Mesh(probeGeo, cyanGlowMat);
-            probe.position.set(0, 0, -3.8);
+            probe.position.set(0, -0.05, -4.3);
             playerShip.add(probe);
 
             // Ventral Air Scoop Intake
