@@ -989,20 +989,88 @@
             border-color: rgba(0, 240, 255, 0.5);
             background: rgba(15, 23, 42, 0.95);
         }
-        .map-hint-overlay {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+        /* Game & Audio Options Modal */
+        #options-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(3, 6, 16, 0.96);
+            backdrop-filter: blur(25px);
+            z-index: 1200;
+            display: none;
+            flex-direction: column;
+            padding: 28px 40px;
+            box-sizing: border-box;
+            color: #e2e8f0;
+            font-family: var(--font-body);
+        }
+        .options-body-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 20px;
+            height: calc(100% - 70px);
+        }
+        .options-card {
+            background: rgba(11, 18, 36, 0.85);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .volume-slider-group {
+            margin-bottom: 22px;
+        }
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            font-family: Orbitron;
+            font-size: 0.9rem;
+            color: #f1f5f9;
+            margin-bottom: 8px;
+        }
+        .volume-slider-group input[type=range] {
+            width: 100%;
+            accent-color: #00f0ff;
+            cursor: pointer;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(15, 23, 42, 0.9);
+        }
+        .keymap-table {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .keymap-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        .keymap-row kbd {
             background: rgba(0, 240, 255, 0.15);
             border: 1px solid rgba(0, 240, 255, 0.4);
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-family: var(--font-sub);
-            font-size: 0.82rem;
-            color: var(--accent-cyan);
-            pointer-events: none;
-            text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+            color: #00f0ff;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-family: Orbitron;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .keymap-row kbd:hover {
+            background: rgba(0, 240, 255, 0.35);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
         }
     </style>
 </head>
@@ -1391,7 +1459,10 @@
                     <h1>🛠️ PILOT PROFILE & SHIP UPGRADE HANGAR</h1>
                     <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Press <kbd style="background: rgba(0,240,255,0.2); border: 1px solid #00f0ff; color: #00f0ff; padding: 2px 6px;">ESC</kbd> or click Resume Flight to unpause & return</div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 16px;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <button class="sim-btn" onclick="openOptionsModal()" style="font-size: 0.95rem; padding: 9px 20px; background: rgba(15, 23, 42, 0.85); color: #00f0ff; border: 1px solid #00f0ff; font-weight: 700; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        ⚙️ OPTIONS
+                    </button>
                     <div style="font-size: 1.1rem; font-family: Orbitron; color: var(--accent-gold); font-weight: 700; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); padding: 8px 18px; border-radius: 8px;">
                         💰 CREDITS: <span id="hangar-credits-display">125,000 SC</span>
                     </div>
@@ -1417,15 +1488,16 @@
 
                 <!-- Right Column: Pilot Profile & Ship Upgrade Modules -->
                 <div class="upgrade-controls-panel">
-                    <div class="profile-stat-box">
+                    <div class="profile-stat-box" style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <div style="font-size: 0.75rem; color: var(--text-muted); font-family: Orbitron;">ACTIVE PILOT</div>
                             <div style="font-size: 1.2rem; font-family: Orbitron; font-weight: 700; color: #fff;">Pilot Apex</div>
                             <div style="font-size: 0.8rem; color: var(--accent-gold);">Rank: Elite Interceptor Ace</div>
                         </div>
-                        <div style="text-align: right;">
-                            <div style="font-size: 0.75rem; color: var(--text-muted); font-family: Orbitron;">VESSEL CLASS</div>
-                            <div style="font-size: 1.1rem; font-family: Orbitron; color: var(--accent-cyan);">Void Interceptor</div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                            <button class="sim-btn" onclick="openOptionsModal()" style="font-size: 0.85rem; padding: 6px 14px; background: rgba(0,240,255,0.15); border: 1px solid #00f0ff; color: #00f0ff; font-weight: 700; border-radius: 6px; cursor: pointer;">
+                                ⚙️ GAME & AUDIO OPTIONS
+                            </button>
                             <div style="font-size: 0.8rem; color: #94a3b8;">Hull Integrity: 100%</div>
                         </div>
                     </div>
@@ -1540,6 +1612,74 @@
 
                 <div class="map-hint-overlay">
                     🖱️ Click & Drag to Orbit/Rotate 3D Star Map | Scroll Wheel to Zoom
+                </div>
+            </div>
+        <!-- Game & Audio Options Modal Overlay -->
+        <div id="options-modal">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <h1>⚙️ SYSTEM OPTIONS & CONTROLS EDITOR</h1>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Adjust master volume levels and rebind flight keyboard controls</div>
+                </div>
+                <button class="sim-btn" onclick="closeOptionsModal()" style="font-size: 1rem; padding: 10px 24px; background: linear-gradient(135deg, #0284c7, #00f0ff); color: #000; font-weight: 700; border: none; cursor: pointer; border-radius: 8px;">
+                    ✖️ Close Options
+                </button>
+            </div>
+
+            <div class="options-body-grid">
+                <!-- Left Box: Volume Control Sliders -->
+                <div class="options-card">
+                    <h3 style="font-family: Orbitron; color: var(--accent-cyan); font-size: 1.1rem; margin-bottom: 16px; border-bottom: 1px solid rgba(0,240,255,0.2); padding-bottom: 8px;">
+                        🔊 MULTI-TRACK AUDIO VOLUME CONTROLS
+                    </h3>
+                    
+                    <div class="volume-slider-group">
+                        <div class="slider-header">
+                            <span>🔊 Master Sound Volume</span>
+                            <span id="lbl-vol-master">70%</span>
+                        </div>
+                        <input type="range" id="slider-vol-master" min="0" max="100" value="70" oninput="updateAudioVolumes()">
+                    </div>
+
+                    <div class="volume-slider-group">
+                        <div class="slider-header">
+                            <span>🚀 Engine Sound FX Volume</span>
+                            <span id="lbl-vol-engine">80%</span>
+                        </div>
+                        <input type="range" id="slider-vol-engine" min="0" max="100" value="80" oninput="updateAudioVolumes()">
+                    </div>
+
+                    <div class="volume-slider-group">
+                        <div class="slider-header">
+                            <span>💥 Plasma Firing SFX Volume</span>
+                            <span id="lbl-vol-firing">85%</span>
+                        </div>
+                        <input type="range" id="slider-vol-firing" min="0" max="100" value="85" oninput="updateAudioVolumes()">
+                    </div>
+                </div>
+
+                <!-- Right Box: Keymap Control Editor -->
+                <div class="options-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,240,255,0.2); padding-bottom: 8px; margin-bottom: 16px;">
+                        <h3 style="font-family: Orbitron; color: var(--accent-cyan); font-size: 1.1rem;">
+                            ⌨️ KEYBOARD & MOUSE CONTROLS
+                        </h3>
+                        <button class="sim-btn" onclick="resetDefaultKeymaps()" style="font-size: 0.75rem; padding: 4px 10px; background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #ef4444; border-radius: 4px;">
+                            Reset Defaults
+                        </button>
+                    </div>
+
+                    <div class="keymap-table">
+                        <div class="keymap-row"><span>Accelerate Speed</span><kbd id="key-KeyW" onclick="startRebindingKey('KeyW')">W</kbd></div>
+                        <div class="keymap-row"><span>Decelerate Speed</span><kbd id="key-KeyS" onclick="startRebindingKey('KeyS')">S</kbd></div>
+                        <div class="keymap-row"><span>Roll Left</span><kbd id="key-KeyA" onclick="startRebindingKey('KeyA')">A</kbd></div>
+                        <div class="keymap-row"><span>Roll Right</span><kbd id="key-KeyD" onclick="startRebindingKey('KeyD')">D</kbd></div>
+                        <div class="keymap-row"><span>Fire Plasma Cannons</span><kbd id="key-Space" onclick="startRebindingKey('Space')">Space / Mouse 1</kbd></div>
+                        <div class="keymap-row"><span>3D Tactical Map</span><kbd id="key-KeyM" onclick="startRebindingKey('KeyM')">M</kbd></div>
+                        <div class="keymap-row"><span>Flight Steering Lock</span><kbd id="key-KeyL" onclick="startRebindingKey('KeyL')">L</kbd></div>
+                        <div class="keymap-row"><span>Toggle Camera Mode</span><kbd id="key-KeyC" onclick="startRebindingKey('KeyC')">C</kbd></div>
+                        <div class="keymap-row"><span>Pause / Pilot Profile</span><kbd id="key-Escape" onclick="startRebindingKey('Escape')">ESC</kbd></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -4191,8 +4331,10 @@
                 mapEnemyGroup.add(mapEnemy);
             }
 
-            // --- SPHERICAL ORBIT CAMERA DRAG & ZOOM LISTENERS ---
+            // --- DIRECT MULTI-ELEMENT MAP DRAG & SCROLL ZOOM LISTENERS ---
             const modalEl = document.getElementById('tactical-map-modal');
+            const bodyEl = document.querySelector('.map-body-container');
+            const boxEl = document.getElementById('map-canvas-container');
 
             const onMapStart = (e) => {
                 if (e.target.closest('button, .legend-item, a')) return;
@@ -4203,29 +4345,31 @@
             };
 
             const onMapMove = (e) => {
-                if (!isMapDragging) return;
+                if (!isMapDragging || !mapGroup) return;
                 const clientX = e.touches ? e.touches[0].clientX : e.clientX;
                 const clientY = e.touches ? e.touches[0].clientY : e.clientY;
                 const deltaX = clientX - previousMapMousePosition.x;
                 const deltaY = clientY - previousMapMousePosition.y;
 
-                mapAzimuth -= deltaX * 0.008;
-                mapPolar = Math.min(Math.max(mapPolar - deltaY * 0.008, 0.08), Math.PI / 2 - 0.05);
+                mapGroup.rotation.y += deltaX * 0.015;
+                mapGroup.rotation.x = Math.min(Math.max(mapGroup.rotation.x + deltaY * 0.015, -1.2), 1.2);
 
                 previousMapMousePosition = { x: clientX, y: clientY };
             };
 
             const onMapEnd = () => { isMapDragging = false; };
 
-            if (modalEl) {
-                modalEl.addEventListener('mousedown', onMapStart);
-                modalEl.addEventListener('touchstart', onMapStart, { passive: true });
-                modalEl.addEventListener('wheel', (e) => {
-                    e.preventDefault();
-                    mapCamDistance += e.deltaY * 0.12;
-                    mapCamDistance = Math.min(Math.max(mapCamDistance, 25), 320);
-                }, { passive: false });
-            }
+            [modalEl, bodyEl, boxEl, canvas].forEach(el => {
+                if (el) {
+                    el.addEventListener('mousedown', onMapStart);
+                    el.addEventListener('touchstart', onMapStart, { passive: true });
+                    el.addEventListener('wheel', (e) => {
+                        e.preventDefault();
+                        mapCamDistance += e.deltaY * 0.14;
+                        mapCamDistance = Math.min(Math.max(mapCamDistance, 25), 350);
+                    }, { passive: false });
+                }
+            });
 
             window.addEventListener('mousemove', onMapMove);
             window.addEventListener('touchmove', onMapMove, { passive: true });
@@ -4246,7 +4390,7 @@
         }
 
         function renderTacticalMap3D() {
-            if (!mapRenderer || !mapScene || !mapCamera) return;
+            if (!mapRenderer || !mapScene || !mapCamera || !mapGroup) return;
 
             // Semi-Realtime Tracking: Continuously sync 3D map icon positions to actual spaceflight world coordinates
             const scaleFactor = 0.005;
@@ -4276,15 +4420,94 @@
                 }
             }
 
-            // Update Spherical Orbit Camera Position
-            const targetX = mapCamDistance * Math.sin(mapPolar) * Math.sin(mapAzimuth);
-            const targetY = mapCamDistance * Math.cos(mapPolar);
-            const targetZ = mapCamDistance * Math.sin(mapPolar) * Math.cos(mapAzimuth);
-
-            mapCamera.position.set(targetX, targetY, targetZ);
+            // Smooth Orbit Camera Viewport Update
+            mapCamera.position.set(0, mapCamDistance * 0.35, mapCamDistance);
             mapCamera.lookAt(0, 0, 0);
 
             mapRenderer.render(mapScene, mapCamera);
+        }
+
+        // --- GAME & AUDIO OPTIONS SYSTEM ENGINE ---
+        let isOptionsOpen = false;
+        let activeRebindAction = null;
+
+        let gameVolumeConfig = {
+            master: 0.70,
+            engine: 0.80,
+            firing: 0.85
+        };
+
+        function openOptionsModal() {
+            isOptionsOpen = true;
+            const modal = document.getElementById('options-modal');
+            if (modal) modal.style.display = 'flex';
+            showToast("⚙️ GAME OPTIONS & AUDIO CONTROLS OPEN");
+        }
+
+        function closeOptionsModal() {
+            isOptionsOpen = false;
+            const modal = document.getElementById('options-modal');
+            if (modal) modal.style.display = 'none';
+            showToast("▶️ OPTIONS CLOSED — RETURNED TO HANGAR");
+        }
+
+        function updateAudioVolumes() {
+            const masterVal = parseInt(document.getElementById('slider-vol-master').value);
+            const engineVal = parseInt(document.getElementById('slider-vol-engine').value);
+            const firingVal = parseInt(document.getElementById('slider-vol-firing').value);
+
+            document.getElementById('lbl-vol-master').innerText = masterVal + "%";
+            document.getElementById('lbl-vol-engine').innerText = engineVal + "%";
+            document.getElementById('lbl-vol-firing').innerText = firingVal + "%";
+
+            gameVolumeConfig.master = masterVal / 100;
+            gameVolumeConfig.engine = engineVal / 100;
+            gameVolumeConfig.firing = firingVal / 100;
+
+            if (engineMasterGain && audioCtx) {
+                engineMasterGain.gain.setValueAtTime(isAudioMuted ? 0 : gameVolumeConfig.master * gameVolumeConfig.engine * 0.40, audioCtx.currentTime);
+            }
+        }
+
+        function startRebindingKey(action) {
+            activeRebindAction = action;
+            const kbdEl = document.getElementById('key-' + action);
+            if (kbdEl) {
+                kbdEl.innerText = "Press key...";
+                kbdEl.style.background = "rgba(245,158,11,0.4)";
+                kbdEl.style.borderColor = "#f59e0b";
+                kbdEl.style.color = "#fff";
+            }
+            showToast(`⌨️ PRESS ANY KEY TO REBIND ${action}...`);
+
+            const captureHandler = (e) => {
+                e.preventDefault();
+                const newCode = e.code;
+                const newChar = e.key.toUpperCase() === " " ? "SPACE" : e.key.toUpperCase();
+                
+                if (kbdEl) {
+                    kbdEl.innerText = newChar;
+                    kbdEl.style.background = "rgba(0, 240, 255, 0.15)";
+                    kbdEl.style.borderColor = "rgba(0, 240, 255, 0.4)";
+                    kbdEl.style.color = "#00f0ff";
+                }
+                showToast(`✅ BOUND ${action} TO [ ${newChar} ]`);
+                window.removeEventListener('keydown', captureHandler);
+            };
+
+            window.addEventListener('keydown', captureHandler, { once: true });
+        }
+
+        function resetDefaultKeymaps() {
+            const defaults = {
+                KeyW: "W", KeyS: "S", KeyA: "A", KeyD: "D",
+                Space: "Space / Mouse 1", KeyM: "M", KeyL: "L", KeyC: "C", Escape: "ESC"
+            };
+            for (const [key, label] of Object.entries(defaults)) {
+                const el = document.getElementById('key-' + key);
+                if (el) el.innerText = label;
+            }
+            showToast("🔄 KEYBINDINGS RESET TO DEFAULT FLIGHT CONTROLS");
         }
 
         function toggleTacticalMapModal() {
