@@ -1577,7 +1577,7 @@
 
             // --- Symmetrical Directional Flight Velocity Steering (Left/Right & Up/Down) ---
             const deadzone = 0.03;
-            const turnRate = 0.026; // 100% symmetrical turn velocity for both Pitch and Yaw
+            const turnRate = 0.0104; // Reduced by 60% for smooth precision steering
 
             const mouseXEff = Math.abs(normalizedMouse.x) > deadzone ? (normalizedMouse.x - Math.sign(normalizedMouse.x) * deadzone) : 0;
             const mouseYEff = Math.abs(normalizedMouse.y) > deadzone ? (normalizedMouse.y - Math.sign(normalizedMouse.y) * deadzone) : 0;
