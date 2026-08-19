@@ -1100,6 +1100,23 @@
                     </div>
                 </div>
 
+                <!-- Tactical Target Lock Card (Draggable HUD Panel) -->
+                <div class="hud-card draggable-box" id="hud-target-card" style="position: absolute; top: 110px; right: 25px; width: 230px; padding: 10px; z-index: 40; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(255, 59, 92, 0.45); border-radius: 10px;">
+                    <div class="hud-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; margin-top: 4px;">
+                        <span style="font-size: 0.85rem; color: #ff3b5c;">🎯 TARGET LOCK</span>
+                        <span id="target-lock-status" style="color: #ff3b5c; font-size: 0.75rem; font-weight: 700;">SEARCHING...</span>
+                    </div>
+                    <div id="target-info-box" style="margin-top: 6px;">
+                        <div id="target-name" style="font-family: Orbitron; font-weight: 700; font-size: 0.85rem; color: #fff;">NO TARGET ACQUIRED</div>
+                        <div id="target-dist" style="font-size: 0.78rem; color: #94a3b8; margin-top: 2px;">Range: -- KM</div>
+                        <!-- Health Bar -->
+                        <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 8px; overflow: hidden; border: 1px solid rgba(255,59,92,0.3);">
+                            <div id="target-hp-bar" style="width: 100%; height: 100%; background: linear-gradient(90deg, #ef4444, #ff3b5c); transition: width 0.15s ease;"></div>
+                        </div>
+                        <div id="target-hp-text" style="font-size: 0.72rem; color: #f87171; text-align: right; margin-top: 3px; font-weight: 700;">100 / 100 HP</div>
+                    </div>
+                </div>
+
                 <!-- Tactical Radar Box (Draggable with Thin Accent Handle Bar) -->
                 <div class="hud-card draggable-box" id="hud-radar-card" style="position: absolute; bottom: 85px; right: 25px; width: 220px; padding: 10px; z-index: 40; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px;">
                     <div class="hud-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; margin-top: 4px;">
@@ -2528,20 +2545,170 @@
             playerShip.position.set(-150, 20, -310);
         }
 
-        function spawnEnemySwarm() {
-            for (let i = 0; i < 6; i++) {
-                const enemyGeo = new THREE.TetrahedronGeometry(4);
-                const enemyMat = new THREE.MeshBasicMaterial({ color: 0xff3b5c, wireframe: true });
-                const enemy = new THREE.Mesh(enemyGeo, enemyMat);
-                enemy.position.set(
-                    playerShip.position.x + (Math.random() - 0.5) * 8000,
-                    playerShip.position.y + (Math.random() - 0.5) * 3000,
-                    playerShip.position.z - 6000 - Math.random() * 8000
+        function createEnemyInterceptorMesh() {
+            const enemyGroup = new THREE.Group();
+
+            // Fuselage / Hull (Aggressive Dark Metallic Fighter Body)
+            const hullGeo = new THREE.BoxGeometry(2.4, 1.2, 7.5);
+            const hullMat = new THREE.MeshBasicMaterial({ color: 0x1e293b });
+            const hull = new THREE.Mesh(hullGeo, hullMat);
+            enemyGroup.add(hull);
+
+            // Cockpit Visor (Glowing Crimson Visor Window)
+            const visorGeo = new THREE.BoxGeometry(1.6, 0.8, 2.2);
+            const visorMat = new THREE.MeshBasicMaterial({ color: 0xff0044 });
+            const visor = new THREE.Mesh(visorGeo, visorMat);
+            visor.position.set(0, 0.4, -1.8);
+            enemyGroup.add(visor);
+
+            // Swept Wings (Crimson Edge Trim)
+            const wingGeo = new THREE.ConeGeometry(5.5, 6.0, 4);
+            wingGeo.rotateX(Math.PI / 2);
+            const wingMat = new THREE.MeshBasicMaterial({ color: 0xff3b5c, wireframe: false });
+            const wings = new THREE.Mesh(wingGeo, wingMat);
+            wings.position.set(0, 0, 0.5);
+            enemyGroup.add(wings);
+
+            // Thruster Glow Engine Light (Crimson Point Light)
+            const thrusterLight = new THREE.PointLight(0xff0044, 4, 35);
+            thrusterLight.position.set(0, 0, 4.0);
+            enemyGroup.add(thrusterLight);
+
+            // Metadata for HP & Hit Flash
+            enemyGroup.userData = {
+                hp: 100,
+                maxHp: 100,
+                name: "Void Interceptor Mk-II",
+                flashTimer: 0
+            };
+
+            return enemyGroup;
+        }
+
+        let explosionParticles = [];
+
+        function spawnLaserImpactSparks(pos) {
+            for (let i = 0; i < 14; i++) {
+                const pGeo = new THREE.SphereGeometry(0.25, 8, 8);
+                const pMat = new THREE.MeshBasicMaterial({ color: (i % 2 === 0) ? 0x00f0ff : 0xffffff });
+                const p = new THREE.Mesh(pGeo, pMat);
+                p.position.copy(pos);
+                p.userData.vel = new THREE.Vector3(
+                    (Math.random() - 0.5) * 8,
+                    (Math.random() - 0.5) * 8,
+                    (Math.random() - 0.5) * 8
                 );
+                p.userData.life = 1.0;
+                scene.add(p);
+                explosionParticles.push(p);
+            }
+        }
+
+        function createFieryExplosionFX(pos) {
+            // 1. 35 Fiery Plasma Shrapnel Debris Particles (Gold, Orange, Red, Cyan)
+            const colors = [0xfbbf24, 0xf97316, 0xef4444, 0x00f0ff, 0xffffff];
+            for (let i = 0; i < 38; i++) {
+                const size = 0.35 + Math.random() * 0.7;
+                const pGeo = new THREE.SphereGeometry(size, 8, 8);
+                const pMat = new THREE.MeshBasicMaterial({ color: colors[i % colors.length] });
+                const p = new THREE.Mesh(pGeo, pMat);
+                p.position.copy(pos);
+                p.userData.vel = new THREE.Vector3(
+                    (Math.random() - 0.5) * 24,
+                    (Math.random() - 0.5) * 24,
+                    (Math.random() - 0.5) * 24
+                );
+                p.userData.life = 1.0;
+                scene.add(p);
+                explosionParticles.push(p);
+            }
+
+            // 2. Expanding Shockwave Ring
+            const ringGeo = new THREE.RingGeometry(1, 4, 32);
+            ringGeo.rotateX(Math.PI / 2);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0xf97316, side: THREE.DoubleSide, transparent: true, opacity: 1.0 });
+            const shockwave = new THREE.Mesh(ringGeo, ringMat);
+            shockwave.position.copy(pos);
+            shockwave.userData.isShockwave = true;
+            shockwave.userData.life = 1.0;
+            scene.add(shockwave);
+            explosionParticles.push(shockwave);
+
+            // 3. High-Intensity Flash PointLight
+            const expLight = new THREE.PointLight(0xffaa00, 35, 400);
+            expLight.position.copy(pos);
+            scene.add(expLight);
+            setTimeout(() => scene.remove(expLight), 350);
+
+            // 4. Booming Explosion Sound Effect
+            playExplosionAudio();
+        }
+
+        function playLaserImpactAudio() {
+            if (!audioCtx || isAudioMuted) return;
+            try {
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(650, now);
+                osc.frequency.exponentialRampToValueAtTime(140, now + 0.08);
+                gain.gain.setValueAtTime(0.20, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(now + 0.08);
+            } catch (e) {}
+        }
+
+        function playExplosionAudio() {
+            if (!audioCtx || isAudioMuted) return;
+            try {
+                const now = audioCtx.currentTime;
+                // Sub-Bass Drop
+                const subOsc = audioCtx.createOscillator();
+                const subGain = audioCtx.createGain();
+                subOsc.type = 'sine';
+                subOsc.frequency.setValueAtTime(180, now);
+                subOsc.frequency.exponentialRampToValueAtTime(30, now + 0.6);
+                subGain.gain.setValueAtTime(0.65, now);
+                subGain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+                subOsc.connect(subGain);
+                subGain.connect(audioCtx.destination);
+                subOsc.start();
+                subOsc.stop(now + 0.6);
+
+                // Noise Burst
+                const bufferSize = audioCtx.sampleRate * 0.5;
+                const noiseBuf = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const out = noiseBuf.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) out[i] = (Math.random() * 2 - 1);
+                const noiseNode = audioCtx.createBufferSource();
+                noiseNode.buffer = noiseBuf;
+                const noiseGain = audioCtx.createGain();
+                noiseGain.gain.setValueAtTime(0.5, now);
+                noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                noiseNode.connect(noiseGain);
+                noiseGain.connect(audioCtx.destination);
+                noiseNode.start();
+            } catch (e) {}
+        }
+
+        function spawnEnemySwarm() {
+            const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
+            for (let i = 0; i < 6; i++) {
+                const enemy = createEnemyInterceptorMesh();
+                const offset = new THREE.Vector3(
+                    (Math.random() - 0.5) * 600,
+                    (Math.random() - 0.5) * 300,
+                    -600 - Math.random() * 1600
+                );
+                enemy.position.copy(playerShip.position).add(fwd.clone().multiplyScalar(800)).add(offset);
                 scene.add(enemy);
                 enemyShips.push(enemy);
             }
-            showToast("⚠️ 6 ENEMY INTERCEPTORS DETECTED ON LONG-RANGE RADAR! (6.0 - 14.0 KM)");
+            showToast("⚠️ 6 ENEMY VOID INTERCEPTORS ENGAGED! TARGET LOCK ACTIVE");
         }
 
         function approachCapitalShip() {
@@ -2666,7 +2833,7 @@
             if (capitalShip) capitalShip.rotation.y += 0.001;
             if (spacePlanet) spacePlanet.rotation.y += 0.00015; // Slow majestic planet rotation
 
-            // Lasers & Dynamic Plasma Trails
+            // --- LASER PROJECTILE MOVEMENT & ENEMY COMBAT HIT COLLISION ---
             for (let i = laserProjectiles.length - 1; i >= 0; i--) {
                 const laser = laserProjectiles[i];
                 if (laser.userData.velocity) {
@@ -2674,19 +2841,146 @@
                 } else {
                     laser.translateZ(-6);
                 }
-                if (laser.position.distanceTo(playerShip.position) > 2500) {
+
+                // Collision Detection against Enemy Interceptors
+                let hitEnemy = false;
+                for (let j = enemyShips.length - 1; j >= 0; j--) {
+                    const enemy = enemyShips[j];
+                    if (!enemy.userData || enemy.userData.hp <= 0) continue;
+
+                    const dist = laser.position.distanceTo(enemy.position);
+                    if (dist < 18) { // Laser hit collision!
+                        hitEnemy = true;
+                        spawnLaserImpactSparks(laser.position);
+                        playLaserImpactAudio();
+
+                        // Flash enemy red/white
+                        enemy.userData.flashTimer = 4;
+                        enemy.userData.hp -= 25; // 4 hits to destroy!
+
+                        if (enemy.userData.hp <= 0) {
+                            // ENEMY DESTROYED! Trigger Fiery Explosion
+                            createFieryExplosionFX(enemy.position);
+                            scene.remove(enemy);
+                            enemyShips.splice(j, 1);
+
+                            // Award Starcrafts (+500 SC)
+                            if (currentPilotProfile) {
+                                currentPilotProfile.starcrafts = (currentPilotProfile.starcrafts || 0) + 500;
+                                updateProfileUI(currentPilotProfile);
+                            }
+                            showToast("💥 TARGET DESTROYED! +500 SC AWARDED!");
+
+                            // Auto-respawn replacement enemy fighter after 5 seconds
+                            setTimeout(() => {
+                                if (enemyShips.length < 8 && playerShip) {
+                                    const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
+                                    const newEnemy = createEnemyInterceptorMesh();
+                                    newEnemy.position.copy(playerShip.position).add(fwd.clone().multiplyScalar(1200)).add(new THREE.Vector3(
+                                        (Math.random() - 0.5) * 600,
+                                        (Math.random() - 0.5) * 300,
+                                        (Math.random() - 0.5) * 400
+                                    ));
+                                    scene.add(newEnemy);
+                                    enemyShips.push(newEnemy);
+                                }
+                            }, 5000);
+                        }
+                        break;
+                    }
+                }
+
+                if (hitEnemy || laser.position.distanceTo(playerShip.position) > 2800) {
                     scene.remove(laser);
                     laserProjectiles.splice(i, 1);
                 }
             }
 
+            // --- ANIMATE & DECAY EXPLOSION & SPARK PARTICLES ---
+            for (let i = explosionParticles.length - 1; i >= 0; i--) {
+                const p = explosionParticles[i];
+                if (!p) continue;
+
+                if (p.userData.isShockwave) {
+                    p.scale.addScalar(0.45);
+                    p.material.opacity -= 0.04;
+                } else if (p.userData.vel) {
+                    p.position.addScaledVector(p.userData.vel, 0.08);
+                    p.userData.vel.multiplyScalar(0.96); // Air/space resistance drag
+                    p.scale.multiplyScalar(0.96);
+                }
+
+                p.userData.life = (p.userData.life || 1.0) - 0.035;
+                if (p.userData.life <= 0) {
+                    scene.remove(p);
+                    if (p.geometry) p.geometry.dispose();
+                    if (p.material) p.material.dispose();
+                    explosionParticles.splice(i, 1);
+                }
+            }
+
             if (spaceSun) spaceSun.rotation.y += 0.0002;
 
-            // Enemies
+            // --- ANIMATE ENEMY INTERCEPTORS & HIT FLASH ---
+            let closestEnemy = null;
+            let closestDist = 3500;
+            const fwdDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
+
             enemyShips.forEach(e => {
-                e.rotation.x += 0.02;
+                e.rotation.x += 0.015;
                 e.rotation.y += 0.02;
+
+                // Handle Hit Flash Animation
+                if (e.userData && e.userData.flashTimer > 0) {
+                    e.userData.flashTimer--;
+                    e.scale.set(1.15, 1.15, 1.15);
+                } else {
+                    e.scale.set(1.0, 1.0, 1.0);
+                }
+
+                // Target Lock Candidate Check
+                if (e.userData && e.userData.hp > 0 && playerShip) {
+                    const toEnemy = e.position.clone().sub(playerShip.position);
+                    const dist = toEnemy.length();
+                    const dot = toEnemy.clone().normalize().dot(fwdDir);
+                    if (dot > 0.80 && dist < closestDist) {
+                        closestDist = dist;
+                        closestEnemy = e;
+                    }
+                }
             });
+
+            // --- UPDATE DYNAMIC TARGET LOCK HUD CARD TELEMETRY ---
+            const tName = document.getElementById('target-name');
+            const tDist = document.getElementById('target-dist');
+            const tBar = document.getElementById('target-hp-bar');
+            const tHpText = document.getElementById('target-hp-text');
+            const tStatus = document.getElementById('target-lock-status');
+
+            if (closestEnemy) {
+                const distKm = (closestDist / 100).toFixed(1);
+                const hp = closestEnemy.userData.hp || 100;
+                const maxHp = closestEnemy.userData.maxHp || 100;
+                const hpPct = Math.max(Math.round((hp / maxHp) * 100), 0);
+
+                if (tName) tName.innerText = closestEnemy.userData.name || "Void Interceptor";
+                if (tDist) tDist.innerText = `Range: ${distKm} KM`;
+                if (tBar) tBar.style.width = `${hpPct}%`;
+                if (tHpText) tHpText.innerText = `${hp} / ${maxHp} HP`;
+                if (tStatus) {
+                    tStatus.innerText = "LOCKED";
+                    tStatus.style.color = "#ff3b5c";
+                }
+            } else {
+                if (tName) tName.innerText = "NO TARGET ACQUIRED";
+                if (tDist) tDist.innerText = "Range: -- KM";
+                if (tBar) tBar.style.width = "0%";
+                if (tHpText) tHpText.innerText = "0 / 0 HP";
+                if (tStatus) {
+                    tStatus.innerText = "SEARCHING...";
+                    tStatus.style.color = "#94a3b8";
+                }
+            }
 
             // Engine Exhaust Particle Trails (Short Crisp Bluish Glow)
             updateEngineParticleTrails();
