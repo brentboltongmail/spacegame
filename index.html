@@ -5607,7 +5607,9 @@
                 const mat = new THREE.LineBasicMaterial({ 
                     color: colorHex, 
                     transparent: true, 
-                    opacity: 0.01
+                    opacity: 0.01,
+                    depthWrite: false,
+                    blending: THREE.AdditiveBlending
                 });
                 return new THREE.LineSegments(geo, mat);
             }
