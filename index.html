@@ -2634,15 +2634,16 @@
             tipMesh.position.set(0, 0, -6.2);
             boltGroup.add(tipMesh);
 
-            // 4. Dynamic Volumetric Laser Light (Casts real-time cyan light on surroundings)
-            const pLight = new THREE.PointLight(0x00f0ff, 12, 120);
-            pLight.position.set(0, 0, -3.0);
-            boltGroup.add(pLight);
-
             return boltGroup;
         }
 
+        let lastFireTime = 0;
+
         function firePlasmaLaser() {
+            const nowTime = performance.now();
+            if (nowTime - lastFireTime < 110) return; // 110ms fire cooldown rate-limit (~9 shots/sec max rate)
+            lastFireTime = nowTime;
+
             // Forward vector matching exact ship heading
             const fwdDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
 
