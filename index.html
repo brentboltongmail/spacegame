@@ -5289,7 +5289,7 @@
 
         // --- 3D TACTICAL SYSTEM STAR MAP RENDERER & INTERACTIVITY ---
         let isTacticalMapOpen = false;
-        let mapScene, mapCamera, mapRenderer, mapGroup;
+        let mapScene, mapCamera, mapRenderer, mapGroup, mapGridGroup;
         let mapPlayerMesh, mapSunMesh, mapPlanetMesh, mapGateMesh, mapDreadMesh, mapEnemyGroup;
         let mapRaycaster = new THREE.Raycaster();
         let mapMouse = new THREE.Vector2();
@@ -5332,13 +5332,15 @@
             mapScene.add(mapGroup);
 
             // 3D Holographic System Grid & Range Rings
+            mapGridGroup = new THREE.Group();
+            
             const gridLarge = new THREE.GridHelper(8000, 160, 0x005577, 0x0f172a); // Outer system grid
             gridLarge.position.y = -10;
-            mapGroup.add(gridLarge);
+            mapGridGroup.add(gridLarge);
 
             const grid = new THREE.GridHelper(400, 80, 0x00f0ff, 0x1e293b); // Inner detailed grid
             grid.position.y = -10;
-            mapGroup.add(grid);
+            mapGridGroup.add(grid);
 
             [25, 50, 75, 100].forEach(r => {
                 const ringGeo = new THREE.RingGeometry(r - 0.3, r, 64);
@@ -5346,8 +5348,10 @@
                 const ringMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, side: THREE.DoubleSide, transparent: true, opacity: 0.35 });
                 const ring = new THREE.Mesh(ringGeo, ringMat);
                 ring.position.y = -9.8;
-                mapGroup.add(ring);
+                mapGridGroup.add(ring);
             });
+            
+            mapGroup.add(mapGridGroup);
 
             // Populate 3D Map Objects (Scaled to fit tactical system map viewport)
             // 1. Player Ship (Cyan Fighter Icon)
@@ -5496,6 +5500,11 @@
             if (playerShip && mapPlayerMesh) {
                 mapPlayerMesh.position.set(playerShip.position.x * scaleFactor, playerShip.position.y * scaleFactor, playerShip.position.z * scaleFactor);
                 mapPlayerMesh.quaternion.copy(playerShip.quaternion);
+                
+                if (mapGridGroup) {
+                    mapGridGroup.position.copy(mapPlayerMesh.position);
+                    mapGridGroup.quaternion.copy(playerShip.quaternion);
+                }
             }
             if (spacePlanet && mapPlanetMesh) {
                 mapPlanetMesh.position.set(spacePlanet.position.x * scaleFactor, spacePlanet.position.y * scaleFactor, spacePlanet.position.z * scaleFactor);
