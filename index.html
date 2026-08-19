@@ -1575,7 +1575,7 @@
             const postedSpeed = Math.round(currentSpeed * 10.725); // Posted speed scaled 10x (max 2,145 km/h matching concept art HUD)
             document.getElementById('hud-speed').innerText = `SPEED: ${postedSpeed.toLocaleString()} km/h ${currentSpeed > 160 ? '[MAX THROTTLE]' : ''}`;
 
-            // --- Symmetrical Directional Flight Velocity Steering (Edge of Screen = 100% Max Turn Rate) ---
+            // --- ZERO ROLL-DRIFT FLIGHT STEERING (NO Z-SPINNING FROM MOUSE) ---
             const deadzone = 0.03;
             const turnRate = 0.0104; // Smooth max turn velocity at screen edge
 
@@ -1585,14 +1585,20 @@
             const mouseXEff = Math.sign(normalizedMouse.x) * normX;
             const mouseYEff = Math.sign(normalizedMouse.y) * normY;
 
-            // Symmetrical continuous steering (Edge of screen = 100% max turning speed)
-            playerShip.rotateX(mouseYEff * turnRate);
-            playerShip.rotateY(-mouseXEff * turnRate);
+            // Lock Euler rotation order to YXZ to eliminate 100% of Z-axis roll drift from mouse movement
+            playerShip.rotation.order = 'YXZ';
+            playerShip.rotation.x += mouseYEff * turnRate;
+            playerShip.rotation.y -= mouseXEff * turnRate;
 
-            // --- Q / E / D Roll Banking Controls ---
-            if (keys.KeyQ) playerShip.rotation.z += 0.04;
-            if (keys.KeyE || keys.KeyD) playerShip.rotation.z -= 0.04;
-            if (!keys.KeyQ && !keys.KeyE && !keys.KeyD) playerShip.rotation.z *= 0.95; // Auto-righting roll
+            // --- Explicit Roll Control (Z-axis roll stays 0 unless roll keys are pressed) ---
+            if (keys.KeyQ) {
+                playerShip.rotation.z += 0.04;
+            } else if (keys.KeyE || keys.KeyD) {
+                playerShip.rotation.z -= 0.04;
+            } else {
+                playerShip.rotation.z *= 0.85; // Instantly lock roll back to 0
+                if (Math.abs(playerShip.rotation.z) < 0.001) playerShip.rotation.z = 0;
+            }
 
             // Move ship forward
             const moveDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
