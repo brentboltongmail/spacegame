@@ -1583,7 +1583,7 @@
             scene.add(ambientLight);
 
             const sunLight = new THREE.DirectionalLight(0xfffaed, 4.5); // Primary solar star directional light
-            sunLight.position.set(180000, 120000, 150000); // Aligned directly with 10x further 3D Solar Star position!
+            sunLight.position.set(60000, 35000, -45000); // Aligned directly with 3D Solar Star position!
             scene.add(sunLight);
 
             const fillRimLight = new THREE.DirectionalLight(0x38bdf8, 2.5); // Secondary cyan-blue rim light
@@ -1733,10 +1733,11 @@
 
         function createSolarSun() {
             const fallbackTex = createSunSurfaceTexture();
-            const sunGeo = new THREE.SphereGeometry(60000, 128, 128); // 10x larger solar star radius (60,000 units = 120,000 unit diameter!)
+            const sunGeo = new THREE.SphereGeometry(35000, 128, 128); // 35,000 unit radius (70,000 unit diameter!)
             const sunMat = new THREE.MeshBasicMaterial({ 
                 map: fallbackTex,
-                color: 0xfffaed 
+                color: 0xfffaed,
+                fog: false // Unaffected by space fog — shines 100% bright across the universe!
             });
 
             new THREE.TextureLoader().load(
@@ -1748,28 +1749,30 @@
             );
 
             spaceSun = new THREE.Mesh(sunGeo, sunMat);
-            // Position primary solar star 10x further away in deep space (180,000, 120,000, 150,000)
-            spaceSun.position.set(180000, 120000, 150000);
+            // Position solar star in front-right field of view near gas giant planet (60,000 X, 35,000 Y, -45,000 Z)
+            spaceSun.position.set(60000, 35000, -45000);
             scene.add(spaceSun);
 
-            // Inner Radiant Golden Corona Halo (63,000 radius)
-            const coronaGeo = new THREE.SphereGeometry(63000, 64, 64);
+            // Inner Radiant Golden Corona Halo (37,000 radius)
+            const coronaGeo = new THREE.SphereGeometry(37000, 64, 64);
             const coronaMat = new THREE.MeshBasicMaterial({
                 color: 0xfbbf24,
                 transparent: true,
-                opacity: 0.45,
-                side: THREE.BackSide
+                opacity: 0.55,
+                side: THREE.BackSide,
+                fog: false // Unaffected by space fog!
             });
             const corona = new THREE.Mesh(coronaGeo, coronaMat);
             spaceSun.add(corona);
 
-            // Outer Fiery Solar Flare Prominence Halo (68,000 radius)
-            const flareGeo = new THREE.SphereGeometry(68000, 64, 64);
+            // Outer Fiery Solar Flare Prominence Halo (41,000 radius)
+            const flareGeo = new THREE.SphereGeometry(41000, 64, 64);
             const flareMat = new THREE.MeshBasicMaterial({
                 color: 0xff8f00,
                 transparent: true,
-                opacity: 0.25,
-                side: THREE.BackSide
+                opacity: 0.35,
+                side: THREE.BackSide,
+                fog: false // Unaffected by space fog!
             });
             const flareHalo = new THREE.Mesh(flareGeo, flareMat);
             spaceSun.add(flareHalo);
@@ -2669,10 +2672,9 @@
                 ctx.shadowBlur = 0;
             }
 
-            // Draw Radiant Solar Star Blip (Golden Sun Circle - Scaled for 250,000 unit solar star distance)
+            // Draw Radiant Solar Star Blip (Golden Sun Circle)
             if (spaceSun && spaceSun.position) {
-                const sunScaledPos = spaceSun.position.clone().multiplyScalar(0.1);
-                drawBlip(sunScaledPos, '#fbbf24', 9, false);
+                drawBlip(spaceSun.position, '#fbbf24', 9, false);
             }
 
             // Draw Space Planet Blip (Cyan Glowing Circle)
