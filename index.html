@@ -5583,16 +5583,33 @@
             mapGroup.rotation.y = mapTargetRotationY;
             mapScene.add(mapGroup);
 
-            // 3D Holographic System Grid & Range Rings
+            // 3D Volumetric Holographic System Grid & Range Rings
             mapGridGroup = new THREE.Group();
             
-            const gridLarge = new THREE.GridHelper(8000, 160, 0x005577, 0x0f172a); // Outer system grid
-            gridLarge.position.y = -10;
+            function createVolumetricGrid(size, divisions, color1, color2) {
+                const group = new THREE.Group();
+                const xz = new THREE.GridHelper(size, divisions, color1, color2);
+                const xy = new THREE.GridHelper(size, divisions, color1, color2);
+                xy.rotation.x = Math.PI / 2;
+                const yz = new THREE.GridHelper(size, divisions, color1, color2);
+                yz.rotation.z = Math.PI / 2;
+                
+                // Thin and 50% transparent lines
+                [xz, xy, yz].forEach(g => {
+                    g.material.transparent = true;
+                    g.material.opacity = 0.5;
+                    g.material.linewidth = 1; // 1 is standard minimum WebGL thickness
+                });
+                
+                group.add(xz, xy, yz);
+                return group;
+            }
+
+            const gridLarge = createVolumetricGrid(8000, 160, 0x005577, 0x0f172a); // Outer system grid
             mapGridGroup.add(gridLarge);
 
-            const grid = new THREE.GridHelper(400, 80, 0x00f0ff, 0x1e293b); // Inner detailed grid
-            grid.position.y = -10;
-            mapGridGroup.add(grid);
+            const gridSmall = createVolumetricGrid(400, 80, 0x00f0ff, 0x1e293b); // Inner detailed grid
+            mapGridGroup.add(gridSmall);
 
             [25, 50, 75, 100].forEach(r => {
                 const ringGeo = new THREE.RingGeometry(r - 0.3, r, 64);
