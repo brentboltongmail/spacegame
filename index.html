@@ -1729,7 +1729,7 @@
             // High-Resolution Procedural Surface Map (Guaranteed Fallback)
             const fallbackTex = createPlanetSurfaceTexture();
 
-            const planetGeo = new THREE.SphereGeometry(4500, 128, 128); // 15x larger radius!
+            const planetGeo = new THREE.SphereGeometry(9000, 128, 128); // Doubled radius to 9,000 units (18,000 unit diameter!)
             const planetMat = new THREE.MeshStandardMaterial({ 
                 map: fallbackTex,
                 roughness: 0.55, 
@@ -1748,12 +1748,12 @@
             );
             
             spacePlanet = new THREE.Mesh(planetGeo, planetMat);
-            // Position colossal planet 5,500 units away so it looms crystal clear in front field of view!
-            spacePlanet.position.set(-3800, -1400, -5500);
+            // Position colossal 18,000-unit planet far off on horizon (~14,000 units away)
+            spacePlanet.position.set(-8500, -3200, -14000);
             scene.add(spacePlanet);
 
-            // Glowing Cyan Atmospheric Horizon Rim Halo
-            const atmoGeo = new THREE.SphereGeometry(4580, 64, 64);
+            // Glowing Cyan Atmospheric Horizon Rim Halo (9,160 radius)
+            const atmoGeo = new THREE.SphereGeometry(9160, 64, 64);
             const atmoMat = new THREE.MeshBasicMaterial({
                 color: 0x00f0ff,
                 transparent: true,
@@ -1763,8 +1763,8 @@
             const atmosphere = new THREE.Mesh(atmoGeo, atmoMat);
             spacePlanet.add(atmosphere);
 
-            // Gigantic Planetary Ring System (17,600 units diameter)
-            const ringGeo = new THREE.RingGeometry(5600, 8800, 128);
+            // Gigantic Planetary Ring System (35,200 units diameter)
+            const ringGeo = new THREE.RingGeometry(11200, 17600, 128);
             const ringMat = new THREE.MeshBasicMaterial({ 
                 color: 0x38bdf8, 
                 side: THREE.DoubleSide, 
