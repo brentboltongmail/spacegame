@@ -2938,48 +2938,37 @@
 
             // Move ship forward (Physical 3D world movement 60% slower)
             const moveDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
-            // --- Flight Control Steering ---
-            const pitchSpeed = 0.022;
-            const yawSpeed = 0.022;
-            const rollSpeed = 0.035;
+            playerShip.position.addScaledVector(moveDir, currentSpeed * 0.0032);
 
-            let targetPitch = -normalizedMouse.y * pitchSpeed;
-            let targetYaw   = -normalizedMouse.x * yawSpeed;
-            let targetRoll  = -normalizedMouse.x * rollSpeed;
+            // Keep starfield celestial dome anchored to player position so stars stay far off on horizon
+            if (starfield) starfield.position.copy(playerShip.position);
 
-            if (keys.KeyA || keys.ArrowLeft)  targetRoll += 0.035;
-            if (keys.KeyD || keys.ArrowRight) targetRoll -= 0.035;
-
-            const rotDelta = new THREE.Quaternion().setFromEuler(new THREE.Euler(targetPitch, targetYaw, targetRoll, 'YXZ'));
-            playerShip.quaternion.multiply(rotDelta);
-
-            // Forward Flight Movement
-            const forwardVector = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
-            const actualMoveSpeed = (currentSpeed / maxSpeedCap) * 12.0;
-            playerShip.position.addScaledVector(forwardVector, actualMoveSpeed);
-
-            // Camera Modes
-            let targetCamPos = new THREE.Vector3();
-            let targetLookAtPos = playerShip.position.clone().add(new THREE.Vector3(0, 0, -60).applyQuaternion(playerShip.quaternion));
+            // --- Multi-Mode Camera System (Cockpit / Close / Far / Cinematic Showcase) ---
+            let targetCamPos;
+            let targetLookAtPos = playerShip.position.clone().add(new THREE.Vector3(0, 0, -10).applyQuaternion(playerShip.quaternion));
 
             if (cameraMode === 0) {
-                // Mode 0: Cockpit First-Person View (Camera inside ship nose canopy)
-                playerShip.visible = true;
+                // Mode 0: Cockpit View (First-Person) - Hide exterior ship model & engine lights so they do not block cockpit view
+                playerShip.visible = false;
                 if (playerShip.userData && playerShip.userData.engineLights) {
                     playerShip.userData.engineLights.forEach(l => l.visible = false);
                 }
-                targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 0.45, -0.4).applyQuaternion(playerShip.quaternion));
+                targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 0.45, -0.1).applyQuaternion(playerShip.quaternion));
+                targetLookAtPos = playerShip.position.clone().add(new THREE.Vector3(0, 0.45, -25).applyQuaternion(playerShip.quaternion));
             } else {
                 playerShip.visible = true;
                 if (playerShip.userData && playerShip.userData.engineLights) {
                     playerShip.userData.engineLights.forEach(l => l.visible = true);
                 }
                 if (cameraMode === 1) {
+                    // Mode 1: Rear Third-Person Close
                     targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 2.2, 7.5).applyQuaternion(playerShip.quaternion));
                 } else if (cameraMode === 2) {
+                    // Mode 2: Rear Third-Person Far
                     targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 6.0, 22.0).applyQuaternion(playerShip.quaternion));
                 } else if (cameraMode === 3) {
-                    cinematicAngle += 0.0015;
+                    // Mode 3: Cinematic Orbiting Showcase (Ship Invincible, 50% Slower Ultra-Majestic Panning)
+                    cinematicAngle += 0.0015; // Reduced by 50% for ultra-filmic slow cinematic sweeps
                     const radius = 22;
                     const height = Math.sin(cinematicAngle * 0.7) * 5 + 4;
                     const orbitOffset = new THREE.Vector3(
@@ -2992,6 +2981,7 @@
                 }
             }
 
+            // Sync camera up vector to ship local up vector to allow smooth 360° loop-de-loops
             const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
             camera.up.copy(localUp);
 
