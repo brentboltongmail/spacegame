@@ -5351,23 +5351,24 @@
             mapPlayerMesh.add(pRing);
 
             // 2. Gas Giant Planet & Ice Rings
-            const planetIconGeo = new THREE.SphereGeometry(9, 32, 32);
+            const planetIconGeo = new THREE.SphereGeometry(36, 32, 32); // 9000 * 0.004
             const planetIconMat = new THREE.MeshBasicMaterial({ color: 0x0284c7 });
             mapPlanetMesh = new THREE.Mesh(planetIconGeo, planetIconMat);
             mapPlanetMesh.position.set(-34, -12, -56);
             mapGroup.add(mapPlanetMesh);
 
-            const ringIconGeo = new THREE.RingGeometry(11, 18, 32);
-            ringIconGeo.rotateX(Math.PI / 2);
+            const ringIconGeo = new THREE.RingGeometry(38, 96, 32); // matching new 9500 to 24000 radius * 0.004
+            ringIconGeo.rotateX(Math.PI / 2.3);
+            ringIconGeo.rotateY(-Math.PI / 8);
             const ringIconMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, side: THREE.DoubleSide, transparent: true, opacity: 0.65 });
             const mapRing = new THREE.Mesh(ringIconGeo, ringIconMat);
             mapPlanetMesh.add(mapRing);
 
             // 3. Sol Primary Star
-            const sunIconGeo = new THREE.SphereGeometry(14, 32, 32);
+            const sunIconGeo = new THREE.SphereGeometry(120, 32, 32); // 30000 * 0.004
             const sunIconMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
             mapSunMesh = new THREE.Mesh(sunIconGeo, sunIconMat);
-            mapSunMesh.position.set(65, 25, 45);
+            mapSunMesh.position.set(3000, 1600, 2000); // 750000, 400000, 500000 * 0.004
             mapGroup.add(mapSunMesh);
 
             // 4. Precursor Wormhole Gate
@@ -5472,8 +5473,8 @@
                 mapPlanetMesh.position.set(spacePlanet.position.x * scaleFactor, spacePlanet.position.y * scaleFactor, spacePlanet.position.z * scaleFactor);
             }
             if (spaceSun && mapSunMesh) {
-                // Place Sun in its celestial azimuth/elevation on the tactical system map
-                mapSunMesh.position.set(65, 25, 45);
+                // Place Sun in its correct celestial position on the tactical system map
+                mapSunMesh.position.set(spaceSun.position.x * scaleFactor, spaceSun.position.y * scaleFactor, spaceSun.position.z * scaleFactor);
             }
             if (wormholeGate && mapGateMesh) {
                 mapGateMesh.position.set(wormholeGate.position.x * scaleFactor, wormholeGate.position.y * scaleFactor, wormholeGate.position.z * scaleFactor);
