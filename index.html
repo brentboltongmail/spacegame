@@ -1507,7 +1507,7 @@
 
         // --- 3D THREE.JS SPACE FLIGHT SIMULATOR (MOUSE TARGETING & SPEED) ---
         let scene, camera, renderer;
-        let playerShip, capitalShip, wormholeGate, starfield, nebulaParticles;
+        let playerShip, capitalShip, wormholeGate, starfield, spacePlanet, spaceSun;
         let enemyShips = [];
         let laserProjectiles = [];
         let targetSpeed = 100;
@@ -1565,8 +1565,8 @@
             const ambientLight = new THREE.AmbientLight(0x94a3b8, 3.2); // Bright neutral fill light
             scene.add(ambientLight);
 
-            const sunLight = new THREE.DirectionalLight(0xfffaed, 4.0); // Primary sun light
-            sunLight.position.set(400, 500, 400);
+            const sunLight = new THREE.DirectionalLight(0xfffaed, 4.5); // Primary solar star directional light
+            sunLight.position.set(18000, 12000, 15000); // Aligned directly with 3D Solar Star position!
             scene.add(sunLight);
 
             const fillRimLight = new THREE.DirectionalLight(0x38bdf8, 2.5); // Secondary cyan-blue rim light
@@ -1578,6 +1578,7 @@
             scene.add(cyanGlow);
 
             createStarfield();
+            createSolarSun();
             createSpacePlanet();
             createPlayerShip();
             createCapitalShip();
@@ -1679,6 +1680,82 @@
 
             starfield = new THREE.Points(starsGeo, starsMat);
             scene.add(starfield);
+        }
+
+        function createSunSurfaceTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024; canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillRect(0, 0, 1024, 512);
+
+            ctx.fillStyle = '#fef08a';
+            for (let i = 0; i < 60; i++) {
+                const x = Math.random() * 1024;
+                const y = Math.random() * 512;
+                const rx = 30 + Math.random() * 90;
+                const ry = 20 + Math.random() * 60;
+                ctx.beginPath();
+                ctx.ellipse(x, y, rx, ry, Math.random() * Math.PI, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.4)';
+            for (let i = 0; i < 35; i++) {
+                const x = Math.random() * 1024;
+                const y = Math.random() * 512;
+                ctx.beginPath();
+                ctx.arc(x, y, 15 + Math.random() * 40, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            const texture = new THREE.CanvasTexture(canvas);
+            return texture;
+        }
+
+        function createSolarSun() {
+            const fallbackTex = createSunSurfaceTexture();
+            const sunGeo = new THREE.SphereGeometry(6000, 128, 128); // 6,000 unit solar star radius!
+            const sunMat = new THREE.MeshBasicMaterial({ 
+                map: fallbackTex,
+                color: 0xfffaed 
+            });
+
+            new THREE.TextureLoader().load(
+                'docs/images/space_sun_surface.jpg',
+                (tex) => {
+                    sunMat.map = tex;
+                    sunMat.needsUpdate = true;
+                }
+            );
+
+            spaceSun = new THREE.Mesh(sunGeo, sunMat);
+            // Position primary solar star high in the solar system (18,000, 12,000, 15,000)
+            spaceSun.position.set(18000, 12000, 15000);
+            scene.add(spaceSun);
+
+            // Inner Radiant Golden Corona Halo (6,300 radius)
+            const coronaGeo = new THREE.SphereGeometry(6300, 64, 64);
+            const coronaMat = new THREE.MeshBasicMaterial({
+                color: 0xfbbf24,
+                transparent: true,
+                opacity: 0.45,
+                side: THREE.BackSide
+            });
+            const corona = new THREE.Mesh(coronaGeo, coronaMat);
+            spaceSun.add(corona);
+
+            // Outer Fiery Solar Flare Prominence Halo (6,800 radius)
+            const flareGeo = new THREE.SphereGeometry(6800, 64, 64);
+            const flareMat = new THREE.MeshBasicMaterial({
+                color: 0xff8f00,
+                transparent: true,
+                opacity: 0.25,
+                side: THREE.BackSide
+            });
+            const flareHalo = new THREE.Mesh(flareGeo, flareMat);
+            spaceSun.add(flareHalo);
         }
 
         let spacePlanet;
@@ -2283,6 +2360,8 @@
                 }
             }
 
+            if (spaceSun) spaceSun.rotation.y += 0.0002;
+
             // Enemies
             enemyShips.forEach(e => {
                 e.rotation.x += 0.02;
@@ -2573,6 +2652,11 @@
                     ctx.fill();
                 }
                 ctx.shadowBlur = 0;
+            }
+
+            // Draw Radiant Solar Star Blip (Golden Sun Circle)
+            if (spaceSun && spaceSun.position) {
+                drawBlip(spaceSun.position, '#fbbf24', 9, false);
             }
 
             // Draw Space Planet Blip (Cyan Glowing Circle)
