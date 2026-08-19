@@ -4090,6 +4090,11 @@
             playerShip.rotateX(mouseYEff * turnRate);
             playerShip.rotateY(-mouseXEff * turnRate);
 
+            // A/D Keys for rolling the ship (very slowly)
+            const rollRate = turnRate * 0.4;
+            if (keys.KeyA) playerShip.rotateZ(rollRate);
+            if (keys.KeyD) playerShip.rotateZ(-rollRate);
+
             // Move ship forward (Physical 3D world movement 60% slower)
             const moveDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
             playerShip.position.addScaledVector(moveDir, currentSpeed * 0.0032);
@@ -5304,7 +5309,7 @@
             mapScene = new THREE.Scene();
             mapScene.background = new THREE.Color(0x040817);
 
-            mapCamera = new THREE.PerspectiveCamera(50, aspect, 0.1, 5000);
+            mapCamera = new THREE.PerspectiveCamera(50, aspect, 0.1, 15000);
             mapCamera.position.set(0, 0, mapCamDistance);
             mapCamera.lookAt(0, 0, 0);
 
@@ -5321,7 +5326,11 @@
             mapScene.add(mapGroup);
 
             // 3D Holographic System Grid & Range Rings
-            const grid = new THREE.GridHelper(220, 44, 0x00f0ff, 0x1e293b);
+            const gridLarge = new THREE.GridHelper(8000, 160, 0x005577, 0x0f172a); // Outer system grid
+            gridLarge.position.y = -10;
+            mapGroup.add(gridLarge);
+
+            const grid = new THREE.GridHelper(400, 80, 0x00f0ff, 0x1e293b); // Inner detailed grid
             grid.position.y = -10;
             mapGroup.add(grid);
 
@@ -5443,7 +5452,7 @@
             window.addEventListener('wheel', (e) => {
                 if (isTacticalMapOpen) {
                     mapTargetCamDistance += e.deltaY * 0.15;
-                    mapTargetCamDistance = Math.min(Math.max(mapTargetCamDistance, 20), 450);
+                    mapTargetCamDistance = Math.min(Math.max(mapTargetCamDistance, 20), 5000);
                 }
             }, { passive: true });
         }
