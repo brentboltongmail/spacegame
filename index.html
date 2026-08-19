@@ -2169,7 +2169,7 @@
             window.addEventListener('resize', onWindowResize);
             
             container.addEventListener('mousemove', (e) => {
-                if (!isFlightLocked) {
+                if (!isFlightLocked && !isTacticalMapOpen) {
                     normalizedMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
                     normalizedMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
                 }
@@ -5229,11 +5229,6 @@
             mapGroup.rotation.x += (mapTargetRotationX - mapGroup.rotation.x) * 0.12;
             mapCamDistance += (mapTargetCamDistance - mapCamDistance) * 0.12;
 
-            // Slow idle spin when not dragging (EXACTLY matching Pilot Profile)
-            if (!isMapDragging) {
-                mapTargetRotationY += 0.003;
-            }
-
             mapCamera.position.set(0, 0, mapCamDistance);
             mapCamera.lookAt(0, 0, 0);
 
@@ -5330,11 +5325,12 @@
 
         function toggleTacticalMapModal() {
             isTacticalMapOpen = !isTacticalMapOpen;
-            isGamePaused = isTacticalMapOpen; // PAUSE GAME SIMULATION WHEN MAP IS OPEN!
             const modal = document.getElementById('tactical-map-modal');
             remoteLog(`toggleTacticalMapModal called. isTacticalMapOpen=${isTacticalMapOpen}`);
 
             if (isTacticalMapOpen) {
+                normalizedMouse.x = 0;
+                normalizedMouse.y = 0;
                 if (document.pointerLockElement) {
                     try { document.exitPointerLock(); } catch(err) {}
                 }
