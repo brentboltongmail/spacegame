@@ -1575,16 +1575,17 @@
             const postedSpeed = Math.round(currentSpeed * 10.725); // Posted speed scaled 10x (max 2,145 km/h matching concept art HUD)
             document.getElementById('hud-speed').innerText = `SPEED: ${postedSpeed.toLocaleString()} km/h ${currentSpeed > 160 ? '[MAX THROTTLE]' : ''}`;
 
-            // --- Responsive Target Orientation Aiming (NON-SPINNING Flight Control) ---
-            const maxPitchAngle = 0.65; // Bounded pitch angle range (~37 deg)
-            const maxYawAngle = 0.85;   // Bounded yaw angle range (~48 deg)
+            // --- Directional Flight Velocity Steering (Cursor Left of Center ALWAYS turns Left) ---
+            const deadzone = 0.03;
+            const maxPitchRate = 0.024; // Smooth max pitch turn velocity
+            const maxYawRate = 0.028;   // Smooth max yaw turn velocity
 
-            const targetPitch = normalizedMouse.y * maxPitchAngle;
-            const targetYaw = -normalizedMouse.x * maxYawAngle;
+            const mouseXEff = Math.abs(normalizedMouse.x) > deadzone ? (normalizedMouse.x - Math.sign(normalizedMouse.x) * deadzone) : 0;
+            const mouseYEff = Math.abs(normalizedMouse.y) > deadzone ? (normalizedMouse.y - Math.sign(normalizedMouse.y) * deadzone) : 0;
 
-            // Smoothly lerp pitch and yaw towards target cursor orientation (0.18 lerp rate for 5x fast response with ZERO spinning)
-            playerShip.rotation.x += (targetPitch - playerShip.rotation.x) * 0.18;
-            playerShip.rotation.y += (targetYaw - playerShip.rotation.y) * 0.18;
+            // Cursor left of center (mouseXEff < 0) ALWAYS turns left; cursor right of center (mouseXEff > 0) ALWAYS turns right!
+            playerShip.rotateX(mouseYEff * maxPitchRate);
+            playerShip.rotateY(-mouseXEff * maxYawRate);
 
             // --- A / D Roll Banking Controls ---
             if (keys.KeyA) playerShip.rotation.z += 0.04;
