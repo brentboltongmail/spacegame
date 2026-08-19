@@ -3236,15 +3236,15 @@
                 engineNoiseNode.loop = true;
 
                 engineNoiseGain = audioCtx.createGain();
-                engineNoiseGain.gain.setValueAtTime(0.40, now); // Heavy plasma gas roar
+                engineNoiseGain.gain.setValueAtTime(0.20, now); // Reduced noise level
                 engineNoiseNode.connect(engineNoiseGain);
                 engineNoiseGain.connect(hullResonanceFilter);
 
-                // --- LAYER 7: MAXIMUM HIGH-FREQUENCY PLASMA EXHAUST STATIC SIZZLE & CRACKLE ---
+                // --- LAYER 7: CRISP PLASMA EXHAUST STATIC & JET CRACKLE ---
                 const staticBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
                 const staticOut = staticBuffer.getChannelData(0);
                 for (let i = 0; i < bufferSize; i++) {
-                    staticOut[i] = (Math.random() * 2 - 1) * 0.60; // High-energy white noise static crackle
+                    staticOut[i] = (Math.random() * 2 - 1) * 0.30;
                 }
 
                 engineStaticNode = audioCtx.createBufferSource();
@@ -3253,10 +3253,10 @@
 
                 const staticHighPass = audioCtx.createBiquadFilter();
                 staticHighPass.type = 'highpass';
-                staticHighPass.frequency.setValueAtTime(1400, now); // Filters out motor hum, leaving pure crisp plasma static!
+                staticHighPass.frequency.setValueAtTime(1400, now);
 
                 engineStaticGain = audioCtx.createGain();
-                engineStaticGain.gain.setValueAtTime(0.30, now); // Strong crisp static
+                engineStaticGain.gain.setValueAtTime(0.15, now);
 
                 engineStaticNode.connect(staticHighPass);
                 staticHighPass.connect(engineStaticGain);
@@ -3350,15 +3350,15 @@
                 engineWhineGain.gain.setTargetAtTime(whineGainVal, now, 0.08);
             }
 
-            // 3. Heavy Brownian Exhaust Noise (0.40 Idle -> 0.85 Full Thrust)
+            // 3. Heavy Brownian Exhaust Noise (0.20 Idle -> 0.425 Full Thrust — 50% noise reduction)
             if (engineNoiseGain) {
-                const noiseTarget = 0.40 + t * 0.45;
+                const noiseTarget = 0.20 + t * 0.225;
                 engineNoiseGain.gain.setTargetAtTime(noiseTarget, now, 0.08);
             }
 
-            // 4. MAXIMUM Crisp High-Frequency Plasma Static Crackle (0.30 Idle -> 0.95 Full Thrust Sizzle!)
+            // 4. Crisp High-Frequency Plasma Static Crackle (0.15 Idle -> 0.475 Full Thrust — 50% noise reduction)
             if (engineStaticGain) {
-                const staticTarget = 0.30 + t * 0.65;
+                const staticTarget = 0.15 + t * 0.325;
                 engineStaticGain.gain.setTargetAtTime(staticTarget, now, 0.08);
             }
 
