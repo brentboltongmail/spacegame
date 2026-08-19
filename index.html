@@ -967,9 +967,10 @@
                     </div>
                 </div>
 
-                <!-- Action Bar Container (Tight Fit Card around the 4 Buttons with Centered Drag Handle) -->
-                <div class="hud-card draggable-box" id="hud-action-bar-card" style="position: absolute; bottom: 25px; left: calc(50vw - 370px); width: max-content; max-width: max-content; padding: 6px 14px; z-index: 40; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px; display: inline-flex; flex-direction: column; align-items: center;">
+                <!-- Action Bar Container (Tight Fit Card around Buttons with Centered Drag Handle) -->
+                <div class="hud-card draggable-box" id="hud-action-bar-card" style="position: absolute; bottom: 25px; left: calc(50vw - 440px); width: max-content; max-width: max-content; padding: 6px 14px; z-index: 40; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px; display: inline-flex; flex-direction: column; align-items: center;">
                     <div style="display: flex; gap: 10px; align-items: center; width: max-content; margin-bottom: 0;">
+                        <button class="sim-btn" onclick="toggleEngineAudioMute()">🔊 Cockpit Engine Audio</button>
                         <button class="sim-btn" onclick="triggerWormholeJump()">🌀 Wormhole Jump Gate</button>
                         <button class="sim-btn" onclick="spawnEnemySwarm()">🎯 Spawn Enemy Fighters</button>
                         <button class="sim-btn" onclick="approachCapitalShip()">🛡️ Target Capital Dreadnought</button>
@@ -2291,6 +2292,9 @@
             if (keys.KeyS) targetSpeed = Math.max(targetSpeed - accelRate, 0);
             currentSpeed += (targetSpeed - currentSpeed) * 0.0055; // Cut in half for gradual speed transition lerp
 
+            // Update Cockpit Engine Sound Pitch, Muffling & Volume dynamically (0% -> 100% Throttle)
+            updateEngineAudio(currentSpeed / maxSpeedCap, cameraMode === 0);
+
             const postedSpeed = Math.round(currentSpeed * 10.725); // Posted speed scaled 10x (max 2,145 km/h matching concept art HUD)
             document.getElementById('hud-speed').innerText = `SPEED: ${postedSpeed.toLocaleString()} km/h ${currentSpeed > 160 ? '[MAX THROTTLE]' : ''}`;
 
@@ -2859,7 +2863,126 @@
                 setTimeout(() => { hangarShieldMesh.material.opacity = 0.0; }, 1200);
             }
 
-            showToast(`✨ UPGRADED ${mod.name.toUpperCase()} TO LEVEL ${mod.level}!`);
+        // --- COCKPIT SPACECRAFT ENGINE AUDIO SYNTHESIZER (WEB AUDIO API) ---
+        let audioCtx = null;
+        let engineMasterGain = null;
+        let engineLowPassFilter = null;
+        let engineSubOsc = null;
+        let engineMidOsc = null;
+        let engineNoiseNode = null;
+        let isAudioInitialized = false;
+        let isAudioMuted = false;
+
+        function initEngineAudio() {
+            if (isAudioInitialized) return;
+            try {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContextClass();
+
+                // Master Gain
+                engineMasterGain = audioCtx.createGain();
+                engineMasterGain.gain.setValueAtTime(0.32, audioCtx.currentTime);
+
+                // Acoustic Muffling Biquad Low-Pass Filter (Simulates Cockpit Armor Soundproofing)
+                engineLowPassFilter = audioCtx.createBiquadFilter();
+                engineLowPassFilter.type = 'lowpass';
+                engineLowPassFilter.frequency.setValueAtTime(220, audioCtx.currentTime);
+                engineLowPassFilter.Q.setValueAtTime(2.5, audioCtx.currentTime);
+
+                // Sub-Bass Engine Rumble Oscillator (Sawtooth)
+                engineSubOsc = audioCtx.createOscillator();
+                engineSubOsc.type = 'sawtooth';
+                engineSubOsc.frequency.setValueAtTime(42, audioCtx.currentTime);
+
+                const subGain = audioCtx.createGain();
+                subGain.gain.setValueAtTime(0.45, audioCtx.currentTime);
+                engineSubOsc.connect(subGain);
+                subGain.connect(engineLowPassFilter);
+
+                // Mid-Thrust Tone Oscillator (Sine)
+                engineMidOsc = audioCtx.createOscillator();
+                engineMidOsc.type = 'sine';
+                engineMidOsc.frequency.setValueAtTime(84, audioCtx.currentTime);
+
+                const midGain = audioCtx.createGain();
+                midGain.gain.setValueAtTime(0.30, audioCtx.currentTime);
+                engineMidOsc.connect(midGain);
+                midGain.connect(engineLowPassFilter);
+
+                // Continuous Plasma Exhaust Noise Generator
+                const bufferSize = audioCtx.sampleRate * 2;
+                const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const output = noiseBuffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    output[i] = (Math.random() * 2 - 1) * 0.20;
+                }
+
+                engineNoiseNode = audioCtx.createBufferSource();
+                engineNoiseNode.buffer = noiseBuffer;
+                engineNoiseNode.loop = true;
+
+                const noiseGain = audioCtx.createGain();
+                noiseGain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+                engineNoiseNode.connect(noiseGain);
+                noiseGain.connect(engineLowPassFilter);
+
+                // Connect Filter -> Master Gain -> Audio Output
+                engineLowPassFilter.connect(engineMasterGain);
+                engineMasterGain.connect(audioCtx.destination);
+
+                // Start Oscillators
+                engineSubOsc.start();
+                engineMidOsc.start();
+                engineNoiseNode.start();
+
+                isAudioInitialized = true;
+                showToast("🔊 COCKPIT ENGINE AUDIO INITIALIZED");
+            } catch (e) {
+                console.error("Web Audio Engine Init Error:", e);
+            }
+        }
+
+        function updateEngineAudio(throttleRatio, isCockpitView) {
+            if (!isAudioInitialized || !audioCtx || isAudioMuted) return;
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const t = Math.min(Math.max(throttleRatio, 0), 1);
+            const now = audioCtx.currentTime;
+
+            // Pitch Frequency Scaling (0% -> 100% Throttle)
+            // Sub-bass hum: 42 Hz (Idle) -> 135 Hz (Max Thrust)
+            const subFreq = 42 + t * 93;
+            const midFreq = 84 + t * 186;
+
+            engineSubOsc.frequency.setTargetAtTime(subFreq, now, 0.08);
+            engineMidOsc.frequency.setTargetAtTime(midFreq, now, 0.08);
+
+            // Acoustic Muffling Low-Pass Filter Frequency:
+            // Cockpit View (cameraMode === 0): Muffled cockpit armor (180 Hz Idle -> 580 Hz Max)
+            // External View (cameraMode > 0): Raw external plasma roar (450 Hz Idle -> 1600 Hz Max)
+            const cutoffBase = isCockpitView ? 180 : 450;
+            const cutoffMax = isCockpitView ? 580 : 1600;
+            const targetCutoff = cutoffBase + t * (cutoffMax - cutoffBase);
+
+            engineLowPassFilter.frequency.setTargetAtTime(targetCutoff, now, 0.1);
+
+            // Master Volume Scaling (Idle 0.20 -> Max 0.48)
+            const targetGain = 0.20 + t * 0.28;
+            engineMasterGain.gain.setTargetAtTime(targetGain, now, 0.1);
+        }
+
+        function toggleEngineAudioMute() {
+            if (!isAudioInitialized) {
+                initEngineAudio();
+                return;
+            }
+            isAudioMuted = !isAudioMuted;
+            if (engineMasterGain && audioCtx) {
+                engineMasterGain.gain.setValueAtTime(isAudioMuted ? 0 : 0.32, audioCtx.currentTime);
+            }
+            showToast(isAudioMuted ? "🔇 COCKPIT ENGINE AUDIO MUTED" : "🔊 COCKPIT ENGINE AUDIO ACTIVE");
         }
 
         function onWindowResize() {
@@ -2870,11 +2993,15 @@
             renderer.setSize(container.clientWidth, container.clientHeight);
         }
 
-        // Initialize on load
+        // Initialize on load & setup auto-audio unlock on user interaction
         window.addEventListener('load', async () => {
             renderTitles();
             await loadProfileFromServer('pilot_1');
             init3DSimulator();
+
+            ['keydown', 'mousedown', 'touchstart'].forEach(evt => {
+                window.addEventListener(evt, () => initEngineAudio(), { once: true });
+            });
         });
     </script>
 </body>
