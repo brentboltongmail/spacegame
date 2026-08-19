@@ -4335,9 +4335,9 @@
             if (keys.KeyA) playerShip.rotateZ(rollRate);
             if (keys.KeyD) playerShip.rotateZ(-rollRate);
 
-            // Move ship forward (Physical 3D world movement 60% slower)
+            // Move ship forward (Physical 3D world movement doubled per user request)
             const moveDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
-            playerShip.position.addScaledVector(moveDir, currentSpeed * 0.0032);
+            playerShip.position.addScaledVector(moveDir, currentSpeed * 0.0064);
 
             // Keep starfield celestial dome anchored to player position so stars stay far off on horizon
             if (starfield) starfield.position.copy(playerShip.position);
