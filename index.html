@@ -4330,14 +4330,11 @@
             }
         }
 
-        // --- GLOBAL FAIL-SAFE 3D STAR MAP DRAG (LEFT-CLICK PAN & RIGHT-CLICK ROTATE) ---
-        let activeDragButton = 0; // 0 = Left-Click Pan, 2 = Right-Click Rotate
-
+        // --- GLOBAL FAIL-SAFE 3D STAR MAP DRAG ROTATION & SCROLL ZOOM ---
         window.addEventListener('mousedown', (e) => {
             if (isTacticalMapOpen) {
                 if (e.target.closest('button, .legend-item, a, input, select')) return;
                 isMapDragging = true;
-                activeDragButton = e.button;
                 previousMapMousePosition = { x: e.clientX, y: e.clientY };
             }
         });
@@ -4346,7 +4343,6 @@
             if (isTacticalMapOpen) {
                 if (e.target.closest('button, .legend-item, a, input, select')) return;
                 isMapDragging = true;
-                activeDragButton = 0;
                 const clientX = e.touches[0].clientX;
                 const clientY = e.touches[0].clientY;
                 previousMapMousePosition = { x: clientX, y: clientY };
@@ -4355,19 +4351,17 @@
 
         window.addEventListener('mousemove', (e) => {
             if (isTacticalMapOpen && isMapDragging && mapGroup) {
-                const deltaX = e.clientX - previousMapMousePosition.x;
-                const deltaY = e.clientY - previousMapMousePosition.y;
+                let deltaX = e.clientX - previousMapMousePosition.x;
+                let deltaY = e.clientY - previousMapMousePosition.y;
 
-                if (activeDragButton === 2 || e.shiftKey) {
-                    // Right-Click Drag or Shift-Drag: ROTATE VIEWPORT ANGLE
-                    mapGroup.rotation.y += deltaX * 0.015;
-                    mapGroup.rotation.x = Math.min(Math.max(mapGroup.rotation.x + deltaY * 0.015, -1.2), 1.2);
-                } else {
-                    // Left-Click Drag: PAN / SLIDE MAP ACROSS SCREEN
-                    const scale = mapCamDistance * 0.0022;
-                    mapGroup.position.x += deltaX * scale;
-                    mapGroup.position.z += deltaY * scale;
+                if (e.movementX !== undefined && Math.abs(e.movementX) > 0 && Math.abs(e.movementX) < 100) {
+                    deltaX = e.movementX;
+                    deltaY = e.movementY;
                 }
+
+                // LEFT-CLICK DRAG DIRECTLY ROTATES 3D SYSTEM MAP ANGLE!
+                mapGroup.rotation.y += deltaX * 0.018;
+                mapGroup.rotation.x = Math.min(Math.max(mapGroup.rotation.x + deltaY * 0.018, -1.4), 1.4);
 
                 previousMapMousePosition = { x: e.clientX, y: e.clientY };
             }
@@ -4380,9 +4374,8 @@
                 const deltaX = clientX - previousMapMousePosition.x;
                 const deltaY = clientY - previousMapMousePosition.y;
 
-                const scale = mapCamDistance * 0.0022;
-                mapGroup.position.x += deltaX * scale;
-                mapGroup.position.z += deltaY * scale;
+                mapGroup.rotation.y += deltaX * 0.018;
+                mapGroup.rotation.x = Math.min(Math.max(mapGroup.rotation.x + deltaY * 0.018, -1.4), 1.4);
 
                 previousMapMousePosition = { x: clientX, y: clientY };
             }
@@ -4536,6 +4529,10 @@
             const modal = document.getElementById('tactical-map-modal');
 
             if (isTacticalMapOpen) {
+                if (document.pointerLockElement) {
+                    try { document.exitPointerLock(); } catch(err) {}
+                }
+                isFlightLocked = false;
                 if (modal) modal.style.display = 'flex';
                 if (!mapRenderer) {
                     initTacticalMap3D();
@@ -4545,7 +4542,7 @@
                     resizeTacticalMapCanvas();
                     renderTacticalMap3D();
                 });
-                showToast("🌐 3D TACTICAL SYSTEM STAR MAP OPEN (SEMI-REALTIME TRACKING)");
+                showToast("🌐 3D TACTICAL MAP OPEN — DRAG MOUSE TO ROTATE");
             } else {
                 if (modal) modal.style.display = 'none';
                 showToast("▶️ RESUMED FULL FLIGHT VIEW");
