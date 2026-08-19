@@ -1575,17 +1575,20 @@
             const postedSpeed = Math.round(currentSpeed * 10.725); // Posted speed scaled 10x (max 2,145 km/h matching concept art HUD)
             document.getElementById('hud-speed').innerText = `SPEED: ${postedSpeed.toLocaleString()} km/h ${currentSpeed > 160 ? '[MAX THROTTLE]' : ''}`;
 
-            // --- Directional Flight Velocity Steering (Cursor Left of Center ALWAYS turns Left) ---
+            // --- Symmetrical Directional Flight Velocity Steering (Left/Right & Up/Down) ---
             const deadzone = 0.03;
-            const maxPitchRate = 0.024; // Smooth max pitch turn velocity
-            const maxYawRate = 0.028;   // Smooth max yaw turn velocity
+            const turnRate = 0.026; // 100% symmetrical turn velocity for both Pitch and Yaw
 
             const mouseXEff = Math.abs(normalizedMouse.x) > deadzone ? (normalizedMouse.x - Math.sign(normalizedMouse.x) * deadzone) : 0;
             const mouseYEff = Math.abs(normalizedMouse.y) > deadzone ? (normalizedMouse.y - Math.sign(normalizedMouse.y) * deadzone) : 0;
 
-            // Cursor left of center (mouseXEff < 0) ALWAYS turns left; cursor right of center (mouseXEff > 0) ALWAYS turns right!
-            playerShip.rotateX(mouseYEff * maxPitchRate);
-            playerShip.rotateY(-mouseXEff * maxYawRate);
+            // Symmetrical continuous steering:
+            // - Cursor Above center (y > 0) -> ALWAYS pitches UP
+            // - Cursor Below center (y < 0) -> ALWAYS pitches DOWN
+            // - Cursor Left of center (x < 0) -> ALWAYS yaws LEFT
+            // - Cursor Right of center (x > 0) -> ALWAYS yaws RIGHT
+            playerShip.rotateX(mouseYEff * turnRate);
+            playerShip.rotateY(-mouseXEff * turnRate);
 
             // --- A / D Roll Banking Controls ---
             if (keys.KeyA) playerShip.rotation.z += 0.04;
