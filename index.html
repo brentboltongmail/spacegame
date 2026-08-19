@@ -1740,15 +1740,20 @@
             let startX = 0, startY = 0;
             let currentX = parseFloat(element.dataset.dragX) || 0;
             let currentY = parseFloat(element.dataset.dragY) || 0;
+            let initialTop = 0;
+            const headerBoundary = 68; // Bottom border of fixed top menu bar (64px height + 4px margin)
 
             const dragStart = (e) => {
-                if (e.target.closest('button, input, select, a, kbd, .btn-vote, .sim-btn')) return;
+                if (e.target.closest('button, input, select, a, kbd, .btn-vote, .sim-btn, .btn-minimize')) return;
 
                 isDragging = true;
                 element.classList.add('is-dragging');
 
                 currentX = parseFloat(element.dataset.dragX) || 0;
                 currentY = parseFloat(element.dataset.dragY) || 0;
+
+                const rect = element.getBoundingClientRect();
+                initialTop = rect.top - currentY;
 
                 const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
                 const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
@@ -1765,6 +1770,12 @@
 
                     currentX = moveX - startX;
                     currentY = moveY - startY;
+
+                    // Enforce top menu bar boundary restriction: top edge stops at header border (68px)
+                    const minAllowedY = headerBoundary - initialTop;
+                    if (currentY < minAllowedY) {
+                        currentY = minAllowedY;
+                    }
 
                     element.dataset.dragX = currentX;
                     element.dataset.dragY = currentY;

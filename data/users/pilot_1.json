@@ -42,8 +42,8 @@
       "y": -73
     },
     "hud-action-bar-card": {
-      "x": -299,
-      "y": -878
+      "x": -435,
+      "y": -914
     },
     "hud-controls-card": {
       "x": -22,
@@ -69,7 +69,7 @@
   "minimizedBoxes": {
     "hud-top-target-card": false,
     "hud-controls-card": true,
-    "hud-action-bar-card": true,
+    "hud-action-bar-card": false,
     "drag-sector-objective": false
   }
 }
