@@ -4330,54 +4330,51 @@
             }
         }
 
-        // --- GLOBAL FAIL-SAFE 3D STAR MAP DRAG ROTATION & SCROLL ZOOM ---
+        // --- GLOBAL FAIL-SAFE ABSOLUTE 3D STAR MAP ORBIT CONTROLS ENGINE ---
+        let mapStartMouseX = 0;
+        let mapStartMouseY = 0;
+        let mapStartAzimuth = 0;
+        let mapStartPolar = 0.45;
+
         window.addEventListener('mousedown', (e) => {
             if (isTacticalMapOpen) {
                 if (e.target.closest('button, .legend-item, a, input, select')) return;
                 isMapDragging = true;
-                previousMapMousePosition = { x: e.clientX, y: e.clientY };
+                mapStartMouseX = e.clientX;
+                mapStartMouseY = e.clientY;
+                mapStartAzimuth = mapAzimuth;
+                mapStartPolar = mapPolar;
             }
         });
 
         window.addEventListener('touchstart', (e) => {
-            if (isTacticalMapOpen) {
+            if (isTacticalMapOpen && e.touches[0]) {
                 if (e.target.closest('button, .legend-item, a, input, select')) return;
                 isMapDragging = true;
-                const clientX = e.touches[0].clientX;
-                const clientY = e.touches[0].clientY;
-                previousMapMousePosition = { x: clientX, y: clientY };
+                mapStartMouseX = e.touches[0].clientX;
+                mapStartMouseY = e.touches[0].clientY;
+                mapStartAzimuth = mapAzimuth;
+                mapStartPolar = mapPolar;
             }
         }, { passive: true });
 
         window.addEventListener('mousemove', (e) => {
-            if (isTacticalMapOpen && isMapDragging && mapGroup) {
-                let deltaX = e.clientX - previousMapMousePosition.x;
-                let deltaY = e.clientY - previousMapMousePosition.y;
+            if (isTacticalMapOpen && isMapDragging) {
+                const deltaX = e.clientX - mapStartMouseX;
+                const deltaY = e.clientY - mapStartMouseY;
 
-                if (e.movementX !== undefined && Math.abs(e.movementX) > 0 && Math.abs(e.movementX) < 100) {
-                    deltaX = e.movementX;
-                    deltaY = e.movementY;
-                }
-
-                // LEFT-CLICK DRAG DIRECTLY ROTATES 3D SYSTEM MAP ANGLE!
-                mapGroup.rotation.y += deltaX * 0.018;
-                mapGroup.rotation.x = Math.min(Math.max(mapGroup.rotation.x + deltaY * 0.018, -1.4), 1.4);
-
-                previousMapMousePosition = { x: e.clientX, y: e.clientY };
+                mapAzimuth = mapStartAzimuth - deltaX * 0.008;
+                mapPolar = Math.min(Math.max(mapStartPolar - deltaY * 0.008, 0.05), Math.PI / 2 - 0.02);
             }
         });
 
         window.addEventListener('touchmove', (e) => {
-            if (isTacticalMapOpen && isMapDragging && mapGroup && e.touches[0]) {
-                const clientX = e.touches[0].clientX;
-                const clientY = e.touches[0].clientY;
-                const deltaX = clientX - previousMapMousePosition.x;
-                const deltaY = clientY - previousMapMousePosition.y;
+            if (isTacticalMapOpen && isMapDragging && e.touches[0]) {
+                const deltaX = e.touches[0].clientX - mapStartMouseX;
+                const deltaY = e.touches[0].clientY - mapStartMouseY;
 
-                mapGroup.rotation.y += deltaX * 0.018;
-                mapGroup.rotation.x = Math.min(Math.max(mapGroup.rotation.x + deltaY * 0.018, -1.4), 1.4);
-
-                previousMapMousePosition = { x: clientX, y: clientY };
+                mapAzimuth = mapStartAzimuth - deltaX * 0.008;
+                mapPolar = Math.min(Math.max(mapStartPolar - deltaY * 0.008, 0.05), Math.PI / 2 - 0.02);
             }
         }, { passive: true });
 
@@ -4387,7 +4384,7 @@
         window.addEventListener('wheel', (e) => {
             if (isTacticalMapOpen) {
                 mapCamDistance += e.deltaY * 0.15;
-                mapCamDistance = Math.min(Math.max(mapCamDistance, 20), 400);
+                mapCamDistance = Math.min(Math.max(mapCamDistance, 20), 450);
             }
         }, { passive: true });
 
@@ -4434,8 +4431,12 @@
                 }
             }
 
-            // Smooth Orbit Camera Viewport Update
-            mapCamera.position.set(0, mapCamDistance * 0.35, mapCamDistance);
+            // True Spherical Orbit Camera Math around (0, 0, 0)
+            const camX = mapCamDistance * Math.sin(mapPolar) * Math.sin(mapAzimuth);
+            const camY = mapCamDistance * Math.cos(mapPolar);
+            const camZ = mapCamDistance * Math.sin(mapPolar) * Math.cos(mapAzimuth);
+
+            mapCamera.position.set(camX, camY, camZ);
             mapCamera.lookAt(0, 0, 0);
 
             mapRenderer.render(mapScene, mapCamera);
