@@ -2455,8 +2455,10 @@
 
         function triggerWormholeJump() {
             isWormholeActive = true;
-            document.getElementById('hud-sector').innerText = "WORMHOLE HYPERSPACE TUNNEL";
-            document.getElementById('hud-objective').innerText = "Transitioning to Sovereign Reach...";
+            const sec = document.getElementById('hud-sector');
+            const obj = document.getElementById('hud-objective');
+            if (sec) sec.innerText = "WORMHOLE HYPERSPACE TUNNEL";
+            if (obj) obj.innerText = "Transitioning to Sovereign Reach...";
             showToast("HYPERSPACE WARP ENGAGED! Warp Drive Active!");
 
             playerShip.position.set(-150, 20, -310);
@@ -2480,8 +2482,10 @@
 
         function approachCapitalShip() {
             playerShip.position.copy(capitalShip.position).add(new THREE.Vector3(0, 30, 150));
-            document.getElementById('hud-sector').innerText = "AETHELGARD CAPITAL FLEET";
-            document.getElementById('hud-objective').innerText = "Escort Dreadnought Flagship";
+            const sec = document.getElementById('hud-sector');
+            const obj = document.getElementById('hud-objective');
+            if (sec) sec.innerText = "AETHELGARD CAPITAL FLEET";
+            if (obj) obj.innerText = "Escort Dreadnought Flagship";
             showToast("Approaching Sovereign Royal Flagship!");
         }
 
@@ -2492,8 +2496,10 @@
             targetSpeed = 100;
             currentSpeed = 100;
             isWormholeActive = false;
-            document.getElementById('hud-sector').innerText = "SOL OUTER RIM";
-            document.getElementById('hud-objective').innerText = "Investigate Anomaly or Fly through Wormhole";
+            const sec = document.getElementById('hud-sector');
+            const obj = document.getElementById('hud-objective');
+            if (sec) sec.innerText = "SOL OUTER RIM";
+            if (obj) obj.innerText = "Investigate Anomaly or Fly through Wormhole";
             showToast("Flight position reset to Sol Station.");
         }
 
@@ -2521,7 +2527,8 @@
             updateEngineAudio(currentSpeed / maxSpeedCap, cameraMode === 0);
 
             const postedSpeed = Math.round(currentSpeed * 10.725); // Posted speed scaled 10x (max 2,145 km/h matching concept art HUD)
-            document.getElementById('hud-speed').innerText = `SPEED: ${postedSpeed.toLocaleString()} km/h ${currentSpeed > 160 ? '[MAX THROTTLE]' : ''}`;
+            const speedElem = document.getElementById('hud-speed');
+            if (speedElem) speedElem.innerText = `SPEED: ${postedSpeed.toLocaleString()} km/h ${currentSpeed > 160 ? '[MAX THROTTLE]' : ''}`;
 
             // --- SINGULARITY-FREE 360° QUATERNION FLIGHT (LOOPS & ROLLS WITHOUT FLIPPING) ---
             const deadzone = 0.03;
