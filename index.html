@@ -745,7 +745,14 @@
         .draggable-box.is-minimized {
             height: auto !important;
             min-height: 0 !important;
+            padding-top: 6px !important;
             padding-bottom: 6px !important;
+            overflow: hidden !important;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.35) !important;
+        }
+
+        .draggable-box.is-minimized .drag-handle {
+            margin-bottom: 0 !important;
         }
 
         .draggable-box.is-minimized > *:not(.drag-handle) {
