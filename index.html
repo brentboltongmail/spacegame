@@ -1328,9 +1328,9 @@
 
                     <div class="act-node act-3">
                         <span class="badge badge-gold">ACT III: THE LOST SCION</span>
-                        <div class="act-title" style="margin-top: 8px;">Reclaiming the Throne of Aethelgard</div>
+                        <div class="act-title" style="margin-top: 8px;">Reclaiming the Throne of Vanguard</div>
                         <p style="color: var(--text-muted); line-height: 1.5; font-size: 0.95rem;">
-                            The ancient precursor gate identifies your genetic signature: you are the last surviving blood heir to House Aethelgard, overthrown 20 years prior by the tyrant Regent Vaelen. Uniting loyalist captains, commanding strike fighters and dreadnought fleets, you wage war across wormhole networks to reclaim your homeworld and save Sol from invasion.
+                            The ancient precursor gate identifies your genetic signature: you are the last surviving blood heir to House Vanguard, overthrown 20 years prior by the tyrant Regent Vaelen. Uniting loyalist captains, commanding strike fighters and dreadnought fleets, you wage war across wormhole networks to reclaim your homeworld and save Sol from invasion.
                         </p>
                         <div class="gameplay-tags">
                             <span class="tag">Capital Ship Battles</span>
@@ -1360,7 +1360,7 @@
                                 <div style="color: var(--text-muted);">Industrial, utilitarian human fleet with heavy railguns and armored plating.</div>
                             </div>
                             <div>
-                                <div style="font-weight: 700; color: var(--accent-purple);">House Aethelgard (Loyalist Remnants)</div>
+                                <div style="font-weight: 700; color: var(--accent-purple);">House Vanguard (Loyalist Remnants)</div>
                                 <div style="color: var(--text-muted);">Graceful, high-tech plasma-shielded cruisers and swift wing fighters awaiting their true sovereign.</div>
                             </div>
                             <div>
@@ -1431,7 +1431,7 @@
                     <div>
                         <div class="ship-icon-box">👑</div>
                         <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <h3 style="font-family: var(--font-head); font-size: 1.2rem;">Aethelgard Royal Battlecruiser</h3>
+                            <h3 style="font-family: var(--font-head); font-size: 1.2rem;">Vanguard Royal Battlecruiser</h3>
                             <span class="badge badge-gold">Capital Ship</span>
                         </div>
                         <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px;">
@@ -1593,7 +1593,7 @@
                         <span style="color: #94a3b8;">1.0M KM</span>
                     </div>
                     <div class="legend-item" onclick="focusMapObject('planet')">
-                        <span style="color: #0284c7; font-weight: 700;">🪐 Aethelgard Gas Giant</span>
+                        <span style="color: #0284c7; font-weight: 700;">🪐 Vanguard Gas Giant</span>
                         <span style="color: #94a3b8;">14.0 KM</span>
                     </div>
                     <div class="legend-item" onclick="focusMapObject('wormhole')">
@@ -4329,22 +4329,31 @@
                 mapEnemy.position.set(-22 + (i % 3) * 7, (i % 2) * 4, -52 - i * 5);
                 mapEnemyGroup.add(mapEnemy);
             }
+        }
 
-            // --- DIRECT MULTI-ELEMENT MAP DRAG & SCROLL ZOOM LISTENERS ---
-            const modalEl = document.getElementById('tactical-map-modal');
-            const bodyEl = document.querySelector('.map-body-container');
-            const boxEl = document.getElementById('map-canvas-container');
-
-            const onMapStart = (e) => {
-                if (e.target.closest('button, .legend-item, a')) return;
+        // --- GLOBAL FAIL-SAFE 3D STAR MAP DRAG ROTATION & SCROLL ZOOM ---
+        window.addEventListener('mousedown', (e) => {
+            if (isTacticalMapOpen) {
+                if (e.target.closest('button, .legend-item, a, input, select')) return;
                 isMapDragging = true;
                 const clientX = e.touches ? e.touches[0].clientX : e.clientX;
                 const clientY = e.touches ? e.touches[0].clientY : e.clientY;
                 previousMapMousePosition = { x: clientX, y: clientY };
-            };
+            }
+        });
 
-            const onMapMove = (e) => {
-                if (!isMapDragging || !mapGroup) return;
+        window.addEventListener('touchstart', (e) => {
+            if (isTacticalMapOpen) {
+                if (e.target.closest('button, .legend-item, a, input, select')) return;
+                isMapDragging = true;
+                const clientX = e.touches[0].clientX;
+                const clientY = e.touches[0].clientY;
+                previousMapMousePosition = { x: clientX, y: clientY };
+            }
+        }, { passive: true });
+
+        window.addEventListener('mousemove', (e) => {
+            if (isTacticalMapOpen && isMapDragging && mapGroup) {
                 const clientX = e.touches ? e.touches[0].clientX : e.clientX;
                 const clientY = e.touches ? e.touches[0].clientY : e.clientY;
                 const deltaX = clientX - previousMapMousePosition.x;
@@ -4354,27 +4363,32 @@
                 mapGroup.rotation.x = Math.min(Math.max(mapGroup.rotation.x + deltaY * 0.015, -1.2), 1.2);
 
                 previousMapMousePosition = { x: clientX, y: clientY };
-            };
+            }
+        });
 
-            const onMapEnd = () => { isMapDragging = false; };
+        window.addEventListener('touchmove', (e) => {
+            if (isTacticalMapOpen && isMapDragging && mapGroup && e.touches[0]) {
+                const clientX = e.touches[0].clientX;
+                const clientY = e.touches[0].clientY;
+                const deltaX = clientX - previousMapMousePosition.x;
+                const deltaY = clientY - previousMapMousePosition.y;
 
-            [modalEl, bodyEl, boxEl, canvas].forEach(el => {
-                if (el) {
-                    el.addEventListener('mousedown', onMapStart);
-                    el.addEventListener('touchstart', onMapStart, { passive: true });
-                    el.addEventListener('wheel', (e) => {
-                        e.preventDefault();
-                        mapCamDistance += e.deltaY * 0.14;
-                        mapCamDistance = Math.min(Math.max(mapCamDistance, 25), 350);
-                    }, { passive: false });
-                }
-            });
+                mapGroup.rotation.y += deltaX * 0.015;
+                mapGroup.rotation.x = Math.min(Math.max(mapGroup.rotation.x + deltaY * 0.015, -1.2), 1.2);
 
-            window.addEventListener('mousemove', onMapMove);
-            window.addEventListener('touchmove', onMapMove, { passive: true });
-            window.addEventListener('mouseup', onMapEnd);
-            window.addEventListener('touchend', onMapEnd);
-        }
+                previousMapMousePosition = { x: clientX, y: clientY };
+            }
+        }, { passive: true });
+
+        window.addEventListener('mouseup', () => { isMapDragging = false; });
+        window.addEventListener('touchend', () => { isMapDragging = false; });
+
+        window.addEventListener('wheel', (e) => {
+            if (isTacticalMapOpen) {
+                mapCamDistance += e.deltaY * 0.15;
+                mapCamDistance = Math.min(Math.max(mapCamDistance, 20), 400);
+            }
+        }, { passive: true });
 
         function resizeTacticalMapCanvas() {
             const container = document.getElementById('map-canvas-container');
