@@ -1639,8 +1639,9 @@
                 delete box.dataset.dragX;
                 delete box.dataset.dragY;
             });
+            setTimeout(() => clampAllWindowPositions(), 50);
             saveProfileToServerSilent();
-            showToast("✨ Box layout reset!");
+            showToast("✨ Box layout reset & aligned!");
         }
 
         function toggleMinimizeBox(btn) {
@@ -1673,6 +1674,34 @@
             const clean = text.replace(/[\n\r]+/g, ' ').trim();
             const firstWords = clean.split(' ').slice(0, 2).join(' ');
             return firstWords.length > 14 ? firstWords.substring(0, 14) + '..' : firstWords;
+        }
+
+        function clampAllWindowPositions() {
+            const headerBoundary = 68; // Bottom border of fixed top menu bar
+            let didCorrection = false;
+            document.querySelectorAll('.draggable-box').forEach(box => {
+                const rect = box.getBoundingClientRect();
+                let currentY = parseFloat(box.dataset.dragY) || 0;
+                const initialTop = rect.top - currentY;
+                const minAllowedY = headerBoundary - initialTop;
+
+                if (currentY < minAllowedY) {
+                    currentY = minAllowedY;
+                    box.dataset.dragY = currentY;
+                    const currentX = parseFloat(box.dataset.dragX) || 0;
+                    box.style.transform = `translate(${currentX}px, ${currentY}px)`;
+
+                    const dragId = box.dataset.dragId || box.id;
+                    if (dragId && currentProfile) {
+                        if (!currentProfile.boxPositions) currentProfile.boxPositions = {};
+                        currentProfile.boxPositions[dragId] = { x: Math.round(currentX), y: Math.round(currentY) };
+                        didCorrection = true;
+                    }
+                }
+            });
+            if (didCorrection) {
+                saveProfileToServerSilent();
+            }
         }
 
         function initDraggableBoxes() {
@@ -1730,6 +1759,9 @@
 
                 setupDragEvents(box, dragId);
             });
+
+            // Auto-clamp any window that is currently above top menu bar boundary
+            setTimeout(() => clampAllWindowPositions(), 60);
         }
 
         function setupDragEvents(element, dragId) {
