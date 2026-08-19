@@ -2879,23 +2879,516 @@
 
         function createCapitalShip() {
             capitalShip = new THREE.Group();
+            capitalShip.userData = {
+                crystalCore: null,
+                crystalRings: [],
+                crystalLight: null,
+                radarDish: null,
+                turrets: [],
+                fighters: [],
+                beacons: []
+            };
 
-            const hullGeo = new THREE.BoxGeometry(45, 15, 120);
-            const hullMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.5, metalness: 0.8 });
-            const hull = new THREE.Mesh(hullGeo, hullMat);
-            capitalShip.add(hull);
+            // Load AI-generated and procedural textures
+            const textureLoader = new THREE.TextureLoader();
 
-            const bridgeGeo = new THREE.BoxGeometry(18, 12, 25);
-            const bridge = new THREE.Mesh(bridgeGeo, hullMat);
-            bridge.position.set(0, 12, -20);
-            capitalShip.add(bridge);
+            const dreadHullTex = textureLoader.load('docs/images/dreadnought_hull_texture.jpg');
+            dreadHullTex.wrapS = THREE.RepeatWrapping;
+            dreadHullTex.wrapT = THREE.RepeatWrapping;
+            dreadHullTex.repeat.set(8, 8);
 
-            const stripGeo = new THREE.BoxGeometry(46, 1, 90);
-            const stripMat = new THREE.MeshBasicMaterial({ color: 0x8b5cf6 });
-            const strip = new THREE.Mesh(stripGeo, stripMat);
-            strip.position.set(0, 0, 0);
-            capitalShip.add(strip);
+            const dreadGreebleTex = textureLoader.load('docs/images/dreadnought_greeble_texture.jpg');
+            dreadGreebleTex.wrapS = THREE.RepeatWrapping;
+            dreadGreebleTex.wrapT = THREE.RepeatWrapping;
+            dreadGreebleTex.repeat.set(4, 4);
 
+            const dreadCrystalTex = textureLoader.load('docs/images/dreadnought_crystal_texture.jpg');
+
+            // Standard Materials
+            const hullMat = new THREE.MeshStandardMaterial({
+                map: dreadHullTex,
+                color: 0x8090a5,
+                roughness: 0.45,
+                metalness: 0.85
+            });
+
+            const armorPlateMat = new THREE.MeshStandardMaterial({
+                map: dreadHullTex,
+                color: 0x475569,
+                roughness: 0.35,
+                metalness: 0.90
+            });
+
+            const greebleMat = new THREE.MeshStandardMaterial({
+                map: dreadGreebleTex,
+                color: 0x334155,
+                roughness: 0.6,
+                metalness: 0.8
+            });
+
+            const goldTrimMat = new THREE.MeshStandardMaterial({
+                color: 0xfbbf24,
+                roughness: 0.25,
+                metalness: 0.95
+            });
+
+            const darkMetalMat = new THREE.MeshStandardMaterial({
+                color: 0x0f172a,
+                roughness: 0.5,
+                metalness: 0.9
+            });
+
+            const engineNozzleMat = new THREE.MeshStandardMaterial({
+                color: 0x1e293b,
+                roughness: 0.2,
+                metalness: 0.95
+            });
+
+            const engineGlowMat = new THREE.MeshBasicMaterial({
+                color: 0x00f0ff
+            });
+
+            const windowGlowMat = new THREE.MeshBasicMaterial({
+                color: 0xfbbf24
+            });
+
+            const cyanWindowGlowMat = new THREE.MeshBasicMaterial({
+                color: 0x00f0ff
+            });
+
+            // --- ROUND 1: HULL BASE GEOMETRY & LAYERED BATTLESHIP ARCHITECTURE ---
+            const mainHullGeo = new THREE.BoxGeometry(100, 26, 300);
+            const mainHull = new THREE.Mesh(mainHullGeo, hullMat);
+            mainHull.position.set(0, 0, 0);
+            capitalShip.add(mainHull);
+
+            // Upper Gun Deck Platform
+            const upperDeckGeo = new THREE.BoxGeometry(82, 16, 230);
+            const upperDeck = new THREE.Mesh(upperDeckGeo, armorPlateMat);
+            upperDeck.position.set(0, 18, -10);
+            capitalShip.add(upperDeck);
+
+            // Ventral Armored Keel
+            const keelGeo = new THREE.BoxGeometry(64, 18, 250);
+            const keel = new THREE.Mesh(keelGeo, darkMetalMat);
+            keel.position.set(0, -18, 10);
+            capitalShip.add(keel);
+
+            // Slanted Armored Ram Bow (Prow)
+            const prowGeo = new THREE.CylinderGeometry(0, 54, 80, 4);
+            const prow = new THREE.Mesh(prowGeo, armorPlateMat);
+            prow.rotation.y = Math.PI / 4;
+            prow.rotation.x = Math.PI / 2;
+            prow.position.set(0, 4, -180);
+            prow.scale.set(1, 1, 0.7);
+            capitalShip.add(prow);
+
+            // Forward Prow Armor Crest Plate
+            const crestGeo = new THREE.BoxGeometry(40, 10, 50);
+            const crest = new THREE.Mesh(crestGeo, goldTrimMat);
+            crest.position.set(0, 14, -170);
+            capitalShip.add(crest);
+
+            // Recessed Side Trenches (Port & Starboard)
+            [-49, 49].forEach(sideX => {
+                const trenchGeo = new THREE.BoxGeometry(6, 18, 260);
+                const trench = new THREE.Mesh(trenchGeo, greebleMat);
+                trench.position.set(sideX, 0, 0);
+                capitalShip.add(trench);
+            });
+
+            // Slanted Side Armor Skirts
+            [-54, 54].forEach(sideX => {
+                for (let i = 0; i < 4; i++) {
+                    const skirtGeo = new THREE.BoxGeometry(4, 16, 50);
+                    const skirt = new THREE.Mesh(skirtGeo, armorPlateMat);
+                    skirt.position.set(sideX, 2, -100 + i * 65);
+                    skirt.rotation.z = (sideX > 0 ? -0.15 : 0.15);
+                    capitalShip.add(skirt);
+                }
+            });
+
+            // --- ROUND 2: MULTI-TIERED COMMAND SUPERSTRUCTURE & BRIDGE TOWER ---
+            const bridgeTower = new THREE.Group();
+            bridgeTower.position.set(0, 26, -55);
+
+            // Tier 1: Superstructure Base
+            const bTier1Geo = new THREE.BoxGeometry(52, 18, 70);
+            const bTier1 = new THREE.Mesh(bTier1Geo, hullMat);
+            bTier1.position.set(0, 9, 0);
+            bridgeTower.add(bTier1);
+
+            // Tier 2: Mid Command Deck
+            const bTier2Geo = new THREE.BoxGeometry(40, 16, 54);
+            const bTier2 = new THREE.Mesh(bTier2Geo, armorPlateMat);
+            bTier2.position.set(0, 24, -5);
+            bridgeTower.add(bTier2);
+
+            // Tier 3: Main Navigation Bridge (Viewport Strip)
+            const bTier3Geo = new THREE.BoxGeometry(32, 12, 38);
+            const bTier3 = new THREE.Mesh(bTier3Geo, hullMat);
+            bTier3.position.set(0, 37, -10);
+            bridgeTower.add(bTier3);
+
+            // Main Bridge Panoramic Viewport Glass Strip
+            const windowStripGeo = new THREE.BoxGeometry(32.4, 3.5, 20);
+            const windowStrip = new THREE.Mesh(windowStripGeo, windowGlowMat);
+            windowStrip.position.set(0, 39, -15);
+            bridgeTower.add(windowStrip);
+
+            // Tier 4: Admiral's Observation Spire
+            const bTier4Geo = new THREE.BoxGeometry(20, 10, 24);
+            const bTier4 = new THREE.Mesh(bTier4Geo, armorPlateMat);
+            bTier4.position.set(0, 47, -12);
+            bridgeTower.add(bTier4);
+
+            // Top Skybridge Viewports
+            const skyViewGeo = new THREE.BoxGeometry(20.4, 2.5, 12);
+            const skyView = new THREE.Mesh(skyViewGeo, cyanWindowGlowMat);
+            skyView.position.set(0, 48, -14);
+            bridgeTower.add(skyView);
+
+            // Shield Generator Domes (Port & Starboard Superstructure Wings)
+            [-28, 28].forEach(sideX => {
+                const wingGeo = new THREE.BoxGeometry(14, 4, 18);
+                const wing = new THREE.Mesh(wingGeo, armorPlateMat);
+                wing.position.set(sideX, 22, -5);
+                bridgeTower.add(wing);
+
+                const domeGeo = new THREE.IcosahedronGeometry(6.5, 2);
+                const domeMat = new THREE.MeshStandardMaterial({
+                    color: 0x00f0ff,
+                    roughness: 0.2,
+                    metalness: 0.9,
+                    wireframe: false
+                });
+                const dome = new THREE.Mesh(domeGeo, domeMat);
+                dome.position.set(sideX, 27, -5);
+                bridgeTower.add(dome);
+
+                const ringGeo = new THREE.TorusGeometry(7.2, 0.8, 8, 24);
+                const ring = new THREE.Mesh(ringGeo, goldTrimMat);
+                ring.rotation.x = Math.PI / 2;
+                ring.position.set(sideX, 24, -5);
+                bridgeTower.add(ring);
+            });
+
+            capitalShip.add(bridgeTower);
+
+            // --- ROUND 3: EXPOSED HEXAGONAL CRYSTAL REACTOR CORE BAY ---
+            const crystalBay = new THREE.Group();
+            crystalBay.position.set(48, 8, 15);
+
+            // Recessed Hexagonal Housing Frame
+            const hexFrameGeo = new THREE.CylinderGeometry(18, 18, 8, 6);
+            const hexFrame = new THREE.Mesh(hexFrameGeo, darkMetalMat);
+            hexFrame.rotation.z = Math.PI / 2;
+            crystalBay.add(hexFrame);
+
+            // Radiator Fins
+            for (let i = 0; i < 6; i++) {
+                const finGeo = new THREE.BoxGeometry(2, 14, 4);
+                const fin = new THREE.Mesh(finGeo, goldTrimMat);
+                const angle = (i / 6) * Math.PI * 2;
+                fin.position.set(0, Math.cos(angle) * 14, Math.sin(angle) * 14);
+                crystalBay.add(fin);
+            }
+
+            // 3D Faceted Crystal Core Mesh
+            const crystalGeo = new THREE.OctahedronGeometry(9, 1);
+            const crystalMat = new THREE.MeshBasicMaterial({
+                map: dreadCrystalTex,
+                color: 0x00f0ff,
+                transparent: true,
+                opacity: 0.92
+            });
+            const crystalCore = new THREE.Mesh(crystalGeo, crystalMat);
+            crystalBay.add(crystalCore);
+            capitalShip.userData.crystalCore = crystalCore;
+
+            // Spinning Inner & Outer Containment Rings
+            const ring1Geo = new THREE.TorusGeometry(12, 1.0, 12, 32);
+            const ring1 = new THREE.Mesh(ring1Geo, goldTrimMat);
+            ring1.rotation.y = Math.PI / 2;
+            crystalBay.add(ring1);
+
+            const ring2Geo = new THREE.TorusGeometry(14, 0.8, 12, 32);
+            const ring2 = new THREE.Mesh(ring2Geo, cyanWindowGlowMat);
+            ring2.rotation.x = Math.PI / 3;
+            crystalBay.add(ring2);
+            capitalShip.userData.crystalRings = [ring1, ring2];
+
+            // Dynamic Blue Crystal Point Light
+            const crystalLight = new THREE.PointLight(0x00f0ff, 4.5, 90);
+            crystalLight.position.set(0, 0, 0);
+            crystalBay.add(crystalLight);
+            capitalShip.userData.crystalLight = crystalLight;
+
+            capitalShip.add(crystalBay);
+
+            // --- ROUND 4: ARMORED SIDE HANGAR BAY & DEPLOYED INTERCEPTORS ---
+            const hangarBay = new THREE.Group();
+            hangarBay.position.set(-48, -2, 35);
+
+            // Recessed Hangar Opening Cutout
+            const hangarCutoutGeo = new THREE.BoxGeometry(8, 18, 55);
+            const hangarCutout = new THREE.Mesh(hangarCutoutGeo, darkMetalMat);
+            hangarBay.add(hangarCutout);
+
+            // Internal Lit Runway Deck
+            const runwayGeo = new THREE.BoxGeometry(14, 1, 52);
+            const runwayMat = new THREE.MeshBasicMaterial({ color: 0x052e16 });
+            const runway = new THREE.Mesh(runwayGeo, runwayMat);
+            runway.position.set(-2, -8, 0);
+            hangarBay.add(runway);
+
+            // Runway Guide Lights Strip
+            const guideLightsGeo = new THREE.BoxGeometry(0.8, 1.2, 50);
+            const guideLights = new THREE.Mesh(guideLightsGeo, cyanWindowGlowMat);
+            guideLights.position.set(-7, -7.5, 0);
+            hangarBay.add(guideLights);
+
+            // Yellow Caution Stripe Border Frame around Hangar Aperture
+            const borderMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
+            const topBorder = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 55), borderMat);
+            topBorder.position.set(-4, 9, 0);
+            hangarBay.add(topBorder);
+            const botBorder = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 55), borderMat);
+            botBorder.position.set(-4, -9, 0);
+            hangarBay.add(botBorder);
+
+            // 3 Mini Launching Interceptor Fighters
+            for (let f = 0; f < 3; f++) {
+                const fighterGroup = new THREE.Group();
+                const fBodyGeo = new THREE.ConeGeometry(1.2, 4, 3);
+                const fBodyMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.8 });
+                const fBody = new THREE.Mesh(fBodyGeo, fBodyMat);
+                fBody.rotation.x = Math.PI / 2;
+                fighterGroup.add(fBody);
+
+                const fWingGeo = new THREE.BoxGeometry(4.5, 0.3, 1.8);
+                const fWing = new THREE.Mesh(fWingGeo, fBodyMat);
+                fighterGroup.add(fWing);
+
+                fighterGroup.position.set(-12 - f * 14, -6 + f * 3, f * 12);
+                fighterGroup.rotation.y = -Math.PI / 3;
+                hangarBay.add(fighterGroup);
+                capitalShip.userData.fighters.push(fighterGroup);
+            }
+
+            capitalShip.add(hangarBay);
+
+            // --- ROUND 5: HEAVY TRIPLE-BARREL MAIN TURRETS & BROADSIDE BATTERIES ---
+            const turretPositions = [
+                { x: 0, y: 27, z: 80, scale: 1.0 },
+                { x: 0, y: 27, z: 30, scale: 1.1 },
+                { x: 0, y: 27, z: -105, scale: 1.0 },
+                { x: 0, y: 27, z: -145, scale: 0.9 }
+            ];
+
+            turretPositions.forEach(pos => {
+                const turret = new THREE.Group();
+                turret.position.set(pos.x, pos.y, pos.z);
+                turret.scale.set(pos.scale, pos.scale, pos.scale);
+
+                // Circular Barbette Base
+                const barbetteGeo = new THREE.CylinderGeometry(11, 13, 4, 24);
+                const barbette = new THREE.Mesh(barbetteGeo, darkMetalMat);
+                barbette.position.set(0, 2, 0);
+                turret.add(barbette);
+
+                // Armored Gun Housing
+                const houseGeo = new THREE.BoxGeometry(16, 7.5, 18);
+                const house = new THREE.Mesh(houseGeo, armorPlateMat);
+                house.position.set(0, 7, 0);
+                turret.add(house);
+
+                const slopeGeo = new THREE.BoxGeometry(16.2, 5, 10);
+                const slope = new THREE.Mesh(slopeGeo, goldTrimMat);
+                slope.position.set(0, 6.5, -5);
+                slope.rotation.x = -Math.PI / 6;
+                turret.add(slope);
+
+                // 3 Heavy Cannon Barrels
+                [-4.5, 0, 4.5].forEach(bx => {
+                    const barrelGeo = new THREE.CylinderGeometry(1.1, 1.3, 26, 12);
+                    const barrelMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.95, roughness: 0.2 });
+                    const barrel = new THREE.Mesh(barrelGeo, barrelMat);
+                    barrel.rotation.x = Math.PI / 2;
+                    barrel.position.set(bx, 7, -15);
+                    turret.add(barrel);
+
+                    // Recoil Sleeve Ring
+                    const sleeveGeo = new THREE.CylinderGeometry(1.5, 1.5, 8, 12);
+                    const sleeve = new THREE.Mesh(sleeveGeo, goldTrimMat);
+                    sleeve.rotation.x = Math.PI / 2;
+                    sleeve.position.set(bx, 7, -8);
+                    turret.add(sleeve);
+                });
+
+                capitalShip.add(turret);
+                capitalShip.userData.turrets.push(turret);
+            });
+
+            // 8 Broadside Dual-Barrel Batteries (Port & Starboard)
+            [-48, 48].forEach(sideX => {
+                [-70, -20, 30, 80].forEach(sideZ => {
+                    const pds = new THREE.Group();
+                    pds.position.set(sideX, 10, sideZ);
+
+                    const pdsBase = new THREE.Mesh(new THREE.CylinderGeometry(4, 5, 2, 16), darkMetalMat);
+                    pds.add(pdsBase);
+
+                    [-1.5, 1.5].forEach(bx => {
+                        const b = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.7, 10, 8), darkMetalMat);
+                        b.rotation.x = Math.PI / 2;
+                        b.position.set(bx, 1.5, sideX > 0 ? 5 : -5);
+                        pds.add(b);
+                    });
+                    pds.rotation.y = (sideX > 0 ? Math.PI / 2 : -Math.PI / 2);
+                    capitalShip.add(pds);
+                });
+            });
+
+            // Forward Spinal Heavy Plasma Beam Cannon Muzzles
+            [-10, 10].forEach(mx => {
+                const muzzleGeo = new THREE.CylinderGeometry(2.5, 3.5, 14, 16);
+                const muzzle = new THREE.Mesh(muzzleGeo, darkMetalMat);
+                muzzle.rotation.x = Math.PI / 2;
+                muzzle.position.set(mx, 4, -205);
+                capitalShip.add(muzzle);
+
+                const glowCore = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 1.8, 14.5, 16), cyanWindowGlowMat);
+                glowCore.rotation.x = Math.PI / 2;
+                glowCore.position.set(mx, 4, -205);
+                capitalShip.add(glowCore);
+            });
+
+            // --- ROUND 6: COMMUNICATION SPIRE, RADAR ARRAY & SENSOR GREEBLE DETAILING ---
+            const mainSpire = new THREE.Group();
+            mainSpire.position.set(0, 80, -65);
+
+            // Vertical Communications Spire Pole
+            const mastGeo = new THREE.CylinderGeometry(0.8, 1.8, 38, 12);
+            const mast = new THREE.Mesh(mastGeo, darkMetalMat);
+            mainSpire.add(mast);
+
+            // Cross-arm Sensor Booms
+            [8, 18, 28].forEach(heightY => {
+                const boomGeo = new THREE.BoxGeometry(16 - heightY * 0.3, 0.8, 0.8);
+                const boom = new THREE.Mesh(boomGeo, goldTrimMat);
+                boom.position.set(0, heightY - 19, 0);
+                mainSpire.add(boom);
+            });
+
+            // Rotating Parabolic Radar Dish
+            const radarGroup = new THREE.Group();
+            radarGroup.position.set(0, 5, -8);
+            const dishGeo = new THREE.CylinderGeometry(6, 1.5, 2.5, 16);
+            const dish = new THREE.Mesh(dishGeo, armorPlateMat);
+            dish.rotation.x = Math.PI / 3;
+            radarGroup.add(dish);
+            const dishFeed = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 6, 8), goldTrimMat);
+            dishFeed.rotation.x = Math.PI / 3;
+            dishFeed.position.set(0, 0, -3);
+            radarGroup.add(dishFeed);
+
+            mainSpire.add(radarGroup);
+            capitalShip.userData.radarDish = radarGroup;
+
+            capitalShip.add(mainSpire);
+
+            // Greeble Pipes & Exhaust Vent Plates on Hull
+            for (let p = 0; p < 8; p++) {
+                const pipeGeo = new THREE.CylinderGeometry(0.9, 0.9, 80, 8);
+                const pipe = new THREE.Mesh(pipeGeo, goldTrimMat);
+                pipe.rotation.z = Math.PI / 2;
+                pipe.position.set(0, 14, -60 + p * 30);
+                capitalShip.add(pipe);
+            }
+
+            // --- ROUND 7: REAR ENGINE THRUSTER NACELLE ARRAY & EXHAUST FX ---
+            const engineGroup = new THREE.Group();
+            engineGroup.position.set(0, 0, 150);
+
+            // 3 Primary Thruster Nacelles
+            const mainEngines = [
+                { x: 0, y: 6, z: 0, r: 16 },
+                { x: -30, y: 6, z: 0, r: 15 },
+                { x: 30, y: 6, z: 0, r: 15 }
+            ];
+
+            mainEngines.forEach(eng => {
+                const nacelleGeo = new THREE.CylinderGeometry(eng.r - 2, eng.r, 50, 24);
+                const nacelle = new THREE.Mesh(nacelleGeo, engineNozzleMat);
+                nacelle.rotation.x = Math.PI / 2;
+                nacelle.position.set(eng.x, eng.y, eng.z);
+                engineGroup.add(nacelle);
+
+                // Multi-stage Metallic Nozzle Ring
+                const ringGeo = new THREE.TorusGeometry(eng.r + 1, 1.5, 12, 32);
+                const ring = new THREE.Mesh(ringGeo, goldTrimMat);
+                ring.position.set(eng.x, eng.y, eng.z + 24);
+                engineGroup.add(ring);
+
+                // Glowing Cyan Thruster Disk
+                const diskGeo = new THREE.CircleGeometry(eng.r - 2, 24);
+                const disk = new THREE.Mesh(diskGeo, engineGlowMat);
+                disk.position.set(eng.x, eng.y, eng.z + 25.1);
+                engineGroup.add(disk);
+
+                // Engine Exhaust Cone Glow FX
+                const coneGeo = new THREE.ConeGeometry(eng.r - 2, 45, 24);
+                const coneMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.65 });
+                const cone = new THREE.Mesh(coneGeo, coneMat);
+                cone.rotation.x = -Math.PI / 2;
+                cone.position.set(eng.x, eng.y, eng.z + 47);
+                engineGroup.add(cone);
+            });
+
+            // 2 Secondary Thruster Nacelles
+            [-18, 18].forEach(sx => {
+                const sNacelleGeo = new THREE.CylinderGeometry(8, 10, 36, 16);
+                const sNacelle = new THREE.Mesh(sNacelleGeo, engineNozzleMat);
+                sNacelle.rotation.x = Math.PI / 2;
+                sNacelle.position.set(sx, -12, -5);
+                engineGroup.add(sNacelle);
+
+                const sDisk = new THREE.Mesh(new THREE.CircleGeometry(8, 16), engineGlowMat);
+                sDisk.position.set(sx, -12, 13.1);
+                engineGroup.add(sDisk);
+            });
+
+            // Dynamic Rear Engine Point Light
+            const rearEngineLight = new THREE.PointLight(0x00f0ff, 6.0, 160);
+            rearEngineLight.position.set(0, 0, 30);
+            engineGroup.add(rearEngineLight);
+
+            capitalShip.add(engineGroup);
+
+            // --- ROUND 9: NAVIGATION BEACONS & LIGHTING ---
+            // Red Port Beacon Light
+            const portBeacon = new THREE.PointLight(0xff3b5c, 2.5, 40);
+            portBeacon.position.set(-56, 14, 130);
+            portBeacon.userData = { baseIntensity: 2.5 };
+            capitalShip.add(portBeacon);
+            capitalShip.userData.beacons.push(portBeacon);
+
+            // Green Starboard Beacon Light
+            const stbdBeacon = new THREE.PointLight(0x10b981, 2.5, 40);
+            stbdBeacon.position.set(56, 14, 130);
+            stbdBeacon.userData = { baseIntensity: 2.5 };
+            capitalShip.add(stbdBeacon);
+            capitalShip.userData.beacons.push(stbdBeacon);
+
+            // Top Spire Strobe Light (White)
+            const spireBeacon = new THREE.PointLight(0xffffff, 3.0, 50);
+            spireBeacon.position.set(0, 102, -65);
+            spireBeacon.userData = { baseIntensity: 3.0 };
+            capitalShip.add(spireBeacon);
+            capitalShip.userData.beacons.push(spireBeacon);
+
+            // Final Placement in Scene
             capitalShip.position.set(250, 40, -400);
             scene.add(capitalShip);
         }
@@ -3419,7 +3912,51 @@
             camera.position.lerp(targetCamPos, cameraMode === 3 ? 0.01 : 0.15);
             camera.lookAt(targetLookAtPos);
 
-            if (capitalShip) capitalShip.rotation.y += 0.001;
+            if (capitalShip) {
+                capitalShip.rotation.y += 0.0004;
+                const timeSec = Date.now() * 0.001;
+
+                if (capitalShip.userData) {
+                    // Animate Crystal Core & Rings
+                    if (capitalShip.userData.crystalCore) {
+                        capitalShip.userData.crystalCore.rotation.y += 0.015;
+                        capitalShip.userData.crystalCore.rotation.z += 0.008;
+                    }
+                    if (capitalShip.userData.crystalRings) {
+                        capitalShip.userData.crystalRings.forEach((r, idx) => {
+                            r.rotation.z += (idx % 2 === 0 ? 0.02 : -0.02);
+                        });
+                    }
+                    if (capitalShip.userData.crystalLight) {
+                        capitalShip.userData.crystalLight.intensity = 3.5 + Math.sin(timeSec * 4) * 1.5;
+                    }
+
+                    // Animate Radar Dish Assembly
+                    if (capitalShip.userData.radarDish) {
+                        capitalShip.userData.radarDish.rotation.y += 0.02;
+                    }
+
+                    // Animate Blinking Navigation Beacons
+                    if (capitalShip.userData.beacons) {
+                        const blink = (Math.sin(timeSec * 5) > 0 ? 1.0 : 0.15);
+                        capitalShip.userData.beacons.forEach(b => {
+                            b.intensity = b.userData.baseIntensity * blink;
+                        });
+                    }
+
+                    // Animate Heavy Turrets Target Tracking (Aim toward player or target)
+                    if (capitalShip.userData.turrets && playerShip) {
+                        capitalShip.userData.turrets.forEach(turret => {
+                            const worldPos = new THREE.Vector3();
+                            turret.getWorldPosition(worldPos);
+                            const dx = playerShip.position.x - worldPos.x;
+                            const dz = playerShip.position.z - worldPos.z;
+                            const targetAngle = Math.atan2(dx, dz) - capitalShip.rotation.y;
+                            turret.rotation.y = THREE.MathUtils.lerp(turret.rotation.y, targetAngle, 0.03);
+                        });
+                    }
+                }
+            }
             if (spacePlanet) spacePlanet.rotation.y += 0.00015;
 
             // --- ANIMATE ENEMY INTERCEPTORS & TARGET LOCK SELECTION ---
