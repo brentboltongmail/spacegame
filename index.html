@@ -2604,27 +2604,31 @@
             scene.add(wormholeGate);
         }
 
+        // Shared Geometries & Materials for Zero-Allocation Silky Smooth 60 FPS Firing
+        const sharedLaserCoreGeo = new THREE.CylinderGeometry(0.18, 0.18, 12, 8);
+        sharedLaserCoreGeo.rotateX(Math.PI / 2);
+        const sharedLaserCoreMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+        const sharedLaserAuraGeo = new THREE.CylinderGeometry(0.48, 0.48, 12.5, 8);
+        sharedLaserAuraGeo.rotateX(Math.PI / 2);
+        const sharedLaserAuraMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.75 });
+
+        const sharedLaserTipGeo = new THREE.SphereGeometry(0.55, 8, 8);
+        const sharedLaserTipMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+
         function createPlasmaBoltMesh() {
             const boltGroup = new THREE.Group();
 
-            // 1. Inner Superheated Core (White-Hot Energy Cylinder)
-            const coreGeo = new THREE.CylinderGeometry(0.18, 0.18, 12, 8);
-            coreGeo.rotateX(Math.PI / 2);
-            const coreMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-            const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+            // 1. Inner White-Hot Core (Shared Geometry & Material)
+            const coreMesh = new THREE.Mesh(sharedLaserCoreGeo, sharedLaserCoreMat);
             boltGroup.add(coreMesh);
 
-            // 2. Outer Glowing Neon Plasma Aura (Translucent Cyan/Blue Energy Sheath)
-            const auraGeo = new THREE.CylinderGeometry(0.48, 0.48, 12.5, 8);
-            auraGeo.rotateX(Math.PI / 2);
-            const auraMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.75 });
-            const auraMesh = new THREE.Mesh(auraGeo, auraMat);
+            // 2. Outer Glowing Neon Plasma Aura Sheath (Shared Geometry & Material)
+            const auraMesh = new THREE.Mesh(sharedLaserAuraGeo, sharedLaserAuraMat);
             boltGroup.add(auraMesh);
 
-            // 3. Leading Plasma Tip Energy Cap
-            const tipGeo = new THREE.SphereGeometry(0.55, 12, 12);
-            const tipMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
-            const tipMesh = new THREE.Mesh(tipGeo, tipMat);
+            // 3. Leading Plasma Tip Energy Cap (Shared Geometry & Material)
+            const tipMesh = new THREE.Mesh(sharedLaserTipGeo, sharedLaserTipMat);
             tipMesh.position.set(0, 0, -6.2);
             boltGroup.add(tipMesh);
 
@@ -4058,14 +4062,14 @@
                 mapPlayerMesh.position.set(playerShip.position.x * scaleFactor, playerShip.position.y * scaleFactor, playerShip.position.z * scaleFactor);
                 mapPlayerMesh.quaternion.copy(playerShip.quaternion);
             }
-            if (planetMesh && mapPlanetMesh) {
-                mapPlanetMesh.position.set(planetMesh.position.x * scaleFactor, planetMesh.position.y * scaleFactor, planetMesh.position.z * scaleFactor);
+            if (spacePlanet && mapPlanetMesh) {
+                mapPlanetMesh.position.set(spacePlanet.position.x * scaleFactor, spacePlanet.position.y * scaleFactor, spacePlanet.position.z * scaleFactor);
             }
-            if (sunMesh && mapSunMesh) {
-                mapSunMesh.position.set(sunMesh.position.x * 0.00008, sunMesh.position.y * 0.00008, sunMesh.position.z * 0.00008);
+            if (spaceSun && mapSunMesh) {
+                mapSunMesh.position.set(spaceSun.position.x * 0.00008, spaceSun.position.y * 0.00008, spaceSun.position.z * 0.00008);
             }
-            if (wormholeGate && mapGateMesh) {
-                mapGateMesh.position.set(wormholeGate.position.x * scaleFactor, wormholeGate.position.y * scaleFactor, wormholeGate.position.z * scaleFactor);
+            if (spaceGate && mapGateMesh) {
+                mapGateMesh.position.set(spaceGate.position.x * scaleFactor, spaceGate.position.y * scaleFactor, spaceGate.position.z * scaleFactor);
             }
             if (capitalShip && mapDreadMesh) {
                 mapDreadMesh.position.set(capitalShip.position.x * scaleFactor, capitalShip.position.y * scaleFactor, capitalShip.position.z * scaleFactor);
@@ -4098,14 +4102,15 @@
                 if (!mapRenderer) {
                     initTacticalMap3D();
                 }
-                setTimeout(() => {
-                    const container = document.getElementById('map-canvas-container');
-                    if (container && mapRenderer && mapCamera) {
-                        mapCamera.aspect = container.clientWidth / container.clientHeight;
-                        mapCamera.updateProjectionMatrix();
-                        mapRenderer.setSize(container.clientWidth, container.clientHeight);
-                    }
-                }, 30);
+                const container = document.getElementById('map-canvas-container');
+                if (container && mapRenderer && mapCamera) {
+                    const w = container.clientWidth || 800;
+                    const h = container.clientHeight || 550;
+                    mapCamera.aspect = w / h;
+                    mapCamera.updateProjectionMatrix();
+                    mapRenderer.setSize(w, h);
+                }
+                renderTacticalMap3D();
                 showToast("🌐 3D TACTICAL SYSTEM STAR MAP OPEN (SEMI-REALTIME TRACKING)");
             } else {
                 if (modal) modal.style.display = 'none';
