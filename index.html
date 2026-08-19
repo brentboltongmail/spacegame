@@ -3098,7 +3098,7 @@
             showToast(`✨ UPGRADED ${mod.name.toUpperCase()} TO LEVEL ${mod.level}!`);
         }
 
-        // --- 8-LAYER BALANCED CINEMATIC SPACECRAFT ENGINE AUDIO SYNTHESIZER ---
+        // --- HIGH-ENERGY PLASMA STATIC & ROCKET JET AUDIO SYNTHESIZER ---
         let audioCtx = null;
         let engineMasterGain = null;
         let engineLowPassFilter = null;
@@ -3113,6 +3113,8 @@
         let engineWhineGain = null;
         let engineNoiseNode = null;
         let engineNoiseGain = null;
+        let engineStaticNode = null;
+        let engineStaticGain = null;
         let engineLfoOsc = null;
         let engineLfoGain = null;
         let isAudioInitialized = false;
@@ -3146,78 +3148,78 @@
                 engineMasterGain = audioCtx.createGain();
                 engineMasterGain.gain.setValueAtTime(isAudioMuted ? 0 : 0.70, now);
 
-                // 2. Warm Cockpit Armor Low-Pass Filter (240 Hz -> 820 Hz)
+                // 2. Cockpit Muffling Filter (180 Hz -> 1,200 Hz)
                 engineLowPassFilter = audioCtx.createBiquadFilter();
                 engineLowPassFilter.type = 'lowpass';
-                engineLowPassFilter.frequency.setValueAtTime(240, now);
-                engineLowPassFilter.Q.setValueAtTime(1.5, now);
+                engineLowPassFilter.frequency.setValueAtTime(280, now);
+                engineLowPassFilter.Q.setValueAtTime(1.2, now);
 
-                // 3. Smooth Hull Vibration Filter (@ 85 Hz)
+                // 3. Smooth Hull Vibration Filter
                 hullResonanceFilter = audioCtx.createBiquadFilter();
                 hullResonanceFilter.type = 'peaking';
-                hullResonanceFilter.frequency.setValueAtTime(85, now);
-                hullResonanceFilter.Q.setValueAtTime(2.5, now);
-                hullResonanceFilter.gain.setValueAtTime(3.0, now);
+                hullResonanceFilter.frequency.setValueAtTime(95, now);
+                hullResonanceFilter.Q.setValueAtTime(2.0, now);
+                hullResonanceFilter.gain.setValueAtTime(2.0, now);
 
-                // --- LAYER 1: Balanced Sub-Bass Thruster Tone (Sine @ 48 Hz) ---
+                // --- LAYER 1: Deep Sub-Bass Pulse (Sine @ 42 Hz — Low gain background weight) ---
                 engineSubOsc = audioCtx.createOscillator();
                 engineSubOsc.type = 'sine';
-                engineSubOsc.frequency.setValueAtTime(48, now);
+                engineSubOsc.frequency.setValueAtTime(42, now);
 
                 const subGain = audioCtx.createGain();
-                subGain.gain.setValueAtTime(0.40, now);
+                subGain.gain.setValueAtTime(0.25, now);
                 engineSubOsc.connect(subGain);
                 subGain.connect(hullResonanceFilter);
 
-                // --- LAYER 2: Detuned Secondary Tone (Sine @ 50 Hz) ---
+                // --- LAYER 2: Detuned Secondary Sub (Sine @ 44 Hz) ---
                 engineDetuneOsc = audioCtx.createOscillator();
                 engineDetuneOsc.type = 'sine';
-                engineDetuneOsc.frequency.setValueAtTime(50, now);
+                engineDetuneOsc.frequency.setValueAtTime(44, now);
 
                 const detuneGain = audioCtx.createGain();
-                detuneGain.gain.setValueAtTime(0.30, now);
+                detuneGain.gain.setValueAtTime(0.18, now);
                 engineDetuneOsc.connect(detuneGain);
                 detuneGain.connect(hullResonanceFilter);
 
-                // --- LAYER 3: Mid-Range Drive Tone (Triangle @ 110 Hz) ---
+                // --- LAYER 3: Subtle Mid-Tone Drive (Triangle @ 110 Hz — Tamed gain) ---
                 engineMidOsc = audioCtx.createOscillator();
                 engineMidOsc.type = 'triangle';
                 engineMidOsc.frequency.setValueAtTime(110, now);
 
                 const midGain = audioCtx.createGain();
-                midGain.gain.setValueAtTime(0.35, now);
+                midGain.gain.setValueAtTime(0.15, now);
                 engineMidOsc.connect(midGain);
                 midGain.connect(hullResonanceFilter);
 
-                // --- LAYER 4: Smooth Ion Turbine Whine (Sawtooth 280 Hz -> 720 Hz) ---
+                // --- LAYER 4: Turbine Whine (Tamed to prevent motor/vacuum hum) ---
                 engineTurbineOsc = audioCtx.createOscillator();
                 engineTurbineOsc.type = 'sawtooth';
-                engineTurbineOsc.frequency.setValueAtTime(280, now);
+                engineTurbineOsc.frequency.setValueAtTime(240, now);
 
                 engineTurbineFilter = audioCtx.createBiquadFilter();
                 engineTurbineFilter.type = 'bandpass';
-                engineTurbineFilter.frequency.setValueAtTime(360, now);
-                engineTurbineFilter.Q.setValueAtTime(3.5, now);
+                engineTurbineFilter.frequency.setValueAtTime(320, now);
+                engineTurbineFilter.Q.setValueAtTime(2.5, now);
 
                 engineTurbineGain = audioCtx.createGain();
-                engineTurbineGain.gain.setValueAtTime(0.20, now);
+                engineTurbineGain.gain.setValueAtTime(0.08, now);
 
                 engineTurbineOsc.connect(engineTurbineFilter);
                 engineTurbineFilter.connect(engineTurbineGain);
                 engineTurbineGain.connect(hullResonanceFilter);
 
-                // --- LAYER 5: Warm High Thruster Core (Sine 480 Hz -> 1,150 Hz) ---
+                // --- LAYER 5: Soft Ion Core Whine (Tamed) ---
                 engineWhineOsc = audioCtx.createOscillator();
                 engineWhineOsc.type = 'sine';
-                engineWhineOsc.frequency.setValueAtTime(480, now);
+                engineWhineOsc.frequency.setValueAtTime(380, now);
 
                 engineWhineGain = audioCtx.createGain();
-                engineWhineGain.gain.setValueAtTime(0.15, now);
+                engineWhineGain.gain.setValueAtTime(0.06, now);
 
                 engineWhineOsc.connect(engineWhineGain);
                 engineWhineGain.connect(hullResonanceFilter);
 
-                // --- LAYER 6: Brownian Gas Exhaust Turbulence ---
+                // --- LAYER 6: Organic Brownian Gas Exhaust Rumble ---
                 const bufferSize = audioCtx.sampleRate * 4;
                 const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
                 const output = noiseBuffer.getChannelData(0);
@@ -3234,21 +3236,43 @@
                 engineNoiseNode.loop = true;
 
                 engineNoiseGain = audioCtx.createGain();
-                engineNoiseGain.gain.setValueAtTime(0.22, now);
+                engineNoiseGain.gain.setValueAtTime(0.35, now);
                 engineNoiseNode.connect(engineNoiseGain);
                 engineNoiseGain.connect(hullResonanceFilter);
 
-                // --- LAYER 7: LFO Thrust Micro-Burst Tremolo (9 Hz Modulation) ---
+                // --- LAYER 7: CRISP PLASMA EXHAUST STATIC & JET CRACKLE (High-Pass Static Filter @ 1,600 Hz) ---
+                const staticBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const staticOut = staticBuffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    staticOut[i] = (Math.random() * 2 - 1) * 0.45; // High-energy white noise static
+                }
+
+                engineStaticNode = audioCtx.createBufferSource();
+                engineStaticNode.buffer = staticBuffer;
+                engineStaticNode.loop = true;
+
+                const staticHighPass = audioCtx.createBiquadFilter();
+                staticHighPass.type = 'highpass';
+                staticHighPass.frequency.setValueAtTime(1600, now); // Filters out vacuum motor hum, leaving crisp static sizzle!
+
+                engineStaticGain = audioCtx.createGain();
+                engineStaticGain.gain.setValueAtTime(0.12, now);
+
+                engineStaticNode.connect(staticHighPass);
+                staticHighPass.connect(engineStaticGain);
+                engineStaticGain.connect(hullResonanceFilter);
+
+                // --- LAYER 8: LFO Tremolo Modulation ---
                 engineLfoOsc = audioCtx.createOscillator();
                 engineLfoOsc.type = 'sine';
-                engineLfoOsc.frequency.setValueAtTime(9, now);
+                engineLfoOsc.frequency.setValueAtTime(10, now);
 
                 engineLfoGain = audioCtx.createGain();
                 engineLfoGain.gain.setValueAtTime(0.04, now);
                 engineLfoOsc.connect(engineLfoGain);
                 engineLfoGain.connect(engineMasterGain.gain);
 
-                // --- LAYER 8: Stereo Panner Width ---
+                // --- LAYER 9: Stereo Panner Width ---
                 let pannerNode = null;
                 if (audioCtx.createStereoPanner) {
                     pannerNode = audioCtx.createStereoPanner();
@@ -3265,22 +3289,23 @@
                 }
                 engineMasterGain.connect(audioCtx.destination);
 
-                // Start Generators
+                // Start All Generators
                 engineSubOsc.start();
                 engineDetuneOsc.start();
                 engineMidOsc.start();
                 engineTurbineOsc.start();
                 engineWhineOsc.start();
                 engineNoiseNode.start();
+                engineStaticNode.start();
                 engineLfoOsc.start();
 
-                // Smooth Power-On Sub-Drop Chime (Sine 480 Hz -> 240 Hz)
+                // Power-On Sub Drop Chime
                 const chimeOsc = audioCtx.createOscillator();
                 const chimeGain = audioCtx.createGain();
                 chimeOsc.type = 'sine';
-                chimeOsc.frequency.setValueAtTime(480, now);
-                chimeOsc.frequency.exponentialRampToValueAtTime(240, now + 0.4);
-                chimeGain.gain.setValueAtTime(0.5, now);
+                chimeOsc.frequency.setValueAtTime(450, now);
+                chimeOsc.frequency.exponentialRampToValueAtTime(180, now + 0.4);
+                chimeGain.gain.setValueAtTime(0.4, now);
                 chimeGain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
                 chimeOsc.connect(chimeGain);
                 chimeGain.connect(audioCtx.destination);
@@ -3294,7 +3319,7 @@
                     btn.style.borderColor = '#00f0ff';
                     btn.style.color = '#00f0ff';
                 }
-                showToast("🔊 BALANCED SPACECRAFT ENGINE AUDIO ACTIVE!");
+                showToast("🔊 PLASMA STATIC & ROCKET JET AUDIO ACTIVE!");
             } catch (e) {
                 console.error("Web Audio Engine Setup Error:", e);
             }
@@ -3309,20 +3334,20 @@
             const t = Math.min(Math.max(throttleRatio, 0), 1);
             const now = audioCtx.currentTime;
 
-            // 1. Balanced Sub-Bass & Mid Frequencies
-            const subFreq = 48 + t * 44;      // 48 Hz (Idle) -> 92 Hz (Max Thrust)
-            const detuneFreq = 50 + t * 46;   // 50 Hz (Idle) -> 96 Hz
-            const midFreq = 110 + t * 130;    // 110 Hz (Idle) -> 240 Hz
+            // 1. Low-Frequency Sub Rumble (42 Hz -> 86 Hz)
+            const subFreq = 42 + t * 44;
+            const detuneFreq = 44 + t * 46;
+            const midFreq = 110 + t * 90;
 
             engineSubOsc.frequency.setTargetAtTime(subFreq, now, 0.08);
             engineDetuneOsc.frequency.setTargetAtTime(detuneFreq, now, 0.08);
             engineMidOsc.frequency.setTargetAtTime(midFreq, now, 0.08);
 
-            // 2. Smooth Mid-High Turbine Whine (Sweeps dynamically 280 Hz -> 720 Hz & 480 Hz -> 1,150 Hz)
+            // 2. Turbine & Whine (Tamed pitch scaling: 240 Hz -> 520 Hz)
             if (engineTurbineOsc && engineTurbineFilter && engineTurbineGain) {
-                const turbinePitch = 280 + t * 440;  // 280 Hz (Idle) -> 720 Hz (Max Thrust)
-                const turbineCutoff = 360 + t * 560; // 360 Hz -> 920 Hz bandpass filter
-                const turbineGainVal = 0.20 + t * 0.22;
+                const turbinePitch = 240 + t * 280;
+                const turbineCutoff = 320 + t * 380;
+                const turbineGainVal = 0.08 + t * 0.12;
 
                 engineTurbineOsc.frequency.setTargetAtTime(turbinePitch, now, 0.08);
                 engineTurbineFilter.frequency.setTargetAtTime(turbineCutoff, now, 0.08);
@@ -3330,26 +3355,32 @@
             }
 
             if (engineWhineOsc && engineWhineGain) {
-                const whinePitch = 480 + t * 670; // 480 Hz (Idle) -> 1,150 Hz (Max Thrust)
-                const whineGainVal = 0.12 + t * 0.18;
+                const whinePitch = 380 + t * 420;
+                const whineGainVal = 0.06 + t * 0.10;
                 engineWhineOsc.frequency.setTargetAtTime(whinePitch, now, 0.08);
                 engineWhineGain.gain.setTargetAtTime(whineGainVal, now, 0.08);
             }
 
-            // 3. Brownian Plasma Exhaust Noise Gain (0.18 Idle -> 0.55 Full Thrust)
+            // 3. Brownian Exhaust Noise (0.20 Idle -> 0.65 Full Thrust)
             if (engineNoiseGain) {
-                const noiseTarget = 0.18 + t * 0.37;
+                const noiseTarget = 0.20 + t * 0.45;
                 engineNoiseGain.gain.setTargetAtTime(noiseTarget, now, 0.08);
             }
 
-            // 4. Cockpit Muffling Low-Pass Filter (Tuned smoothly to 240 Hz -> 820 Hz)
-            const cutoffBase = isCockpitView ? 240 : 420;
-            const cutoffMax = isCockpitView ? 820 : 1600;
+            // 4. Crisp High-Frequency Plasma Static Crackle (0.12 Idle -> 0.68 Full Thrust Static Sizzle!)
+            if (engineStaticGain) {
+                const staticTarget = 0.12 + t * 0.56;
+                engineStaticGain.gain.setTargetAtTime(staticTarget, now, 0.08);
+            }
+
+            // 5. Cockpit Muffling Filter (280 Hz -> 1,200 Hz)
+            const cutoffBase = isCockpitView ? 280 : 550;
+            const cutoffMax = isCockpitView ? 1200 : 2600;
             const targetCutoff = cutoffBase + t * (cutoffMax - cutoffBase);
 
             engineLowPassFilter.frequency.setTargetAtTime(targetCutoff, now, 0.1);
 
-            // 5. Master Volume Scaling (0.02 = 2% Idle -> 0.50 = 50% Full Throttle)
+            // 6. Master Volume Scaling (0.02 = 2% Idle -> 0.50 = 50% Full Throttle)
             const targetGain = 0.02 + t * 0.48;
             engineMasterGain.gain.setTargetAtTime(targetGain, now, 0.1);
         }
