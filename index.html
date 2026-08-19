@@ -2991,21 +2991,48 @@
             if (capitalShip) capitalShip.rotation.y += 0.001;
             if (spacePlanet) spacePlanet.rotation.y += 0.00015;
 
+            // --- ANIMATE ENEMY INTERCEPTORS & TARGET LOCK SELECTION ---
+            let closestEnemy = null;
+            let closestDist = 10500; // TRIPLED TARGET RANGE: 10,500 Units / 10.5 KM!
+            const fwdDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
+
+            enemyShips.forEach(e => {
+                e.rotation.x += 0.015;
+                e.rotation.y += 0.02;
+
+                // Handle Hit Flash Animation
+                if (e.userData && e.userData.flashTimer > 0) {
+                    e.userData.flashTimer--;
+                    e.scale.set(1.15, 1.15, 1.15);
+                } else {
+                    e.scale.set(1.0, 1.0, 1.0);
+                }
+
+                // Target Lock Candidate Check (Tripled Range: 10,500 Units / 10.5 KM)
+                if (e.userData && e.userData.hp > 0 && playerShip) {
+                    const toEnemy = e.position.clone().sub(playerShip.position);
+                    const dist = toEnemy.length();
+                    if (dist < closestDist) {
+                        closestDist = dist;
+                        closestEnemy = e;
+                    }
+                }
+            });
+
             // --- LASER PROJECTILE MOVEMENT, AIM-ASSIST & CONTINUOUS SEGMENT COLLISION ---
             for (let i = laserProjectiles.length - 1; i >= 0; i--) {
                 const laser = laserProjectiles[i];
                 const prevPos = laser.position.clone();
 
-                // Dynamic Aim-Assist: Gently curve active plasma bolts towards closest locked target
-                if (typeof closestEnemy !== 'undefined' && closestEnemy && closestEnemy.userData && closestEnemy.userData.hp > 0) {
+                // Dynamic Aim-Assist (Clean Unit Vector Normalization - Zero NaN Risk)
+                if (closestEnemy && closestEnemy.userData && closestEnemy.userData.hp > 0 && laser.userData.velocity) {
                     const toTarget = closestEnemy.position.clone().sub(laser.position).normalize();
-                    if (laser.userData.velocity) {
-                        const curDir = laser.userData.velocity.clone().normalize();
-                        if (curDir.dot(toTarget) > 0.5) {
-                            curDir.lerp(toTarget, 0.14).normalize();
-                            laser.userData.velocity = curDir.multiplyScalar(laser.userData.velocity.length());
-                            laser.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), curDir);
-                        }
+                    const speed = laser.userData.velocity.length();
+                    const curDir = laser.userData.velocity.clone().normalize();
+                    if (curDir.dot(toTarget) > 0.4) {
+                        const newDir = curDir.lerp(toTarget, 0.12).normalize();
+                        laser.userData.velocity = newDir.clone().multiplyScalar(speed);
+                        laser.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), newDir);
                     }
                 }
 
@@ -3096,34 +3123,6 @@
             }
 
             if (spaceSun) spaceSun.rotation.y += 0.0002;
-
-            // --- ANIMATE ENEMY INTERCEPTORS & TRIPLED TARGET LOCK SELECTION ---
-            let closestEnemy = null;
-            let closestDist = 10500; // TRIPLED TARGET RANGE: 10,500 Units / 10.5 KM!
-            const fwdDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
-
-            enemyShips.forEach(e => {
-                e.rotation.x += 0.015;
-                e.rotation.y += 0.02;
-
-                // Handle Hit Flash Animation
-                if (e.userData && e.userData.flashTimer > 0) {
-                    e.userData.flashTimer--;
-                    e.scale.set(1.15, 1.15, 1.15);
-                } else {
-                    e.scale.set(1.0, 1.0, 1.0);
-                }
-
-                // Target Lock Candidate Check (Tripled Range: 10,500 Units / 10.5 KM)
-                if (e.userData && e.userData.hp > 0 && playerShip) {
-                    const toEnemy = e.position.clone().sub(playerShip.position);
-                    const dist = toEnemy.length();
-                    if (dist < closestDist) {
-                        closestDist = dist;
-                        closestEnemy = e;
-                    }
-                }
-            });
 
             // --- UPDATE DYNAMIC TARGET LOCK HUD CARDS TELEMETRY (TOP CENTER & SIDE) ---
             const tName = document.getElementById('target-name');
@@ -4055,9 +4054,12 @@
             }
 
             // Mouse Drag to Orbit & Scroll Wheel Zoom Listeners
+            const canvasEl = document.getElementById('tactical-map-canvas');
+            const containerEl = document.getElementById('map-canvas-container');
             const modalEl = document.getElementById('tactical-map-modal');
+
             const onMapStart = (e) => {
-                if (e.target.closest('button, .legend-item')) return;
+                if (e.target.closest('button, .legend-item, a')) return;
                 isMapDragging = true;
                 const clientX = e.touches ? e.touches[0].clientX : e.clientX;
                 const clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -4071,29 +4073,34 @@
                 const deltaX = clientX - previousMapMousePosition.x;
                 const deltaY = clientY - previousMapMousePosition.y;
 
-                mapTargetRotationY += deltaX * 0.008;
-                mapTargetRotationX += deltaY * 0.008;
+                mapTargetRotationY += deltaX * 0.012;
+                mapTargetRotationX = Math.min(Math.max(mapTargetRotationX + deltaY * 0.012, -1.2), 1.2);
 
                 previousMapMousePosition = { x: clientX, y: clientY };
             };
 
             const onMapEnd = () => { isMapDragging = false; };
 
-            if (modalEl) {
-                modalEl.addEventListener('mousedown', onMapStart);
-                modalEl.addEventListener('touchstart', onMapStart, { passive: true });
-            }
+            [canvasEl, containerEl, modalEl].forEach(el => {
+                if (el) {
+                    el.addEventListener('mousedown', onMapStart);
+                    el.addEventListener('touchstart', onMapStart, { passive: true });
+                }
+            });
+
             window.addEventListener('mousemove', onMapMove);
             window.addEventListener('touchmove', onMapMove, { passive: true });
             window.addEventListener('mouseup', onMapEnd);
             window.addEventListener('touchend', onMapEnd);
 
-            container.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                mapCamDistance += e.deltaY * 0.08;
-                mapCamDistance = Math.min(Math.max(mapCamDistance, 30), 280);
-                mapTargetCamPos.set(0, mapCamDistance * 0.35, mapCamDistance);
-            }, { passive: false });
+            if (containerEl) {
+                containerEl.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    mapCamDistance += e.deltaY * 0.08;
+                    mapCamDistance = Math.min(Math.max(mapCamDistance, 30), 280);
+                    mapTargetCamPos.set(0, mapCamDistance * 0.35, mapCamDistance);
+                }, { passive: false });
+            }
         }
 
         function resizeTacticalMapCanvas() {
