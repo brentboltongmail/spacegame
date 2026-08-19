@@ -1984,6 +1984,7 @@
             createCapitalShip();
             createWormholeGate();
             spawnEnemySwarm();
+            initLaserPool();
             initTacticalMap3D();
 
             // Event Listeners for Mouse Targeting & Key Controls
@@ -2607,6 +2608,29 @@
             scene.add(wormholeGate);
         }
 
+        // Zero-Allocation Global Helper Vectors (Prevents Garbage Collection Stuttering & Hangs)
+        const _v1 = new THREE.Vector3();
+        const _v2 = new THREE.Vector3();
+        const _v3 = new THREE.Vector3();
+        const _fwdDir = new THREE.Vector3();
+        const _offsetL = new THREE.Vector3();
+        const _offsetR = new THREE.Vector3();
+        const _prevPos = new THREE.Vector3();
+        const _currentPos = new THREE.Vector3();
+        const _toTarget = new THREE.Vector3();
+        const _curDir = new THREE.Vector3();
+
+        function pointToSegmentDistance(p, a, b) {
+            _v1.subVectors(b, a);
+            _v2.subVectors(p, a);
+            const l2 = _v1.lengthSq();
+            if (l2 === 0) return p.distanceTo(a);
+            let t = _v2.dot(_v1) / l2;
+            t = Math.max(0, Math.min(1, t));
+            _v3.copy(a).addScaledVector(_v1, t);
+            return p.distanceTo(_v3);
+        }
+
         // Shared Geometries & Materials for Zero-Allocation Silky Smooth 60 FPS Firing
         const sharedLaserCoreGeo = new THREE.CylinderGeometry(0.18, 0.18, 12, 8);
         sharedLaserCoreGeo.rotateX(Math.PI / 2);
@@ -2619,74 +2643,90 @@
         const sharedLaserTipGeo = new THREE.SphereGeometry(0.55, 8, 8);
         const sharedLaserTipMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
 
-        function createPlasmaBoltMesh() {
-            const boltGroup = new THREE.Group();
+        const laserPool = [];
+        const maxPoolSize = 30;
 
-            // 1. Inner White-Hot Core (Shared Geometry & Material)
-            const coreMesh = new THREE.Mesh(sharedLaserCoreGeo, sharedLaserCoreMat);
-            boltGroup.add(coreMesh);
+        function initLaserPool() {
+            if (laserPool.length > 0) return;
+            for (let i = 0; i < maxPoolSize; i++) {
+                const boltGroup = new THREE.Group();
+                const coreMesh = new THREE.Mesh(sharedLaserCoreGeo, sharedLaserCoreMat);
+                boltGroup.add(coreMesh);
+                const auraMesh = new THREE.Mesh(sharedLaserAuraGeo, sharedLaserAuraMat);
+                boltGroup.add(auraMesh);
+                const tipMesh = new THREE.Mesh(sharedLaserTipGeo, sharedLaserTipMat);
+                tipMesh.position.set(0, 0, -6.2);
+                boltGroup.add(tipMesh);
 
-            // 2. Outer Glowing Neon Plasma Aura Sheath (Shared Geometry & Material)
-            const auraMesh = new THREE.Mesh(sharedLaserAuraGeo, sharedLaserAuraMat);
-            boltGroup.add(auraMesh);
+                boltGroup.visible = false;
+                boltGroup.userData = { active: false, velocity: new THREE.Vector3(), prevPos: new THREE.Vector3() };
+                scene.add(boltGroup);
+                laserPool.push(boltGroup);
+            }
+        }
 
-            // 3. Leading Plasma Tip Energy Cap (Shared Geometry & Material)
-            const tipMesh = new THREE.Mesh(sharedLaserTipGeo, sharedLaserTipMat);
-            tipMesh.position.set(0, 0, -6.2);
-            boltGroup.add(tipMesh);
-
-            return boltGroup;
+        function getPooledLaserBolt() {
+            for (let i = 0; i < laserPool.length; i++) {
+                if (!laserPool[i].userData.active) {
+                    return laserPool[i];
+                }
+            }
+            return null;
         }
 
         let lastFireTime = 0;
 
         function firePlasmaLaser() {
             const nowTime = performance.now();
-            if (nowTime - lastFireTime < 110) return; // 110ms fire cooldown rate-limit (~9 shots/sec max rate)
+            if (nowTime - lastFireTime < 100) return; // 100ms fire cooldown rate-limit (~10 shots/sec max rate)
             lastFireTime = nowTime;
 
-            // Forward vector matching exact ship heading
-            const fwdDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
+            if (!playerShip) return;
 
-            // Wingtip plasma cannon positions transformed by ship orientation
-            const offsetL = new THREE.Vector3(-2.4, -0.1, -2.4).applyQuaternion(playerShip.quaternion);
-            const offsetR = new THREE.Vector3(2.4, -0.1, -2.4).applyQuaternion(playerShip.quaternion);
+            // Reuse pre-allocated helper vectors - ZERO GC allocations!
+            _fwdDir.set(0, 0, -1).applyQuaternion(playerShip.quaternion);
 
-            const posL = playerShip.position.clone().add(offsetL);
-            const posR = playerShip.position.clone().add(offsetR);
+            _offsetL.set(-2.4, -0.1, -2.4).applyQuaternion(playerShip.quaternion);
+            _offsetR.set(2.4, -0.1, -2.4).applyQuaternion(playerShip.quaternion);
 
-            const laserL = createPlasmaBoltMesh();
-            const laserR = createPlasmaBoltMesh();
+            const laserL = getPooledLaserBolt();
+            const laserR = getPooledLaserBolt();
 
-            laserL.quaternion.copy(playerShip.quaternion);
-            laserR.quaternion.copy(playerShip.quaternion);
+            if (laserL) {
+                laserL.visible = true;
+                laserL.userData.active = true;
+                laserL.quaternion.copy(playerShip.quaternion);
+                laserL.position.copy(playerShip.position).add(_offsetL);
+                laserL.userData.prevPos.copy(laserL.position);
+                laserL.userData.velocity.copy(_fwdDir).multiplyScalar(18 + currentSpeed * 0.012);
+                if (!laserProjectiles.includes(laserL)) laserProjectiles.push(laserL);
+            }
 
-            laserL.position.copy(posL);
-            laserR.position.copy(posR);
+            if (laserR) {
+                laserR.visible = true;
+                laserR.userData.active = true;
+                laserR.quaternion.copy(playerShip.quaternion);
+                laserR.position.copy(playerShip.position).add(_offsetR);
+                laserR.userData.prevPos.copy(laserR.position);
+                laserR.userData.velocity.copy(_fwdDir).multiplyScalar(18 + currentSpeed * 0.012);
+                if (!laserProjectiles.includes(laserR)) laserProjectiles.push(laserR);
+            }
 
-            const speedVec = fwdDir.clone().multiplyScalar(18 + currentSpeed * 0.012);
-            laserL.userData.velocity = speedVec;
-            laserR.userData.velocity = speedVec;
-
-            scene.add(laserL);
-            scene.add(laserR);
-            laserProjectiles.push(laserL, laserR);
-
-            // Play Synthesized Twin Plasma Laser Sound Effect (Duration 0.27s, Pitch 792 Hz -> 108 Hz)
-            if (audioCtx && !isAudioMuted) {
+            // Play Synthesized Twin Plasma Laser Sound Effect (Duration 0.22s, Pitch 750 Hz -> 110 Hz)
+            if (audioCtx && audioCtx.state === 'running' && !isAudioMuted) {
                 try {
                     const now = audioCtx.currentTime;
-                    const duration = 0.27;
+                    const duration = 0.22;
                     const lOsc = audioCtx.createOscillator();
                     const lGain = audioCtx.createGain();
                     lOsc.type = 'sawtooth';
-                    lOsc.frequency.setValueAtTime(792, now);
-                    lOsc.frequency.exponentialRampToValueAtTime(108, now + duration);
-                    lGain.gain.setValueAtTime(0.087, now);
-                    lGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+                    lOsc.frequency.setValueAtTime(750, now);
+                    lOsc.frequency.linearRampToValueAtTime(110, now + duration);
+                    lGain.gain.setValueAtTime(0.08, now);
+                    lGain.gain.linearRampToValueAtTime(0.001, now + duration);
                     lOsc.connect(lGain);
                     lGain.connect(audioCtx.destination);
-                    lOsc.start();
+                    lOsc.start(now);
                     lOsc.stop(now + duration);
                 } catch (e) {}
             }
@@ -3019,20 +3059,26 @@
                 }
             });
 
-            // --- LASER PROJECTILE MOVEMENT, AIM-ASSIST & CONTINUOUS SEGMENT COLLISION ---
+            // --- LASER PROJECTILE MOVEMENT & ZERO-ALLOCATION CONTINUOUS SEGMENT COLLISION ---
             for (let i = laserProjectiles.length - 1; i >= 0; i--) {
                 const laser = laserProjectiles[i];
-                const prevPos = laser.position.clone();
+                if (!laser || !laser.userData || !laser.userData.active) {
+                    if (laser) laser.visible = false;
+                    laserProjectiles.splice(i, 1);
+                    continue;
+                }
 
-                // Dynamic Aim-Assist (Clean Unit Vector Normalization - Zero NaN Risk)
+                _prevPos.copy(laser.position);
+
+                // Zero-Allocation Aim Assist
                 if (closestEnemy && closestEnemy.userData && closestEnemy.userData.hp > 0 && laser.userData.velocity) {
-                    const toTarget = closestEnemy.position.clone().sub(laser.position).normalize();
+                    _toTarget.subVectors(closestEnemy.position, laser.position).normalize();
                     const speed = laser.userData.velocity.length();
-                    const curDir = laser.userData.velocity.clone().normalize();
-                    if (curDir.dot(toTarget) > 0.4) {
-                        const newDir = curDir.lerp(toTarget, 0.12).normalize();
-                        laser.userData.velocity = newDir.clone().multiplyScalar(speed);
-                        laser.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), newDir);
+                    _curDir.copy(laser.userData.velocity).normalize();
+                    if (_curDir.dot(_toTarget) > 0.4) {
+                        _curDir.lerp(_toTarget, 0.12).normalize();
+                        laser.userData.velocity.copy(_curDir).multiplyScalar(speed);
+                        laser.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), _curDir);
                     }
                 }
 
@@ -3042,39 +3088,34 @@
                     laser.translateZ(-6);
                 }
 
-                const currentPos = laser.position.clone();
+                _currentPos.copy(laser.position);
 
-                // Collision Detection against Enemy Interceptors using Continuous Line-Segment Distance
+                // Zero-Allocation Line-Segment Distance Check
                 let hitEnemy = false;
                 for (let j = enemyShips.length - 1; j >= 0; j--) {
                     const enemy = enemyShips[j];
                     if (!enemy.userData || enemy.userData.hp <= 0) continue;
 
-                    // Continuous Line-Segment Distance Check!
-                    const segDist = pointToSegmentDistance(enemy.position, prevPos, currentPos);
-                    if (segDist < 42) { // Guaranteed Hit Collision!
+                    const segDist = pointToSegmentDistance(enemy.position, _prevPos, _currentPos);
+                    if (segDist < 42) {
                         hitEnemy = true;
-                        spawnLaserImpactSparks(currentPos);
+                        spawnLaserImpactSparks(_currentPos);
                         playLaserImpactAudio();
 
-                        // Flash enemy red/white
                         enemy.userData.flashTimer = 5;
-                        enemy.userData.hp -= 25; // 4 hits to destroy!
+                        enemy.userData.hp -= 25;
 
                         if (enemy.userData.hp <= 0) {
-                            // ENEMY DESTROYED! Trigger Fiery Explosion
                             createFieryExplosionFX(enemy.position);
                             scene.remove(enemy);
                             enemyShips.splice(j, 1);
 
-                            // Award Starcrafts (+500 SC)
                             if (currentPilotProfile) {
                                 currentPilotProfile.starcrafts = (currentPilotProfile.starcrafts || 0) + 500;
                                 updateProfileUI(currentPilotProfile);
                             }
                             showToast("💥 TARGET DESTROYED! +500 SC AWARDED!");
 
-                            // Auto-respawn replacement enemy fighter after 4 seconds
                             setTimeout(() => {
                                 if (enemyShips.length < 8 && playerShip) {
                                     const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
@@ -3094,7 +3135,8 @@
                 }
 
                 if (hitEnemy || laser.position.distanceTo(playerShip.position) > 10500) {
-                    scene.remove(laser);
+                    laser.visible = false;
+                    laser.userData.active = false;
                     laserProjectiles.splice(i, 1);
                 }
             }
