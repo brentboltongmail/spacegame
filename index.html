@@ -3380,8 +3380,8 @@
 
             engineLowPassFilter.frequency.setTargetAtTime(targetCutoff, now, 0.1);
 
-            // 6. Master Volume Scaling (0.02 = 2% Idle -> 0.50 = 50% Full Throttle)
-            const targetGain = 0.02 + t * 0.48;
+            // 6. Master Volume Scaling (0.02 = 2% Idle -> 0.40 = 40% Full Throttle)
+            const targetGain = 0.02 + t * 0.38;
             engineMasterGain.gain.setTargetAtTime(targetGain, now, 0.1);
         }
 
