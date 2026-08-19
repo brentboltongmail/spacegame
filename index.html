@@ -802,11 +802,10 @@
                         </div>
                         <div style="display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: center; font-size: 0.85rem;">
                             <div><kbd>MOUSE</kbd></div> <div style="color: var(--accent-cyan); font-weight: 600;">Crosshair Targeter Pitch & Yaw</div>
-                            <div><kbd>A</kbd></div> <div style="color: #e2e8f0;">Faster (Accelerate while holding)</div>
-                            <div><kbd>S</kbd></div> <div style="color: #e2e8f0;">Slower (Decelerate while holding)</div>
-                            <div><kbd>Q</kbd> <kbd>E</kbd></div> <div style="color: #e2e8f0;">Roll Banking (Left / Right)</div>
+                            <div><kbd>W</kbd></div> <div style="color: #e2e8f0;">Faster (Accelerate while holding W)</div>
+                            <div><kbd>S</kbd></div> <div style="color: #e2e8f0;">Slower (Decelerate while holding S)</div>
                             <div><kbd>C</kbd></div> <div style="color: var(--accent-gold); font-weight: 600;">Camera View (Cockpit / Close / Far / Cinematic Invincible)</div>
-                            <div><kbd>SPACE</kbd></div> <div style="color: var(--accent-gold); font-weight: 600;">Fire Plasma Blasters</div>
+                            <div><kbd>LEFT CLICK</kbd> / <kbd>SPACE</kbd></div> <div style="color: var(--accent-gold); font-weight: 600;">Fire Plasma Blasters</div>
                         </div>
                     </div>
 
@@ -1369,6 +1368,14 @@
                 }
             });
 
+            container.addEventListener('mousedown', (e) => {
+                if (e.button === 0) { // Left Click weapon fire
+                    if (!e.target.closest('.hud-card') && !e.target.closest('.hud-action-bar') && !e.target.closest('.nav-item')) {
+                        firePlasmaLaser();
+                    }
+                }
+            });
+
             window.addEventListener('keydown', (e) => {
                 if (keys.hasOwnProperty(e.code)) keys[e.code] = true;
                 if (e.code === 'Space') firePlasmaLaser();
@@ -1909,13 +1916,13 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            // --- A / S Throttle Speed Controls (A = Accelerate, S = Decelerate, 3x Slower) ---
-            const accelRate = 0.44; // 3x slower acceleration step rate (from 1.32)
+            // --- W / S Throttle Speed Controls (W = Accelerate, S = Decelerate) ---
+            const accelRate = 0.44; // Smooth acceleration step rate
             const maxSpeedCap = 200;
 
-            if (keys.KeyA) targetSpeed = Math.min(targetSpeed + accelRate, maxSpeedCap);
+            if (keys.KeyW) targetSpeed = Math.min(targetSpeed + accelRate, maxSpeedCap);
             if (keys.KeyS) targetSpeed = Math.max(targetSpeed - accelRate, 0);
-            currentSpeed += (targetSpeed - currentSpeed) * 0.011; // 3x smoother acceleration lerp
+            currentSpeed += (targetSpeed - currentSpeed) * 0.011; // Smooth acceleration lerp
 
             const postedSpeed = Math.round(currentSpeed * 10.725); // Posted speed scaled 10x (max 2,145 km/h matching concept art HUD)
             document.getElementById('hud-speed').innerText = `SPEED: ${postedSpeed.toLocaleString()} km/h ${currentSpeed > 160 ? '[MAX THROTTLE]' : ''}`;
@@ -1934,13 +1941,6 @@
             // Allows full 360° loop-de-loops over the top without any view snapping or gimbal flips!
             playerShip.rotateX(mouseYEff * turnRate);
             playerShip.rotateY(-mouseXEff * turnRate);
-
-            // --- Roll Banking Controls (Q / E / D) ---
-            if (keys.KeyQ) {
-                playerShip.rotateZ(0.04);
-            } else if (keys.KeyE || keys.KeyD) {
-                playerShip.rotateZ(-0.04);
-            }
 
             // Move ship forward (Physical 3D world movement 60% slower)
             const moveDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
