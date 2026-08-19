@@ -35,11 +35,11 @@
     },
     "title-card-4": {
       "x": -3,
-      "y": 136
+      "y": 272
     },
     "drag-core-gameplay-mechanics-matrix": {
       "x": 3,
-      "y": 63
+      "y": 199
     },
     "hud-action-bar-card": {
       "x": -615,
@@ -59,51 +59,51 @@
     },
     "title-card-0": {
       "x": 0,
-      "y": 136
+      "y": 272
     },
     "title-card-1": {
       "x": 0,
-      "y": 136
+      "y": 272
     },
     "title-card-2": {
       "x": 0,
-      "y": 136
+      "y": 272
     },
     "title-card-3": {
       "x": 0,
-      "y": 136
+      "y": 272
     },
     "title-card-5": {
       "x": 0,
-      "y": 136
+      "y": 272
     },
     "drag-prologue-sol-system-the-crest": {
       "x": 0,
-      "y": 136
+      "y": 272
     },
     "drag-uncharted-galaxy-mercenary-warfare": {
       "x": 0,
-      "y": 136
+      "y": 272
     },
     "drag-reclaiming-the-throne-of-aethelgard": {
       "x": 0,
-      "y": 136
+      "y": 272
     },
     "drag-key-factions": {
       "x": 0,
-      "y": 136
+      "y": 272
     },
     "drag-void-interceptor": {
       "x": 0,
-      "y": 136
+      "y": 272
     },
     "drag-heavy-strike-corvette": {
       "x": 0,
-      "y": 136
+      "y": 272
     },
     "drag-aethelgard-royal-battlecruiser": {
       "x": 0,
-      "y": 136
+      "y": 272
     }
   },
   "settings": {
