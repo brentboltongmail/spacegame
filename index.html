@@ -2648,36 +2648,37 @@
             });
 
             // 1. Extended Sleek Forward Stealth Nose Cone & Sensor Probe
-            const noseGeo = new THREE.ConeGeometry(0.75, 5.6, 4);
-            noseGeo.rotateX(-Math.PI / 2); // Rotates sharp tip FORWARD towards -Z!
+            // Nose extended and made blunter (less pointed) by using a cylinder instead of a cone
+            const noseGeo = new THREE.CylinderGeometry(0.15, 0.85, 6.8, 4);
+            noseGeo.rotateX(-Math.PI / 2); // Rotates blunt tip FORWARD towards -Z!
             noseGeo.rotateZ(Math.PI / 4);  // Diamond stealth cross section
             const nose = new THREE.Mesh(noseGeo, darkArmorMat);
-            nose.position.set(0, -0.05, -2.4);
+            nose.position.set(0, -0.05, -2.8);
             playerShip.add(nose);
 
             // Upper Tapered Armor Cowl (Stealth Chine Nose Plate)
-            const upperNoseGeo = new THREE.ConeGeometry(0.55, 3.4, 4);
+            const upperNoseGeo = new THREE.CylinderGeometry(0.08, 0.6, 4.4, 4);
             upperNoseGeo.rotateX(-Math.PI / 2); // Tip facing forward
             upperNoseGeo.rotateZ(Math.PI / 4);
             const upperNose = new THREE.Mesh(upperNoseGeo, silverPlateMat);
-            upperNose.position.set(0, 0.12, -2.5);
+            upperNose.position.set(0, 0.12, -2.8);
             playerShip.add(upperNose);
 
             // Detailed Tiered Gold Nose Ridge Trim Line
-            const noseGoldGeo = new THREE.BoxGeometry(0.10, 0.14, 2.6);
+            const noseGoldGeo = new THREE.BoxGeometry(0.10, 0.14, 3.2);
             const noseGold = new THREE.Mesh(noseGoldGeo, goldTrimMat);
-            noseGold.position.set(0, 0.28, -2.6);
+            noseGold.position.set(0, 0.28, -2.8);
             playerShip.add(noseGold);
 
-            const noseGoldRidge = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.16, 2.4), goldTrimMat);
-            noseGoldRidge.position.set(0, 0.30, -2.6);
+            const noseGoldRidge = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.16, 3.0), goldTrimMat);
+            noseGoldRidge.position.set(0, 0.30, -2.8);
             playerShip.add(noseGoldRidge);
 
-            // Forward Luminescent Sensor Needle Probe (Extended sleek sensor)
-            const probeGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.8, 8);
+            // Forward Luminescent Sensor Needle Probe (Shortened)
+            const probeGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.6, 8);
             probeGeo.rotateX(Math.PI / 2);
             const probe = new THREE.Mesh(probeGeo, cyanGlowMat);
-            probe.position.set(0, -0.05, -5.7);
+            probe.position.set(0, -0.05, -6.5);
             playerShip.add(probe);
 
             // Ventral Air Scoop Intake with Gold Accent Bezel
