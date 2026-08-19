@@ -2069,6 +2069,7 @@
         // --- 3D THREE.JS SPACE FLIGHT SIMULATOR (MOUSE TARGETING & SPEED) ---
         let scene, camera, renderer;
         let playerShip, capitalShip, wormholeGate, starfield, spacePlanet, spaceSun;
+        let dreadOrbitAngle = 0.5; // Orbit angle around spacePlanet
         let enemyShips = [];
         let laserProjectiles = [];
         let targetSpeed = 0;
@@ -2895,23 +2896,23 @@
 
             const dreadHullTex = textureLoader.load('docs/images/dreadnought_hull_texture.jpg');
             dreadHullTex.wrapS = THREE.RepeatWrapping; dreadHullTex.wrapT = THREE.RepeatWrapping;
-            dreadHullTex.repeat.set(8, 8);
+            dreadHullTex.repeat.set(16, 16);
 
             const dreadGreebleTex = textureLoader.load('docs/images/dreadnought_greeble_texture.jpg');
             dreadGreebleTex.wrapS = THREE.RepeatWrapping; dreadGreebleTex.wrapT = THREE.RepeatWrapping;
-            dreadGreebleTex.repeat.set(4, 4);
+            dreadGreebleTex.repeat.set(8, 8);
 
             const dreadDarkMetalTex = textureLoader.load('docs/images/dreadnought_dark_metal_texture.jpg');
             dreadDarkMetalTex.wrapS = THREE.RepeatWrapping; dreadDarkMetalTex.wrapT = THREE.RepeatWrapping;
-            dreadDarkMetalTex.repeat.set(8, 8);
+            dreadDarkMetalTex.repeat.set(16, 16);
 
             const dreadGoldTrimTex = textureLoader.load('docs/images/dreadnought_gold_trim_texture.jpg');
             dreadGoldTrimTex.wrapS = THREE.RepeatWrapping; dreadGoldTrimTex.wrapT = THREE.RepeatWrapping;
-            dreadGoldTrimTex.repeat.set(3, 3);
+            dreadGoldTrimTex.repeat.set(6, 6);
 
             const dreadHangarFloorTex = textureLoader.load('docs/images/dreadnought_hangar_floor_texture.jpg');
             dreadHangarFloorTex.wrapS = THREE.RepeatWrapping; dreadHangarFloorTex.wrapT = THREE.RepeatWrapping;
-            dreadHangarFloorTex.repeat.set(2, 6);
+            dreadHangarFloorTex.repeat.set(4, 12);
 
             const dreadCrystalTex = textureLoader.load('docs/images/dreadnought_crystal_texture.jpg');
 
@@ -3220,7 +3221,7 @@
             capitalShip.userData.crystalRings = [ring1, ring2];
 
             // Dynamic Blue Crystal Point Light
-            const crystalLight = new THREE.PointLight(0x00f0ff, 4.5, 90);
+            const crystalLight = new THREE.PointLight(0x00f0ff, 5.0, 270);
             crystalLight.position.set(0, 0, 0);
             crystalBay.add(crystalLight);
             capitalShip.userData.crystalLight = crystalLight;
@@ -3526,8 +3527,8 @@
                 });
             });
 
-            // Dynamic Rear Engine Point Light
-            const rearEngineLight = new THREE.PointLight(0x00f0ff, 6.0, 160);
+            // Dynamic Rear Engine Point Light (10% cruising power glow)
+            const rearEngineLight = new THREE.PointLight(0x00f0ff, 4.5, 450);
             rearEngineLight.position.set(0, 0, 30);
             engineGroup.add(rearEngineLight);
 
@@ -3535,28 +3536,43 @@
 
             // --- ROUND 9: NAVIGATION BEACONS & LIGHTING ---
             // Red Port Beacon Light
-            const portBeacon = new THREE.PointLight(0xff3b5c, 2.5, 40);
+            const portBeacon = new THREE.PointLight(0xff3b5c, 3.5, 120);
             portBeacon.position.set(-56, 14, 130);
-            portBeacon.userData = { baseIntensity: 2.5 };
+            portBeacon.userData = { baseIntensity: 3.5 };
             capitalShip.add(portBeacon);
             capitalShip.userData.beacons.push(portBeacon);
 
             // Green Starboard Beacon Light
-            const stbdBeacon = new THREE.PointLight(0x10b981, 2.5, 40);
+            const stbdBeacon = new THREE.PointLight(0x10b981, 3.5, 120);
             stbdBeacon.position.set(56, 14, 130);
-            stbdBeacon.userData = { baseIntensity: 2.5 };
+            stbdBeacon.userData = { baseIntensity: 3.5 };
             capitalShip.add(stbdBeacon);
             capitalShip.userData.beacons.push(stbdBeacon);
 
             // Top Spire Strobe Light (White)
-            const spireBeacon = new THREE.PointLight(0xffffff, 3.0, 50);
+            const spireBeacon = new THREE.PointLight(0xffffff, 4.0, 150);
             spireBeacon.position.set(0, 102, -65);
-            spireBeacon.userData = { baseIntensity: 3.0 };
+            spireBeacon.userData = { baseIntensity: 4.0 };
             capitalShip.add(spireBeacon);
             capitalShip.userData.beacons.push(spireBeacon);
 
-            // Final Placement in Scene
-            capitalShip.position.set(250, 40, -400);
+            // Triple the physical scale of the Dreadnought Flagship
+            capitalShip.scale.set(3, 3, 3);
+
+            // Initial Placement in Orbit around Space Planet
+            if (spacePlanet) {
+                const orbitRadius = 11200;
+                const orbitInclination = 0.26;
+                const cosA = Math.cos(dreadOrbitAngle);
+                const sinA = Math.sin(dreadOrbitAngle);
+                capitalShip.position.set(
+                    spacePlanet.position.x + orbitRadius * cosA,
+                    spacePlanet.position.y + orbitRadius * sinA * Math.sin(orbitInclination),
+                    spacePlanet.position.z + orbitRadius * sinA * Math.cos(orbitInclination)
+                );
+            } else {
+                capitalShip.position.set(250, 40, -400);
+            }
             scene.add(capitalShip);
         }
 
@@ -3962,12 +3978,17 @@
         }
 
         function approachCapitalShip() {
-            playerShip.position.copy(capitalShip.position).add(new THREE.Vector3(0, 30, 150));
+            if (!capitalShip) return;
+            const backwardOffset = new THREE.Vector3(0, 120, 600).applyQuaternion(capitalShip.quaternion);
+            playerShip.position.copy(capitalShip.position).add(backwardOffset);
+            playerShip.quaternion.copy(capitalShip.quaternion);
+            targetSpeed = 100;
+            currentSpeed = 100;
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
-            if (sec) sec.innerText = "AETHELGARD CAPITAL FLEET";
-            if (obj) obj.innerText = "Escort Dreadnought Flagship";
-            showToast("Approaching Sovereign Royal Flagship!");
+            if (sec) sec.innerText = "AETHELGARD PLANETARY ORBIT";
+            if (obj) obj.innerText = "Escort Sovereign Dreadnought in Planetary Orbit";
+            showToast("Approaching Sovereign Royal Flagship in Planetary Orbit!");
         }
 
         function resetSimView() {
@@ -4081,8 +4102,39 @@
             camera.lookAt(targetLookAtPos);
 
             if (capitalShip) {
-                capitalShip.rotation.y += 0.0004;
                 const timeSec = Date.now() * 0.001;
+
+                // --- DREADNOUGHT PLANETARY ORBITAL FLIGHT PHYSICS ---
+                if (spacePlanet) {
+                    dreadOrbitAngle += 0.00028; // Continuous smooth orbital cruising speed
+                    const orbitRadius = 11200; // Low-to-mid orbit above atmospheric rim (9,160) & within ring system
+                    const orbitInclination = 0.26; // ~15° orbital plane inclination
+
+                    const cosA = Math.cos(dreadOrbitAngle);
+                    const sinA = Math.sin(dreadOrbitAngle);
+
+                    const relX = orbitRadius * cosA;
+                    const relY = orbitRadius * sinA * Math.sin(orbitInclination);
+                    const relZ = orbitRadius * sinA * Math.cos(orbitInclination);
+
+                    capitalShip.position.set(
+                        spacePlanet.position.x + relX,
+                        spacePlanet.position.y + relY,
+                        spacePlanet.position.z + relZ
+                    );
+
+                    // Direction of forward orbital velocity (tangent vector along the orbit)
+                    const tangentDir = new THREE.Vector3(
+                        -sinA,
+                        cosA * Math.sin(orbitInclination),
+                        cosA * Math.cos(orbitInclination)
+                    ).normalize();
+
+                    const lookTarget = capitalShip.position.clone().add(tangentDir);
+                    const upVector = new THREE.Vector3(relX, relY + 2000, relZ).normalize();
+                    capitalShip.up.copy(upVector);
+                    capitalShip.lookAt(lookTarget);
+                }
 
                 if (capitalShip.userData) {
                     // Animate Crystal Core & Rings
@@ -4096,7 +4148,7 @@
                         });
                     }
                     if (capitalShip.userData.crystalLight) {
-                        capitalShip.userData.crystalLight.intensity = 3.5 + Math.sin(timeSec * 4) * 1.5;
+                        capitalShip.userData.crystalLight.intensity = 4.0 + Math.sin(timeSec * 4) * 1.5;
                     }
 
                     // Animate Radar Dish Assembly
@@ -4124,7 +4176,7 @@
                         });
                     }
 
-                    // Animate Dreadnought Engine Exhaust Particles
+                    // Animate Dreadnought 10% Cruise Engine Exhaust Plumes
                     if (capitalShip.userData.engineEmitters) {
                         if (!capitalShip.userData.particles) capitalShip.userData.particles = [];
                         
@@ -4133,26 +4185,28 @@
                         // Spawn new particles (skip spawning if cameraMode is 0/cockpit for performance)
                         if (cameraMode !== 0) {
                             capitalShip.userData.engineEmitters.forEach(em => {
-                                for(let i = 0; i < 2; i++) { // 2 particles per emitter per frame
-                                    const pGeo = new THREE.SphereGeometry(Math.random() * 2 + 1, 6, 6);
+                                for(let i = 0; i < 1; i++) { // Steady 10% cruising thruster stream
+                                    const pGeo = new THREE.SphereGeometry(Math.random() * 2.5 + 2.0, 6, 6);
                                     const pMat = new THREE.MeshBasicMaterial({
-                                        color: 0x00f0ff,
+                                        color: 0x38bdf8,
                                         transparent: true,
-                                        opacity: 0.8
+                                        opacity: 0.55
                                     });
                                     const p = new THREE.Mesh(pGeo, pMat);
                                     
+                                    // Scale local emitter position by 3x capital ship size
                                     const localPos = new THREE.Vector3(
-                                        em.x + (Math.random()-0.5) * em.r * 1.5,
-                                        em.y + (Math.random()-0.5) * em.r * 1.5,
-                                        em.z
+                                        (em.x + (Math.random()-0.5) * em.r * 0.8) * 3,
+                                        (em.y + (Math.random()-0.5) * em.r * 0.8) * 3,
+                                        em.z * 3
                                     );
                                     
                                     p.position.copy(localPos).applyQuaternion(shipQuat).add(capitalShip.position);
                                     p.userData.life = 1.0;
                                     
+                                    // 10% cruise engine drift backwards
                                     const backwardDir = new THREE.Vector3(0, 0, 1).applyQuaternion(shipQuat);
-                                    p.userData.vel = backwardDir.multiplyScalar(Math.random() * 6 + 3);
+                                    p.userData.vel = backwardDir.multiplyScalar(Math.random() * 3.5 + 1.8);
                                     
                                     scene.add(p);
                                     capitalShip.userData.particles.push(p);
@@ -4163,7 +4217,7 @@
                         // Update existing particles
                         for (let i = capitalShip.userData.particles.length - 1; i >= 0; i--) {
                             const p = capitalShip.userData.particles[i];
-                            p.userData.life -= 0.015;
+                            p.userData.life -= 0.016;
                             if (p.userData.life <= 0 || cameraMode === 0) { // Cleanup immediately if in cockpit
                                 scene.remove(p);
                                 p.geometry.dispose();
@@ -4171,9 +4225,9 @@
                                 capitalShip.userData.particles.splice(i, 1);
                             } else {
                                 p.position.add(p.userData.vel);
-                                p.scale.setScalar(p.userData.life * 2.5);
-                                p.material.opacity = p.userData.life * 0.8;
-                                p.material.color.lerp(new THREE.Color(0x002288), 0.05); // Fade to deep blue
+                                p.scale.setScalar(p.userData.life * 3.5);
+                                p.material.opacity = p.userData.life * 0.55;
+                                p.material.color.lerp(new THREE.Color(0x0284c7), 0.04); // Smooth oceanic blue fade
                             }
                         }
                     }
@@ -5281,7 +5335,7 @@
             mapGroup.add(mapGateMesh);
 
             // 5. Royal Capital Dreadnought Flagship
-            const dreadIconGeo = new THREE.BoxGeometry(4.5, 2.2, 10);
+            const dreadIconGeo = new THREE.BoxGeometry(8.5, 3.8, 18);
             const dreadIconMat = new THREE.MeshBasicMaterial({ color: 0xa855f7 });
             mapDreadMesh = new THREE.Mesh(dreadIconGeo, dreadIconMat);
             mapDreadMesh.position.set(28, 4, -42);
