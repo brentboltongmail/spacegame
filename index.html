@@ -2281,12 +2281,12 @@
             }
 
             // --- W / S Throttle Speed Controls (W = Accelerate, S = Decelerate) ---
-            const accelRate = 0.44; // Smooth acceleration step rate
+            const accelRate = 0.22; // Cut in half for smooth, heavy-fighter momentum acceleration
             const maxSpeedCap = 200;
 
             if (keys.KeyW) targetSpeed = Math.min(targetSpeed + accelRate, maxSpeedCap);
             if (keys.KeyS) targetSpeed = Math.max(targetSpeed - accelRate, 0);
-            currentSpeed += (targetSpeed - currentSpeed) * 0.011; // Smooth acceleration lerp
+            currentSpeed += (targetSpeed - currentSpeed) * 0.0055; // Cut in half for gradual speed transition lerp
 
             const postedSpeed = Math.round(currentSpeed * 10.725); // Posted speed scaled 10x (max 2,145 km/h matching concept art HUD)
             document.getElementById('hud-speed').innerText = `SPEED: ${postedSpeed.toLocaleString()} km/h ${currentSpeed > 160 ? '[MAX THROTTLE]' : ''}`;
