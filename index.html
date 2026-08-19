@@ -5613,11 +5613,11 @@
             }
 
             // Outer system grid (Spread out lines: 40 divisions instead of 160)
-            const gridLarge = createVolumetricGrid(8000, 40, 0x005577);
+            const gridLarge = createVolumetricGrid(8000, 40, 0xffffff);
             mapGridGroup.add(gridLarge);
 
             // Inner detailed grid (Spread out lines: 10 divisions instead of 80)
-            const gridSmall = createVolumetricGrid(400, 10, 0x00f0ff);
+            const gridSmall = createVolumetricGrid(400, 10, 0xffffff);
             mapGridGroup.add(gridSmall);
 
             [25, 50, 75, 100].forEach(r => {
