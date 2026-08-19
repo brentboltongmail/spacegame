@@ -5586,29 +5586,38 @@
             // 3D Volumetric Holographic System Grid & Range Rings
             mapGridGroup = new THREE.Group();
             
-            function createVolumetricGrid(size, divisions, color1, color2) {
-                const group = new THREE.Group();
-                const xz = new THREE.GridHelper(size, divisions, color1, color2);
-                const xy = new THREE.GridHelper(size, divisions, color1, color2);
-                xy.rotation.x = Math.PI / 2;
-                const yz = new THREE.GridHelper(size, divisions, color1, color2);
-                yz.rotation.z = Math.PI / 2;
-                
-                // Thin and 50% transparent lines
-                [xz, xy, yz].forEach(g => {
-                    g.material.transparent = true;
-                    g.material.opacity = 0.5;
-                    g.material.linewidth = 1; // 1 is standard minimum WebGL thickness
+            function createVolumetricGrid(size, divisions, colorHex) {
+                const step = size / divisions;
+                const half = size / 2;
+                const vertices = [];
+                for (let i = 0; i <= divisions; i++) {
+                    const a = -half + i * step;
+                    for (let j = 0; j <= divisions; j++) {
+                        const b = -half + j * step;
+                        // X-axis lines
+                        vertices.push(-half, a, b, half, a, b);
+                        // Y-axis lines
+                        vertices.push(a, -half, b, a, half, b);
+                        // Z-axis lines
+                        vertices.push(a, b, -half, a, b, half);
+                    }
+                }
+                const geo = new THREE.BufferGeometry();
+                geo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+                const mat = new THREE.LineBasicMaterial({ 
+                    color: colorHex, 
+                    transparent: true, 
+                    opacity: 0.5
                 });
-                
-                group.add(xz, xy, yz);
-                return group;
+                return new THREE.LineSegments(geo, mat);
             }
 
-            const gridLarge = createVolumetricGrid(8000, 160, 0x005577, 0x0f172a); // Outer system grid
+            // Outer system grid (Spread out lines: 40 divisions instead of 160)
+            const gridLarge = createVolumetricGrid(8000, 40, 0x005577);
             mapGridGroup.add(gridLarge);
 
-            const gridSmall = createVolumetricGrid(400, 80, 0x00f0ff, 0x1e293b); // Inner detailed grid
+            // Inner detailed grid (Spread out lines: 10 divisions instead of 80)
+            const gridSmall = createVolumetricGrid(400, 10, 0x00f0ff);
             mapGridGroup.add(gridSmall);
 
             [25, 50, 75, 100].forEach(r => {
