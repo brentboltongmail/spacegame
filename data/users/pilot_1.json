@@ -26,8 +26,8 @@
       "y": 81
     },
     "hud-throttle-card": {
-      "x": -36,
-      "y": 85
+      "x": -30,
+      "y": 82
     },
     "box-6": {
       "x": 32,
@@ -44,6 +44,10 @@
     "hud-action-bar-card": {
       "x": 433,
       "y": 14
+    },
+    "hud-controls-card": {
+      "x": 0,
+      "y": 0
     }
   },
   "settings": {

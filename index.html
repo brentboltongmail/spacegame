@@ -3098,13 +3098,15 @@
             showToast(`✨ UPGRADED ${mod.name.toUpperCase()} TO LEVEL ${mod.level}!`);
         }
 
-        // --- COCKPIT SPACECRAFT ENGINE AUDIO SYNTHESIZER (WEB AUDIO API) ---
+        // --- COCKPIT SPACECRAFT ENGINE AUDIO SYNTHESIZER (CINEMATIC HEAVY ROCKET) ---
         let audioCtx = null;
         let engineMasterGain = null;
         let engineLowPassFilter = null;
+        let hullResonanceFilter = null;
         let engineSubOsc = null;
         let engineMidOsc = null;
         let engineNoiseNode = null;
+        let engineNoiseGain = null;
         let isAudioInitialized = false;
         let isAudioMuted = false;
 
@@ -3130,74 +3132,88 @@
             if (isAudioInitialized) return;
 
             try {
-                // Master Gain (Boosted to 0.70 for loud & clear Realtek speaker playback)
-                engineMasterGain = audioCtx.createGain();
-                engineMasterGain.gain.setValueAtTime(isAudioMuted ? 0 : 0.70, audioCtx.currentTime);
+                const now = audioCtx.currentTime;
 
-                // Acoustic Muffling Biquad Low-Pass Filter (Simulates Cockpit Armor Soundproofing)
+                // 1. Master Gain Control
+                engineMasterGain = audioCtx.createGain();
+                engineMasterGain.gain.setValueAtTime(isAudioMuted ? 0 : 0.65, now);
+
+                // 2. Cockpit Hull Armor Acoustic Muffling Low-Pass Filter (120 Hz -> 480 Hz)
                 engineLowPassFilter = audioCtx.createBiquadFilter();
                 engineLowPassFilter.type = 'lowpass';
-                engineLowPassFilter.frequency.setValueAtTime(360, audioCtx.currentTime);
-                engineLowPassFilter.Q.setValueAtTime(2.5, audioCtx.currentTime);
+                engineLowPassFilter.frequency.setValueAtTime(140, now);
+                engineLowPassFilter.Q.setValueAtTime(1.8, now);
 
-                // Sub-Bass Engine Rumble Oscillator (Sawtooth)
+                // 3. Cockpit Frame Acoustic Resonator (Peaking filter @ 75 Hz simulating hull vibration)
+                hullResonanceFilter = audioCtx.createBiquadFilter();
+                hullResonanceFilter.type = 'peaking';
+                hullResonanceFilter.frequency.setValueAtTime(75, now);
+                hullResonanceFilter.Q.setValueAtTime(3.2, now);
+                hullResonanceFilter.gain.setValueAtTime(6.0, now);
+
+                // 4. Sub-Bass Thruster Engine Oscillator (Deep Sine Wave @ 32 Hz)
                 engineSubOsc = audioCtx.createOscillator();
-                engineSubOsc.type = 'sawtooth';
-                engineSubOsc.frequency.setValueAtTime(65, audioCtx.currentTime);
+                engineSubOsc.type = 'sine';
+                engineSubOsc.frequency.setValueAtTime(32, now);
 
                 const subGain = audioCtx.createGain();
-                subGain.gain.setValueAtTime(0.70, audioCtx.currentTime);
+                subGain.gain.setValueAtTime(0.85, now);
                 engineSubOsc.connect(subGain);
-                subGain.connect(engineLowPassFilter);
+                subGain.connect(hullResonanceFilter);
 
-                // Mid-Thrust Tone Oscillator (Triangle Wave for Warm Cockpit Thruster Sound)
+                // 5. Mid-Thrust Turbine Harmonics (Warm Triangle Wave @ 64 Hz)
                 engineMidOsc = audioCtx.createOscillator();
                 engineMidOsc.type = 'triangle';
-                engineMidOsc.frequency.setValueAtTime(130, audioCtx.currentTime);
+                engineMidOsc.frequency.setValueAtTime(64, now);
 
                 const midGain = audioCtx.createGain();
-                midGain.gain.setValueAtTime(0.55, audioCtx.currentTime);
+                midGain.gain.setValueAtTime(0.40, now);
                 engineMidOsc.connect(midGain);
-                midGain.connect(engineLowPassFilter);
+                midGain.connect(hullResonanceFilter);
 
-                // Continuous Plasma Exhaust Noise Generator
-                const bufferSize = audioCtx.sampleRate * 2;
+                // 6. Cinematic Brown Noise Generator (Organic Rocket Thrust Turbulence — 0% harsh static!)
+                const bufferSize = audioCtx.sampleRate * 4;
                 const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
                 const output = noiseBuffer.getChannelData(0);
+                let lastOut = 0.0;
                 for (let i = 0; i < bufferSize; i++) {
-                    output[i] = (Math.random() * 2 - 1) * 0.35;
+                    const white = Math.random() * 2 - 1;
+                    output[i] = (lastOut + (0.02 * white)) / 1.02; // Smooth 1/f^2 Brownian noise integration
+                    lastOut = output[i];
+                    output[i] *= 3.5;
                 }
 
                 engineNoiseNode = audioCtx.createBufferSource();
                 engineNoiseNode.buffer = noiseBuffer;
                 engineNoiseNode.loop = true;
 
-                const noiseGain = audioCtx.createGain();
-                noiseGain.gain.setValueAtTime(0.40, audioCtx.currentTime);
-                engineNoiseNode.connect(noiseGain);
-                noiseGain.connect(engineLowPassFilter);
+                engineNoiseGain = audioCtx.createGain();
+                engineNoiseGain.gain.setValueAtTime(0.30, now);
+                engineNoiseNode.connect(engineNoiseGain);
+                engineNoiseGain.connect(hullResonanceFilter);
 
-                // Connect Filter -> Master Gain -> Audio Output
+                // Connect Chain: Resonator -> Cockpit LowPass -> Master -> Audio Out
+                hullResonanceFilter.connect(engineLowPassFilter);
                 engineLowPassFilter.connect(engineMasterGain);
                 engineMasterGain.connect(audioCtx.destination);
 
-                // Start Oscillators
+                // Start Engine Sound Generators
                 engineSubOsc.start();
                 engineMidOsc.start();
                 engineNoiseNode.start();
 
-                // Sci-Fi Power-On Audio Chime Ping (Loud sweep so you hear audio start instantly on Realtek speakers!)
+                // 7. Deep Sci-Fi Power-On Sub Drop (Cinematic low-end chime)
                 const chimeOsc = audioCtx.createOscillator();
                 const chimeGain = audioCtx.createGain();
                 chimeOsc.type = 'sine';
-                chimeOsc.frequency.setValueAtTime(960, audioCtx.currentTime);
-                chimeOsc.frequency.exponentialRampToValueAtTime(480, audioCtx.currentTime + 0.4);
-                chimeGain.gain.setValueAtTime(0.6, audioCtx.currentTime);
-                chimeGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                chimeOsc.frequency.setValueAtTime(180, now);
+                chimeOsc.frequency.exponentialRampToValueAtTime(45, now + 0.5);
+                chimeGain.gain.setValueAtTime(0.5, now);
+                chimeGain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
                 chimeOsc.connect(chimeGain);
                 chimeGain.connect(audioCtx.destination);
                 chimeOsc.start();
-                chimeOsc.stop(audioCtx.currentTime + 0.4);
+                chimeOsc.stop(now + 0.5);
 
                 isAudioInitialized = true;
                 const btn = document.getElementById('btn-audio-toggle');
@@ -3206,7 +3222,7 @@
                     btn.style.borderColor = '#00f0ff';
                     btn.style.color = '#00f0ff';
                 }
-                showToast("🔊 REALTEK AUDIO INITIALIZED & UNLOCKED!");
+                showToast("🔊 CINEMATIC ROCKET ENGINE SYNTHESIZER UNLOCKED!");
             } catch (e) {
                 console.error("Web Audio Engine Setup Error:", e);
             }
@@ -3221,25 +3237,31 @@
             const t = Math.min(Math.max(throttleRatio, 0), 1);
             const now = audioCtx.currentTime;
 
-            // Pitch Frequency Scaling (0% -> 100% Throttle)
-            // Sub-bass hum: 42 Hz (Idle) -> 135 Hz (Max Thrust)
-            const subFreq = 42 + t * 93;
-            const midFreq = 84 + t * 186;
+            // Pitch Frequency Scaling (0% Idle -> 100% Full Thrust)
+            // Deep Sub-bass hum: 32 Hz (Idle) -> 92 Hz (Max Rocket Thrust)
+            const subFreq = 32 + t * 60;
+            const midFreq = 64 + t * 120;
 
             engineSubOsc.frequency.setTargetAtTime(subFreq, now, 0.08);
             engineMidOsc.frequency.setTargetAtTime(midFreq, now, 0.08);
 
-            // Acoustic Muffling Low-Pass Filter Frequency:
-            // Cockpit View (cameraMode === 0): Muffled cockpit armor (180 Hz Idle -> 580 Hz Max)
-            // External View (cameraMode > 0): Raw external plasma roar (450 Hz Idle -> 1600 Hz Max)
-            const cutoffBase = isCockpitView ? 180 : 450;
-            const cutoffMax = isCockpitView ? 580 : 1600;
+            // Brownian Noise Rocket Exhaust Gain (0.15 Idle -> 0.65 Full Thrust)
+            if (engineNoiseGain) {
+                const noiseTarget = 0.15 + t * 0.50;
+                engineNoiseGain.gain.setTargetAtTime(noiseTarget, now, 0.08);
+            }
+
+            // Acoustic Cockpit Armor Muffling Filter:
+            // Cockpit View: Muffled heavy armor (130 Hz Idle -> 450 Hz Max)
+            // External View: Raw space plasma exhaust (250 Hz Idle -> 1100 Hz Max)
+            const cutoffBase = isCockpitView ? 130 : 250;
+            const cutoffMax = isCockpitView ? 450 : 1100;
             const targetCutoff = cutoffBase + t * (cutoffMax - cutoffBase);
 
             engineLowPassFilter.frequency.setTargetAtTime(targetCutoff, now, 0.1);
 
-            // Master Volume Scaling (Idle 0.20 -> Max 0.48)
-            const targetGain = 0.20 + t * 0.28;
+            // Master Volume Scaling (0.35 -> 0.75)
+            const targetGain = 0.35 + t * 0.40;
             engineMasterGain.gain.setTargetAtTime(targetGain, now, 0.1);
         }
 
