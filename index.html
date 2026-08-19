@@ -5730,7 +5730,8 @@
             // Semi-Realtime Tracking: Continuously sync 3D map icon positions to actual spaceflight world coordinates
             const scaleFactor = 0.004;
             if (playerShip && mapPlayerMesh) {
-                mapPlayerMesh.position.set(playerShip.position.x * scaleFactor, playerShip.position.y * scaleFactor, playerShip.position.z * scaleFactor);
+                // The player is now the center of the tactical map (0, 0, 0)
+                mapPlayerMesh.position.set(0, 0, 0);
                 mapPlayerMesh.quaternion.copy(playerShip.quaternion);
                 
                 if (mapGridGroup) {
@@ -5738,21 +5739,28 @@
                     mapGridGroup.quaternion.copy(playerShip.quaternion);
                 }
             }
-            if (spacePlanet && mapPlanetMesh) {
-                mapPlanetMesh.position.set(spacePlanet.position.x * scaleFactor, spacePlanet.position.y * scaleFactor, spacePlanet.position.z * scaleFactor);
-            }
-            if (spaceSun && mapSunMesh) {
-                // Place Sun in its correct celestial position on the tactical system map
-                mapSunMesh.position.set(spaceSun.position.x * scaleFactor, spaceSun.position.y * scaleFactor, spaceSun.position.z * scaleFactor);
-            }
-            if (wormholeGate && mapGateMesh) {
-                mapGateMesh.position.set(wormholeGate.position.x * scaleFactor, wormholeGate.position.y * scaleFactor, wormholeGate.position.z * scaleFactor);
-            }
+            
+            // Helper function to position map objects relative to the player
+            const setRelativeMapPos = (mapObj, worldObj) => {
+                if (worldObj && mapObj && playerShip) {
+                    mapObj.position.set(
+                        (worldObj.position.x - playerShip.position.x) * scaleFactor,
+                        (worldObj.position.y - playerShip.position.y) * scaleFactor,
+                        (worldObj.position.z - playerShip.position.z) * scaleFactor
+                    );
+                }
+            };
+
+            setRelativeMapPos(mapPlanetMesh, spacePlanet);
+            setRelativeMapPos(mapSunMesh, spaceSun);
+            setRelativeMapPos(mapGateMesh, wormholeGate);
+            
             if (capitalShip && mapDreadMesh) {
-                mapDreadMesh.position.set(capitalShip.position.x * scaleFactor, capitalShip.position.y * scaleFactor, capitalShip.position.z * scaleFactor);
+                setRelativeMapPos(mapDreadMesh, capitalShip);
                 mapDreadMesh.quaternion.copy(capitalShip.quaternion);
             }
-            if (mapEnemyGroup) {
+            
+            if (mapEnemyGroup && playerShip) {
                 // Keep tactical map enemy markers in 100% sync with active living enemyShips
                 const activeEnemies = enemyShips.filter(e => e && e.userData && e.userData.hp > 0);
                 while (mapEnemyGroup.children.length < activeEnemies.length) {
@@ -5772,7 +5780,7 @@
                     const es = activeEnemies[i];
                     const me = mapEnemyGroup.children[i];
                     if (es && me) {
-                        me.position.set(es.position.x * scaleFactor, es.position.y * scaleFactor, es.position.z * scaleFactor);
+                        setRelativeMapPos(me, es);
                         me.quaternion.copy(es.quaternion);
                     }
                 }
