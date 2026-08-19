@@ -1609,27 +1609,31 @@
             let targetLookAtPos = playerShip.position.clone().add(new THREE.Vector3(0, 0, -10).applyQuaternion(playerShip.quaternion));
 
             if (cameraMode === 0) {
-                // Mode 0: Cockpit View (First-Person)
+                // Mode 0: Cockpit View (First-Person) - Hide exterior ship model so it does not block cockpit view
+                playerShip.visible = false;
                 targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 0.45, -0.1).applyQuaternion(playerShip.quaternion));
                 targetLookAtPos = playerShip.position.clone().add(new THREE.Vector3(0, 0.45, -25).applyQuaternion(playerShip.quaternion));
-            } else if (cameraMode === 1) {
-                // Mode 1: Rear Third-Person Close
-                targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 2.2, 7.5).applyQuaternion(playerShip.quaternion));
-            } else if (cameraMode === 2) {
-                // Mode 2: Rear Third-Person Far
-                targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 6.0, 22.0).applyQuaternion(playerShip.quaternion));
-            } else if (cameraMode === 3) {
-                // Mode 3: Cinematic Orbiting Showcase (Ship Invincible)
-                cinematicAngle += 0.012;
-                const radius = 22;
-                const height = Math.sin(cinematicAngle * 0.7) * 5 + 4;
-                const orbitOffset = new THREE.Vector3(
-                    Math.cos(cinematicAngle) * radius,
-                    height,
-                    Math.sin(cinematicAngle) * radius
-                );
-                targetCamPos = playerShip.position.clone().add(orbitOffset);
-                targetLookAtPos = playerShip.position.clone();
+            } else {
+                playerShip.visible = true;
+                if (cameraMode === 1) {
+                    // Mode 1: Rear Third-Person Close
+                    targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 2.2, 7.5).applyQuaternion(playerShip.quaternion));
+                } else if (cameraMode === 2) {
+                    // Mode 2: Rear Third-Person Far
+                    targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 6.0, 22.0).applyQuaternion(playerShip.quaternion));
+                } else if (cameraMode === 3) {
+                    // Mode 3: Cinematic Orbiting Showcase (Ship Invincible)
+                    cinematicAngle += 0.012;
+                    const radius = 22;
+                    const height = Math.sin(cinematicAngle * 0.7) * 5 + 4;
+                    const orbitOffset = new THREE.Vector3(
+                        Math.cos(cinematicAngle) * radius,
+                        height,
+                        Math.sin(cinematicAngle) * radius
+                    );
+                    targetCamPos = playerShip.position.clone().add(orbitOffset);
+                    targetLookAtPos = playerShip.position.clone();
+                }
             }
 
             camera.position.lerp(targetCamPos, cameraMode === 3 ? 0.04 : 0.15);
