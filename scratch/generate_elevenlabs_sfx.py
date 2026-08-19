@@ -10,8 +10,8 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 PROMPTS = {
     "laser_fire.mp3": {
-        "text": "Crisp futuristic sci-fi plasma laser beam weapon pulse blast, sharp high-tech energy ray firing, sci-fi starship beam weapon, clean high frequency zap, no drums no thud",
-        "duration_seconds": 0.6,
+        "text": "Futuristic high-tech phaser beam weapon firing sound effect, Star Trek style phaser shot, clean energy beam pulse, sharp sci-fi laser zap, high frequency beam discharge, no drums no bass thud",
+        "duration_seconds": 0.5,
         "prompt_influence": 0.55
     },
     "ship_explosion.mp3": {

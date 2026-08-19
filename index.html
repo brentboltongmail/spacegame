@@ -2808,6 +2808,7 @@
         function getPooledLaserBolt() {
             for (let i = 0; i < laserPool.length; i++) {
                 if (!laserPool[i].userData.active) {
+                    laserPool[i].userData.active = true;
                     return laserPool[i];
                 }
             }
@@ -2834,7 +2835,6 @@
 
             if (laserL) {
                 laserL.visible = true;
-                laserL.userData.active = true;
                 laserL.quaternion.copy(playerShip.quaternion);
                 laserL.position.copy(playerShip.position).add(_offsetL);
                 laserL.userData.prevPos.copy(laserL.position);
@@ -2844,7 +2844,6 @@
 
             if (laserR) {
                 laserR.visible = true;
-                laserR.userData.active = true;
                 laserR.quaternion.copy(playerShip.quaternion);
                 laserR.position.copy(playerShip.position).add(_offsetR);
                 laserR.userData.prevPos.copy(laserR.position);
