@@ -5583,43 +5583,25 @@
             mapGroup.rotation.y = mapTargetRotationY;
             mapScene.add(mapGroup);
 
-            // 3D Volumetric Holographic System Grid & Range Rings
+            // Holographic System Grid & Range Rings (Single Plane)
             mapGridGroup = new THREE.Group();
             
-            function createVolumetricGrid(size, divisions, colorHex) {
-                const step = size / divisions;
-                const half = size / 2;
-                const vertices = [];
-                for (let i = 0; i <= divisions; i++) {
-                    const a = -half + i * step;
-                    for (let j = 0; j <= divisions; j++) {
-                        const b = -half + j * step;
-                        // X-axis lines
-                        vertices.push(-half, a, b, half, a, b);
-                        // Y-axis lines
-                        vertices.push(a, -half, b, a, half, b);
-                        // Z-axis lines
-                        vertices.push(a, b, -half, a, b, half);
-                    }
-                }
-                const geo = new THREE.BufferGeometry();
-                geo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-                const mat = new THREE.LineBasicMaterial({ 
-                    color: colorHex, 
-                    transparent: true, 
-                    opacity: 0.01,
-                    depthWrite: false,
-                    blending: THREE.AdditiveBlending
-                });
-                return new THREE.LineSegments(geo, mat);
+            function createSinglePlaneGrid(size, divisions, colorHex) {
+                const grid = new THREE.GridHelper(size, divisions, colorHex, colorHex);
+                grid.material.transparent = true;
+                grid.material.opacity = 0.02; // 2% opacity for a very faint HUD look
+                grid.material.depthWrite = false;
+                grid.material.blending = THREE.AdditiveBlending;
+                grid.position.y = -10; // Shifted below objects slightly
+                return grid;
             }
 
-            // Outer system grid (Spread out lines: 40 divisions instead of 160)
-            const gridLarge = createVolumetricGrid(8000, 40, 0xffffff);
+            // Outer system grid
+            const gridLarge = createSinglePlaneGrid(8000, 40, 0xffffff);
             mapGridGroup.add(gridLarge);
 
-            // Inner detailed grid (Spread out lines: 10 divisions instead of 80)
-            const gridSmall = createVolumetricGrid(400, 10, 0xffffff);
+            // Inner detailed grid
+            const gridSmall = createSinglePlaneGrid(400, 10, 0xffffff);
             mapGridGroup.add(gridSmall);
 
             [25, 50, 75, 100].forEach(r => {
