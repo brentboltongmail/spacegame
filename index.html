@@ -4401,10 +4401,8 @@
         let mapPlayerMesh, mapSunMesh, mapPlanetMesh, mapGateMesh, mapDreadMesh, mapEnemyGroup;
         let isMapDragging = false;
         let previousMapMousePosition = { x: 0, y: 0 };
-        let mapTargetAzimuth = 0;
-        let mapTargetPolar = 0.45;
-        let mapAzimuth = 0;
-        let mapPolar = 0.45;
+        let mapTargetRotationY = 0;
+        let mapTargetRotationX = 0.55;
         let mapCamDistance = 120;
         let mapTargetCamDistance = 120;
 
@@ -4416,17 +4414,14 @@
 
             const w = (container.clientWidth && container.clientWidth > 50) ? container.clientWidth : Math.max(window.innerWidth - 120, 600);
             const h = (container.clientHeight && container.clientHeight > 50) ? container.clientHeight : Math.max(window.innerHeight - 180, 450);
-            remoteLog(`initTacticalMap3D canvas dims: w=${w}, h=${h}, container.clientWidth=${container.clientWidth}, container.clientHeight=${container.clientHeight}`);
+            remoteLog(`initTacticalMap3D canvas dims: w=${w}, h=${h}`);
             const aspect = w / h;
 
             mapScene = new THREE.Scene();
             mapScene.background = new THREE.Color(0x040817);
 
             mapCamera = new THREE.PerspectiveCamera(50, aspect, 0.1, 5000);
-            const initialX = mapCamDistance * Math.sin(mapPolar) * Math.sin(mapAzimuth);
-            const initialY = mapCamDistance * Math.cos(mapPolar);
-            const initialZ = mapCamDistance * Math.sin(mapPolar) * Math.cos(mapAzimuth);
-            mapCamera.position.set(initialX, initialY, initialZ);
+            mapCamera.position.set(0, 0, mapCamDistance);
             mapCamera.lookAt(0, 0, 0);
 
             mapRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false });
@@ -4437,6 +4432,8 @@
             mapScene.add(amb);
 
             mapGroup = new THREE.Group();
+            mapGroup.rotation.x = mapTargetRotationX;
+            mapGroup.rotation.y = mapTargetRotationY;
             mapScene.add(mapGroup);
 
             // 3D Holographic System Grid & Range Rings
@@ -4514,95 +4511,64 @@
                 mapEnemyGroup.add(mapEnemy);
             }
 
-            // Canvas Container direct click & drag listeners (matching Pilot Profile Hangar behavior)
+            // Click & Drag to Orbit/Rotate 3D Star Map (EXACTLY MATCHING PILOT PROFILE)
             container.addEventListener('mousedown', (e) => {
-                if (!isTacticalMapOpen) return;
-                if (e.target.closest('button, .legend-item, a, input, select')) return;
                 isMapDragging = true;
                 previousMapMousePosition = { x: e.clientX, y: e.clientY };
-                remoteLog(`Container mousedown: isMapDragging=true at (${e.clientX}, ${e.clientY})`);
+                remoteLog(`Map mousedown: dragging started at (${e.clientX}, ${e.clientY})`);
             });
 
             container.addEventListener('touchstart', (e) => {
-                if (!isTacticalMapOpen || !e.touches[0]) return;
-                if (e.target.closest('button, .legend-item, a, input, select')) return;
-                isMapDragging = true;
-                previousMapMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-                remoteLog(`Container touchstart: isMapDragging=true at (${e.touches[0].clientX}, ${e.touches[0].clientY})`);
+                if (e.touches[0]) {
+                    isMapDragging = true;
+                    previousMapMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                    remoteLog(`Map touchstart: dragging started at (${e.touches[0].clientX}, ${e.touches[0].clientY})`);
+                }
             }, { passive: true });
-        }
 
-        // --- DYNAMIC 3D STAR MAP INTERACTION ENGINE (SMOOTH LERP & ORBIT CONTROLS) ---
-        window.addEventListener('mousedown', (e) => {
-            if (isTacticalMapOpen) {
-                if (e.target.closest('button, .legend-item, a, input, select')) return;
-                isMapDragging = true;
-                previousMapMousePosition = { x: e.clientX, y: e.clientY };
-                remoteLog(`Window mousedown: target=${e.target.tagName}#${e.target.id}.${e.target.className}`);
-            }
-        });
-
-        window.addEventListener('touchstart', (e) => {
-            if (isTacticalMapOpen && e.touches[0]) {
-                if (e.target.closest('button, .legend-item, a, input, select')) return;
-                isMapDragging = true;
-                previousMapMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-                remoteLog(`Window touchstart: target=${e.target.tagName}#${e.target.id}.${e.target.className}`);
-            }
-        }, { passive: true });
-
-        window.addEventListener('mousemove', (e) => {
-            if (isTacticalMapOpen && isMapDragging) {
+            window.addEventListener('mousemove', (e) => {
+                if (!isMapDragging || !mapGroup || !isTacticalMapOpen) return;
                 const deltaX = e.clientX - previousMapMousePosition.x;
                 const deltaY = e.clientY - previousMapMousePosition.y;
 
-                if (e.shiftKey || e.buttons === 4) {
-                    const panSpeed = mapCamDistance * 0.0015;
-                    const cosA = Math.cos(mapAzimuth);
-                    const sinA = Math.sin(mapAzimuth);
-                    mapGroup.position.x += (deltaX * cosA - deltaY * sinA) * panSpeed;
-                    mapGroup.position.z += (deltaX * sinA + deltaY * cosA) * panSpeed;
-                } else {
-                    mapTargetAzimuth += deltaX * 0.008;
-                    mapTargetPolar = Math.min(Math.max(mapTargetPolar - deltaY * 0.008, 0.05), Math.PI / 2 - 0.02);
-                }
+                mapTargetRotationY += deltaX * 0.008;
+                mapTargetRotationX += deltaY * 0.008;
 
                 if (!window._lastDragLog || Date.now() - window._lastDragLog > 400) {
                     window._lastDragLog = Date.now();
-                    remoteLog(`Map dragging: dX=${deltaX}, dY=${deltaY}, targetAz=${mapTargetAzimuth.toFixed(3)}, targetPolar=${mapTargetPolar.toFixed(3)}`);
+                    remoteLog(`Map dragging: dX=${deltaX}, dY=${deltaY}, targetRotY=${mapTargetRotationY.toFixed(3)}, targetRotX=${mapTargetRotationX.toFixed(3)}`);
                 }
 
                 previousMapMousePosition = { x: e.clientX, y: e.clientY };
-            }
-        });
+            });
 
-        window.addEventListener('touchmove', (e) => {
-            if (isTacticalMapOpen && isMapDragging && e.touches[0]) {
+            window.addEventListener('touchmove', (e) => {
+                if (!isMapDragging || !mapGroup || !isTacticalMapOpen || !e.touches[0]) return;
                 const deltaX = e.touches[0].clientX - previousMapMousePosition.x;
                 const deltaY = e.touches[0].clientY - previousMapMousePosition.y;
 
-                mapTargetAzimuth += deltaX * 0.008;
-                mapTargetPolar = Math.min(Math.max(mapTargetPolar - deltaY * 0.008, 0.05), Math.PI / 2 - 0.02);
+                mapTargetRotationY += deltaX * 0.008;
+                mapTargetRotationX += deltaY * 0.008;
 
                 previousMapMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-            }
-        }, { passive: true });
+            }, { passive: true });
 
-        window.addEventListener('mouseup', () => {
-            if (isMapDragging) remoteLog("Map mouseup: dragging stopped");
-            isMapDragging = false;
-        });
-        window.addEventListener('touchend', () => {
-            if (isMapDragging) remoteLog("Map touchend: dragging stopped");
-            isMapDragging = false;
-        });
+            window.addEventListener('mouseup', () => {
+                if (isMapDragging) remoteLog("Map mouseup: dragging stopped");
+                isMapDragging = false;
+            });
+            window.addEventListener('touchend', () => {
+                if (isMapDragging) remoteLog("Map touchend: dragging stopped");
+                isMapDragging = false;
+            });
 
-        window.addEventListener('wheel', (e) => {
-            if (isTacticalMapOpen) {
-                mapTargetCamDistance += e.deltaY * 0.15;
-                mapTargetCamDistance = Math.min(Math.max(mapTargetCamDistance, 20), 450);
-            }
-        }, { passive: true });
+            window.addEventListener('wheel', (e) => {
+                if (isTacticalMapOpen) {
+                    mapTargetCamDistance += e.deltaY * 0.15;
+                    mapTargetCamDistance = Math.min(Math.max(mapTargetCamDistance, 20), 450);
+                }
+            }, { passive: true });
+        }
 
         function resizeTacticalMapCanvas() {
             const container = document.getElementById('map-canvas-container');
@@ -4647,27 +4613,22 @@
                 }
             }
 
-            // Smooth Lerp for Orbit Angles and Zoom Distance (Matching Pilot Profile Smoothness)
-            mapAzimuth += (mapTargetAzimuth - mapAzimuth) * 0.12;
-            mapPolar += (mapTargetPolar - mapPolar) * 0.12;
+            // Smooth rotation lerp (EXACTLY matching Pilot Profile)
+            mapGroup.rotation.y += (mapTargetRotationY - mapGroup.rotation.y) * 0.12;
+            mapGroup.rotation.x += (mapTargetRotationX - mapGroup.rotation.x) * 0.12;
             mapCamDistance += (mapTargetCamDistance - mapCamDistance) * 0.12;
 
-            // Gentle ambient idle orbit rotation when not dragging (just like Pilot Profile ship preview)
+            // Slow idle spin when not dragging (EXACTLY matching Pilot Profile)
             if (!isMapDragging) {
-                mapTargetAzimuth += 0.0015;
+                mapTargetRotationY += 0.003;
             }
 
-            // True Spherical Orbit Camera Math around mapGroup focus position
-            const camX = mapCamDistance * Math.sin(mapPolar) * Math.sin(mapAzimuth);
-            const camY = mapCamDistance * Math.cos(mapPolar);
-            const camZ = mapCamDistance * Math.sin(mapPolar) * Math.cos(mapAzimuth);
-
-            mapCamera.position.set(mapGroup.position.x + camX, mapGroup.position.y + camY, mapGroup.position.z + camZ);
-            mapCamera.lookAt(mapGroup.position.x, mapGroup.position.y, mapGroup.position.z);
+            mapCamera.position.set(0, 0, mapCamDistance);
+            mapCamera.lookAt(0, 0, 0);
 
             if (!window._lastRenderLog || Date.now() - window._lastRenderLog > 2500) {
                 window._lastRenderLog = Date.now();
-                remoteLog(`renderTacticalMap3D: camDist=${mapCamDistance.toFixed(1)}, az=${mapAzimuth.toFixed(3)}, polar=${mapPolar.toFixed(3)}, targetAz=${mapTargetAzimuth.toFixed(3)}`);
+                remoteLog(`renderTacticalMap3D: camDist=${mapCamDistance.toFixed(1)}, rotY=${mapGroup.rotation.y.toFixed(3)}, rotX=${mapGroup.rotation.x.toFixed(3)}`);
             }
 
             mapRenderer.render(mapScene, mapCamera);
@@ -4758,6 +4719,7 @@
 
         function toggleTacticalMapModal() {
             isTacticalMapOpen = !isTacticalMapOpen;
+            isGamePaused = isTacticalMapOpen; // PAUSE GAME SIMULATION WHEN MAP IS OPEN!
             const modal = document.getElementById('tactical-map-modal');
             remoteLog(`toggleTacticalMapModal called. isTacticalMapOpen=${isTacticalMapOpen}`);
 
@@ -4786,31 +4748,24 @@
             if (!mapGroup) return;
             showToast(`📡 MAP TARGETING: ${targetType.toUpperCase()}`);
             if (targetType === 'player') {
-                mapGroup.position.set(0, 0, 0); mapTargetCamDistance = 60; mapCamDistance = 60;
+                mapTargetCamDistance = 60;
             } else if (targetType === 'sun') {
-                mapGroup.position.set(-85, -45, -60); mapTargetCamDistance = 150; mapCamDistance = 150;
+                mapTargetCamDistance = 150;
             } else if (targetType === 'planet') {
-                mapGroup.position.set(38, -5, 45); mapTargetCamDistance = 85; mapCamDistance = 85;
+                mapTargetCamDistance = 85;
             } else if (targetType === 'wormhole') {
-                mapGroup.position.set(15, -2, 28); mapTargetCamDistance = 70; mapCamDistance = 70;
+                mapTargetCamDistance = 70;
             } else if (targetType === 'dreadnought') {
-                mapGroup.position.set(-28, -4, 42); mapTargetCamDistance = 80; mapCamDistance = 80;
+                mapTargetCamDistance = 80;
             } else if (targetType === 'enemies') {
-                mapGroup.position.set(22, 0, 52); mapTargetCamDistance = 95; mapCamDistance = 95;
+                mapTargetCamDistance = 95;
             }
         }
 
         function resetMapTransform() {
-            if (mapGroup) {
-                mapGroup.position.set(0, 0, 0);
-                mapGroup.rotation.set(0, 0, 0);
-            }
+            mapTargetRotationY = 0;
+            mapTargetRotationX = 0.55;
             mapTargetCamDistance = 120;
-            mapCamDistance = 120;
-            mapTargetAzimuth = 0;
-            mapTargetPolar = 0.45;
-            mapAzimuth = 0;
-            mapPolar = 0.45;
             showToast("🎯 3D MAP RE-CENTERED ON PLAYER SHIP");
         }
 
