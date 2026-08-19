@@ -4337,7 +4337,13 @@
 
             // Move ship forward (Physical 3D world movement doubled per user request)
             const moveDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
-            playerShip.position.addScaledVector(moveDir, currentSpeed * 0.0064);
+            const frameDisplacement = moveDir.clone().multiplyScalar(currentSpeed * 0.0064);
+            playerShip.position.add(frameDisplacement);
+            
+            // Fix: Add the ship's exact physical displacement to the camera BEFORE lerping.
+            // This perfectly separates translational lag from rotational/orbit lag, 
+            // ensuring cinematic orbits don't break at 100,000 km/h.
+            camera.position.add(frameDisplacement);
 
             // Keep starfield celestial dome anchored to player position so stars stay far off on horizon
             if (starfield) starfield.position.copy(playerShip.position);
