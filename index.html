@@ -2469,18 +2469,6 @@
             return boltGroup;
         }
 
-        let muzzleFlashParticles = [];
-
-        function spawnWingtipMuzzleFlash(pos, quat) {
-            const flashGeo = new THREE.SphereGeometry(1.4, 16, 16);
-            const flashMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 1.0 });
-            const flashMesh = new THREE.Mesh(flashGeo, flashMat);
-            flashMesh.position.copy(pos);
-            flashMesh.quaternion.copy(quat);
-            scene.add(flashMesh);
-            muzzleFlashParticles.push(flashMesh);
-        }
-
         function firePlasmaLaser() {
             // Forward vector matching exact ship heading
             const fwdDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
@@ -2508,10 +2496,6 @@
             scene.add(laserL);
             scene.add(laserR);
             laserProjectiles.push(laserL, laserR);
-
-            // Spawn Wingtip Muzzle Flash Energy Flares
-            spawnWingtipMuzzleFlash(posL, playerShip.quaternion);
-            spawnWingtipMuzzleFlash(posR, playerShip.quaternion);
 
             // Play Synthesized Twin Plasma Laser Sound Effect (Lowered pitch: 880 Hz -> 120 Hz)
             if (audioCtx && !isAudioMuted) {
@@ -2693,17 +2677,6 @@
                 if (laser.position.distanceTo(playerShip.position) > 2500) {
                     scene.remove(laser);
                     laserProjectiles.splice(i, 1);
-                }
-            }
-
-            // Animate & Decay Wingtip Muzzle Flash Energy Flares
-            for (let i = muzzleFlashParticles.length - 1; i >= 0; i--) {
-                const flash = muzzleFlashParticles[i];
-                flash.scale.addScalar(0.25);
-                flash.material.opacity -= 0.18;
-                if (flash.material.opacity <= 0) {
-                    scene.remove(flash);
-                    muzzleFlashParticles.splice(i, 1);
                 }
             }
 
