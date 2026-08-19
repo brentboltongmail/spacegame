@@ -1,0 +1,14 @@
+# Dependencies & System Files
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+
+# Build Outputs
+dist/
+build/
+.vs/
+.idea/
+
+# Temporary / Scratch
+*.tmp

@@ -1,0 +1,81 @@
+# 🌌 Game Design Document: Astra Heir (3D Space Action RPG)
+
+> **Project Concept**: Action-Packed 3D Space Warfare & Exploration Game  
+> **Key Themes**: High-Speed Dogfighting, Capital Ship Subsystem Combat, Ancient Precursor Wormholes, Adopted Earth Pilot -> Royal Heir Mystery
+
+---
+
+## 1. Title Proposals & Concept Themes
+
+| # | Proposed Game Title | Vibe & Focus | Tagline |
+|---|---------------------|--------------|---------|
+| 1 | **Astra Heir: Emergence** *(Selected)* | Sci-Fi Narrative + Action | *"An Earth cadet. An ancient crown. A galaxy at war."* |
+| 2 | **Starbound Scion: Void Vanguard** | High-Octane Space Fleet Warfare | *"Burn through the wormhole. Claim your birthright."* |
+| 3 | **Wormhole Genesis: Royal Blood** | Precursor Exploration & Combat | *"Beyond the rift lies a forgotten empire."* |
+| 4 | **Chronicles of Aethelgard: The Lost Sovereign** | Epic Space Opera RPG | *"Adopted on Earth. Destined for the Stars."* |
+| 5 | **Solaris Drift: Sovereign Lineage** | Space Simulator & Dogfighting | *"Command small fighters. Strike Titan dreadnoughts."* |
+| 6 | **Event Horizon: Reclaim** | Pure Action & Tactical Fleet War | *"Fight through the rift. Destroy the usurpers."* |
+
+---
+
+## 2. Core Narrative & Lore Breakdown
+
+```
+[ACT 1: Sol System Patrol] ---> [INCITING INCIDENT: Wormhole Rift] ---> [ACT 2: Sovereign Reach Mercenary] ---> [ACT 3: Royal Reclamation War]
+```
+
+### The Protagonist's Origins
+- **Name**: Lieutenant Kaelen / Jax Vance (Callsign: *"Apex"*)
+- **Background**: Raised on Earth’s orbital colonies by an adoptive parent, Marcus Vance (a retired Earth Defense mechanic). Your only heirloom is an unidentified titanium-crystal artifact left in your pod as a baby.
+- **The Twist**: You are not human. You are the last bloodline heir to **House Aethelgard**, the ruling sovereign house of the distant *Sovereign Reach* star system, which was overthrown 20 years ago by an aggressive military junta known as **The Iron Dominion**.
+
+### Narrative Pacing (Low Politics, High Action)
+- **Act I — Sol Defense (Tutorial & Hook)**: You pilot standard Earth Space Force fighters defending asteroid mining routes. An unknown alien warship attacks; your pendant reacts and activates an ancient dormant wormhole gate, pulling your squadron through.
+- **Act II — The Uncharted Frontier (Exploration & Mercenary Arc)**: Stranded thousands of lightyears away, you work for independent stations—taking dogfight bounties, raiding pirate convoys, and upgrading your ship. Ancient Precursor ruins recognize your genetic code, unlocking ship abilities and revealing your royal identity.
+- **Act III — The Sovereign Restoration (Fleet Warfare)**: Uniting broken planetary houses, commanding fleet engagements, disabling giant enemy dreadnought turrets, and launching a strike on your ancestral homeworld to stop an invasion of Earth.
+
+---
+
+## 3. Core Gameplay Structure & Mechanics
+
+### Pillar 1: High-Speed 6-DOF Dogfighting
+- **Controls**: Full 6 degrees of freedom (pitch, roll, yaw, strafe).
+- **Energy Management**: Dynamically route power between **Weapons** (laser fire rate), **Shields** (recharge rate), and **Engines** (afterburner boost).
+- **Subsystem Targeting**: Target specific enemy components: thrusters, missile banks, or shield generators.
+
+### Pillar 2: Small Ships vs. Capital Fleet War
+- **Fighters & Interceptors**: High agility, dogfighting, torpedo runs, trench runs along giant dreadnought hulls.
+- **Capital Dreadnoughts & Carriers**: Massive multi-deck warships equipped with heavy battery turrets and hangar bays. Players can issue basic fleet commands (*"Target Heavy Cruiser"*, *"Focus Shields"*, *"Launch Strike Squadron"*) or fly strike craft directly into target zones.
+
+### Pillar 3: Wormhole Gate System
+- **Stable Wormholes**: Connect main star sectors as strategic jump gates (chokepoints guarded by orbital space stations).
+- **Unstable Wormholes**: Dynamic spatial anomalies that lead to hidden precursor ruins, rare ship blueprints, or alien mini-boss encounters.
+
+---
+
+## 4. Ship Class Matrix
+
+| Ship Class | Role | Agility | Armor / Shield | Primary Weaponry | Gameplay Style |
+|------------|------|---------|----------------|------------------|----------------|
+| **Void Interceptor** | Scout / Dogfighter | ⭐⭐⭐⭐⭐ | ⭐⭐ | Pulse Plasma Cannons | Fast strafing, dogfighting |
+| **Heavy Strike Fighter** | Anti-Bomber / Raider | ⭐⭐⭐⭐ | ⭐⭐⭐ | Heavy Auto-cannons & Lock Torpedoes | Subsystem disabling |
+| **Gunship Corvette** | Convoy Escort | ⭐⭐⭐ | ⭐⭐⭐⭐ | Dual Turrets & Flak Missiles | Heavy firepower support |
+| **Royal Battlecruiser** | Fleet Flagship | ⭐ | ⭐⭐⭐⭐⭐ | Precursor Lance Beams & Broadside Batteries | Tactical command & orbital siege |
+
+---
+
+## 5. Technical Stack & Engine Recommendations
+
+For a 3D Space Game with big ships, small ships, and particle-dense wormholes:
+
+1. **Unreal Engine 5 (Recommended for AAA Visuals)**
+   - *Pros*: Built-in Chaos Physics, Niagara particle engine (incredible wormholes & laser explosions), Nanite (handling massive capital ship polygon detail).
+   - *Best For*: Photorealistic space visuals & cinematic space combat.
+
+2. **Unity (Recommended for Fast Iteration & Flexibility)**
+   - *Pros*: Great 6-DOF physics handling, lightweight asset store space systems, easy C# scripting.
+   - *Best For*: Smooth indie performance & arcade space dogfighting.
+
+3. **Godot 4 (Recommended for Open-Source & Lightweight Development)**
+   - *Pros*: Completely free, lightweight, fast build times.
+   - *Best For*: Solo developer space flight prototypes.
