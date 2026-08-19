@@ -3333,6 +3333,8 @@
                 { x: 30, y: 6, z: 0, r: 15 }
             ];
 
+            capitalShip.userData.engineEmitters = [];
+
             mainEngines.forEach(eng => {
                 const nacelleGeo = new THREE.CylinderGeometry(eng.r - 2, eng.r, 50, 24);
                 const nacelle = new THREE.Mesh(nacelleGeo, engineNozzleMat);
@@ -3352,13 +3354,11 @@
                 disk.position.set(eng.x, eng.y, eng.z + 25.1);
                 engineGroup.add(disk);
 
-                // Engine Exhaust Cone Glow FX
-                const coneGeo = new THREE.ConeGeometry(eng.r - 2, 45, 24);
-                const coneMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.65 });
-                const cone = new THREE.Mesh(coneGeo, coneMat);
-                cone.rotation.x = -Math.PI / 2;
-                cone.position.set(eng.x, eng.y, eng.z + 47);
-                engineGroup.add(cone);
+                // Add to particle emitters instead of using static cones
+                // Note: engineGroup is at z=150 in local ship space
+                capitalShip.userData.engineEmitters.push({
+                    x: eng.x, y: eng.y, z: 150 + eng.z + 25.1, r: eng.r - 2
+                });
             });
 
             // 2 Secondary Thruster Nacelles
@@ -3372,6 +3372,10 @@
                 const sDisk = new THREE.Mesh(new THREE.CircleGeometry(8, 16), engineGlowMat);
                 sDisk.position.set(sx, -12, 13.1);
                 engineGroup.add(sDisk);
+
+                capitalShip.userData.engineEmitters.push({
+                    x: sx, y: -12, z: 150 + 13.1, r: 8
+                });
             });
 
             // Dynamic Rear Engine Point Light
@@ -3969,6 +3973,60 @@
                             const targetAngle = Math.atan2(dx, dz) - capitalShip.rotation.y;
                             turret.rotation.y = THREE.MathUtils.lerp(turret.rotation.y, targetAngle, 0.03);
                         });
+                    }
+
+                    // Animate Dreadnought Engine Exhaust Particles
+                    if (capitalShip.userData.engineEmitters) {
+                        if (!capitalShip.userData.particles) capitalShip.userData.particles = [];
+                        
+                        const shipQuat = capitalShip.quaternion;
+                        
+                        // Spawn new particles (skip spawning if cameraMode is 0/cockpit for performance)
+                        if (cameraMode !== 0) {
+                            capitalShip.userData.engineEmitters.forEach(em => {
+                                for(let i = 0; i < 2; i++) { // 2 particles per emitter per frame
+                                    const pGeo = new THREE.SphereGeometry(Math.random() * 2 + 1, 6, 6);
+                                    const pMat = new THREE.MeshBasicMaterial({
+                                        color: 0x00f0ff,
+                                        transparent: true,
+                                        opacity: 0.8
+                                    });
+                                    const p = new THREE.Mesh(pGeo, pMat);
+                                    
+                                    const localPos = new THREE.Vector3(
+                                        em.x + (Math.random()-0.5) * em.r * 1.5,
+                                        em.y + (Math.random()-0.5) * em.r * 1.5,
+                                        em.z
+                                    );
+                                    
+                                    p.position.copy(localPos).applyQuaternion(shipQuat).add(capitalShip.position);
+                                    p.userData.life = 1.0;
+                                    
+                                    const backwardDir = new THREE.Vector3(0, 0, 1).applyQuaternion(shipQuat);
+                                    p.userData.vel = backwardDir.multiplyScalar(Math.random() * 6 + 3);
+                                    
+                                    scene.add(p);
+                                    capitalShip.userData.particles.push(p);
+                                }
+                            });
+                        }
+                        
+                        // Update existing particles
+                        for (let i = capitalShip.userData.particles.length - 1; i >= 0; i--) {
+                            const p = capitalShip.userData.particles[i];
+                            p.userData.life -= 0.015;
+                            if (p.userData.life <= 0 || cameraMode === 0) { // Cleanup immediately if in cockpit
+                                scene.remove(p);
+                                p.geometry.dispose();
+                                p.material.dispose();
+                                capitalShip.userData.particles.splice(i, 1);
+                            } else {
+                                p.position.add(p.userData.vel);
+                                p.scale.setScalar(p.userData.life * 2.5);
+                                p.material.opacity = p.userData.life * 0.8;
+                                p.material.color.lerp(new THREE.Color(0x002288), 0.05); // Fade to deep blue
+                            }
+                        }
                     }
                 }
             }
