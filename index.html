@@ -2957,6 +2957,7 @@
         let lastFireTime = 0;
 
         function firePlasmaLaser() {
+            if (isTacticalMapOpen || isGamePaused || isOptionsOpen) return;
             const nowTime = performance.now();
             if (nowTime - lastFireTime < 100) return; // 100ms fire cooldown rate-limit (~10 shots/sec max rate)
             lastFireTime = nowTime;
@@ -4361,9 +4362,12 @@
         let mapPlayerMesh, mapSunMesh, mapPlanetMesh, mapGateMesh, mapDreadMesh, mapEnemyGroup;
         let isMapDragging = false;
         let previousMapMousePosition = { x: 0, y: 0 };
+        let mapTargetAzimuth = 0;
+        let mapTargetPolar = 0.45;
         let mapAzimuth = 0;
         let mapPolar = 0.45;
         let mapCamDistance = 120;
+        let mapTargetCamDistance = 120;
 
         function initTacticalMap3D() {
             const container = document.getElementById('map-canvas-container');
@@ -4468,22 +4472,29 @@
                 mapEnemy.position.set(-22 + (i % 3) * 7, (i % 2) * 4, -52 - i * 5);
                 mapEnemyGroup.add(mapEnemy);
             }
+
+            // Canvas Container direct click & drag listeners (matching Pilot Profile Hangar behavior)
+            container.addEventListener('mousedown', (e) => {
+                if (!isTacticalMapOpen) return;
+                if (e.target.closest('button, .legend-item, a, input, select')) return;
+                isMapDragging = true;
+                previousMapMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            container.addEventListener('touchstart', (e) => {
+                if (!isTacticalMapOpen || !e.touches[0]) return;
+                if (e.target.closest('button, .legend-item, a, input, select')) return;
+                isMapDragging = true;
+                previousMapMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }, { passive: true });
         }
 
-        // --- GLOBAL FAIL-SAFE ABSOLUTE 3D STAR MAP ORBIT CONTROLS ENGINE ---
-        let mapStartMouseX = 0;
-        let mapStartMouseY = 0;
-        let mapStartAzimuth = 0;
-        let mapStartPolar = 0.45;
-
+        // --- DYNAMIC 3D STAR MAP INTERACTION ENGINE (SMOOTH LERP & ORBIT CONTROLS) ---
         window.addEventListener('mousedown', (e) => {
             if (isTacticalMapOpen) {
                 if (e.target.closest('button, .legend-item, a, input, select')) return;
                 isMapDragging = true;
-                mapStartMouseX = e.clientX;
-                mapStartMouseY = e.clientY;
-                mapStartAzimuth = mapAzimuth;
-                mapStartPolar = mapPolar;
+                previousMapMousePosition = { x: e.clientX, y: e.clientY };
             }
         });
 
@@ -4491,30 +4502,39 @@
             if (isTacticalMapOpen && e.touches[0]) {
                 if (e.target.closest('button, .legend-item, a, input, select')) return;
                 isMapDragging = true;
-                mapStartMouseX = e.touches[0].clientX;
-                mapStartMouseY = e.touches[0].clientY;
-                mapStartAzimuth = mapAzimuth;
-                mapStartPolar = mapPolar;
+                previousMapMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
             }
         }, { passive: true });
 
         window.addEventListener('mousemove', (e) => {
             if (isTacticalMapOpen && isMapDragging) {
-                const deltaX = e.clientX - mapStartMouseX;
-                const deltaY = e.clientY - mapStartMouseY;
+                const deltaX = e.clientX - previousMapMousePosition.x;
+                const deltaY = e.clientY - previousMapMousePosition.y;
 
-                mapAzimuth = mapStartAzimuth - deltaX * 0.008;
-                mapPolar = Math.min(Math.max(mapStartPolar - deltaY * 0.008, 0.05), Math.PI / 2 - 0.02);
+                if (e.shiftKey || e.buttons === 4) {
+                    const panSpeed = mapCamDistance * 0.0015;
+                    const cosA = Math.cos(mapAzimuth);
+                    const sinA = Math.sin(mapAzimuth);
+                    mapGroup.position.x += (deltaX * cosA - deltaY * sinA) * panSpeed;
+                    mapGroup.position.z += (deltaX * sinA + deltaY * cosA) * panSpeed;
+                } else {
+                    mapTargetAzimuth += deltaX * 0.008;
+                    mapTargetPolar = Math.min(Math.max(mapTargetPolar - deltaY * 0.008, 0.05), Math.PI / 2 - 0.02);
+                }
+
+                previousMapMousePosition = { x: e.clientX, y: e.clientY };
             }
         });
 
         window.addEventListener('touchmove', (e) => {
             if (isTacticalMapOpen && isMapDragging && e.touches[0]) {
-                const deltaX = e.touches[0].clientX - mapStartMouseX;
-                const deltaY = e.touches[0].clientY - mapStartMouseY;
+                const deltaX = e.touches[0].clientX - previousMapMousePosition.x;
+                const deltaY = e.touches[0].clientY - previousMapMousePosition.y;
 
-                mapAzimuth = mapStartAzimuth - deltaX * 0.008;
-                mapPolar = Math.min(Math.max(mapStartPolar - deltaY * 0.008, 0.05), Math.PI / 2 - 0.02);
+                mapTargetAzimuth += deltaX * 0.008;
+                mapTargetPolar = Math.min(Math.max(mapTargetPolar - deltaY * 0.008, 0.05), Math.PI / 2 - 0.02);
+
+                previousMapMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
             }
         }, { passive: true });
 
@@ -4523,8 +4543,8 @@
 
         window.addEventListener('wheel', (e) => {
             if (isTacticalMapOpen) {
-                mapCamDistance += e.deltaY * 0.15;
-                mapCamDistance = Math.min(Math.max(mapCamDistance, 20), 450);
+                mapTargetCamDistance += e.deltaY * 0.15;
+                mapTargetCamDistance = Math.min(Math.max(mapTargetCamDistance, 20), 450);
             }
         }, { passive: true });
 
@@ -4571,13 +4591,23 @@
                 }
             }
 
-            // True Spherical Orbit Camera Math around (0, 0, 0)
+            // Smooth Lerp for Orbit Angles and Zoom Distance (Matching Pilot Profile Smoothness)
+            mapAzimuth += (mapTargetAzimuth - mapAzimuth) * 0.12;
+            mapPolar += (mapTargetPolar - mapPolar) * 0.12;
+            mapCamDistance += (mapTargetCamDistance - mapCamDistance) * 0.12;
+
+            // Gentle ambient idle orbit rotation when not dragging (just like Pilot Profile ship preview)
+            if (!isMapDragging) {
+                mapTargetAzimuth += 0.0015;
+            }
+
+            // True Spherical Orbit Camera Math around mapGroup focus position
             const camX = mapCamDistance * Math.sin(mapPolar) * Math.sin(mapAzimuth);
             const camY = mapCamDistance * Math.cos(mapPolar);
             const camZ = mapCamDistance * Math.sin(mapPolar) * Math.cos(mapAzimuth);
 
-            mapCamera.position.set(camX, camY, camZ);
-            mapCamera.lookAt(0, 0, 0);
+            mapCamera.position.set(mapGroup.position.x + camX, mapGroup.position.y + camY, mapGroup.position.z + camZ);
+            mapCamera.lookAt(mapGroup.position.x, mapGroup.position.y, mapGroup.position.z);
 
             mapRenderer.render(mapScene, mapCamera);
         }
@@ -4694,17 +4724,17 @@
             if (!mapGroup) return;
             showToast(`📡 MAP TARGETING: ${targetType.toUpperCase()}`);
             if (targetType === 'player') {
-                mapGroup.position.set(0, 0, 0); mapCamDistance = 60;
+                mapGroup.position.set(0, 0, 0); mapTargetCamDistance = 60; mapCamDistance = 60;
             } else if (targetType === 'sun') {
-                mapGroup.position.set(-85, -45, -60); mapCamDistance = 150;
+                mapGroup.position.set(-85, -45, -60); mapTargetCamDistance = 150; mapCamDistance = 150;
             } else if (targetType === 'planet') {
-                mapGroup.position.set(38, -5, 45); mapCamDistance = 85;
+                mapGroup.position.set(38, -5, 45); mapTargetCamDistance = 85; mapCamDistance = 85;
             } else if (targetType === 'wormhole') {
-                mapGroup.position.set(15, -2, 28); mapCamDistance = 70;
+                mapGroup.position.set(15, -2, 28); mapTargetCamDistance = 70; mapCamDistance = 70;
             } else if (targetType === 'dreadnought') {
-                mapGroup.position.set(-28, -4, 42); mapCamDistance = 80;
+                mapGroup.position.set(-28, -4, 42); mapTargetCamDistance = 80; mapCamDistance = 80;
             } else if (targetType === 'enemies') {
-                mapGroup.position.set(22, 0, 52); mapCamDistance = 95;
+                mapGroup.position.set(22, 0, 52); mapTargetCamDistance = 95; mapCamDistance = 95;
             }
         }
 
@@ -4713,7 +4743,12 @@
                 mapGroup.position.set(0, 0, 0);
                 mapGroup.rotation.set(0, 0, 0);
             }
+            mapTargetCamDistance = 120;
             mapCamDistance = 120;
+            mapTargetAzimuth = 0;
+            mapTargetPolar = 0.45;
+            mapAzimuth = 0;
+            mapPolar = 0.45;
             showToast("🎯 3D MAP RE-CENTERED ON PLAYER SHIP");
         }
 
