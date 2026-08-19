@@ -834,6 +834,22 @@
                     </div>
                 </div>
 
+                <!-- Engine Throttle Matrix Gauge Box (Mimics Shield Panel with Amber Gold Theme) -->
+                <div class="hud-card draggable-box" id="hud-throttle-card" style="position: absolute; bottom: 85px; left: 240px; width: 200px; padding: 10px; z-index: 40; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 10px;">
+                    <div class="hud-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; margin-top: 4px;">
+                        <span style="font-size: 0.85rem; color: var(--accent-gold);">⚡ ENGINE THROTTLE</span>
+                        <span id="throttle-status-tag" style="color: var(--accent-gold); font-size: 0.75rem; font-weight: 700;">STABLE</span>
+                    </div>
+                    <div style="position: relative; width: 170px; height: 170px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                        <canvas id="throttle-gauge-canvas" width="170" height="170"></canvas>
+                        <div style="position: absolute; text-align: center; pointer-events: none;">
+                            <div style="font-size: 0.7rem; color: var(--text-muted); font-family: Orbitron; letter-spacing: 1px;">THROTTLE</div>
+                            <div id="throttle-pct-text" style="font-size: 2.1rem; font-weight: 900; font-family: Orbitron; color: var(--accent-gold); text-shadow: 0 0 12px rgba(245,158,11,0.8); line-height: 1.1;">50%</div>
+                            <div id="throttle-speed-subtext" style="font-size: 0.68rem; color: #fef08a; margin-top: 2px;">1,073 km/h</div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Tactical Radar Box (Draggable with Thin Accent Handle Bar) -->
                 <div class="hud-card draggable-box" id="hud-radar-card" style="position: absolute; bottom: 85px; right: 25px; width: 220px; padding: 10px; z-index: 40; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px;">
                     <div class="hud-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; margin-top: 4px;">
@@ -2062,6 +2078,7 @@
 
             drawTacticalRadar();
             drawShieldGauge();
+            drawThrottleGauge();
             renderer.render(scene, camera);
         }
 
@@ -2186,6 +2203,77 @@
             const innerFill = startAngle + 0.94 * totalAngle;
             ctx.strokeStyle = '#38bdf8';
             ctx.shadowColor = '#38bdf8';
+            ctx.shadowBlur = 8;
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(cx, cy, cx - 28, startAngle, innerFill);
+            ctx.stroke();
+
+            ctx.shadowBlur = 0;
+        }
+
+        function drawThrottleGauge() {
+            const canvas = document.getElementById('throttle-gauge-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            const cx = w / 2;
+            const cy = h / 2;
+
+            ctx.clearRect(0, 0, w, h);
+
+            const throttleRatio = Math.min(Math.max(currentSpeed / 200, 0), 1);
+            const throttlePct = Math.round(throttleRatio * 100);
+
+            const pctText = document.getElementById('throttle-pct-text');
+            if (pctText) pctText.innerText = `${throttlePct}%`;
+
+            const statusTag = document.getElementById('throttle-status-tag');
+            if (statusTag) {
+                statusTag.innerText = throttleRatio > 0.85 ? 'MAX THRUST' : (throttleRatio < 0.05 ? 'IDLE' : 'STABLE');
+                statusTag.style.color = throttleRatio > 0.85 ? '#ef4444' : '#f59e0b';
+            }
+
+            const speedSubtext = document.getElementById('throttle-speed-subtext');
+            if (speedSubtext) {
+                const postedSpeed = Math.round(currentSpeed * 10.725);
+                speedSubtext.innerText = `${postedSpeed.toLocaleString()} km/h`;
+            }
+
+            const startAngle = -Math.PI * 0.82;
+            const endAngle = Math.PI * 0.82;
+            const totalAngle = endAngle - startAngle;
+
+            // Track Outer Ring (Dark Golden Amber)
+            ctx.strokeStyle = 'rgba(245, 158, 11, 0.18)';
+            ctx.lineWidth = 9;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.arc(cx, cy, cx - 14, startAngle, endAngle);
+            ctx.stroke();
+
+            // Active Throttle Arc (Glowing Amber / Fiery Orange)
+            const fillAngle = startAngle + throttleRatio * totalAngle;
+            const strokeColor = throttleRatio > 0.85 ? '#ef4444' : '#f59e0b';
+            ctx.strokeStyle = strokeColor;
+            ctx.shadowColor = strokeColor;
+            ctx.shadowBlur = 14;
+            ctx.lineWidth = 9;
+            ctx.beginPath();
+            ctx.arc(cx, cy, cx - 14, startAngle, fillAngle);
+            ctx.stroke();
+
+            // Inner Output Efficiency Arc (Bright Gold)
+            ctx.strokeStyle = 'rgba(254, 240, 138, 0.2)';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(cx, cy, cx - 28, startAngle, endAngle);
+            ctx.stroke();
+
+            const innerFill = startAngle + (0.1 + throttleRatio * 0.88) * totalAngle;
+            ctx.strokeStyle = '#fef08a';
+            ctx.shadowColor = '#fef08a';
             ctx.shadowBlur = 8;
             ctx.lineWidth = 4;
             ctx.beginPath();
