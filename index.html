@@ -3527,8 +3527,8 @@
                 });
             });
 
-            // Dynamic Rear Engine Point Light (10% cruising power glow)
-            const rearEngineLight = new THREE.PointLight(0x00f0ff, 4.5, 450);
+            // Dynamic Rear Engine Point Light (5% cruising power glow)
+            const rearEngineLight = new THREE.PointLight(0x00f0ff, 2.5, 300);
             rearEngineLight.position.set(0, 0, 30);
             engineGroup.add(rearEngineLight);
 
@@ -4130,7 +4130,8 @@
                         cosA * Math.cos(orbitInclination)
                     ).normalize();
 
-                    const lookTarget = capitalShip.position.clone().add(tangentDir);
+                    // Point forward prow along direction of orbital travel
+                    const lookTarget = capitalShip.position.clone().sub(tangentDir);
                     const upVector = new THREE.Vector3(relX, relY + 2000, relZ).normalize();
                     capitalShip.up.copy(upVector);
                     capitalShip.lookAt(lookTarget);
@@ -4176,58 +4177,56 @@
                         });
                     }
 
-                    // Animate Dreadnought 10% Cruise Engine Exhaust Plumes
+                    // Animate Dreadnought 5% Cruise Engine Exhaust Plumes
                     if (capitalShip.userData.engineEmitters) {
                         if (!capitalShip.userData.particles) capitalShip.userData.particles = [];
                         
                         const shipQuat = capitalShip.quaternion;
                         
-                        // Spawn new particles (skip spawning if cameraMode is 0/cockpit for performance)
+                        // Spawn 5% cruise particles
                         if (cameraMode !== 0) {
                             capitalShip.userData.engineEmitters.forEach(em => {
-                                for(let i = 0; i < 1; i++) { // Steady 10% cruising thruster stream
-                                    const pGeo = new THREE.SphereGeometry(Math.random() * 2.5 + 2.0, 6, 6);
-                                    const pMat = new THREE.MeshBasicMaterial({
-                                        color: 0x38bdf8,
-                                        transparent: true,
-                                        opacity: 0.55
-                                    });
-                                    const p = new THREE.Mesh(pGeo, pMat);
-                                    
-                                    // Scale local emitter position by 3x capital ship size
-                                    const localPos = new THREE.Vector3(
-                                        (em.x + (Math.random()-0.5) * em.r * 0.8) * 3,
-                                        (em.y + (Math.random()-0.5) * em.r * 0.8) * 3,
-                                        em.z * 3
-                                    );
-                                    
-                                    p.position.copy(localPos).applyQuaternion(shipQuat).add(capitalShip.position);
-                                    p.userData.life = 1.0;
-                                    
-                                    // 10% cruise engine drift backwards
-                                    const backwardDir = new THREE.Vector3(0, 0, 1).applyQuaternion(shipQuat);
-                                    p.userData.vel = backwardDir.multiplyScalar(Math.random() * 3.5 + 1.8);
-                                    
-                                    scene.add(p);
-                                    capitalShip.userData.particles.push(p);
-                                }
+                                const pGeo = new THREE.SphereGeometry(Math.random() * 1.5 + 1.0, 6, 6);
+                                const pMat = new THREE.MeshBasicMaterial({
+                                    color: 0x38bdf8,
+                                    transparent: true,
+                                    opacity: 0.38
+                                });
+                                const p = new THREE.Mesh(pGeo, pMat);
+                                
+                                // Scale local emitter position by 3x capital ship size
+                                const localPos = new THREE.Vector3(
+                                    (em.x + (Math.random()-0.5) * em.r * 0.6) * 3,
+                                    (em.y + (Math.random()-0.5) * em.r * 0.6) * 3,
+                                    em.z * 3
+                                );
+                                
+                                p.position.copy(localPos).applyQuaternion(shipQuat).add(capitalShip.position);
+                                p.userData.life = 1.0;
+                                
+                                // 5% gentle cruise engine drift backwards
+                                const backwardDir = new THREE.Vector3(0, 0, 1).applyQuaternion(shipQuat);
+                                p.userData.vel = backwardDir.multiplyScalar(Math.random() * 1.8 + 0.8);
+                                
+                                scene.add(p);
+                                capitalShip.userData.particles.push(p);
                             });
                         }
                         
                         // Update existing particles
                         for (let i = capitalShip.userData.particles.length - 1; i >= 0; i--) {
                             const p = capitalShip.userData.particles[i];
-                            p.userData.life -= 0.016;
-                            if (p.userData.life <= 0 || cameraMode === 0) { // Cleanup immediately if in cockpit
+                            p.userData.life -= 0.022;
+                            if (p.userData.life <= 0 || cameraMode === 0) {
                                 scene.remove(p);
                                 p.geometry.dispose();
                                 p.material.dispose();
                                 capitalShip.userData.particles.splice(i, 1);
                             } else {
                                 p.position.add(p.userData.vel);
-                                p.scale.setScalar(p.userData.life * 3.5);
-                                p.material.opacity = p.userData.life * 0.55;
-                                p.material.color.lerp(new THREE.Color(0x0284c7), 0.04); // Smooth oceanic blue fade
+                                p.scale.setScalar(p.userData.life * 2.0);
+                                p.material.opacity = p.userData.life * 0.38;
+                                p.material.color.lerp(new THREE.Color(0x0284c7), 0.04);
                             }
                         }
                     }
