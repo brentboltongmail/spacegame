@@ -3,7 +3,14 @@ import socketserver
 import json
 import os
 import urllib.parse
+import sys
 from pathlib import Path
+
+# Ensure stdout and stderr handles exist even when running via windowless pythonw.exe
+if sys.stdout is None:
+    sys.stdout = open(os.devnull, 'w')
+if sys.stderr is None:
+    sys.stderr = open(os.devnull, 'w')
 
 PORT = 8088
 BASE_DIR = Path(__file__).resolve().parent
@@ -89,16 +96,28 @@ class AstraGameRequestHandler(http.server.SimpleHTTPRequestHandler):
 
         self.send_error(404, "Endpoint not found")
 
+class ReusableTCPServer(socketserver.TCPServer):
+    allow_reuse_address = True
+
 def run_server():
     os.chdir(BASE_DIR)
-    socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("", PORT), AstraGameRequestHandler) as httpd:
-        print(f"[Solaris Horizon Server] Online & serving at http://localhost:{PORT}")
+    for attempt in range(5):
         try:
-            httpd.serve_forever()
-        except KeyboardInterrupt:
-            print("\n[Solaris Horizon Server] Shutting down...")
-            httpd.server_close()
+            with ReusableTCPServer(("", PORT), AstraGameRequestHandler) as httpd:
+                print(f"[Solaris Horizon Server] Online & serving at http://localhost:{PORT}", flush=True)
+                httpd.serve_forever()
+                break
+        except OSError as e:
+            if attempt < 4:
+                import time
+                print(f"[Solaris Horizon Server] Port {PORT} busy, retrying in 1s ({attempt + 1}/5)...", flush=True)
+                time.sleep(1)
+            else:
+                print(f"[Solaris Horizon Server] Port error: {e}", flush=True)
+                raise e
+        except Exception as e:
+            print(f"[Solaris Horizon Server] Fatal error: {e}", flush=True)
+            break
 
 if __name__ == '__main__':
     run_server()
