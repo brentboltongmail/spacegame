@@ -10,9 +10,9 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 PROMPTS = {
     "laser_fire.mp3": {
-        "text": "Deep futuristic sci-fi plasma laser cannon blaster shot, punchy energy beam pulse, heavy space fighter gunfire sound effect",
-        "duration_seconds": 0.8,
-        "prompt_influence": 0.4
+        "text": "Crisp futuristic sci-fi plasma laser beam weapon pulse blast, sharp high-tech energy ray firing, sci-fi starship beam weapon, clean high frequency zap, no drums no thud",
+        "duration_seconds": 0.6,
+        "prompt_influence": 0.55
     },
     "ship_explosion.mp3": {
         "text": "Massive deep space fighter ship explosion, booming sub bass detonation, tearing metal shrapnel and fiery energy shockwave rumble",

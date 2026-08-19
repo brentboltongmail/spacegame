@@ -2726,28 +2726,15 @@
             } else if (audioCtx && audioCtx.state === 'running' && !isAudioMuted) {
                 try {
                     const now = audioCtx.currentTime;
-                    const duration = 0.28;
+                    const duration = 0.22;
 
-                    // Layer 1: Sub-Impact Punch (360 Hz -> 50 Hz Transient Thud)
-                    const punchOsc = audioCtx.createOscillator();
-                    const punchGain = audioCtx.createGain();
-                    punchOsc.type = 'sine';
-                    punchOsc.frequency.setValueAtTime(360, now);
-                    punchOsc.frequency.exponentialRampToValueAtTime(50, now + 0.06);
-                    punchGain.gain.setValueAtTime(0.18, now);
-                    punchGain.gain.linearRampToValueAtTime(0.001, now + 0.06);
-                    punchOsc.connect(punchGain);
-                    punchGain.connect(audioCtx.destination);
-                    punchOsc.start(now);
-                    punchOsc.stop(now + 0.06);
-
-                    // Layer 2: Main Heavy Sawtooth Energy Pulse (1150 Hz -> 120 Hz Exponential Sweep)
+                    // Main Sci-Fi Energy Beam Zap (High Frequency Sawtooth Sweep - Crisp Beam)
                     const lOsc = audioCtx.createOscillator();
                     const lGain = audioCtx.createGain();
                     lOsc.type = 'sawtooth';
-                    lOsc.frequency.setValueAtTime(1150, now);
-                    lOsc.frequency.exponentialRampToValueAtTime(120, now + duration);
-                    lGain.gain.setValueAtTime(0.12, now);
+                    lOsc.frequency.setValueAtTime(1450, now);
+                    lOsc.frequency.exponentialRampToValueAtTime(280, now + duration);
+                    lGain.gain.setValueAtTime(0.14, now);
                     lGain.gain.linearRampToValueAtTime(0.001, now + duration);
                     lOsc.connect(lGain);
                     lGain.connect(audioCtx.destination);
@@ -2893,33 +2880,8 @@
         }
 
         function playLaserImpactAudio() {
-            if (!audioCtx || audioCtx.state !== 'running' || isAudioMuted) return;
-            if (elevenLabsBuffers.hit) {
-                try {
-                    const src = audioCtx.createBufferSource();
-                    src.buffer = elevenLabsBuffers.hit;
-                    const gain = audioCtx.createGain();
-                    gain.gain.setValueAtTime(0.40, audioCtx.currentTime);
-                    src.connect(gain);
-                    gain.connect(audioCtx.destination);
-                    src.start(0);
-                    return;
-                } catch (e) {}
-            }
-            try {
-                const now = audioCtx.currentTime;
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(750, now);
-                osc.frequency.linearRampToValueAtTime(140, now + 0.1);
-                gain.gain.setValueAtTime(0.18, now);
-                gain.gain.linearRampToValueAtTime(0.001, now + 0.1);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start(now);
-                osc.stop(now + 0.1);
-            } catch (e) {}
+            // Disabled sound on hit per user request
+            return;
         }
 
         let cachedExplosionNoiseBuffer = null;
