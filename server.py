@@ -73,6 +73,26 @@ class AstraGameRequestHandler(http.server.SimpleHTTPRequestHandler):
     def do_POST(self):
         parsed_path = urllib.parse.urlparse(self.path)
         
+        # Handle API Debug Logger Endpoint
+        if parsed_path.path == '/api/log':
+            content_length = int(self.headers.get('Content-Length', 0))
+            post_body = self.rfile.read(content_length)
+            try:
+                log_data = json.loads(post_body.decode('utf-8'))
+                msg = log_data.get('message', '')
+                log_str = f"[JS DEBUG] {msg}"
+                print(log_str, flush=True)
+                with open(BASE_DIR / "server.log", "a", encoding="utf-8") as f:
+                    f.write(log_str + "\n")
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(b'{"status":"ok"}')
+            except Exception as e:
+                self.send_response(400)
+                self.end_headers()
+            return
+
         # Handle API Profile Save Endpoint
         if parsed_path.path == '/api/profile':
             content_length = int(self.headers.get('Content-Length', 0))

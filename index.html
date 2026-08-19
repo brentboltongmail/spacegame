@@ -960,6 +960,12 @@
         .map-canvas-box:active {
             cursor: grabbing;
         }
+        #tactical-map-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            touch-action: none;
+        }
         .map-legend-overlay {
             position: absolute;
             top: 20px;
@@ -971,6 +977,21 @@
             width: 260px;
             backdrop-filter: blur(12px);
             pointer-events: auto;
+            z-index: 10;
+        }
+        .map-hint-overlay {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(11, 18, 36, 0.85);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 10px;
+            padding: 10px 18px;
+            font-size: 0.82rem;
+            color: #94a3b8;
+            backdrop-filter: blur(12px);
+            pointer-events: none;
+            z-index: 10;
         }
         .legend-item {
             display: flex;
@@ -1690,6 +1711,24 @@
     <!-- Include Three.js for 3D Flight Engine -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
+        // --- REALTIME SERVER DEBUG LOGGER HELPER ---
+        function remoteLog(msg) {
+            console.log("[MAP DEBUG]", msg);
+            try {
+                fetch('/api/log', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: msg })
+                }).catch(() => {});
+            } catch(err) {}
+        }
+
+        window.addEventListener('error', (e) => {
+            remoteLog(`GLOBAL JS ERROR: ${e.message} at ${e.filename}:${e.lineno}:${e.colno}`);
+        });
+        window.addEventListener('unhandledrejection', (e) => {
+            remoteLog(`UNHANDLED PROMISE REJECTION: ${e.reason}`);
+        });
         // --- Game Titles Data ---
         const gameTitles = [
             {
@@ -4372,10 +4411,12 @@
         function initTacticalMap3D() {
             const container = document.getElementById('map-canvas-container');
             const canvas = document.getElementById('tactical-map-canvas');
+            remoteLog(`initTacticalMap3D starting. Container: ${!!container}, Canvas: ${!!canvas}`);
             if (!container || !canvas) return;
 
             const w = (container.clientWidth && container.clientWidth > 50) ? container.clientWidth : Math.max(window.innerWidth - 120, 600);
             const h = (container.clientHeight && container.clientHeight > 50) ? container.clientHeight : Math.max(window.innerHeight - 180, 450);
+            remoteLog(`initTacticalMap3D canvas dims: w=${w}, h=${h}, container.clientWidth=${container.clientWidth}, container.clientHeight=${container.clientHeight}`);
             const aspect = w / h;
 
             mapScene = new THREE.Scene();
@@ -4479,6 +4520,7 @@
                 if (e.target.closest('button, .legend-item, a, input, select')) return;
                 isMapDragging = true;
                 previousMapMousePosition = { x: e.clientX, y: e.clientY };
+                remoteLog(`Container mousedown: isMapDragging=true at (${e.clientX}, ${e.clientY})`);
             });
 
             container.addEventListener('touchstart', (e) => {
@@ -4486,6 +4528,7 @@
                 if (e.target.closest('button, .legend-item, a, input, select')) return;
                 isMapDragging = true;
                 previousMapMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                remoteLog(`Container touchstart: isMapDragging=true at (${e.touches[0].clientX}, ${e.touches[0].clientY})`);
             }, { passive: true });
         }
 
@@ -4495,6 +4538,7 @@
                 if (e.target.closest('button, .legend-item, a, input, select')) return;
                 isMapDragging = true;
                 previousMapMousePosition = { x: e.clientX, y: e.clientY };
+                remoteLog(`Window mousedown: target=${e.target.tagName}#${e.target.id}.${e.target.className}`);
             }
         });
 
@@ -4503,6 +4547,7 @@
                 if (e.target.closest('button, .legend-item, a, input, select')) return;
                 isMapDragging = true;
                 previousMapMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                remoteLog(`Window touchstart: target=${e.target.tagName}#${e.target.id}.${e.target.className}`);
             }
         }, { passive: true });
 
@@ -4522,6 +4567,11 @@
                     mapTargetPolar = Math.min(Math.max(mapTargetPolar - deltaY * 0.008, 0.05), Math.PI / 2 - 0.02);
                 }
 
+                if (!window._lastDragLog || Date.now() - window._lastDragLog > 400) {
+                    window._lastDragLog = Date.now();
+                    remoteLog(`Map dragging: dX=${deltaX}, dY=${deltaY}, targetAz=${mapTargetAzimuth.toFixed(3)}, targetPolar=${mapTargetPolar.toFixed(3)}`);
+                }
+
                 previousMapMousePosition = { x: e.clientX, y: e.clientY };
             }
         });
@@ -4538,8 +4588,14 @@
             }
         }, { passive: true });
 
-        window.addEventListener('mouseup', () => { isMapDragging = false; });
-        window.addEventListener('touchend', () => { isMapDragging = false; });
+        window.addEventListener('mouseup', () => {
+            if (isMapDragging) remoteLog("Map mouseup: dragging stopped");
+            isMapDragging = false;
+        });
+        window.addEventListener('touchend', () => {
+            if (isMapDragging) remoteLog("Map touchend: dragging stopped");
+            isMapDragging = false;
+        });
 
         window.addEventListener('wheel', (e) => {
             if (isTacticalMapOpen) {
@@ -4608,6 +4664,11 @@
 
             mapCamera.position.set(mapGroup.position.x + camX, mapGroup.position.y + camY, mapGroup.position.z + camZ);
             mapCamera.lookAt(mapGroup.position.x, mapGroup.position.y, mapGroup.position.z);
+
+            if (!window._lastRenderLog || Date.now() - window._lastRenderLog > 2500) {
+                window._lastRenderLog = Date.now();
+                remoteLog(`renderTacticalMap3D: camDist=${mapCamDistance.toFixed(1)}, az=${mapAzimuth.toFixed(3)}, polar=${mapPolar.toFixed(3)}, targetAz=${mapTargetAzimuth.toFixed(3)}`);
+            }
 
             mapRenderer.render(mapScene, mapCamera);
         }
@@ -4698,6 +4759,7 @@
         function toggleTacticalMapModal() {
             isTacticalMapOpen = !isTacticalMapOpen;
             const modal = document.getElementById('tactical-map-modal');
+            remoteLog(`toggleTacticalMapModal called. isTacticalMapOpen=${isTacticalMapOpen}`);
 
             if (isTacticalMapOpen) {
                 if (document.pointerLockElement) {
