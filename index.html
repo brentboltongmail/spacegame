@@ -1893,8 +1893,8 @@
         let playerShip, capitalShip, wormholeGate, starfield, spacePlanet, spaceSun;
         let enemyShips = [];
         let laserProjectiles = [];
-        let targetSpeed = 100;
-        let currentSpeed = 100;
+        let targetSpeed = 0;
+        let currentSpeed = 0;
         let isWormholeActive = false;
 
         let cameraMode = 0; // 0: Cockpit View with Canopy Frame Bars, 1: Close, 2: Far, 3: Cinematic Showcase (Invincible)
@@ -2880,8 +2880,8 @@
             playerShip.position.set(0, 0, 0);
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
-            targetSpeed = 100;
-            currentSpeed = 100;
+            targetSpeed = 0;
+            currentSpeed = 0;
             isWormholeActive = false;
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
