@@ -4866,14 +4866,18 @@
 
             // Spawn 3x denser exhaust particle stream per thruster nozzle per frame
             if (currentSpeed > 2) {
+                const stepLength = currentSpeed * 0.0064; // Distance moved this frame
                 nozzleOffsets.forEach(offset => {
-                    for (let d = 0; d < 3; d++) { // 3x denser particle emission!
+                    const numParticles = 10; // High density to prevent circle gaps
+                    for (let d = 0; d < numParticles; d++) {
                         const subJitter = new THREE.Vector3(
                             (Math.random() - 0.5) * 0.08,
                             (Math.random() - 0.5) * 0.08,
                             (Math.random() - 0.5) * 0.08
                         );
-                        const worldPos = offset.clone().add(subJitter).applyQuaternion(shipQuat).add(playerShip.position);
+                        // Interpolate position backward along the movement vector to eliminate gaps
+                        const interpOffset = backwardDir.clone().multiplyScalar(stepLength * (d / numParticles));
+                        const worldPos = offset.clone().add(subJitter).applyQuaternion(shipQuat).add(playerShip.position).add(interpOffset);
                         const pMesh = new THREE.Mesh(particleGeo, particleMat.clone());
                         pMesh.position.copy(worldPos);
 
