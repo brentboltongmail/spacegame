@@ -649,6 +649,24 @@
             box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
         }
 
+        .crosshair-line-v {
+            position: absolute;
+            width: 2px;
+            height: 80px;
+            background: var(--accent-cyan);
+            box-shadow: 0 0 8px var(--accent-cyan);
+            opacity: 0.7;
+        }
+
+        .crosshair-line-h {
+            position: absolute;
+            height: 2px;
+            width: 80px;
+            background: var(--accent-cyan);
+            box-shadow: 0 0 8px var(--accent-cyan);
+            opacity: 0.7;
+        }
+
         .hud-action-bar {
             pointer-events: auto;
             display: flex;
@@ -1129,7 +1147,10 @@
             <div id="canvas-container"></div>
             
             <!-- Tactical Boresight Cockpit Center Target Reticle -->
-            <div class="hud-center-crosshair" id="cockpit-center-crosshair"></div>
+            <div class="hud-center-crosshair" id="cockpit-center-crosshair">
+                <div class="crosshair-line-v"></div>
+                <div class="crosshair-line-h"></div>
+            </div>
 
             <!-- Cockpit 3D Structural Canopy Overlay (First-Person View) -->
             <div id="cockpit-canopy-overlay" class="cockpit-overlay-container">
