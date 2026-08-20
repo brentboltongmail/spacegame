@@ -4185,27 +4185,36 @@
         const sharedRingMat = new THREE.MeshBasicMaterial({ color: 0xf97316, side: THREE.DoubleSide, transparent: true, opacity: 1.0 });
 
         function createFieryExplosionFX(pos) {
-            // 1. 76 Fiery Plasma Shrapnel Debris Particles (DOUBLED COUNT, SIZE & EXPANSION SPEED)
-            for (let i = 0; i < 76; i++) {
+            // Randomize explosion attributes for realism
+            const particleCount = 40 + Math.floor(Math.random() * 60); // 40 to 100 particles
+            const overallScale = 0.5 + Math.random() * 1.0;
+            const overallVelocity = 0.5 + Math.random() * 1.0;
+
+            // 1. Fiery Plasma Shrapnel Debris Particles
+            for (let i = 0; i < particleCount; i++) {
                 const pMat = sharedExpColors[i % sharedExpColors.length];
                 const p = new THREE.Mesh(sharedExpParticleGeo, pMat);
                 p.position.copy(pos);
-                // Initial particle scale doubled (1.2 to 3.2 units!)
-                const scale = 1.2 + Math.random() * 2.0;
+                
+                const scale = (1.2 + Math.random() * 2.0) * overallScale;
                 p.scale.set(scale, scale, scale);
-                // Initial explosion expansion velocity doubled (55 units/sec velocity!)
+                
+                const velMag = 55 * overallVelocity;
                 p.userData.vel = new THREE.Vector3(
-                    (Math.random() - 0.5) * 55,
-                    (Math.random() - 0.5) * 55,
-                    (Math.random() - 0.5) * 55
+                    (Math.random() - 0.5) * velMag,
+                    (Math.random() - 0.5) * velMag,
+                    (Math.random() - 0.5) * velMag
                 );
                 p.userData.life = 1.0;
                 scene.add(p);
                 explosionParticles.push(p);
             }
 
-            // 2. Giant Expanding Shockwave Ring (Expansion radius doubled!)
+            // 2. Giant Expanding Shockwave Ring
             const shockwave = new THREE.Mesh(sharedRingGeo, sharedRingMat.clone());
+            // Randomize shockwave color to orange, red, or yellow
+            const colorChoices = [0xf97316, 0xef4444, 0xfbbf24];
+            shockwave.material.color.setHex(colorChoices[Math.floor(Math.random() * colorChoices.length)]);
             shockwave.position.copy(pos);
             shockwave.userData.isShockwave = true;
             shockwave.userData.life = 1.0;
