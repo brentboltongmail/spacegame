@@ -2423,13 +2423,10 @@
                 emissiveIntensity: 0.20 // Radiant self-illuminating glow!
             });
 
-            // Async load AI planet texture map with fallback
+            // Async load high-res AI planet texture map with fallback
             new THREE.TextureLoader().load(
-                'docs/images/space_planet_surface.jpg',
+                'docs/images/space_planet_surface_hires.jpg',
                 (tex) => {
-                    tex.wrapS = THREE.MirroredRepeatWrapping;
-                    tex.wrapT = THREE.MirroredRepeatWrapping;
-                    tex.repeat.set(4, 4);
                     planetMat.map = tex;
                     planetMat.needsUpdate = true;
                 }
