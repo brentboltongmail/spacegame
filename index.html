@@ -834,21 +834,6 @@
             transition: all 0.2s ease;
         }
 
-        .cockpit-overlay-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 5; /* Lower than HUD windows (z-index 30) */
-            display: none;
-        }
-        .cockpit-svg-frame {
-            width: 100%;
-            height: 100%;
-        }
-
         /* Pilot Profile & 3D Ship Upgrade Hangar Modal (ESC Key Toggle) */
         #ship-upgrade-modal {
             position: fixed;
@@ -1167,58 +1152,6 @@
             <!-- Target Lock Box Indicator -->
             <div class="target-lock-box" id="target-lock-box"></div>
 
-            <!-- Cockpit 3D Structural Canopy Overlay (First-Person View) -->
-            <div id="cockpit-canopy-overlay" class="cockpit-overlay-container">
-                <svg viewBox="0 0 1920 1080" preserveAspectRatio="none" class="cockpit-svg-frame">
-                    <defs>
-                        <!-- AI Generated Dark Carbon Fiber Metallic Texture Pattern (Reduced 60% in scale) -->
-                        <pattern id="aiCarbonTexture" patternUnits="userSpaceOnUse" width="160" height="160">
-                            <image href="docs/images/cockpit_carbon_texture.jpg" x="0" y="0" width="160" height="160" />
-                        </pattern>
-
-                        <!-- Dark Sci-Fi Ship Texture Gradients -->
-                        <linearGradient id="darkShipMetalLeft" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#0a0e1a" />
-                            <stop offset="30%" stop-color="#161f33" />
-                            <stop offset="65%" stop-color="#0d1322" />
-                            <stop offset="100%" stop-color="#050810" />
-                        </linearGradient>
-                        <linearGradient id="darkShipMetalRight" x1="100%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stop-color="#0a0e1a" />
-                            <stop offset="30%" stop-color="#161f33" />
-                            <stop offset="65%" stop-color="#0d1322" />
-                            <stop offset="100%" stop-color="#050810" />
-                        </linearGradient>
-                        <radialGradient id="glassTint" cx="50%" cy="50%" r="65%">
-                            <stop offset="60%" stop-color="transparent" />
-                            <stop offset="90%" stop-color="rgba(0, 240, 255, 0.03)" />
-                            <stop offset="100%" stop-color="rgba(5, 8, 16, 0.75)" />
-                        </radialGradient>
-                    </defs>
-
-                    <!-- Canopy Glass Tint -->
-                    <rect x="0" y="0" width="1920" height="1080" fill="url(#glassTint)" />
-
-                    <!-- Sleek Top-Left Canopy Strut Bar with AI Carbon Fiber Armor Texture -->
-                    <path d="M 0,0 L 220,0 L 60,520 L 0,650 Z" fill="url(#darkShipMetalLeft)" stroke="#00f0ff" stroke-width="1.5" opacity="0.95" />
-                    <path d="M 0,0 L 220,0 L 60,520 L 0,650 Z" fill="url(#aiCarbonTexture)" opacity="0.85" />
-                    <path d="M 220,0 L 60,520" fill="none" stroke="#00f0ff" stroke-width="2.5" opacity="0.9" />
-                    <circle cx="200" cy="50" r="4" fill="#00f0ff" />
-                    <circle cx="110" cy="300" r="4" fill="#00f0ff" />
-
-                    <!-- Sleek Top-Right Canopy Strut Bar with AI Carbon Fiber Armor Texture -->
-                    <path d="M 1920,0 L 1700,0 L 1860,520 L 1920,650 Z" fill="url(#darkShipMetalRight)" stroke="#00f0ff" stroke-width="1.5" opacity="0.95" />
-                    <path d="M 1920,0 L 1700,0 L 1860,520 L 1920,650 Z" fill="url(#aiCarbonTexture)" opacity="0.85" />
-                    <path d="M 1700,0 L 1860,520" fill="none" stroke="#00f0ff" stroke-width="2.5" opacity="0.9" />
-                    <circle cx="1720" cy="50" r="4" fill="#00f0ff" />
-                    <circle cx="1810" cy="300" r="4" fill="#00f0ff" />
-
-                    <!-- Sleek Low-Profile Bottom Console Frame -->
-                    <path d="M 520,1080 L 600,970 L 1320,970 L 1400,1080 Z" fill="url(#darkShipMetalLeft)" stroke="rgba(0,240,255,0.7)" stroke-width="2" />
-                    <path d="M 520,1080 L 600,970 L 1320,970 L 1400,1080 Z" fill="url(#aiCarbonTexture)" opacity="0.8" />
-                    <line x1="600" y1="970" x2="1320" y2="970" stroke="#00f0ff" stroke-width="3" />
-                </svg>
-            </div>
             
             <div class="hud-overlay">
                 <div class="hud-top">
@@ -2262,10 +2195,7 @@
                 crosshair.style.opacity = (cameraMode === 0) ? '1' : '0';
             }
 
-            const cockpitOverlay = document.getElementById('cockpit-canopy-overlay');
-            if (cockpitOverlay) {
-                cockpitOverlay.style.display = (cameraMode === 0) ? 'block' : 'none';
-            }
+
         }
 
         let normalizedMouse = { x: 0, y: 0 };
@@ -2368,8 +2298,7 @@
                 if (keys.hasOwnProperty(e.code)) keys[e.code] = false;
             });
 
-            const cockpitOverlay = document.getElementById('cockpit-canopy-overlay');
-            if (cockpitOverlay) cockpitOverlay.style.display = (cameraMode === 0) ? 'block' : 'none';
+
 
             animate();
         }
@@ -3200,22 +3129,27 @@
                         bTurretGroup.position.set(side * 48, 4, zPos + 12.5);
                         bTurretGroup.rotation.z = side * -0.15; // Match armor slope
                         
+                        // Swivel group to rotate housing and barrels outwards
+                        const bSwivel = new THREE.Group();
+                        bSwivel.rotation.y = side > 0 ? Math.PI / 2 : -Math.PI / 2;
+                        bTurretGroup.add(bSwivel);
+
                         // Housing
                         const bHousing = new THREE.Mesh(new THREE.BoxGeometry(6, 6, 8), armorPlateMat);
-                        bTurretGroup.add(bHousing);
+                        bSwivel.add(bHousing);
                         
                         // Dual Barrels
                         [-2, 2].forEach(bx => {
                             const bBarrel = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.8, 12, 8), darkMetalMat);
-                            bBarrel.rotation.z = Math.PI / 2; // Point outwards
-                            bBarrel.position.set(side * 6, 0, bx);
-                            bTurretGroup.add(bBarrel);
+                            bBarrel.rotation.x = Math.PI / 2; // Point to local +Z
+                            bBarrel.position.set(bx, 0, 6);
+                            bSwivel.add(bBarrel);
                             
                             // Muzzle
                             const bMuzzle = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 2, 8), goldTrimMat);
-                            bMuzzle.rotation.z = Math.PI / 2;
-                            bMuzzle.position.set(side * 12, 0, bx);
-                            bTurretGroup.add(bMuzzle);
+                            bMuzzle.rotation.x = Math.PI / 2;
+                            bMuzzle.position.set(bx, 0, 12);
+                            bSwivel.add(bMuzzle);
                         });
                         
                         capitalShip.add(bTurretGroup);
@@ -3785,10 +3719,10 @@
                     [-1.5, 1.5].forEach(bx => {
                         const b = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.7, 10, 8), darkMetalMat);
                         b.rotation.x = Math.PI / 2;
-                        b.position.set(bx, 1.5, sideX > 0 ? 5 : -5);
+                        b.position.set(bx, 1.5, 5); // Always position at +Z locally
                         pds.add(b);
                     });
-                    pds.rotation.y = (sideX > 0 ? Math.PI / 2 : -Math.PI / 2);
+                    pds.rotation.y = (sideX > 0 ? Math.PI / 2 : -Math.PI / 2); // Rotate entire group to point outwards
                     capitalShip.add(pds);
                 });
             });
@@ -4652,7 +4586,7 @@
                             turret.getWorldPosition(worldPos);
                             const dx = playerShip.position.x - worldPos.x;
                             const dz = playerShip.position.z - worldPos.z;
-                            const targetAngle = Math.atan2(dx, dz) - capitalShip.rotation.y;
+                            const targetAngle = Math.atan2(dx, dz) - capitalShip.rotation.y + Math.PI;
                             turret.rotation.y = THREE.MathUtils.lerp(turret.rotation.y, targetAngle, 0.03);
                         });
                     }
