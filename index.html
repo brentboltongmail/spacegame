@@ -4705,11 +4705,11 @@
                     const toEnemy = e.position.clone().sub(playerShip.position);
                     const dist = toEnemy.length();
                     
-                    // Angle check: only lock if target is within the screen FOV (dot > 0.85)
+                    // Angle check: only lock if target is within a narrow screen FOV (dot > 0.96)
                     // If we are flying away or it's off-screen, it drops the lock.
                     if (dist > 0) {
                         const dot = toEnemy.clone().normalize().dot(fwdDir);
-                        if (dist < closestDist && dot > 0.85) {
+                        if (dist < closestDist && dot > 0.96) {
                             closestDist = dist;
                             closestEnemy = e;
                         }
