@@ -2168,6 +2168,7 @@
 
         let isGamePaused = false;
         let playerCredits = 125000;
+        const maxSpeedCap = 400;
         let upgradeHangarScene, upgradeHangarCamera, upgradeHangarRenderer, upgradeHangarShip, hangarShieldMesh;
         let isHangarDragging = false;
         let previousHangarMousePosition = { x: 0, y: 0 };
@@ -4403,7 +4404,6 @@
 
             // --- W / S Throttle Speed Controls (W = Accelerate, S = Decelerate) ---
             const accelRate = 0.44; // Scaled up to match doubled max speed
-            const maxSpeedCap = 400;
 
             if (keys.KeyW) targetSpeed = Math.min(targetSpeed + accelRate, maxSpeedCap);
             if (keys.KeyS) targetSpeed = Math.max(targetSpeed - accelRate, 0);
