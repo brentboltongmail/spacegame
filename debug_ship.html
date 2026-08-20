@@ -5,7 +5,9 @@
     <title>Capital Ship Debugger</title>
     <style>
         body { margin: 0; overflow: hidden; background-color: #111; color: #fff; font-family: monospace; }
-        #ui { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); padding: 15px; border: 1px solid #444; max-height: 90vh; overflow-y: auto; width: 480px; }
+        #ui { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); padding: 15px; border: 1px solid #444; max-height: 90vh; width: 480px; display: flex; flex-direction: column; }
+        #ui-header { flex-shrink: 0; }
+        #partsList { overflow-y: auto; flex-grow: 1; padding-right: 10px; }
         .part-row { margin-bottom: 5px; border-bottom: 1px solid #333; padding-bottom: 5px; }
         button { background: #333; color: #fff; border: 1px solid #555; padding: 5px 10px; cursor: pointer; margin-top: 10px; width: 100%; }
         button:hover { background: #444; }
@@ -30,11 +32,13 @@
 </head>
 <body>
     <div id="ui">
-        <h3>Ship Components</h3>
-        <button id="toggleAll">Show All</button>
-        <button id="isolateMode">Reset (Hide All)</button>
-        <button id="exportChanges" style="background:#2563eb; font-weight:bold; margin-bottom: 10px;">Export Changes</button>
-        <textarea id="exportBox" style="display:none; width:100%; height:100px; background:#222; color:#fff; margin-bottom:10px;"></textarea>
+        <div id="ui-header">
+            <h3 style="margin-top:0;">Ship Components</h3>
+            <button id="toggleAll" style="margin-top:0;">Show All</button>
+            <button id="isolateMode">Reset (Hide All)</button>
+            <button id="exportChanges" style="background:#2563eb; font-weight:bold; margin-bottom: 10px;">Export Changes</button>
+            <textarea id="exportBox" style="display:none; width:100%; height:100px; background:#222; color:#fff; margin-bottom:10px;"></textarea>
+        </div>
         <div id="partsList" style="margin-top: 15px;"></div>
     </div>
     
