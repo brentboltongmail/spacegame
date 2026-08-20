@@ -973,20 +973,8 @@
             // Triple the physical scale of the Dreadnought Flagship
             capitalShip.scale.set(3, 3, 3);
 
-            // Initial Placement in Orbit around Space Planet
-            if (spacePlanet) {
-                const orbitRadius = 11200;
-                const orbitInclination = 0.26;
-                const cosA = Math.cos(dreadOrbitAngle);
-                const sinA = Math.sin(dreadOrbitAngle);
-                capitalShip.position.set(
-                    spacePlanet.position.x + orbitRadius * cosA,
-                    spacePlanet.position.y + orbitRadius * sinA * Math.sin(orbitInclination),
-                    spacePlanet.position.z + orbitRadius * sinA * Math.cos(orbitInclination)
-                );
-            } else {
-                capitalShip.position.set(250, 40, -400);
-            }
+            // In debug mode, just keep it at 0,0,0
+            // capitalShip.position.set(250, 40, -400);
             
         }
 
