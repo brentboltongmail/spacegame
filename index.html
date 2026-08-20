@@ -4909,17 +4909,17 @@
                     document.body.appendChild(flash);
                     setTimeout(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 200); }, 20);
 
-                    // Damage Player (1 damage)
+                    // Damage Player (2 damage)
                     let hullDamageTaken = false;
                     if (shieldPercent > 0) {
-                        shieldPercent -= 1;
+                        shieldPercent -= 2;
                         if (shieldPercent < 0) {
-                            playerHp = Math.max(0, playerHp + shieldPercent);
+                            playerHp = Math.max(0, playerHp + shieldPercent); // Spillover
                             shieldPercent = 0;
                             hullDamageTaken = true;
                         }
                     } else {
-                        playerHp = Math.max(0, playerHp - 1);
+                        playerHp = Math.max(0, playerHp - 2);
                         hullDamageTaken = true;
                     }
 
@@ -5115,6 +5115,19 @@
             const h = canvas.height;
             const cx = w / 2;
             const cy = h / 2;
+
+            const textElem = document.getElementById('shield-pct-text');
+            if (textElem) {
+                textElem.innerText = Math.floor(shieldPercent) + '%';
+                // If shield is very low, turn it red, otherwise cyan
+                if (shieldPercent < 20) {
+                    textElem.style.color = '#ff3b5c';
+                    textElem.style.textShadow = '0 0 12px rgba(255, 59, 92, 0.7)';
+                } else {
+                    textElem.style.color = 'var(--accent-cyan)';
+                    textElem.style.textShadow = '0 0 12px rgba(0,240,255,0.7)';
+                }
+            }
 
             ctx.clearRect(0, 0, w, h);
 
