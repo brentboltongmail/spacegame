@@ -6525,12 +6525,11 @@
 
             // Save settings permanently
             if (currentProfile) {
-                currentProfile.settings = {
-                    masterVol: masterVal,
-                    engineVol: engineVal,
-                    firingVol: firingVal,
-                    musicVol: musicVal
-                };
+                if (!currentProfile.settings) currentProfile.settings = {};
+                currentProfile.settings.masterVol = masterVal;
+                currentProfile.settings.engineVol = engineVal;
+                currentProfile.settings.firingVol = firingVal;
+                currentProfile.settings.musicVol = musicVal;
                 saveProfileToServerSilent();
             }
         }
