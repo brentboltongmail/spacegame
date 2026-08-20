@@ -649,6 +649,18 @@
             box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
         }
 
+        .target-lock-box {
+            position: fixed !important;
+            width: 48px;
+            height: 48px;
+            border: 2px solid rgba(255, 60, 60, 0.95);
+            transform: translate(-50%, -50%) !important;
+            pointer-events: none;
+            z-index: 1000;
+            box-shadow: 0 0 14px rgba(255, 60, 60, 0.7), inset 0 0 8px rgba(255, 60, 60, 0.4);
+            display: none;
+        }
+
         .crosshair-line-v {
             position: absolute;
             width: 2px;
@@ -1151,6 +1163,9 @@
                 <div class="crosshair-line-v"></div>
                 <div class="crosshair-line-h"></div>
             </div>
+
+            <!-- Target Lock Box Indicator -->
+            <div class="target-lock-box" id="target-lock-box"></div>
 
             <!-- Cockpit 3D Structural Canopy Overlay (First-Person View) -->
             <div id="cockpit-canopy-overlay" class="cockpit-overlay-container">
@@ -4732,6 +4747,27 @@
                     }
                 }
             });
+
+            // --- UI TARGET LOCK BOX UPDATER ---
+            const lockBox = document.getElementById('target-lock-box');
+            if (lockBox) {
+                if (closestEnemy && (cameraMode === 0 || cameraMode === 1)) {
+                    const tempV = closestEnemy.position.clone();
+                    tempV.project(camera);
+                    // Check if target is in front of the camera
+                    if (tempV.z < 1) {
+                        const x = (tempV.x * 0.5 + 0.5) * window.innerWidth;
+                        const y = (-(tempV.y * 0.5) + 0.5) * window.innerHeight;
+                        lockBox.style.display = 'block';
+                        lockBox.style.left = `${x}px`;
+                        lockBox.style.top = `${y}px`;
+                    } else {
+                        lockBox.style.display = 'none';
+                    }
+                } else {
+                    lockBox.style.display = 'none';
+                }
+            }
 
             // --- LASER PROJECTILE MOVEMENT & ZERO-ALLOCATION CONTINUOUS SEGMENT COLLISION ---
             for (let i = laserProjectiles.length - 1; i >= 0; i--) {
