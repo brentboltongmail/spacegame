@@ -5409,7 +5409,7 @@
             if (!audioCtx || isMusicLoaded) return;
             isMusicLoaded = true;
             
-            fetch('data/sfx/space_theme_22s.mp3')
+            fetch('data/sfx/space_theme_120s.mp3')
                 .then(res => res.arrayBuffer())
                 .then(buf => audioCtx.decodeAudioData(buf))
                 .then(decoded => {
