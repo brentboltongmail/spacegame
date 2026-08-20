@@ -2135,7 +2135,7 @@
 
         // --- 3D THREE.JS SPACE FLIGHT SIMULATOR (MOUSE TARGETING & SPEED) ---
         let scene, camera, renderer;
-        let playerShip, capitalShip, wormholeGate, starfield, spacePlanet, spaceSun;
+        let playerShip, capitalShip, wormholeGate, starfield, spacePlanet, spaceSun, targetBox3D;
         let dreadOrbitAngle = 0.5; // Orbit angle around spacePlanet
         let enemyShips = [];
         let laserProjectiles = [];
@@ -2229,6 +2229,13 @@
             createWormholeGate();
             spawnEnemySwarm();
             initLaserPool();
+            // Create 3D Wireframe Target Lock Box
+            const targetBoxGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(20, 20, 20));
+            const targetBoxMat = new THREE.LineBasicMaterial({ color: 0xff3333, linewidth: 2 });
+            targetBox3D = new THREE.LineSegments(targetBoxGeo, targetBoxMat);
+            targetBox3D.visible = false;
+            scene.add(targetBox3D);
+
             initTacticalMap3D();
 
             // Event Listeners for Mouse Targeting & Key Controls
@@ -4672,26 +4679,28 @@
                 }
             });
 
-            // --- UI TARGET LOCK BOX UPDATER ---
-            const lockBox = document.getElementById('target-lock-box');
-            if (lockBox) {
-                if (closestEnemy && (cameraMode === 0 || cameraMode === 1)) {
-                    const tempV = closestEnemy.position.clone();
-                    tempV.project(camera);
-                    // Check if target is in front of the camera
-                    if (tempV.z < 1) {
-                        const x = (tempV.x * 0.5 + 0.5) * window.innerWidth;
-                        const y = (-(tempV.y * 0.5) + 0.5) * window.innerHeight;
-                        lockBox.style.display = 'block';
-                        lockBox.style.left = `${x}px`;
-                        lockBox.style.top = `${y}px`;
-                    } else {
-                        lockBox.style.display = 'none';
-                    }
+            // --- 3D TARGET LOCK BOX UPDATER ---
+            if (targetBox3D) {
+                if (closestEnemy && closestEnemy.userData && closestEnemy.userData.hp > 0 && (cameraMode === 0 || cameraMode === 1)) {
+                    targetBox3D.visible = true;
+                    targetBox3D.position.copy(closestEnemy.position);
+                    
+                    // Add a cool constant spinning effect to the wireframe box
+                    targetBox3D.rotation.y += 0.04;
+                    targetBox3D.rotation.x += 0.02;
+                    targetBox3D.rotation.z += 0.01;
+                    
+                    // Scale based on enemy size roughly
+                    const s = 1.2;
+                    targetBox3D.scale.set(s, s, s);
                 } else {
-                    lockBox.style.display = 'none';
+                    targetBox3D.visible = false;
                 }
             }
+            
+            // Hide the old 2D HTML lock box if it exists
+            const lockBox = document.getElementById('target-lock-box');
+            if (lockBox) lockBox.style.display = 'none';
 
             // --- LASER PROJECTILE MOVEMENT & ZERO-ALLOCATION CONTINUOUS SEGMENT COLLISION ---
             for (let i = laserProjectiles.length - 1; i >= 0; i--) {
