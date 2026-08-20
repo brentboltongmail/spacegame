@@ -2489,8 +2489,8 @@
                 
                 dummy.position.set(x, y, z);
                 
-                // Ranging from very tiny (0.5) to medium (36)
-                const scale = Math.random() * 35.5 + 0.5;
+                // Ranging from very tiny (0.5) to medium (18.25)
+                const scale = Math.random() * 17.75 + 0.5;
                 dummy.scale.set(scale, scale, scale);
                 
                 // Random rotation
@@ -4189,8 +4189,9 @@
                 try {
                     const src = audioCtx.createBufferSource();
                     src.buffer = elevenLabsBuffers.explosion;
+                    src.playbackRate.value = 0.5;
                     const gain = audioCtx.createGain();
-                    gain.gain.setValueAtTime(0.85, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(1.70, audioCtx.currentTime);
                     src.connect(gain);
                     gain.connect(audioCtx.destination);
                     src.start(0);
@@ -4199,22 +4200,22 @@
             }
             try {
                 const now = audioCtx.currentTime;
-                const totalDuration = 2.4; // 2.4-second epic studio detonation
+                const totalDuration = 4.8; // Doubled
 
-                // Layer 1: Sub-Bass Infra-Drop (Rumble from 280 Hz down to 24 Hz)
+                // Layer 1: Sub-Bass Infra-Drop
                 const subOsc = audioCtx.createOscillator();
                 const subGain = audioCtx.createGain();
                 subOsc.type = 'sine';
                 subOsc.frequency.setValueAtTime(280, now);
                 subOsc.frequency.exponentialRampToValueAtTime(24, now + totalDuration);
-                subGain.gain.setValueAtTime(0.65, now);
+                subGain.gain.setValueAtTime(1.30, now);
                 subGain.gain.linearRampToValueAtTime(0.001, now + totalDuration);
                 subOsc.connect(subGain);
                 subGain.connect(audioCtx.destination);
                 subOsc.start(now);
                 subOsc.stop(now + totalDuration);
 
-                // Layer 2: Filtered Hull Detonation & Shockwave Rumble (Lowpass Sweep from 2200 Hz down to 50 Hz)
+                // Layer 2: Filtered Hull Detonation & Shockwave Rumble
                 const noiseBuf = getExplosionNoiseBuffer();
                 if (noiseBuf) {
                     const noiseNode = audioCtx.createBufferSource();
@@ -4223,31 +4224,31 @@
                     const filter = audioCtx.createBiquadFilter();
                     filter.type = 'lowpass';
                     filter.frequency.setValueAtTime(2200, now);
-                    filter.frequency.exponentialRampToValueAtTime(50, now + 1.8);
+                    filter.frequency.exponentialRampToValueAtTime(50, now + 3.6);
                     
                     const noiseGain = audioCtx.createGain();
-                    noiseGain.gain.setValueAtTime(0.55, now);
-                    noiseGain.gain.linearRampToValueAtTime(0.001, now + 1.8);
+                    noiseGain.gain.setValueAtTime(1.10, now);
+                    noiseGain.gain.linearRampToValueAtTime(0.001, now + 3.6);
                     
                     noiseNode.connect(filter);
                     filter.connect(noiseGain);
                     noiseGain.connect(audioCtx.destination);
                     noiseNode.start(now);
-                    noiseNode.stop(now + 1.8);
+                    noiseNode.stop(now + 3.6);
                 }
 
-                // Layer 3: Secondary Shrapnel Rupture Crackle (Square Pitch Drop)
+                // Layer 3: Secondary Shrapnel Rupture Crackle
                 const tearOsc = audioCtx.createOscillator();
                 const tearGain = audioCtx.createGain();
                 tearOsc.type = 'sawtooth';
                 tearOsc.frequency.setValueAtTime(450, now + 0.05);
-                tearOsc.frequency.exponentialRampToValueAtTime(60, now + 0.45);
-                tearGain.gain.setValueAtTime(0.25, now + 0.05);
-                tearGain.gain.linearRampToValueAtTime(0.001, now + 0.45);
+                tearOsc.frequency.exponentialRampToValueAtTime(60, now + 0.90);
+                tearGain.gain.setValueAtTime(0.50, now + 0.05);
+                tearGain.gain.linearRampToValueAtTime(0.001, now + 0.90);
                 tearOsc.connect(tearGain);
                 tearGain.connect(audioCtx.destination);
                 tearOsc.start(now + 0.05);
-                tearOsc.stop(now + 0.45);
+                tearOsc.stop(now + 0.90);
             } catch (e) {}
         }
 
@@ -4660,15 +4661,15 @@
                 if (!p) continue;
 
                 if (p.userData.isShockwave) {
-                    p.scale.addScalar(0.95); // Doubled shockwave growth rate!
-                    if (p.material) p.material.opacity -= 0.012; // Halved opacity decay (lingers 2.5s)!
+                    p.scale.addScalar(0.475);
+                    if (p.material) p.material.opacity -= 0.006;
                 } else if (p.userData.vel) {
                     p.position.addScaledVector(p.userData.vel, 0.08);
-                    p.userData.vel.multiplyScalar(0.98); // Reduced space drag so shrapnel flies out 2x further!
-                    p.scale.multiplyScalar(0.985); // Slower particle shrinking!
+                    p.userData.vel.multiplyScalar(0.99);
+                    p.scale.multiplyScalar(0.9925);
                 }
 
-                p.userData.life = (p.userData.life || 1.0) - 0.014; // Halved decay rate (doubled lifetime to ~2.5s)!
+                p.userData.life = (p.userData.life || 1.0) - 0.007;
                 if (p.userData.life <= 0 || (p.material && p.material.opacity <= 0)) {
                     scene.remove(p);
                     explosionParticles.splice(i, 1);

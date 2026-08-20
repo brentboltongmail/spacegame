@@ -1,117 +1,61 @@
 {
   "username": "pilot_1",
   "boxPositions": {
-    "drag-mouse-targeting-controls": {
-      "x": -828,
-      "y": -26
-    },
-    "drag-sector-objective": {
-      "x": 24,
-      "y": 36
-    },
-    "hud-radar-card": {
-      "x": 9,
-      "y": -20
-    },
-    "drag-interceptor-status": {
-      "x": 707,
-      "y": 834
-    },
-    "box-5": {
-      "x": 11,
-      "y": 40
-    },
-    "hud-shield-card": {
-      "x": -24,
-      "y": 81
-    },
-    "hud-throttle-card": {
-      "x": -30,
-      "y": 82
-    },
-    "box-6": {
-      "x": 32,
-      "y": -496
-    },
-    "title-card-4": {
-      "x": -3,
-      "y": 9044
-    },
-    "drag-core-gameplay-mechanics-matrix": {
-      "x": 3,
-      "y": 8971
-    },
-    "hud-action-bar-card": {
-      "x": -620,
-      "y": -697
-    },
-    "hud-controls-card": {
-      "x": -18,
-      "y": -24
-    },
-    "hud-top-target-card": {
-      "x": 4,
-      "y": -7
-    },
-    "hud-target-card": {
-      "x": 26,
-      "y": 29
-    },
     "title-card-0": {
       "x": 0,
-      "y": 9044
+      "y": 68
     },
     "title-card-1": {
       "x": 0,
-      "y": 9044
+      "y": 68
     },
     "title-card-2": {
       "x": 0,
-      "y": 9044
+      "y": 68
     },
     "title-card-3": {
       "x": 0,
-      "y": 9044
+      "y": 68
+    },
+    "title-card-4": {
+      "x": 0,
+      "y": 68
     },
     "title-card-5": {
       "x": 0,
-      "y": 9044
+      "y": 68
     },
     "drag-prologue-sol-system-the-crest": {
       "x": 0,
-      "y": 9044
+      "y": 68
     },
     "drag-uncharted-galaxy-mercenary-warfare": {
       "x": 0,
-      "y": 9044
-    },
-    "drag-reclaiming-the-throne-of-aethelgard": {
-      "x": 0,
-      "y": 3604
-    },
-    "drag-key-factions": {
-      "x": 0,
-      "y": 9044
-    },
-    "drag-void-interceptor": {
-      "x": 0,
-      "y": 9044
-    },
-    "drag-heavy-strike-corvette": {
-      "x": 0,
-      "y": 9044
-    },
-    "drag-aethelgard-royal-battlecruiser": {
-      "x": 0,
-      "y": 3604
+      "y": 68
     },
     "drag-reclaiming-the-throne-of-vanguard": {
       "x": 0,
-      "y": 5440
+      "y": 68
+    },
+    "drag-core-gameplay-mechanics-matrix": {
+      "x": 0,
+      "y": 68
+    },
+    "drag-key-factions": {
+      "x": 0,
+      "y": 68
+    },
+    "drag-void-interceptor": {
+      "x": 0,
+      "y": 68
+    },
+    "drag-heavy-strike-corvette": {
+      "x": 0,
+      "y": 68
     },
     "drag-vanguard-royal-battlecruiser": {
       "x": 0,
-      "y": 5440
+      "y": 68
     }
   },
   "settings": {
@@ -125,9 +69,9 @@
   "minimizedBoxes": {
     "hud-top-target-card": false,
     "hud-controls-card": false,
-    "hud-action-bar-card": true,
+    "hud-action-bar-card": false,
     "drag-sector-objective": true,
-    "hud-target-card": false,
+    "hud-target-card": true,
     "hud-radar-card": false,
     "hud-throttle-card": false,
     "hud-shield-card": false
