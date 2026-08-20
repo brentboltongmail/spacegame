@@ -3,67 +3,67 @@
   "boxPositions": {
     "title-card-0": {
       "x": 0,
-      "y": 204
+      "y": 1428
     },
     "title-card-1": {
       "x": 0,
-      "y": 204
+      "y": 1428
     },
     "title-card-2": {
       "x": 0,
-      "y": 204
+      "y": 1428
     },
     "title-card-3": {
       "x": 0,
-      "y": 204
+      "y": 1428
     },
     "title-card-4": {
       "x": 0,
-      "y": 204
+      "y": 1428
     },
     "title-card-5": {
       "x": 0,
-      "y": 204
+      "y": 1428
     },
     "drag-prologue-sol-system-the-crest": {
       "x": 0,
-      "y": 204
+      "y": 1428
     },
     "drag-uncharted-galaxy-mercenary-warfare": {
       "x": 0,
-      "y": 204
+      "y": 1428
     },
     "drag-reclaiming-the-throne-of-vanguard": {
       "x": 0,
-      "y": 204
+      "y": 1428
     },
     "drag-core-gameplay-mechanics-matrix": {
       "x": 0,
-      "y": 204
+      "y": 1428
     },
     "drag-key-factions": {
       "x": 0,
-      "y": 204
+      "y": 1428
     },
     "drag-void-interceptor": {
       "x": 0,
-      "y": 204
+      "y": 1428
     },
     "drag-heavy-strike-corvette": {
       "x": 0,
-      "y": 204
+      "y": 1428
     },
     "drag-vanguard-royal-battlecruiser": {
       "x": 0,
-      "y": 204
+      "y": 1428
     },
     "hud-top-target-card": {
       "x": 8,
-      "y": -69
+      "y": -7
     },
     "hud-controls-card": {
       "x": -17,
-      "y": -28
+      "y": 36
     },
     "hud-action-bar-card": {
       "x": -619,
@@ -80,6 +80,10 @@
     "hud-throttle-card": {
       "x": -24,
       "y": 84
+    },
+    "drag-sector-objective": {
+      "x": 0,
+      "y": 36
     }
   },
   "settings": {
