@@ -10,6 +10,23 @@
         button { background: #333; color: #fff; border: 1px solid #555; padding: 5px 10px; cursor: pointer; margin-top: 10px; width: 100%; }
         button:hover { background: #444; }
     </style>
+    <script>
+        window.onerror = function(msg, url, line, col, error) {
+            const errDiv = document.createElement('div');
+            errDiv.style.position = 'absolute';
+            errDiv.style.top = '10px';
+            errDiv.style.left = '10px';
+            errDiv.style.zIndex = '999999';
+            errDiv.style.background = 'red';
+            errDiv.style.color = 'white';
+            errDiv.style.padding = '20px';
+            errDiv.style.fontSize = '20px';
+            errDiv.style.maxWidth = '80vw';
+            errDiv.innerHTML = `<strong>JavaScript Error:</strong><br>${msg}<br>Line: ${line}<br>Col: ${col}<br><pre>${error ? error.stack : ''}</pre>`;
+            document.body.appendChild(errDiv);
+            return false;
+        };
+    </script>
 </head>
 <body>
     <div id="ui">
