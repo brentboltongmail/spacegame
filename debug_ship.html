@@ -1013,22 +1013,27 @@
             function formatTransform(obj, indent, pieceName) {
                 const id = window.debugObjects.length;
                 
+                if (!obj) return "";
+                if (!obj.userData) obj.userData = {};
+                
+                const p = obj.position || {x:0, y:0, z:0};
+                const r = obj.rotation || {x:0, y:0, z:0};
+                const s = obj.scale || {x:1, y:1, z:1};
+
                 // Store initial transforms for reset and exporting
                 obj.userData.dbgInitial = {
-                    position: {x: obj.position.x, y: obj.position.y, z: obj.position.z},
-                    rotation: {x: obj.rotation.x, y: obj.rotation.y, z: obj.rotation.z},
-                    scale: {x: obj.scale.x, y: obj.scale.y, z: obj.scale.z}
+                    position: {x: p.x, y: p.y, z: p.z},
+                    rotation: {x: r.x, y: r.y, z: r.z},
+                    scale: {x: s.x, y: s.y, z: s.z}
                 };
                 obj.userData.dbgName = pieceName;
                 
                 window.debugObjects.push(obj);
                 
-                const p = obj.position;
-                const r = obj.rotation;
-                const s = obj.scale;
+                // Old p, r, s removed
                 
                 const makeInput = (prop, axis, val, step) => {
-                    return `<input type="number" id="inp_${id}_${prop}_${axis}" step="${step}" value="${val.toFixed(2)}" style="width:60px; background:#222; color:#fff; border:1px solid #444; margin: 0 2px; text-align:right;" oninput="window.updateObj(${id}, '${prop}', '${axis}', this.value)">`;
+                    return `<input type="number" id="inp_${id}_${prop}_${axis}" step="${step}" value="${(val || 0).toFixed(2)}" style="width:60px; background:#222; color:#fff; border:1px solid #444; margin: 0 2px; text-align:right;" oninput="window.updateObj(${id}, '${prop}', '${axis}', this.value)">`;
                 };
 
                 let html = `${indent}<div style="display:inline-block;">`;
