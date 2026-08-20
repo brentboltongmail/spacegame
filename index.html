@@ -4744,10 +4744,9 @@
                             scene.remove(enemy);
                             enemyShips.splice(j, 1);
 
-                            if (currentPilotProfile) {
-                                currentPilotProfile.starcrafts = (currentPilotProfile.starcrafts || 0) + 500;
-                                updateProfileUI(currentPilotProfile);
-                            }
+                            playerCredits += 500;
+                            const credDisp = document.getElementById('hangar-credits-display');
+                            if (credDisp) credDisp.innerText = `${playerCredits.toLocaleString()} SC`;
                             showToast("💥 TARGET DESTROYED! +500 SC AWARDED!");
 
                             setTimeout(() => {
