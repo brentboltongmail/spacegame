@@ -2139,6 +2139,7 @@
         let dreadOrbitAngle = 0.5; // Orbit angle around spacePlanet
         let enemyShips = [];
         let laserProjectiles = [];
+        let enemyLaserProjectiles = [];
         let targetSpeed = 0;
         let currentSpeed = 0;
         let isWormholeActive = false;
@@ -3985,11 +3986,13 @@
         const sharedLaserTipMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
 
         const laserPool = [];
-        const maxPoolSize = 30;
+        const enemyLaserPool = [];
+        const maxPoolSize = 40;
 
         function initLaserPool() {
             if (laserPool.length > 0) return;
             for (let i = 0; i < maxPoolSize; i++) {
+                // Player Laser
                 const boltGroup = new THREE.Group();
                 const coreMesh = new THREE.Mesh(sharedLaserCoreGeo, sharedLaserCoreMat);
                 boltGroup.add(coreMesh);
@@ -3998,11 +4001,26 @@
                 const tipMesh = new THREE.Mesh(sharedLaserTipGeo, sharedLaserTipMat);
                 tipMesh.position.set(0, 0, -6.2);
                 boltGroup.add(tipMesh);
-
                 boltGroup.visible = false;
                 boltGroup.userData = { active: false, velocity: new THREE.Vector3(), prevPos: new THREE.Vector3() };
                 scene.add(boltGroup);
                 laserPool.push(boltGroup);
+
+                // Enemy Laser (Red)
+                const eBoltGroup = new THREE.Group();
+                const eCoreMesh = new THREE.Mesh(sharedLaserCoreGeo, sharedLaserCoreMat);
+                eBoltGroup.add(eCoreMesh);
+                const eAuraMat = new THREE.MeshBasicMaterial({ color: 0xff3b5c, transparent: true, opacity: 0.75 });
+                const eAuraMesh = new THREE.Mesh(sharedLaserAuraGeo, eAuraMat);
+                eBoltGroup.add(eAuraMesh);
+                const eTipMat = new THREE.MeshBasicMaterial({ color: 0xff3b5c });
+                const eTipMesh = new THREE.Mesh(sharedLaserTipGeo, eTipMat);
+                eTipMesh.position.set(0, 0, -6.2);
+                eBoltGroup.add(eTipMesh);
+                eBoltGroup.visible = false;
+                eBoltGroup.userData = { active: false, isEnemy: true, velocity: new THREE.Vector3(), prevPos: new THREE.Vector3() };
+                scene.add(eBoltGroup);
+                enemyLaserPool.push(eBoltGroup);
             }
         }
 
@@ -4011,6 +4029,16 @@
                 if (!laserPool[i].userData.active) {
                     laserPool[i].userData.active = true;
                     return laserPool[i];
+                }
+            }
+            return null;
+        }
+
+        function getPooledEnemyLaserBolt() {
+            for (let i = 0; i < enemyLaserPool.length; i++) {
+                if (!enemyLaserPool[i].userData.active) {
+                    enemyLaserPool[i].userData.active = true;
+                    return enemyLaserPool[i];
                 }
             }
             return null;
@@ -4658,8 +4686,57 @@
             const fwdDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
 
             enemyShips.forEach(e => {
-                e.rotation.x += 0.015;
-                e.rotation.y += 0.02;
+                if (e.userData && e.userData.hp > 0 && playerShip) {
+                    const toPlayer = playerShip.position.clone().sub(e.position);
+                    const dist = toPlayer.length();
+                    
+                    if (dist > 0) {
+                        const dir = toPlayer.clone().normalize();
+                        // Turn towards player smoothly
+                        const targetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), dir);
+                        e.quaternion.slerp(targetQuat, 0.05);
+
+                        // Move based on distance
+                        if (dist > 400) {
+                            e.translateZ(-6);
+                        } else if (dist < 150) {
+                            e.translateZ(3); // Back away
+                        } else {
+                            // Strafe
+                            e.translateX(Math.sin(Date.now() * 0.001 + e.id) * 3);
+                            e.translateY(Math.cos(Date.now() * 0.001 + e.id) * 1.5);
+                        }
+
+                        // Shoot at player
+                        e.userData.lastFireTime = e.userData.lastFireTime || 0;
+                        if (dist < 3000 && Date.now() - e.userData.lastFireTime > 800 + Math.random() * 1000) {
+                            e.userData.lastFireTime = Date.now();
+                            const eLaser = getPooledEnemyLaserBolt();
+                            if (eLaser) {
+                                eLaser.visible = true;
+                                eLaser.quaternion.copy(e.quaternion);
+                                // Random left or right wing offset
+                                const side = Math.random() > 0.5 ? -2.4 : 2.4;
+                                const offset = new THREE.Vector3(side, -0.1, -2.4).applyQuaternion(e.quaternion);
+                                eLaser.position.copy(e.position).add(offset);
+                                eLaser.userData.prevPos.copy(eLaser.position);
+                                eLaser.userData.velocity.copy(dir).multiplyScalar(12); // Speed 12
+                                if (!enemyLaserProjectiles.includes(eLaser)) enemyLaserProjectiles.push(eLaser);
+                            }
+                        }
+                    }
+
+                    // Target Lock Candidate Check
+                    const toEnemy = e.position.clone().sub(playerShip.position);
+                    const distToEnemy = toEnemy.length();
+                    if (distToEnemy > 0) {
+                        const dot = toEnemy.clone().normalize().dot(fwdDir);
+                        if (distToEnemy < closestDist && dot > 0.99) {
+                            closestDist = distToEnemy;
+                            closestEnemy = e;
+                        }
+                    }
+                }
 
                 // Handle Hit Flash Animation
                 if (e.userData && e.userData.flashTimer > 0) {
@@ -4667,22 +4744,6 @@
                     e.scale.set(1.15, 1.15, 1.15);
                 } else {
                     e.scale.set(1.0, 1.0, 1.0);
-                }
-
-                // Target Lock Candidate Check (Tripled Range: 10,500 Units / 10.5 KM)
-                if (e.userData && e.userData.hp > 0 && playerShip) {
-                    const toEnemy = e.position.clone().sub(playerShip.position);
-                    const dist = toEnemy.length();
-                    
-                    // Angle check: only lock if target is within a narrow screen FOV (dot > 0.99)
-                    // If we are flying away or it's off-screen, it drops the lock.
-                    if (dist > 0) {
-                        const dot = toEnemy.clone().normalize().dot(fwdDir);
-                        if (dist < closestDist && dot > 0.99) {
-                            closestDist = dist;
-                            closestEnemy = e;
-                        }
-                    }
                 }
             });
 
@@ -4790,6 +4851,57 @@
                 }
             }
 
+            // --- ENEMY LASER PROJECTILE MOVEMENT & PLAYER COLLISION ---
+            for (let i = enemyLaserProjectiles.length - 1; i >= 0; i--) {
+                const laser = enemyLaserProjectiles[i];
+                if (!laser || !laser.userData || !laser.userData.active) {
+                    if (laser) laser.visible = false;
+                    enemyLaserProjectiles.splice(i, 1);
+                    continue;
+                }
+
+                laser.position.add(laser.userData.velocity);
+
+                let hitPlayer = false;
+                const distToPlayer = laser.position.distanceTo(playerShip.position);
+                
+                if (distToPlayer < 12) {
+                    hitPlayer = true;
+                    // Flash red screen
+                    const flash = document.createElement('div');
+                    flash.style.position = 'fixed'; flash.style.top = '0'; flash.style.left = '0'; flash.style.width = '100%'; flash.style.height = '100%'; flash.style.backgroundColor = 'rgba(255,59,92,0.2)'; flash.style.zIndex = '9999'; flash.style.pointerEvents = 'none'; flash.style.transition = 'opacity 0.2s';
+                    document.body.appendChild(flash);
+                    setTimeout(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 200); }, 20);
+
+                    // Damage Player
+                    if (shieldPercent > 0) {
+                        shieldPercent = Math.max(0, shieldPercent - 15);
+                    } else {
+                        playerHp = Math.max(0, playerHp - 10);
+                        const speedElem = document.getElementById('hud-speed');
+                        if (speedElem) {
+                            speedElem.innerText = `HULL CRITICAL: ${Math.floor(playerHp)}%`;
+                            speedElem.style.color = '#ff3b5c';
+                            setTimeout(() => { 
+                                if (speedElem && playerHp > 0) speedElem.style.color = '#00f0ff'; 
+                            }, 500);
+                        }
+                        if (playerHp <= 0 && !isFlightLocked) {
+                            isFlightLocked = true;
+                            showToast("CRITICAL HULL FAILURE - SHIP DESTROYED");
+                            triggerExplosion(playerShip.position);
+                        }
+                    }
+                }
+
+                // Remove laser if hit or went too far
+                if (hitPlayer || laser.position.distanceTo(playerShip.position) > 10500) {
+                    laser.visible = false;
+                    laser.userData.active = false;
+                    enemyLaserProjectiles.splice(i, 1);
+                }
+            }
+
             // --- ANIMATE & DECAY EXPLOSION & SPARK PARTICLES (DOUBLED DURATION & EXPANSION) ---
             for (let i = explosionParticles.length - 1; i >= 0; i--) {
                 const p = explosionParticles[i];
@@ -4841,10 +4953,13 @@
             // Engine Exhaust Particle Trails (Short Crisp Bluish Glow)
             updateEngineParticleTrails();
 
-            // Regenerate Shields
+            // Regenerate Shields & Hull (Nanotech)
             if (shieldPercent < 100) {
                 const regenRate = 0.05 + (shipUpgrades.shields.level * 0.015);
                 shieldPercent = Math.min(100, shieldPercent + regenRate);
+            }
+            if (playerHp < 100 && playerHp > 0) { // Only regen if not dead
+                playerHp = Math.min(100, playerHp + 0.02); // Slower hull regen
             }
 
             drawTacticalRadar();
@@ -4944,6 +5059,7 @@
         }
 
         let shieldPercent = 88;
+        let playerHp = 100;
 
         function drawShieldGauge() {
             const canvas = document.getElementById('shield-gauge-canvas');
@@ -4978,20 +5094,22 @@
             ctx.arc(cx, cy, cx - 14, startAngle, fillAngle);
             ctx.stroke();
 
-            // Inner Secondary Recharge Arc (94%)
-            ctx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
+            // Inner Track Ring (Hull)
+            ctx.strokeStyle = 'rgba(255, 60, 92, 0.2)';
+            ctx.shadowBlur = 0;
             ctx.lineWidth = 4;
             ctx.beginPath();
             ctx.arc(cx, cy, cx - 28, startAngle, endAngle);
             ctx.stroke();
 
-            const innerFill = startAngle + 0.94 * totalAngle;
-            ctx.strokeStyle = '#38bdf8';
-            ctx.shadowColor = '#38bdf8';
+            // Inner Hull Value Arc (Red)
+            const hullFillAngle = startAngle + (playerHp / 100) * totalAngle;
+            ctx.strokeStyle = '#ff3b5c';
+            ctx.shadowColor = '#ff3b5c';
             ctx.shadowBlur = 8;
             ctx.lineWidth = 4;
             ctx.beginPath();
-            ctx.arc(cx, cy, cx - 28, startAngle, innerFill);
+            ctx.arc(cx, cy, cx - 28, startAngle, hullFillAngle);
             ctx.stroke();
 
             ctx.shadowBlur = 0;
