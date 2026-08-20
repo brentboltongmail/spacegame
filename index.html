@@ -4279,15 +4279,8 @@
                 explosionParticles.push(p);
             }
 
-            // 2. Giant Expanding Shockwave Ring (Made of Particles)
-            const shockwaveMat = new THREE.PointsMaterial({ 
-                color: 0xffffff, 
-                size: 2.5,
-                sizeAttenuation: true,
-                transparent: true,
-                opacity: 1.0
-            });
-            const shockwave = new THREE.Points(sharedRingGeo, shockwaveMat);
+            // 2. Giant Expanding Shockwave Ring (Solid Mesh)
+            const shockwave = new THREE.Mesh(sharedRingGeo, sharedRingMat.clone());
             // Randomize shockwave color to orange, red, or yellow
             const colorChoices = [0xf97316, 0xef4444, 0xfbbf24, 0xffffff];
             shockwave.material.color.setHex(colorChoices[Math.floor(Math.random() * colorChoices.length)]);
@@ -4954,8 +4947,8 @@
                 if (!p) continue;
 
                 if (p.userData.isShockwave) {
-                    p.scale.addScalar(0.475);
-                    if (p.material) p.material.opacity -= 0.006;
+                    p.scale.addScalar(0.25); // Reduced from 0.475 for smaller max radius
+                    if (p.material) p.material.opacity -= 0.012; // Increased decay rate to fade out earlier
                 } else if (p.userData.vel) {
                     p.position.addScaledVector(p.userData.vel, 0.08);
                     p.userData.vel.multiplyScalar(0.99);
