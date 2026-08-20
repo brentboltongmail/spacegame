@@ -1,8 +1,94 @@
 {
   "username": "pilot_1",
-  "boxPositions": {},
-  "settings": {
-    "masterVol": 99
+  "boxPositions": {
+    "title-card-0": {
+      "x": 0,
+      "y": 272
+    },
+    "title-card-1": {
+      "x": 0,
+      "y": 272
+    },
+    "title-card-2": {
+      "x": 0,
+      "y": 272
+    },
+    "title-card-3": {
+      "x": 0,
+      "y": 272
+    },
+    "title-card-4": {
+      "x": 0,
+      "y": 272
+    },
+    "title-card-5": {
+      "x": 0,
+      "y": 272
+    },
+    "drag-prologue-sol-system-the-crest": {
+      "x": 0,
+      "y": 272
+    },
+    "drag-uncharted-galaxy-mercenary-warfare": {
+      "x": 0,
+      "y": 272
+    },
+    "drag-the-truth-of-the-vanguard-throne": {
+      "x": 0,
+      "y": 272
+    },
+    "drag-all-out-multi-system-warfare": {
+      "x": 0,
+      "y": 272
+    },
+    "drag-the-battle-for-the-homeworld": {
+      "x": 0,
+      "y": 272
+    },
+    "drag-core-gameplay-mechanics-matrix": {
+      "x": 0,
+      "y": 272
+    },
+    "drag-key-factions": {
+      "x": 0,
+      "y": 272
+    },
+    "drag-void-interceptor": {
+      "x": 0,
+      "y": 272
+    },
+    "drag-heavy-strike-corvette": {
+      "x": 0,
+      "y": 272
+    },
+    "drag-vanguard-royal-battlecruiser": {
+      "x": 0,
+      "y": 272
+    }
   },
-  "progress": {}
+  "settings": {
+    "masterVol": 99,
+    "engineVol": 80,
+    "firingVol": 85,
+    "musicVol": 60,
+    "rollSpeed": 125,
+    "cameraLag": 80,
+    "throttleAccel": 125,
+    "shieldRegenMult": 100,
+    "hullRegenMult": 100,
+    "enemyDamageMult": 100,
+    "playerDamageMult": 100
+  },
+  "progress": {},
+  "keyBindings": {
+    "KeyW": "KeyW",
+    "KeyS": "KeyS",
+    "KeyA": "KeyA",
+    "KeyD": "KeyD",
+    "Space": "Space",
+    "KeyM": "KeyM",
+    "KeyL": "KeyL",
+    "KeyC": "KeyC",
+    "Escape": "Escape"
+  }
 }
