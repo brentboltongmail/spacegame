@@ -4362,6 +4362,13 @@
             
             // --- 20 ROUNDS OF AWESOME SHIP FRACTURING ---
             if (playerShip) {
+                // Step out to make the view cinematic
+                cameraMode = 3; 
+                const crosshair = document.querySelector('.hud-center-crosshair');
+                if (crosshair) crosshair.style.opacity = '0';
+                const lockZone = document.getElementById('target-lock-zone');
+                if (lockZone) lockZone.style.opacity = '0';
+                
                 window.deathTimeDilation = 0.1; // Slow motion matrix effect
                 window.deathCameraShake = 5.0; // Massive camera shake
                 
