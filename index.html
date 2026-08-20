@@ -4323,7 +4323,7 @@
 
         function createEpicPlayerDeathExplosion(pos) {
             // Massive scale explosion for player death
-            for (let i = 0; i < 2000; i++) {
+            for (let i = 0; i < 800; i++) {
                 const pMat = sharedExpColors[i % sharedExpColors.length];
                 const p = new THREE.Mesh(sharedExpParticleGeo, pMat);
                 p.position.copy(pos);
@@ -5146,16 +5146,19 @@
                     p.rotation.y += p.userData.rotVel.y * timeDelta * 60;
                     p.rotation.z += p.userData.rotVel.z * timeDelta * 60;
                     
-                    // Cooling down the superheated metal
+                    // Cooling down the superheated metal and shrinking
                     if (p.material && p.material.emissive) {
                         p.material.emissiveIntensity = Math.max(0, p.material.emissiveIntensity - 0.01);
                     }
+                    if (p.userData.life < 1.5) {
+                        p.scale.multiplyScalar(0.95);
+                    }
                     
                     // Random micro-explosions and fiery trails
-                    if (Math.random() < 0.1 * p.userData.life) {
+                    if (Math.random() < 0.01 * p.userData.life) {
                         spawnLaserImpactSparks(p.position);
                     }
-                    if (Math.random() < 0.02 * p.userData.life) {
+                    if (Math.random() < 0.001 * p.userData.life) {
                         createFieryExplosionFX(p.position); // Secondary explosions!
                     }
                 } else if (p.userData.vel) {
