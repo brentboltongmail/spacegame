@@ -661,6 +661,35 @@
             display: none;
         }
 
+        .target-lock-zone {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            width: 25vh;
+            height: 25vh;
+            border: 1px dashed rgba(255, 60, 92, 0.35);
+            border-radius: 2vh;
+            pointer-events: none;
+            z-index: 900;
+            opacity: 1;
+            transition: opacity 0.3s;
+            box-shadow: 0 0 20px rgba(255, 60, 92, 0.05) inset;
+        }
+        
+        .target-lock-zone::before {
+            content: 'AUTO-TARGET CONE';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: rgba(255, 60, 92, 0.5);
+            font-family: Orbitron, sans-serif;
+            letter-spacing: 2px;
+            white-space: nowrap;
+        }
+
         .crosshair-line-v {
             position: absolute;
             width: 2px;
@@ -1152,6 +1181,9 @@
 
             <!-- Target Lock Box Indicator -->
             <div class="target-lock-box" id="target-lock-box"></div>
+            
+            <!-- Auto-Target Cone Indicator -->
+            <div class="target-lock-zone" id="target-lock-zone"></div>
 
             
             <div class="hud-overlay">
@@ -2182,6 +2214,10 @@
             const crosshair = document.querySelector('.hud-center-crosshair');
             if (crosshair) {
                 crosshair.style.opacity = (cameraMode === 0) ? '1' : '0';
+            }
+            const lockZone = document.getElementById('target-lock-zone');
+            if (lockZone) {
+                lockZone.style.opacity = (cameraMode === 0) ? '1' : '0';
             }
 
 
