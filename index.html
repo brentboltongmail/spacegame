@@ -1744,6 +1744,27 @@
                         </div>
                         <input type="range" id="slider-vol-music" min="0" max="100" value="60" oninput="updateAudioVolumes()">
                     </div>
+
+                    <h3 style="font-family: Orbitron; color: var(--accent-cyan); font-size: 1.1rem; margin-top: 24px; margin-bottom: 16px; border-bottom: 1px solid rgba(0,240,255,0.2); padding-bottom: 8px;">
+                        🕹️ FLIGHT FEEL SETTINGS
+                    </h3>
+
+                    <div class="volume-slider-group">
+                        <div class="slider-header">
+                            <span>🔄 Ship Roll Speed</span>
+                            <span id="lbl-set-roll">125%</span>
+                        </div>
+                        <input type="range" id="slider-set-roll" min="10" max="250" value="125" oninput="updateGameSettings()">
+                    </div>
+
+                    <div class="volume-slider-group">
+                        <div class="slider-header">
+                            <span>🎥 Camera Tracking Lag</span>
+                            <span id="lbl-set-cam">80%</span>
+                        </div>
+                        <input type="range" id="slider-set-cam" min="1" max="100" value="80" oninput="updateGameSettings()">
+                        <div style="font-size: 0.7rem; color: #64748b; margin-top: 4px;">Higher lag = heavier, more cinematic feel</div>
+                    </div>
                 </div>
 
                 <!-- Right Box: Keymap Control Editor -->
@@ -1860,6 +1881,9 @@
                         if (set.firingVol !== undefined) document.getElementById('slider-vol-firing').value = set.firingVol;
                         if (set.musicVol !== undefined) document.getElementById('slider-vol-music').value = set.musicVol;
                         updateAudioVolumes();
+                        if (set.rollSpeed !== undefined) document.getElementById('slider-set-roll').value = set.rollSpeed;
+                        if (set.cameraLag !== undefined) document.getElementById('slider-set-cam').value = set.cameraLag;
+                        updateGameSettings();
                     }
                 }
             } catch (e) {
@@ -4432,7 +4456,7 @@
             playerShip.rotateY(-mouseXEff * turnRate);
 
             // A/D Keys for rolling the ship (very slowly)
-            const rollRate = turnRate * 0.5; // Increased by 25%
+            const rollRate = turnRate * 0.4 * (gameMechanicsConfig.rollSpeed / 100);
             if (keys.KeyA) playerShip.rotateZ(rollRate);
             if (keys.KeyD) playerShip.rotateZ(-rollRate);
 
@@ -4523,7 +4547,8 @@
             const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
             camera.up.copy(localUp);
 
-            camera.position.lerp(targetCamPos, cameraMode === 3 ? 0.01 : 0.08); // Increased camera lag
+            const dynamicLerp = 0.01 + ((100 - gameMechanicsConfig.cameraLag) / 100) * 0.20;
+            camera.position.lerp(targetCamPos, cameraMode === 3 ? 0.01 : dynamicLerp);
             camera.lookAt(targetLookAtPos);
 
             if (capitalShip) {
@@ -6021,6 +6046,11 @@
             music: 0.60
         };
 
+        let gameMechanicsConfig = {
+            rollSpeed: 125,
+            cameraLag: 80
+        };
+
         function openOptionsModal() {
             isOptionsOpen = true;
             const modal = document.getElementById('options-modal');
@@ -6033,6 +6063,24 @@
             const modal = document.getElementById('options-modal');
             if (modal) modal.style.display = 'none';
             showToast("▶️ OPTIONS CLOSED — RETURNED TO HANGAR");
+        }
+
+        function updateGameSettings() {
+            const rollVal = parseInt(document.getElementById('slider-set-roll').value);
+            const camVal = parseInt(document.getElementById('slider-set-cam').value);
+
+            document.getElementById('lbl-set-roll').innerText = rollVal + '%';
+            document.getElementById('lbl-set-cam').innerText = camVal + '%';
+
+            gameMechanicsConfig.rollSpeed = rollVal;
+            gameMechanicsConfig.cameraLag = camVal;
+
+            if (currentProfile) {
+                if (!currentProfile.settings) currentProfile.settings = {};
+                currentProfile.settings.rollSpeed = rollVal;
+                currentProfile.settings.cameraLag = camVal;
+                saveProfileToServer(currentProfile.username);
+            }
         }
 
         function updateAudioVolumes() {
