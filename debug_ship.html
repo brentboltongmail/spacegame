@@ -982,7 +982,6 @@
 
         function setupUI() {
             const list = document.getElementById('partsList');
-            let currentIsolateIndex = -1;
             
             // Try to give meaningful names based on geometry or position
             capitalShip.children.forEach((child, index) => {
@@ -1000,7 +999,7 @@
                 
                 const cb = document.createElement('input');
                 cb.type = 'checkbox';
-                cb.checked = true;
+                cb.checked = false; // Start hidden
                 cb.id = 'part_' + index;
                 cb.onchange = (e) => {
                     child.visible = e.target.checked;
@@ -1013,30 +1012,50 @@
                 div.appendChild(cb);
                 div.appendChild(label);
                 list.appendChild(div);
+
+                // Hide everything initially
+                child.visible = false;
             });
             
-            let allVisible = true;
-            document.getElementById('toggleAll').onclick = () => {
-                allVisible = !allVisible;
+            let visibleCount = 0;
+
+            const updateVisibility = () => {
                 capitalShip.children.forEach((child, i) => {
-                    child.visible = allVisible;
-                    document.getElementById('part_' + i).checked = allVisible;
-                });
-            };
-            
-            document.getElementById('isolateMode').onclick = () => {
-                currentIsolateIndex++;
-                if (currentIsolateIndex >= capitalShip.children.length) {
-                    currentIsolateIndex = 0; // wrap around
-                }
-                
-                capitalShip.children.forEach((child, i) => {
-                    const isVisible = (i === currentIsolateIndex);
+                    const isVisible = i < visibleCount;
                     child.visible = isVisible;
                     document.getElementById('part_' + i).checked = isVisible;
                 });
                 
-                document.getElementById('isolateMode').innerText = `Isolating: ${currentIsolateIndex + 1} / ${capitalShip.children.length} (Click for Next)`;
+                if (visibleCount > 0 && visibleCount <= capitalShip.children.length) {
+                    const cb = document.getElementById('part_' + (visibleCount - 1));
+                    if (cb) cb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            };
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight') {
+                    if (visibleCount < capitalShip.children.length) {
+                        visibleCount++;
+                        updateVisibility();
+                    }
+                } else if (e.key === 'ArrowLeft') {
+                    if (visibleCount > 0) {
+                        visibleCount--;
+                        updateVisibility();
+                    }
+                }
+            });
+
+            document.getElementById('toggleAll').innerText = 'Show All';
+            document.getElementById('toggleAll').onclick = () => {
+                visibleCount = capitalShip.children.length;
+                updateVisibility();
+            };
+            
+            document.getElementById('isolateMode').innerText = 'Reset (Hide All)';
+            document.getElementById('isolateMode').onclick = () => {
+                visibleCount = 0;
+                updateVisibility();
             };
         }
         
