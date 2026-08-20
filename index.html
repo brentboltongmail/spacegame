@@ -3047,23 +3047,23 @@
 
             // Standard Materials
             const hullMat = new THREE.MeshStandardMaterial({
-                map: dreadHullTex, color: 0x596473, roughness: 0.85, metalness: 0.35
+                map: dreadHullTex, color: 0x8090a5, roughness: 0.85, metalness: 0.35
             });
 
             const armorPlateMat = new THREE.MeshStandardMaterial({
-                map: dreadHullTex, color: 0x313b49, roughness: 0.80, metalness: 0.40
+                map: dreadHullTex, color: 0x475569, roughness: 0.80, metalness: 0.40
             });
 
             const greebleMat = new THREE.MeshStandardMaterial({
-                map: dreadGreebleTex, color: 0x232d3b, roughness: 0.90, metalness: 0.30
+                map: dreadGreebleTex, color: 0x334155, roughness: 0.90, metalness: 0.30
             });
 
             const goldTrimMat = new THREE.MeshStandardMaterial({
-                map: dreadGoldTrimTex, color: 0xb2b2b2, roughness: 0.55, metalness: 0.65
+                map: dreadGoldTrimTex, color: 0xffffff, roughness: 0.55, metalness: 0.65
             });
 
             const darkMetalMat = new THREE.MeshStandardMaterial({
-                map: dreadDarkMetalTex, color: 0xb2b2b2, roughness: 0.85, metalness: 0.40
+                map: dreadDarkMetalTex, color: 0xffffff, roughness: 0.85, metalness: 0.40
             });
 
             const engineNozzleMat = new THREE.MeshStandardMaterial({
@@ -3093,17 +3093,13 @@
 
             // 2. Port and Starboard Slanted Armor Cheeks (Stealth Geometry)
             [-1, 1].forEach(side => {
-                const cheekGroup = new THREE.Group();
-                cheekGroup.position.set(side * 40, 0, 10);
-                cheekGroup.rotation.z = side * -0.15; // Match rib slope EXACTLY
-                cheekGroup.scale.set(1.0, 0.6, 1.0); // Flatten height
-
                 const cheekGeo = new THREE.CylinderGeometry(18, 28, 220, 4);
                 const cheek = new THREE.Mesh(cheekGeo, armorPlateMat);
-                cheek.rotation.set(Math.PI / 2, 0, Math.PI / 4); // Make faces flat
-                
-                cheekGroup.add(cheek);
-                capitalShip.add(cheekGroup);
+                cheek.rotation.y = Math.PI / 4;
+                cheek.rotation.x = Math.PI / 2;
+                cheek.position.set(side * 40, 0, 10);
+                cheek.scale.set(1.0, 1.0, 0.5); // Flattened width
+                capitalShip.add(cheek);
                 
                 // Ribbing and Broadside Batteries along the broadside
                 for(let i = 0; i < 8; i++) {
@@ -3122,27 +3118,22 @@
                         bTurretGroup.position.set(side * 48, 4, zPos + 12.5);
                         bTurretGroup.rotation.z = side * -0.15; // Match armor slope
                         
-                        // Swivel group to rotate housing and barrels outwards
-                        const bSwivel = new THREE.Group();
-                        bSwivel.rotation.y = side > 0 ? -Math.PI / 2 : Math.PI / 2;
-                        bTurretGroup.add(bSwivel);
-
                         // Housing
                         const bHousing = new THREE.Mesh(new THREE.BoxGeometry(6, 6, 8), armorPlateMat);
-                        bSwivel.add(bHousing);
+                        bTurretGroup.add(bHousing);
                         
                         // Dual Barrels
                         [-2, 2].forEach(bx => {
                             const bBarrel = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.8, 12, 8), darkMetalMat);
-                            bBarrel.rotation.x = Math.PI / 2; // Point to local +Z
-                            bBarrel.position.set(bx, 0, 6);
-                            bSwivel.add(bBarrel);
+                            bBarrel.rotation.z = Math.PI / 2; // Point outwards
+                            bBarrel.position.set(side * 6, 0, bx);
+                            bTurretGroup.add(bBarrel);
                             
                             // Muzzle
                             const bMuzzle = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 2, 8), goldTrimMat);
-                            bMuzzle.rotation.x = Math.PI / 2;
-                            bMuzzle.position.set(bx, 0, 12);
-                            bSwivel.add(bMuzzle);
+                            bMuzzle.rotation.z = Math.PI / 2;
+                            bMuzzle.position.set(side * 12, 0, bx);
+                            bTurretGroup.add(bMuzzle);
                         });
                         
                         capitalShip.add(bTurretGroup);
@@ -3163,16 +3154,13 @@
             upperDeckBase.position.set(0, 16, -5);
             capitalShip.add(upperDeckBase);
 
-            const upperDeckTopGroup = new THREE.Group();
-            upperDeckTopGroup.position.set(0, 20, -15);
-            upperDeckTopGroup.scale.set(1, 0.2, 1);
-            
             const upperDeckTopGeo = new THREE.CylinderGeometry(28, 36, 210, 4);
             const upperDeckTop = new THREE.Mesh(upperDeckTopGeo, armorPlateMat);
-            upperDeckTop.rotation.set(Math.PI / 2, 0, Math.PI / 4);
-            
-            upperDeckTopGroup.add(upperDeckTop);
-            capitalShip.add(upperDeckTopGroup);
+            upperDeckTop.rotation.y = Math.PI / 4;
+            upperDeckTop.rotation.x = Math.PI / 2;
+            upperDeckTop.position.set(0, 20, -15);
+            upperDeckTop.scale.set(1, 1, 0.2); // Flat wedge on top
+            capitalShip.add(upperDeckTop);
 
             // Detailed Upper Deck Piping & Trenches
             for (let i = 0; i < 4; i++) {
@@ -3205,16 +3193,13 @@
             capitalShip.add(trenchCover);
 
             // 4. Ventral Keel (Faceted underbelly)
-            const keelGroup = new THREE.Group();
-            keelGroup.position.set(0, -18, 15);
-            keelGroup.scale.set(1, 0.4, 1);
-            
             const keelGeo = new THREE.CylinderGeometry(15, 30, 260, 4);
             const keel = new THREE.Mesh(keelGeo, darkMetalMat);
-            keel.rotation.set(Math.PI / 2, 0, Math.PI / 4);
-            
-            keelGroup.add(keel);
-            capitalShip.add(keelGroup);
+            keel.rotation.y = Math.PI / 4;
+            keel.rotation.x = Math.PI / 2;
+            keel.scale.set(1, 1, 0.4);
+            keel.position.set(0, -18, 15);
+            capitalShip.add(keel);
             
             const keelTrimGeo = new THREE.BoxGeometry(10, 10, 270);
             const keelTrim = new THREE.Mesh(keelTrimGeo, goldTrimMat);
@@ -3301,28 +3286,22 @@
             const prowGroup = new THREE.Group();
             prowGroup.position.set(0, 4, -180);
             
-            const prowCenterGroup = new THREE.Group();
-            prowCenterGroup.scale.set(1, 0.6, 1); // Flatten height properly
-            
             const prowCenterGeo = new THREE.CylinderGeometry(0, 48, 85, 4);
             const prowCenter = new THREE.Mesh(prowCenterGeo, armorPlateMat);
-            prowCenter.rotation.set(-Math.PI / 2, 0, Math.PI / 4); // Make faces flat
-            
-            prowCenterGroup.add(prowCenter);
-            prowGroup.add(prowCenterGroup);
+            prowCenter.rotation.y = Math.PI / 4;
+            prowCenter.rotation.x = -Math.PI / 2;
+            prowCenter.scale.set(1, 1, 0.6);
+            prowGroup.add(prowCenter);
             
             [-1, 1].forEach(side => {
                 // Secondary Side Prow
-                const prowSideGroup = new THREE.Group();
-                prowSideGroup.position.set(side * 24, 0, 15);
-                prowSideGroup.scale.set(1, 0.8, 1);
-                
                 const prowSideGeo = new THREE.CylinderGeometry(0, 20, 60, 4);
                 const prowSide = new THREE.Mesh(prowSideGeo, darkMetalMat);
-                prowSide.rotation.set(-Math.PI / 2, 0, Math.PI / 4);
-                
-                prowSideGroup.add(prowSide);
-                prowGroup.add(prowSideGroup);
+                prowSide.rotation.y = Math.PI / 4;
+                prowSide.rotation.x = -Math.PI / 2;
+                prowSide.position.set(side * 24, 0, 15);
+                prowSide.scale.set(1, 1, 0.8);
+                prowGroup.add(prowSide);
                 
                 // Heavy Armor Bracing Plate
                 const brace = new THREE.Mesh(new THREE.BoxGeometry(4, 10, 40), goldTrimMat);
@@ -3373,16 +3352,13 @@
             bridgeTower.add(bTier1Lip);
 
             // Tier 2: Mid Command Deck (Slanted forward)
-            const bTier2Group = new THREE.Group();
-            bTier2Group.position.set(0, 27, -5);
-            bTier2Group.scale.set(1.1, 0.4, 1.1);
-            
             const bTier2Geo = new THREE.CylinderGeometry(20, 26, 50, 4);
             const bTier2 = new THREE.Mesh(bTier2Geo, armorPlateMat);
-            bTier2.rotation.set(Math.PI / 2, 0, Math.PI / 4);
-            
-            bTier2Group.add(bTier2);
-            bridgeTower.add(bTier2Group);
+            bTier2.rotation.y = Math.PI / 4;
+            bTier2.rotation.x = Math.PI / 2;
+            bTier2.scale.set(1.1, 1.1, 0.4);
+            bTier2.position.set(0, 27, -5);
+            bridgeTower.add(bTier2);
 
             // Tier 3: Main Navigation Bridge (Viewport Strip)
             const bTier3Geo = new THREE.BoxGeometry(32, 12, 38);
@@ -3732,10 +3708,10 @@
                     [-1.5, 1.5].forEach(bx => {
                         const b = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.7, 10, 8), darkMetalMat);
                         b.rotation.x = Math.PI / 2;
-                        b.position.set(bx, 1.5, 5); // Always position at +Z locally
+                        b.position.set(bx, 1.5, sideX > 0 ? 5 : -5);
                         pds.add(b);
                     });
-                    pds.rotation.y = (sideX > 0 ? -Math.PI / 2 : Math.PI / 2); // Rotate entire group to point outwards
+                    pds.rotation.y = (sideX > 0 ? Math.PI / 2 : -Math.PI / 2);
                     capitalShip.add(pds);
                 });
             });
