@@ -1761,6 +1761,47 @@
                         <input type="range" id="slider-set-cam" min="1" max="100" value="80" oninput="updateGameSettings()">
                         <div style="font-size: 0.7rem; color: #64748b; margin-top: 4px;">Higher lag = heavier, more cinematic feel</div>
                     </div>
+
+                    <div class="volume-slider-group">
+                        <div class="slider-header">
+                            <span>🚀 Throttle Response Speed</span>
+                            <span id="lbl-set-throttle">125%</span>
+                        </div>
+                        <input type="range" id="slider-set-throttle" min="50" max="250" value="125" oninput="updateGameSettings()">
+                        <div style="font-size: 0.7rem; color: #64748b; margin-top: 4px;">Higher = faster engine spool up/down</div>
+                    </div>
+
+                    <div class="volume-slider-group">
+                        <div class="slider-header">
+                            <span>🛡️ Shield Regen Multiplier</span>
+                            <span id="lbl-set-shield-regen">100%</span>
+                        </div>
+                        <input type="range" id="slider-set-shield-regen" min="0" max="300" value="100" step="10" oninput="updateGameSettings()">
+                    </div>
+
+                    <div class="volume-slider-group">
+                        <div class="slider-header">
+                            <span>🔧 Hull Repair Multiplier</span>
+                            <span id="lbl-set-hull-regen">100%</span>
+                        </div>
+                        <input type="range" id="slider-set-hull-regen" min="0" max="300" value="100" step="10" oninput="updateGameSettings()">
+                    </div>
+
+                    <div class="volume-slider-group">
+                        <div class="slider-header">
+                            <span>💥 Enemy Void Damage Multiplier</span>
+                            <span id="lbl-set-enemy-dmg">100%</span>
+                        </div>
+                        <input type="range" id="slider-set-enemy-dmg" min="10" max="500" value="100" step="10" oninput="updateGameSettings()">
+                    </div>
+
+                    <div class="volume-slider-group">
+                        <div class="slider-header">
+                            <span>🔥 Player Laser Damage Multiplier</span>
+                            <span id="lbl-set-player-dmg">100%</span>
+                        </div>
+                        <input type="range" id="slider-set-player-dmg" min="10" max="500" value="100" step="10" oninput="updateGameSettings()">
+                    </div>
                 </div>
 
                 <!-- Right Box: Keymap Control Editor -->
@@ -1879,6 +1920,11 @@
                         updateAudioVolumes();
                         if (set.rollSpeed !== undefined) document.getElementById('slider-set-roll').value = set.rollSpeed;
                         if (set.cameraLag !== undefined) document.getElementById('slider-set-cam').value = set.cameraLag;
+                        if (set.throttleAccel !== undefined) document.getElementById('slider-set-throttle').value = set.throttleAccel;
+                        if (set.shieldRegenMult !== undefined) document.getElementById('slider-set-shield-regen').value = set.shieldRegenMult;
+                        if (set.hullRegenMult !== undefined) document.getElementById('slider-set-hull-regen').value = set.hullRegenMult;
+                        if (set.enemyDamageMult !== undefined) document.getElementById('slider-set-enemy-dmg').value = set.enemyDamageMult;
+                        if (set.playerDamageMult !== undefined) document.getElementById('slider-set-player-dmg').value = set.playerDamageMult;
                         updateGameSettings();
                     }
                 }
@@ -2174,7 +2220,8 @@
 
         // --- 3D THREE.JS SPACE FLIGHT SIMULATOR (MOUSE TARGETING & SPEED) ---
         let scene, camera, renderer;
-        let playerShip, capitalShip, wormholeGate, starfield, spacePlanet, spaceSun, targetBox3D;
+        let playerShip;
+        let playerShieldBubble, capitalShip, wormholeGate, starfield, spacePlanet, spaceSun, targetBox3D;
         let dreadOrbitAngle = 0.5; // Orbit angle around spacePlanet
         let enemyShips = [];
         let laserProjectiles = [];
@@ -3034,6 +3081,20 @@
                 playerShip.add(engineLight);
                 playerShip.userData.engineLights.push(engineLight);
             });
+
+            // Add visible energy shield bubble
+            const shieldGeo = new THREE.SphereGeometry(7, 32, 32);
+            const shieldMat = new THREE.MeshBasicMaterial({
+                color: 0x00f0ff,
+                transparent: true,
+                opacity: 0.1,
+                blending: THREE.AdditiveBlending,
+                side: THREE.DoubleSide
+            });
+            playerShieldBubble = new THREE.Mesh(shieldGeo, shieldMat);
+            playerShieldBubble.visible = false;
+            playerShieldBubble.userData.flashTimer = 0;
+            playerShip.add(playerShieldBubble);
 
             playerShip.position.set(0, 0, 0);
             scene.add(playerShip);
@@ -4458,11 +4519,12 @@
             }
 
             // --- W / S Throttle Speed Controls (W = Accelerate, S = Decelerate) ---
-            const accelRate = 0.44; // Scaled up to match doubled max speed
+            const throttleMult = (gameMechanicsConfig.throttleAccel || 100) / 100;
+            const accelRate = 0.44 * throttleMult; 
 
             if (keys.KeyW) targetSpeed = Math.min(targetSpeed + accelRate, maxSpeedCap);
             if (keys.KeyS) targetSpeed = Math.max(targetSpeed - accelRate, 0);
-            currentSpeed += (targetSpeed - currentSpeed) * 0.0055; // Cut in half for gradual speed transition lerp
+            currentSpeed += (targetSpeed - currentSpeed) * (0.0055 * throttleMult);
 
             // Update Cockpit Engine Sound Pitch, Muffling & Volume dynamically (0% -> 100% Throttle)
             updateEngineAudio(currentSpeed / maxSpeedCap, cameraMode === 0);
@@ -4850,7 +4912,8 @@
                         playLaserImpactAudio();
 
                         enemy.userData.flashTimer = 5;
-                        enemy.userData.hp -= 25;
+                        const pDmgMult = (gameMechanicsConfig.playerDamageMult || 100) / 100;
+                        enemy.userData.hp -= (25 * pDmgMult);
 
                         if (enemy.userData.hp <= 0) {
                             createFieryExplosionFX(enemy.position);
@@ -4909,17 +4972,24 @@
                     document.body.appendChild(flash);
                     setTimeout(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 200); }, 20);
 
-                    // Damage Player (2 damage)
+                    // Damage Player
                     let hullDamageTaken = false;
+                    const enemyDmgMult = (gameMechanicsConfig.enemyDamageMult || 100) / 100;
+                    const damageAmt = 2 * enemyDmgMult;
+                    
                     if (shieldPercent > 0) {
-                        shieldPercent -= 2;
+                        shieldPercent -= damageAmt;
+                        if (playerShieldBubble) {
+                            playerShieldBubble.visible = true;
+                            playerShieldBubble.userData.flashTimer = 15;
+                        }
                         if (shieldPercent < 0) {
                             playerHp = Math.max(0, playerHp + shieldPercent); // Spillover
                             shieldPercent = 0;
                             hullDamageTaken = true;
                         }
                     } else {
-                        playerHp = Math.max(0, playerHp - 2);
+                        playerHp = Math.max(0, playerHp - damageAmt);
                         hullDamageTaken = true;
                     }
 
@@ -4999,13 +5069,23 @@
             // Engine Exhaust Particle Trails (Short Crisp Bluish Glow)
             updateEngineParticleTrails();
 
+            // Animate Shield Bubble Flash
+            if (playerShieldBubble && playerShieldBubble.visible) {
+                playerShieldBubble.userData.flashTimer--;
+                if (playerShieldBubble.userData.flashTimer <= 0) {
+                    playerShieldBubble.visible = false;
+                }
+            }
+
             // Regenerate Shields & Hull (Nanotech)
             if (shieldPercent < 100) {
-                const regenRate = 0.015 + (shipUpgrades.shields.level * 0.01); // Level 4 = 0.055 per frame = 3.3% per second
+                const shieldMult = (gameMechanicsConfig.shieldRegenMult || 100) / 100;
+                const regenRate = (0.015 + (shipUpgrades.shields.level * 0.01)) * shieldMult;
                 shieldPercent = Math.min(100, shieldPercent + regenRate);
             }
             if (playerHp < 100 && playerHp > 0) { // Only regen if not dead
-                playerHp = Math.min(100, playerHp + 0.02); // Slower hull regen
+                const hullMult = (gameMechanicsConfig.hullRegenMult || 100) / 100;
+                playerHp = Math.min(100, playerHp + (0.02 * hullMult));
             }
 
             drawTacticalRadar();
@@ -6222,37 +6302,62 @@
 
         let gameMechanicsConfig = {
             rollSpeed: 125,
-            cameraLag: 80
+            cameraLag: 80,
+            throttleAccel: 125,
+            shieldRegenMult: 100,
+            hullRegenMult: 100,
+            enemyDamageMult: 100,
+            playerDamageMult: 100
         };
 
         function openOptionsModal() {
             isOptionsOpen = true;
             const modal = document.getElementById('options-modal');
             if (modal) modal.style.display = 'flex';
-            showToast("⚙️ GAME OPTIONS & AUDIO CONTROLS OPEN");
+            showToast("🔧 GAME OPTIONS & AUDIO CONTROLS OPEN");
         }
 
         function closeOptionsModal() {
             isOptionsOpen = false;
             const modal = document.getElementById('options-modal');
             if (modal) modal.style.display = 'none';
-            showToast("▶️ OPTIONS CLOSED — RETURNED TO HANGAR");
+            showToast("✅ OPTIONS CLOSED - RETURNED TO HANGAR");
         }
 
         function updateGameSettings() {
             const rollVal = parseInt(document.getElementById('slider-set-roll').value);
             const camVal = parseInt(document.getElementById('slider-set-cam').value);
+            const throttleVal = parseInt(document.getElementById('slider-set-throttle').value);
+            const shieldRegenVal = parseInt(document.getElementById('slider-set-shield-regen').value);
+            const hullRegenVal = parseInt(document.getElementById('slider-set-hull-regen').value);
+            const enemyDmgVal = parseInt(document.getElementById('slider-set-enemy-dmg').value);
+            const playerDmgVal = parseInt(document.getElementById('slider-set-player-dmg').value);
 
             document.getElementById('lbl-set-roll').innerText = rollVal + '%';
             document.getElementById('lbl-set-cam').innerText = camVal + '%';
+            document.getElementById('lbl-set-throttle').innerText = throttleVal + '%';
+            document.getElementById('lbl-set-shield-regen').innerText = shieldRegenVal + '%';
+            document.getElementById('lbl-set-hull-regen').innerText = hullRegenVal + '%';
+            document.getElementById('lbl-set-enemy-dmg').innerText = enemyDmgVal + '%';
+            document.getElementById('lbl-set-player-dmg').innerText = playerDmgVal + '%';
 
             gameMechanicsConfig.rollSpeed = rollVal;
             gameMechanicsConfig.cameraLag = camVal;
+            gameMechanicsConfig.throttleAccel = throttleVal;
+            gameMechanicsConfig.shieldRegenMult = shieldRegenVal;
+            gameMechanicsConfig.hullRegenMult = hullRegenVal;
+            gameMechanicsConfig.enemyDamageMult = enemyDmgVal;
+            gameMechanicsConfig.playerDamageMult = playerDmgVal;
 
             if (currentProfile) {
                 if (!currentProfile.settings) currentProfile.settings = {};
                 currentProfile.settings.rollSpeed = rollVal;
                 currentProfile.settings.cameraLag = camVal;
+                currentProfile.settings.throttleAccel = throttleVal;
+                currentProfile.settings.shieldRegenMult = shieldRegenVal;
+                currentProfile.settings.hullRegenMult = hullRegenVal;
+                currentProfile.settings.enemyDamageMult = enemyDmgVal;
+                currentProfile.settings.playerDamageMult = playerDmgVal;
                 saveProfileToServer(currentProfile.username);
             }
         }
