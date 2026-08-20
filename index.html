@@ -3094,23 +3094,23 @@
 
             // Standard Materials
             const hullMat = new THREE.MeshStandardMaterial({
-                map: dreadHullTex, color: 0x8090a5, roughness: 0.85, metalness: 0.35
+                map: dreadHullTex, color: 0x596473, roughness: 0.85, metalness: 0.35
             });
 
             const armorPlateMat = new THREE.MeshStandardMaterial({
-                map: dreadHullTex, color: 0x475569, roughness: 0.80, metalness: 0.40
+                map: dreadHullTex, color: 0x313b49, roughness: 0.80, metalness: 0.40
             });
 
             const greebleMat = new THREE.MeshStandardMaterial({
-                map: dreadGreebleTex, color: 0x334155, roughness: 0.90, metalness: 0.30
+                map: dreadGreebleTex, color: 0x232d3b, roughness: 0.90, metalness: 0.30
             });
 
             const goldTrimMat = new THREE.MeshStandardMaterial({
-                map: dreadGoldTrimTex, color: 0xffffff, roughness: 0.55, metalness: 0.65
+                map: dreadGoldTrimTex, color: 0xb2b2b2, roughness: 0.55, metalness: 0.65
             });
 
             const darkMetalMat = new THREE.MeshStandardMaterial({
-                map: dreadDarkMetalTex, color: 0xffffff, roughness: 0.85, metalness: 0.40
+                map: dreadDarkMetalTex, color: 0xb2b2b2, roughness: 0.85, metalness: 0.40
             });
 
             const engineNozzleMat = new THREE.MeshStandardMaterial({
@@ -3401,8 +3401,7 @@
             // Tier 2: Mid Command Deck (Slanted forward)
             const bTier2Geo = new THREE.CylinderGeometry(20, 26, 50, 4);
             const bTier2 = new THREE.Mesh(bTier2Geo, armorPlateMat);
-            bTier2.rotation.y = Math.PI / 4;
-            bTier2.rotation.x = Math.PI / 2;
+            bTier2.rotation.set(Math.PI / 2, 0, Math.PI / 4);
             bTier2.scale.set(1.1, 1.1, 0.4);
             bTier2.position.set(0, 27, -5);
             bridgeTower.add(bTier2);
