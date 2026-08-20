@@ -248,7 +248,13 @@
         .hud-center-crosshair::after {
             content: '';
             width: 4px;
-            .drag-handle-bar {
+            height: 4px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00f0ff;
+        }
+
+        .drag-handle-bar {
             width: 36px;
             height: 4px;
             background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.7), transparent);
@@ -297,9 +303,6 @@
         }
         .draggable-box.is-minimized > *:not(.drag-handle):not(.hud-title) {
             display: none !important;
-        }: var(--accent-cyan);
-            border-radius: 50%;
-            box-shadow: 0 0 8px var(--accent-cyan);
         }
 
         .hud-action-bar {
@@ -1851,10 +1854,34 @@
 
         window.addEventListener('error', (e) => {
             remoteLog(`GLOBAL JS ERROR: ${e.message} at ${e.filename}:${e.lineno}:${e.colno}`);
+            const errDiv = document.createElement('div');
+            errDiv.style.position = 'fixed';
+            errDiv.style.top = '0'; errDiv.style.left = '0';
+            errDiv.style.width = '100vw'; errDiv.style.height = '100vh';
+            errDiv.style.background = 'red';
+            errDiv.style.color = 'white';
+            errDiv.style.zIndex = '999999';
+            errDiv.style.padding = '20px';
+            errDiv.style.fontFamily = 'monospace';
+            errDiv.innerHTML = `<strong>JavaScript Error:</strong><br>${e.message}<br>Line: ${e.lineno}<br>Col: ${e.colno}<br><pre>${e.error ? e.error.stack : ''}</pre>`;
+            document.body.appendChild(errDiv);
         });
+
         window.addEventListener('unhandledrejection', (e) => {
             remoteLog(`UNHANDLED PROMISE REJECTION: ${e.reason}`);
+            const errDiv = document.createElement('div');
+            errDiv.style.position = 'fixed';
+            errDiv.style.top = '0'; errDiv.style.left = '0';
+            errDiv.style.width = '100vw'; errDiv.style.height = '100vh';
+            errDiv.style.background = 'red';
+            errDiv.style.color = 'white';
+            errDiv.style.zIndex = '999999';
+            errDiv.style.padding = '20px';
+            errDiv.style.fontFamily = 'monospace';
+            errDiv.innerHTML = `<strong>Unhandled Promise Rejection:</strong><br><pre>${e.reason && e.reason.stack ? e.reason.stack : e.reason}</pre>`;
+            document.body.appendChild(errDiv);
         });
+
         // --- Game Titles Data ---
         const gameTitles = [
             {
@@ -1926,6 +1953,24 @@
                         if (set.enemyDamageMult !== undefined) document.getElementById('slider-set-enemy-dmg').value = set.enemyDamageMult;
                         if (set.playerDamageMult !== undefined) document.getElementById('slider-set-player-dmg').value = set.playerDamageMult;
                         updateGameSettings();
+                    }
+                    if (currentProfile.keyBindings) {
+                        keyBindings = currentProfile.keyBindings;
+                        for (const action in keyBindings) {
+                            const code = keyBindings[action];
+                            let display = code.replace(/^Key/, '').toUpperCase();
+                            if (code === 'Space') display = 'SPACE';
+                            if (code === 'Escape') display = 'ESC';
+                            
+                            // fallback for defaults if they match
+                            if (action === 'Space' && code === 'Space') display = 'Space / Mouse 1';
+                            
+                            const el = document.getElementById('key-' + action);
+                            if (el) el.innerText = display;
+                        }
+                    } else {
+                        keyBindings = { KeyW: 'KeyW', KeyS: 'KeyS', KeyA: 'KeyA', KeyD: 'KeyD', Space: 'Space', KeyM: 'KeyM', KeyL: 'KeyL', KeyC: 'KeyC', Escape: 'Escape' };
+                        currentProfile.keyBindings = keyBindings;
                     }
                 }
             } catch (e) {
@@ -2279,6 +2324,8 @@
 
         let normalizedMouse = { x: 0, y: 0 };
         const keys = { KeyW: false, KeyS: false, KeyA: false, KeyD: false, KeyQ: false, KeyE: false, Space: false };
+        let keyBindings = { KeyW: 'KeyW', KeyS: 'KeyS', KeyA: 'KeyA', KeyD: 'KeyD', Space: 'Space', KeyM: 'KeyM', KeyL: 'KeyL', KeyC: 'KeyC', Escape: 'Escape' };
+        let activeRebindAction = null;
 
         let isFlightLocked = false;
 
@@ -2358,18 +2405,20 @@
             container.addEventListener('contextmenu', e => e.preventDefault());
 
             window.addEventListener('keydown', (e) => {
-                if (keys.hasOwnProperty(e.code)) keys[e.code] = true;
-                if (e.code === 'KeyM') toggleTacticalMapModal();
-                if (e.code === 'Escape') {
+                if (activeRebindAction) return;
+                let action = Object.keys(keyBindings).find(k => keyBindings[k] === e.code) || e.code;
+                if (keys.hasOwnProperty(action)) keys[action] = true;
+                if (action === 'KeyM') toggleTacticalMapModal();
+                if (action === 'Escape') {
                     if (isTacticalMapOpen) {
                         toggleTacticalMapModal();
                     } else {
                         togglePauseUpgradeModal();
                     }
                 }
-                if (e.code === 'Space') firePlasmaLaser();
-                if (e.code === 'KeyC') toggleCameraMode();
-                if (e.code === 'KeyL') {
+                if (action === 'Space') firePlasmaLaser();
+                if (action === 'KeyC') toggleCameraMode();
+                if (action === 'KeyL') {
                     isFlightLocked = !isFlightLocked;
                     if (isFlightLocked) {
                         normalizedMouse.x = 0;
@@ -2381,7 +2430,8 @@
                 }
             });
             window.addEventListener('keyup', (e) => {
-                if (keys.hasOwnProperty(e.code)) keys[e.code] = false;
+                let action = Object.keys(keyBindings).find(k => keyBindings[k] === e.code) || e.code;
+                if (keys.hasOwnProperty(action)) keys[action] = false;
             });
 
 
@@ -4611,8 +4661,12 @@
             showToast("Flight position reset to Sol Station.");
         }
 
+        let lastTime = performance.now();
         function animate() {
             requestAnimationFrame(animate);
+            const now = performance.now();
+            const timeDelta = (now - lastTime) / 1000;
+            lastTime = now;
 
             if (isTacticalMapOpen) {
                 renderTacticalMap3D();
@@ -6510,7 +6564,7 @@
                 currentProfile.settings.hullRegenMult = hullRegenVal;
                 currentProfile.settings.enemyDamageMult = enemyDmgVal;
                 currentProfile.settings.playerDamageMult = playerDmgVal;
-                saveProfileToServer(currentProfile.username);
+                saveProfileToServerSilent();
             }
         }
 
@@ -6572,7 +6626,13 @@
                     kbdEl.style.borderColor = "rgba(0, 240, 255, 0.4)";
                     kbdEl.style.color = "#00f0ff";
                 }
+                keyBindings[action] = newCode;
+                if (currentProfile) {
+                    currentProfile.keyBindings = keyBindings;
+                    saveProfileToServerSilent();
+                }
                 showToast(`✅ BOUND ${action} TO [ ${newChar} ]`);
+                activeRebindAction = null;
                 window.removeEventListener('keydown', captureHandler);
             };
 
@@ -6584,9 +6644,14 @@
                 KeyW: "W", KeyS: "S", KeyA: "A", KeyD: "D",
                 Space: "Space / Mouse 1", KeyM: "M", KeyL: "L", KeyC: "C", Escape: "ESC"
             };
+            keyBindings = { KeyW: 'KeyW', KeyS: 'KeyS', KeyA: 'KeyA', KeyD: 'KeyD', Space: 'Space', KeyM: 'KeyM', KeyL: 'KeyL', KeyC: 'KeyC', Escape: 'Escape' };
             for (const [key, label] of Object.entries(defaults)) {
                 const el = document.getElementById('key-' + key);
                 if (el) el.innerText = label;
+            }
+            if (currentProfile) {
+                currentProfile.keyBindings = keyBindings;
+                saveProfileToServerSilent();
             }
             showToast("🔄 KEYBINDINGS RESET TO DEFAULT FLIGHT CONTROLS");
         }
