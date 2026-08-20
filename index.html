@@ -4432,7 +4432,7 @@
             playerShip.rotateY(-mouseXEff * turnRate);
 
             // A/D Keys for rolling the ship (very slowly)
-            const rollRate = turnRate * 0.4;
+            const rollRate = turnRate * 0.5; // Increased by 25%
             if (keys.KeyA) playerShip.rotateZ(rollRate);
             if (keys.KeyD) playerShip.rotateZ(-rollRate);
 
