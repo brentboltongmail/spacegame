@@ -4523,7 +4523,7 @@
             const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
             camera.up.copy(localUp);
 
-            camera.position.lerp(targetCamPos, cameraMode === 3 ? 0.01 : 0.15);
+            camera.position.lerp(targetCamPos, cameraMode === 3 ? 0.01 : 0.08); // Increased camera lag
             camera.lookAt(targetLookAtPos);
 
             if (capitalShip) {
