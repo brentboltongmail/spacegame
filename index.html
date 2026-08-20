@@ -3142,8 +3142,7 @@
             [-1, 1].forEach(side => {
                 const cheekGeo = new THREE.CylinderGeometry(18, 28, 220, 4);
                 const cheek = new THREE.Mesh(cheekGeo, armorPlateMat);
-                cheek.rotation.y = Math.PI / 4;
-                cheek.rotation.x = Math.PI / 2;
+                cheek.rotation.set(Math.PI / 2, 0, Math.PI / 4);
                 cheek.position.set(side * 40, 0, 10);
                 cheek.scale.set(1.0, 1.0, 0.5); // Flattened width
                 capitalShip.add(cheek);
@@ -3203,8 +3202,7 @@
 
             const upperDeckTopGeo = new THREE.CylinderGeometry(28, 36, 210, 4);
             const upperDeckTop = new THREE.Mesh(upperDeckTopGeo, armorPlateMat);
-            upperDeckTop.rotation.y = Math.PI / 4;
-            upperDeckTop.rotation.x = Math.PI / 2;
+            upperDeckTop.rotation.set(Math.PI / 2, 0, Math.PI / 4);
             upperDeckTop.position.set(0, 20, -15);
             upperDeckTop.scale.set(1, 1, 0.2); // Flat wedge on top
             capitalShip.add(upperDeckTop);
@@ -3242,8 +3240,7 @@
             // 4. Ventral Keel (Faceted underbelly)
             const keelGeo = new THREE.CylinderGeometry(15, 30, 260, 4);
             const keel = new THREE.Mesh(keelGeo, darkMetalMat);
-            keel.rotation.y = Math.PI / 4;
-            keel.rotation.x = Math.PI / 2;
+            keel.rotation.set(Math.PI / 2, 0, Math.PI / 4);
             keel.scale.set(1, 1, 0.4);
             keel.position.set(0, -18, 15);
             capitalShip.add(keel);
@@ -3335,8 +3332,7 @@
             
             const prowCenterGeo = new THREE.CylinderGeometry(0, 48, 85, 4);
             const prowCenter = new THREE.Mesh(prowCenterGeo, armorPlateMat);
-            prowCenter.rotation.y = Math.PI / 4;
-            prowCenter.rotation.x = -Math.PI / 2;
+            prowCenter.rotation.set(-Math.PI / 2, 0, Math.PI / 4);
             prowCenter.scale.set(1, 1, 0.6);
             prowGroup.add(prowCenter);
             
@@ -3344,8 +3340,7 @@
                 // Secondary Side Prow
                 const prowSideGeo = new THREE.CylinderGeometry(0, 20, 60, 4);
                 const prowSide = new THREE.Mesh(prowSideGeo, darkMetalMat);
-                prowSide.rotation.y = Math.PI / 4;
-                prowSide.rotation.x = -Math.PI / 2;
+                prowSide.rotation.set(-Math.PI / 2, 0, Math.PI / 4);
                 prowSide.position.set(side * 24, 0, 15);
                 prowSide.scale.set(1, 1, 0.8);
                 prowGroup.add(prowSide);
