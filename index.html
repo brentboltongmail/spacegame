@@ -4360,8 +4360,65 @@
                 }, i * 350);
             }
             
-            // Hide player ship visually
-            if (playerShip) playerShip.visible = false;
+            // --- 20 ROUNDS OF AWESOME SHIP FRACTURING ---
+            if (playerShip) {
+                window.deathTimeDilation = 0.1; // Slow motion matrix effect
+                window.deathCameraShake = 5.0; // Massive camera shake
+                
+                // Massive whiteout screen flash
+                const whiteout = document.createElement('div');
+                whiteout.style.position = 'fixed'; whiteout.style.top = '0'; whiteout.style.left = '0'; whiteout.style.width = '100%'; whiteout.style.height = '100%'; whiteout.style.backgroundColor = '#ffffff'; whiteout.style.zIndex = '99999'; whiteout.style.pointerEvents = 'none'; whiteout.style.transition = 'opacity 3s ease-out';
+                document.body.appendChild(whiteout);
+                setTimeout(() => { whiteout.style.opacity = '0'; setTimeout(() => whiteout.remove(), 3000); }, 50);
+
+                const pieces = [];
+                playerShip.traverse((child) => {
+                    if (child.isMesh && child !== playerShieldBubble) {
+                        pieces.push(child);
+                    }
+                });
+                
+                pieces.forEach((piece) => {
+                    const wp = new THREE.Vector3();
+                    const wq = new THREE.Quaternion();
+                    const ws = new THREE.Vector3();
+                    piece.getWorldPosition(wp);
+                    piece.getWorldQuaternion(wq);
+                    piece.getWorldScale(ws);
+                    
+                    scene.add(piece); // Detach into world
+                    piece.position.copy(wp);
+                    piece.quaternion.copy(wq);
+                    piece.scale.copy(ws);
+                    
+                    // Calculate outward trajectory from center of explosion
+                    const outward = wp.clone().sub(pos).normalize();
+                    outward.x += (Math.random() - 0.5) * 2;
+                    outward.y += (Math.random() - 0.5) * 2;
+                    outward.z += (Math.random() - 0.5) * 2;
+                    outward.normalize();
+                    
+                    const speed = 100 + Math.random() * 200; // Violently fast
+                    piece.userData.vel = outward.multiplyScalar(speed);
+                    
+                    piece.userData.rotVel = new THREE.Vector3(
+                        (Math.random() - 0.5) * 0.8,
+                        (Math.random() - 0.5) * 0.8,
+                        (Math.random() - 0.5) * 0.8
+                    );
+                    
+                    // Make the piece glow superheated orange/yellow
+                    piece.material = piece.material.clone();
+                    piece.material.emissive = new THREE.Color(0xff4400);
+                    piece.material.emissiveIntensity = 4.0; // Blinding hot
+                    
+                    piece.userData.isShipDebris = true;
+                    piece.userData.life = 5.0; 
+                    explosionParticles.push(piece);
+                });
+                
+                playerShip.visible = false; // Hide the root group
+            }
         }
 
         function createFieryExplosionFX(pos) {
@@ -5074,8 +5131,28 @@
                         p.scale.addScalar(0.25); // Reduced from 0.475 for smaller max radius
                         if (p.material) p.material.opacity -= 0.012; // Increased decay rate to fade out earlier
                     }
+                } else if (p.userData.isShipDebris) {
+                    // Epic Debris Physics
+                    p.position.addScaledVector(p.userData.vel, timeDelta * 60 * 0.08);
+                    p.userData.vel.multiplyScalar(0.98); // Drag
+                    p.rotation.x += p.userData.rotVel.x * timeDelta * 60;
+                    p.rotation.y += p.userData.rotVel.y * timeDelta * 60;
+                    p.rotation.z += p.userData.rotVel.z * timeDelta * 60;
+                    
+                    // Cooling down the superheated metal
+                    if (p.material && p.material.emissive) {
+                        p.material.emissiveIntensity = Math.max(0, p.material.emissiveIntensity - 0.01);
+                    }
+                    
+                    // Random micro-explosions and fiery trails
+                    if (Math.random() < 0.1 * p.userData.life) {
+                        spawnLaserImpactSparks(p.position);
+                    }
+                    if (Math.random() < 0.02 * p.userData.life) {
+                        createFieryExplosionFX(p.position); // Secondary explosions!
+                    }
                 } else if (p.userData.vel) {
-                    p.position.addScaledVector(p.userData.vel, 0.08);
+                    p.position.addScaledVector(p.userData.vel, timeDelta * 60 * 0.08);
                     p.userData.vel.multiplyScalar(0.99);
                     p.scale.multiplyScalar(0.9925);
                 }
