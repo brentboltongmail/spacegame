@@ -1213,36 +1213,41 @@
                     </div>
                 </div>
 
-                <!-- Shield Percentage Gauge Box (Bottom Left Draggable with Thin Accent Handle Bar) -->
-                <div class="hud-card draggable-box" id="hud-shield-card" style="position: absolute; bottom: 85px; left: 25px; width: 200px; padding: 10px; z-index: 40; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px;">
-                    <div class="hud-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; margin-top: 4px;">
-                        <span style="font-size: 0.85rem; color: var(--accent-cyan);">🛡️ SHIELD MATRIX</span>
-                        <span style="color: var(--accent-cyan); font-size: 0.75rem; font-weight: 700;">ONLINE</span>
-                    </div>
-                    <div style="position: relative; width: 170px; height: 170px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
-                        <canvas id="shield-gauge-canvas" width="170" height="170"></canvas>
-                        <div style="position: absolute; text-align: center; pointer-events: none;">
-                            <div style="font-size: 0.7rem; color: var(--text-muted); font-family: Orbitron; letter-spacing: 1px;">SHIELDS</div>
-                            <div id="shield-pct-text" style="font-size: 2.1rem; font-weight: 900; font-family: Orbitron; color: var(--accent-cyan); text-shadow: 0 0 12px rgba(0,240,255,0.7); line-height: 1.1;">88%</div>
-                            <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;">RECHARGE 94%</div>
+                <!-- Shield & Throttle Combined Matrix (Bottom Left Draggable) -->
+                <div class="hud-card draggable-box" id="hud-shield-card" style="position: absolute; bottom: 85px; left: 25px; width: 420px; padding: 10px; z-index: 40; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px; display: flex; gap: 15px;">
+                    
+                    <!-- Shield Side -->
+                    <div style="flex: 1; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 15px;">
+                        <div class="hud-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; margin-top: 4px;">
+                            <span style="font-size: 0.85rem; color: var(--accent-cyan);">🛡️ SHIELD MATRIX</span>
+                            <span style="color: var(--accent-cyan); font-size: 0.75rem; font-weight: 700;">ONLINE</span>
+                        </div>
+                        <div style="position: relative; width: 170px; height: 170px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                            <canvas id="shield-gauge-canvas" width="170" height="170"></canvas>
+                            <div style="position: absolute; text-align: center; pointer-events: none;">
+                                <div style="font-size: 0.7rem; color: var(--text-muted); font-family: Orbitron; letter-spacing: 1px;">SHIELDS</div>
+                                <div id="shield-pct-text" style="font-size: 2.1rem; font-weight: 900; font-family: Orbitron; color: var(--accent-cyan); text-shadow: 0 0 12px rgba(0,240,255,0.7); line-height: 1.1;">88%</div>
+                                <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;">RECHARGE 94%</div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                    
+                    <!-- Throttle Side -->
+                    <div style="flex: 1; padding-left: 5px;">
+                        <div class="hud-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; margin-top: 4px;">
+                            <span style="font-size: 0.85rem; color: var(--accent-gold);">⚡ ENGINE THROTTLE</span>
+                            <span id="throttle-status-tag" style="color: var(--accent-gold); font-size: 0.75rem; font-weight: 700;">STABLE</span>
+                        </div>
+                        <div style="position: relative; width: 170px; height: 170px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                            <canvas id="throttle-gauge-canvas" width="170" height="170"></canvas>
+                            <div style="position: absolute; text-align: center; pointer-events: none;">
+                                <div style="font-size: 0.7rem; color: var(--text-muted); font-family: Orbitron; letter-spacing: 1px;">THROTTLE</div>
+                                <div id="throttle-pct-text" style="font-size: 2.1rem; font-weight: 900; font-family: Orbitron; color: var(--accent-gold); text-shadow: 0 0 12px rgba(245,158,11,0.8); line-height: 1.1;">50%</div>
+                                <div id="throttle-speed-subtext" style="font-size: 0.68rem; color: #fef08a; margin-top: 2px;">50,000 km/h</div>
+                            </div>
+                        </div>
+                    </div>
 
-                <!-- Engine Throttle Matrix Gauge Box (Mimics Shield Panel with Amber Gold Theme) -->
-                <div class="hud-card draggable-box" id="hud-throttle-card" style="position: absolute; bottom: 85px; left: 240px; width: 200px; padding: 10px; z-index: 40; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 10px;">
-                    <div class="hud-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; margin-top: 4px;">
-                        <span style="font-size: 0.85rem; color: var(--accent-gold);">⚡ ENGINE THROTTLE</span>
-                        <span id="throttle-status-tag" style="color: var(--accent-gold); font-size: 0.75rem; font-weight: 700;">STABLE</span>
-                    </div>
-                    <div style="position: relative; width: 170px; height: 170px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
-                        <canvas id="throttle-gauge-canvas" width="170" height="170"></canvas>
-                        <div style="position: absolute; text-align: center; pointer-events: none;">
-                            <div style="font-size: 0.7rem; color: var(--text-muted); font-family: Orbitron; letter-spacing: 1px;">THROTTLE</div>
-                            <div id="throttle-pct-text" style="font-size: 2.1rem; font-weight: 900; font-family: Orbitron; color: var(--accent-gold); text-shadow: 0 0 12px rgba(245,158,11,0.8); line-height: 1.1;">50%</div>
-                            <div id="throttle-speed-subtext" style="font-size: 0.68rem; color: #fef08a; margin-top: 2px;">50,000 km/h</div>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Top Center Red Glowing Target Damage Progress Bar Card (Draggable HUD Panel) -->
@@ -1262,22 +1267,7 @@
                     </div>
                 </div>
 
-                <!-- Tactical Target Lock Card (Draggable HUD Panel) -->
-                <div class="hud-card draggable-box" id="hud-target-card" style="position: absolute; top: 110px; right: 25px; width: 230px; padding: 10px; z-index: 40; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(255, 59, 92, 0.45); border-radius: 10px;">
-                    <div class="hud-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; margin-top: 4px;">
-                        <span style="font-size: 0.85rem; color: #ff3b5c;">🎯 TARGET LOCK</span>
-                        <span id="target-lock-status" style="color: #ff3b5c; font-size: 0.75rem; font-weight: 700;">SEARCHING...</span>
-                    </div>
-                    <div id="target-info-box" style="margin-top: 6px;">
-                        <div id="target-name" style="font-family: Orbitron; font-weight: 700; font-size: 0.85rem; color: #fff;">NO TARGET ACQUIRED</div>
-                        <div id="target-dist" style="font-size: 0.78rem; color: #94a3b8; margin-top: 2px;">Range: -- KM</div>
-                        <!-- Health Bar -->
-                        <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 8px; overflow: hidden; border: 1px solid rgba(255,59,92,0.3);">
-                            <div id="target-hp-bar" style="width: 100%; height: 100%; background: linear-gradient(90deg, #ef4444, #ff3b5c); transition: width 0.15s ease;"></div>
-                        </div>
-                        <div id="target-hp-text" style="font-size: 0.72rem; color: #f87171; text-align: right; margin-top: 3px; font-weight: 700;">100 / 100 HP</div>
-                    </div>
-                </div>
+
 
                 <!-- Tactical Radar Box (Draggable with Thin Accent Handle Bar) -->
                 <div class="hud-card draggable-box" id="hud-radar-card" style="position: absolute; bottom: 85px; right: 25px; width: 220px; padding: 10px; z-index: 40; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px;">
@@ -1860,8 +1850,7 @@
 
         function getBriefCardLabel(id, text) {
             if (id === 'hud-controls-card') return '🕹️ CONTROLS';
-            if (id === 'hud-shield-card') return '🛡️ SHIELD';
-            if (id === 'hud-throttle-card') return '⚡ THROTTLE';
+            if (id === 'hud-shield-card') return '🛡️ SHIELD & THROTTLE';
             if (id === 'hud-radar-card') return '📡 RADAR';
             if (id === 'hud-top-target-card') return '🎯 TARGET DAMAGE';
             if (id === 'hud-target-card') return '🎯 TARGET LOCK';
@@ -1970,6 +1959,7 @@
             let currentX = parseFloat(element.dataset.dragX) || 0;
             let currentY = parseFloat(element.dataset.dragY) || 0;
             let initialTop = 0;
+            let initialLeft = 0;
             const headerBoundary = 68; // Bottom border of fixed top menu bar (64px height + 4px margin)
 
             const dragStart = (e) => {
@@ -1983,6 +1973,7 @@
 
                 const rect = element.getBoundingClientRect();
                 initialTop = rect.top - currentY;
+                initialLeft = rect.left - currentX;
 
                 const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
                 const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
@@ -2004,6 +1995,15 @@
                     const minAllowedY = headerBoundary - initialTop;
                     if (currentY < minAllowedY) {
                         currentY = minAllowedY;
+                    }
+
+                    // Enforce left and right screen boundaries
+                    const minAllowedX = -initialLeft;
+                    const maxAllowedX = window.innerWidth - initialLeft - rect.width;
+                    if (currentX < minAllowedX) {
+                        currentX = minAllowedX;
+                    } else if (currentX > maxAllowedX) {
+                        currentX = maxAllowedX;
                     }
 
                     element.dataset.dragX = currentX;
@@ -4678,13 +4678,7 @@
 
             if (spaceSun) spaceSun.rotation.y += 0.0002;
 
-            // --- UPDATE DYNAMIC TARGET LOCK HUD CARDS TELEMETRY (TOP CENTER & SIDE) ---
-            const tName = document.getElementById('target-name');
-            const tDist = document.getElementById('target-dist');
-            const tBar = document.getElementById('target-hp-bar');
-            const tHpText = document.getElementById('target-hp-text');
-            const tStatus = document.getElementById('target-lock-status');
-
+            // --- UPDATE DYNAMIC TARGET LOCK HUD CARDS TELEMETRY (TOP CENTER ONLY) ---
             const topName = document.getElementById('top-target-name');
             const topDist = document.getElementById('top-target-dist');
             const topBar = document.getElementById('top-target-hp-bar');
@@ -4697,31 +4691,12 @@
                 const hpPct = Math.max(Math.round((hp / maxHp) * 100), 0);
                 const enemyName = closestEnemy.userData.name || "Void Interceptor";
 
-                // Update Side Panel
-                if (tName) tName.innerText = enemyName;
-                if (tDist) tDist.innerText = `Range: ${distKm} KM`;
-                if (tBar) tBar.style.width = `${hpPct}%`;
-                if (tHpText) tHpText.innerText = `${hp} / ${maxHp} HP`;
-                if (tStatus) {
-                    tStatus.innerText = "LOCKED";
-                    tStatus.style.color = "#ff3b5c";
-                }
-
                 // Update Top Center Red Glowing Progress Bar Panel
                 if (topName) topName.innerText = enemyName.toUpperCase();
                 if (topDist) topDist.innerText = `Range: ${distKm} KM`;
                 if (topBar) topBar.style.width = `${hpPct}%`;
                 if (topHpText) topHpText.innerText = `${hp} / ${maxHp} HP (${hpPct}%)`;
             } else {
-                if (tName) tName.innerText = "NO TARGET ACQUIRED";
-                if (tDist) tDist.innerText = "Range: -- KM";
-                if (tBar) tBar.style.width = "0%";
-                if (tHpText) tHpText.innerText = "0 / 0 HP";
-                if (tStatus) {
-                    tStatus.innerText = "SEARCHING...";
-                    tStatus.style.color = "#94a3b8";
-                }
-
                 if (topName) topName.innerText = "NO TARGET ACQUIRED";
                 if (topDist) topDist.innerText = "Range: -- KM";
                 if (topBar) topBar.style.width = "0%";
