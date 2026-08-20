@@ -4351,14 +4351,43 @@
             // Move ship forward (Physical 3D world movement doubled per user request)
             const moveDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
             const frameDisplacement = moveDir.clone().multiplyScalar(currentSpeed * 0.0064);
+            const oldPos = playerShip.position.clone();
             playerShip.position.add(frameDisplacement);
-            
+
+            // Prevent clipping into planet (Smooth sliding atmospheric repulsor buffer)
+            if (spacePlanet) {
+                const planetRadius = 9000;
+                const bufferZone = 120; // Maintain 120 unit atmospheric buffer
+                const distToCore = playerShip.position.distanceTo(spacePlanet.position);
+                
+                if (distToCore < planetRadius + bufferZone) {
+                    const pushOutDir = playerShip.position.clone().sub(spacePlanet.position).normalize();
+                    playerShip.position.copy(spacePlanet.position).add(pushOutDir.multiplyScalar(planetRadius + bufferZone));
+                    
+                    // Optionally show a warning UI tag if they are hitting the barrier
+                    if (currentSpeed > 50) {
+                        const statusTag = document.getElementById('throttle-status-tag');
+                        if (statusTag && Math.random() < 0.1) {
+                            statusTag.innerText = 'ATMOS REPULSE';
+                            statusTag.style.color = '#ff3b5c';
+                            setTimeout(() => {
+                                if (statusTag.innerText === 'ATMOS REPULSE') {
+                                    statusTag.innerText = 'STABLE';
+                                    statusTag.style.color = '#f59e0b';
+                                }
+                            }, 500);
+                        }
+                    }
+                }
+            }
+
             // Fix: Add the ship's exact physical displacement to the camera BEFORE lerping.
             // This perfectly separates translational lag from rotational/orbit lag for Cinematic mode.
             // We ONLY do this for Cockpit (0) and Cinematic (3). 
             // Third Person modes (1 & 2) skip this so they naturally trail behind during acceleration!
+            const trueDisplacement = playerShip.position.clone().sub(oldPos);
             if (cameraMode === 0 || cameraMode === 3) {
-                camera.position.add(frameDisplacement);
+                camera.position.add(trueDisplacement);
             }
 
             // Keep starfield celestial dome anchored to player position so stars stay far off on horizon
