@@ -5,7 +5,7 @@
     <title>Capital Ship Debugger</title>
     <style>
         body { margin: 0; overflow: hidden; background-color: #111; color: #fff; font-family: monospace; }
-        #ui { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); padding: 15px; border: 1px solid #444; max-height: 90vh; overflow-y: auto; width: 350px; }
+        #ui { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); padding: 15px; border: 1px solid #444; max-height: 90vh; overflow-y: auto; width: 480px; }
         .part-row { margin-bottom: 5px; border-bottom: 1px solid #333; padding-bottom: 5px; }
         button { background: #333; color: #fff; border: 1px solid #555; padding: 5px 10px; cursor: pointer; margin-top: 10px; width: 100%; }
         button:hover { background: #444; }
@@ -1008,31 +1008,71 @@
         function setupUI() {
             const list = document.getElementById('partsList');
             
-            // Try to give meaningful names based on geometry or position
+            window.debugObjects = [];
+            
+            function formatTransform(obj, indent) {
+                const id = window.debugObjects.length;
+                window.debugObjects.push(obj);
+                
+                const p = obj.position;
+                const r = obj.rotation;
+                const s = obj.scale;
+                
+                const makeInput = (prop, axis, val, step) => {
+                    return `<input type="number" step="${step}" value="${val.toFixed(2)}" style="width:60px; background:#222; color:#fff; border:1px solid #444; margin: 0 2px; text-align:right;" oninput="window.updateObj(${id}, '${prop}', '${axis}', this.value)">`;
+                };
+
+                let html = `${indent}<span style="color:#aaa; font-size: 0.85em; display:block; margin-top:2px;">Pos: X${makeInput('position','x',p.x, 1)} Y${makeInput('position','y',p.y, 1)} Z${makeInput('position','z',p.z, 1)}</span>`;
+                html += `${indent}<span style="color:#aaa; font-size: 0.85em; display:block; margin-top:2px;">Rot: X${makeInput('rotation','x',r.x, 0.05)} Y${makeInput('rotation','y',r.y, 0.05)} Z${makeInput('rotation','z',r.z, 0.05)}</span>`;
+                html += `${indent}<span style="color:#aaa; font-size: 0.85em; display:block; margin-top:2px;">Scl: X${makeInput('scale','x',s.x, 0.1)} Y${makeInput('scale','y',s.y, 0.1)} Z${makeInput('scale','z',s.z, 0.1)}</span>`;
+                return html;
+            }
+            
+            window.updateObj = function(id, prop, axis, val) {
+                const obj = window.debugObjects[id];
+                if (obj && obj[prop]) {
+                    obj[prop][axis] = parseFloat(val) || 0;
+                }
+            };
+
             capitalShip.children.forEach((child, index) => {
-                let name = `Piece ${index}`;
-                if (child.type === 'Mesh') {
-                    if (child.geometry && child.geometry.type) {
-                        name = `Piece ${index}: ${child.geometry.type} at (${child.position.x.toFixed(0)}, ${child.position.y.toFixed(0)}, ${child.position.z.toFixed(0)})`;
-                    }
+                let typeStr = child.type;
+                if (child.type === 'Mesh' && child.geometry && child.geometry.type) {
+                    typeStr = child.geometry.type;
                 } else if (child.type === 'Group') {
-                    name = `Piece ${index}: Group (${child.children.length} items) at (${child.position.x.toFixed(0)}, ${child.position.y.toFixed(0)}, ${child.position.z.toFixed(0)})`;
+                    typeStr = `Group (${child.children.length} items)`;
                 }
                 
+                let htmlDesc = `<strong style="color:#00f0ff; vertical-align: top;">Piece ${index}: ${typeStr}</strong><br>`;
+                htmlDesc += formatTransform(child, "&nbsp;&nbsp;&nbsp;&nbsp;");
+                
+                if (child.type === 'Group') {
+                    child.children.forEach((c, cIdx) => {
+                        let cType = c.type;
+                        if (c.type === 'Mesh' && c.geometry && c.geometry.type) cType = c.geometry.type;
+                        htmlDesc += `<span style="color:#bbb; font-size: 0.9em; display:block; margin-top:8px;">&nbsp;&nbsp;&nbsp;&nbsp;↳ Child ${cIdx}: ${cType}</span>`;
+                        htmlDesc += formatTransform(c, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+                    });
+                }
+
                 const div = document.createElement('div');
                 div.className = 'part-row';
+                div.style.display = 'flex';
+                div.style.alignItems = 'flex-start';
                 
                 const cb = document.createElement('input');
                 cb.type = 'checkbox';
                 cb.checked = false; // Start hidden
                 cb.id = 'part_' + index;
+                cb.style.marginTop = '4px';
                 cb.onchange = (e) => {
                     child.visible = e.target.checked;
                 };
                 
                 const label = document.createElement('label');
                 label.htmlFor = 'part_' + index;
-                label.innerText = ' ' + name;
+                label.innerHTML = '&nbsp;' + htmlDesc;
+                label.style.flex = '1';
                 
                 div.appendChild(cb);
                 div.appendChild(label);
