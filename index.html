@@ -4994,7 +4994,7 @@
 
             // Regenerate Shields & Hull (Nanotech)
             if (shieldPercent < 100) {
-                const regenRate = 0.05 + (shipUpgrades.shields.level * 0.015);
+                const regenRate = 0.015 + (shipUpgrades.shields.level * 0.01); // Level 4 = 0.055 per frame = 3.3% per second
                 shieldPercent = Math.min(100, shieldPercent + regenRate);
             }
             if (playerHp < 100 && playerHp > 0) { // Only regen if not dead
