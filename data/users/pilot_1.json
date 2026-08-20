@@ -1,69 +1,93 @@
 {
   "username": "pilot_1",
   "boxPositions": {
+    "hud-controls-card": {
+      "x": -24,
+      "y": -28
+    },
+    "drag-sector-objective": {
+      "x": 25,
+      "y": -28
+    },
     "title-card-0": {
       "x": 0,
-      "y": 272
+      "y": 68
     },
     "title-card-1": {
       "x": 0,
-      "y": 272
+      "y": 68
     },
     "title-card-2": {
       "x": 0,
-      "y": 272
+      "y": 68
     },
     "title-card-3": {
       "x": 0,
-      "y": 272
+      "y": 68
     },
     "title-card-4": {
       "x": 0,
-      "y": 272
+      "y": 68
     },
     "title-card-5": {
       "x": 0,
-      "y": 272
+      "y": 68
     },
     "drag-prologue-sol-system-the-crest": {
       "x": 0,
-      "y": 272
+      "y": 68
     },
     "drag-uncharted-galaxy-mercenary-warfare": {
       "x": 0,
-      "y": 272
+      "y": 68
     },
     "drag-the-truth-of-the-vanguard-throne": {
       "x": 0,
-      "y": 272
+      "y": 68
     },
     "drag-all-out-multi-system-warfare": {
       "x": 0,
-      "y": 272
+      "y": 68
     },
     "drag-the-battle-for-the-homeworld": {
       "x": 0,
-      "y": 272
+      "y": 68
     },
     "drag-core-gameplay-mechanics-matrix": {
       "x": 0,
-      "y": 272
+      "y": 68
     },
     "drag-key-factions": {
       "x": 0,
-      "y": 272
+      "y": 68
     },
     "drag-void-interceptor": {
       "x": 0,
-      "y": 272
+      "y": 68
     },
     "drag-heavy-strike-corvette": {
       "x": 0,
-      "y": 272
+      "y": 68
     },
     "drag-vanguard-royal-battlecruiser": {
       "x": 0,
-      "y": 272
+      "y": 68
+    },
+    "hud-action-bar-card": {
+      "x": -627,
+      "y": -366
+    },
+    "hud-shield-card": {
+      "x": -25,
+      "y": 74
+    },
+    "hud-radar-card": {
+      "x": 23,
+      "y": 81
+    },
+    "hud-top-target-card": {
+      "x": 8,
+      "y": -70
     }
   },
   "settings": {
@@ -90,5 +114,8 @@
     "KeyL": "KeyL",
     "KeyC": "KeyC",
     "Escape": "Escape"
+  },
+  "minimizedBoxes": {
+    "drag-sector-objective": true
   }
 }
