@@ -3131,7 +3131,7 @@
                         
                         // Swivel group to rotate housing and barrels outwards
                         const bSwivel = new THREE.Group();
-                        bSwivel.rotation.y = side > 0 ? Math.PI / 2 : -Math.PI / 2;
+                        bSwivel.rotation.y = side > 0 ? -Math.PI / 2 : Math.PI / 2;
                         bTurretGroup.add(bSwivel);
 
                         // Housing
@@ -3722,7 +3722,7 @@
                         b.position.set(bx, 1.5, 5); // Always position at +Z locally
                         pds.add(b);
                     });
-                    pds.rotation.y = (sideX > 0 ? Math.PI / 2 : -Math.PI / 2); // Rotate entire group to point outwards
+                    pds.rotation.y = (sideX > 0 ? -Math.PI / 2 : Math.PI / 2); // Rotate entire group to point outwards
                     capitalShip.add(pds);
                 });
             });
@@ -4514,6 +4514,7 @@
             const dynamicLerp = 0.01 + ((100 - gameMechanicsConfig.cameraLag) / 100) * 0.20;
             camera.position.lerp(targetCamPos, cameraMode === 3 ? 0.01 : dynamicLerp);
             camera.lookAt(targetLookAtPos);
+            camera.updateMatrixWorld(); // Force matrix update so 2D UI projections have zero frame lag
 
             if (capitalShip) {
                 const timeSec = Date.now() * 0.001;
