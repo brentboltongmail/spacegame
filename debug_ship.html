@@ -1010,8 +1010,17 @@
             
             window.debugObjects = [];
             
-            function formatTransform(obj, indent) {
+            function formatTransform(obj, indent, pieceName) {
                 const id = window.debugObjects.length;
+                
+                // Store initial transforms for reset and exporting
+                obj.userData.dbgInitial = {
+                    position: {x: obj.position.x, y: obj.position.y, z: obj.position.z},
+                    rotation: {x: obj.rotation.x, y: obj.rotation.y, z: obj.rotation.z},
+                    scale: {x: obj.scale.x, y: obj.scale.y, z: obj.scale.z}
+                };
+                obj.userData.dbgName = pieceName;
+                
                 window.debugObjects.push(obj);
                 
                 const p = obj.position;
@@ -1019,12 +1028,15 @@
                 const s = obj.scale;
                 
                 const makeInput = (prop, axis, val, step) => {
-                    return `<input type="number" step="${step}" value="${val.toFixed(2)}" style="width:60px; background:#222; color:#fff; border:1px solid #444; margin: 0 2px; text-align:right;" oninput="window.updateObj(${id}, '${prop}', '${axis}', this.value)">`;
+                    return `<input type="number" id="inp_${id}_${prop}_${axis}" step="${step}" value="${val.toFixed(2)}" style="width:60px; background:#222; color:#fff; border:1px solid #444; margin: 0 2px; text-align:right;" oninput="window.updateObj(${id}, '${prop}', '${axis}', this.value)">`;
                 };
 
-                let html = `${indent}<span style="color:#aaa; font-size: 0.85em; display:block; margin-top:2px;">Pos: X${makeInput('position','x',p.x, 1)} Y${makeInput('position','y',p.y, 1)} Z${makeInput('position','z',p.z, 1)}</span>`;
-                html += `${indent}<span style="color:#aaa; font-size: 0.85em; display:block; margin-top:2px;">Rot: X${makeInput('rotation','x',r.x, 0.05)} Y${makeInput('rotation','y',r.y, 0.05)} Z${makeInput('rotation','z',r.z, 0.05)}</span>`;
-                html += `${indent}<span style="color:#aaa; font-size: 0.85em; display:block; margin-top:2px;">Scl: X${makeInput('scale','x',s.x, 0.1)} Y${makeInput('scale','y',s.y, 0.1)} Z${makeInput('scale','z',s.z, 0.1)}</span>`;
+                let html = `${indent}<div style="display:inline-block;">`;
+                html += `<span style="color:#aaa; font-size: 0.85em; display:block; margin-top:2px;">Pos: X${makeInput('position','x',p.x, 1)} Y${makeInput('position','y',p.y, 1)} Z${makeInput('position','z',p.z, 1)}</span>`;
+                html += `<span style="color:#aaa; font-size: 0.85em; display:block; margin-top:2px;">Rot: X${makeInput('rotation','x',r.x, 0.05)} Y${makeInput('rotation','y',r.y, 0.05)} Z${makeInput('rotation','z',r.z, 0.05)}</span>`;
+                html += `<span style="color:#aaa; font-size: 0.85em; display:block; margin-top:2px;">Scl: X${makeInput('scale','x',s.x, 0.1)} Y${makeInput('scale','y',s.y, 0.1)} Z${makeInput('scale','z',s.z, 0.1)}</span>`;
+                html += `</div>`;
+                html += `<button onclick="window.resetObj(${id})" style="vertical-align:top; margin-left:10px; width:auto; padding:2px 8px; font-size:0.8em;">Reset</button>`;
                 return html;
             }
             
@@ -1032,6 +1044,26 @@
                 const obj = window.debugObjects[id];
                 if (obj && obj[prop]) {
                     obj[prop][axis] = parseFloat(val) || 0;
+                }
+            };
+            
+            window.resetObj = function(id) {
+                const obj = window.debugObjects[id];
+                if (obj && obj.userData.dbgInitial) {
+                    const init = obj.userData.dbgInitial;
+                    obj.position.set(init.position.x, init.position.y, init.position.z);
+                    obj.rotation.set(init.rotation.x, init.rotation.y, init.rotation.z);
+                    obj.scale.set(init.scale.x, init.scale.y, init.scale.z);
+                    
+                    document.getElementById(`inp_${id}_position_x`).value = init.position.x.toFixed(2);
+                    document.getElementById(`inp_${id}_position_y`).value = init.position.y.toFixed(2);
+                    document.getElementById(`inp_${id}_position_z`).value = init.position.z.toFixed(2);
+                    document.getElementById(`inp_${id}_rotation_x`).value = init.rotation.x.toFixed(2);
+                    document.getElementById(`inp_${id}_rotation_y`).value = init.rotation.y.toFixed(2);
+                    document.getElementById(`inp_${id}_rotation_z`).value = init.rotation.z.toFixed(2);
+                    document.getElementById(`inp_${id}_scale_x`).value = init.scale.x.toFixed(2);
+                    document.getElementById(`inp_${id}_scale_y`).value = init.scale.y.toFixed(2);
+                    document.getElementById(`inp_${id}_scale_z`).value = init.scale.z.toFixed(2);
                 }
             };
 
@@ -1044,14 +1076,14 @@
                 }
                 
                 let htmlDesc = `<strong style="color:#00f0ff; vertical-align: top;">Piece ${index}: ${typeStr}</strong><br>`;
-                htmlDesc += formatTransform(child, "&nbsp;&nbsp;&nbsp;&nbsp;");
+                htmlDesc += formatTransform(child, "&nbsp;&nbsp;&nbsp;&nbsp;", `Piece ${index}`);
                 
                 if (child.type === 'Group') {
                     child.children.forEach((c, cIdx) => {
                         let cType = c.type;
                         if (c.type === 'Mesh' && c.geometry && c.geometry.type) cType = c.geometry.type;
                         htmlDesc += `<span style="color:#bbb; font-size: 0.9em; display:block; margin-top:8px;">&nbsp;&nbsp;&nbsp;&nbsp;↳ Child ${cIdx}: ${cType}</span>`;
-                        htmlDesc += formatTransform(c, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+                        htmlDesc += formatTransform(c, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", `Piece ${index} -> Child ${cIdx}`);
                     });
                 }
 
@@ -1121,6 +1153,39 @@
             document.getElementById('isolateMode').onclick = () => {
                 visibleCount = 0;
                 updateVisibility();
+            };
+            
+            document.getElementById('exportChanges').onclick = () => {
+                const changes = {};
+                window.debugObjects.forEach(obj => {
+                    if (!obj.userData.dbgInitial) return;
+                    const init = obj.userData.dbgInitial;
+                    const cur = obj;
+                    
+                    const changed = {};
+                    if (Math.abs(cur.position.x - init.position.x) > 0.01 || Math.abs(cur.position.y - init.position.y) > 0.01 || Math.abs(cur.position.z - init.position.z) > 0.01) {
+                        changed.position = [cur.position.x, cur.position.y, cur.position.z];
+                    }
+                    if (Math.abs(cur.rotation.x - init.rotation.x) > 0.01 || Math.abs(cur.rotation.y - init.rotation.y) > 0.01 || Math.abs(cur.rotation.z - init.rotation.z) > 0.01) {
+                        changed.rotation = [cur.rotation.x, cur.rotation.y, cur.rotation.z];
+                    }
+                    if (Math.abs(cur.scale.x - init.scale.x) > 0.01 || Math.abs(cur.scale.y - init.scale.y) > 0.01 || Math.abs(cur.scale.z - init.scale.z) > 0.01) {
+                        changed.scale = [cur.scale.x, cur.scale.y, cur.scale.z];
+                    }
+                    
+                    if (Object.keys(changed).length > 0) {
+                        changes[obj.userData.dbgName] = changed;
+                    }
+                });
+                
+                const box = document.getElementById('exportBox');
+                if (Object.keys(changes).length === 0) {
+                    box.value = "No changes detected.";
+                } else {
+                    box.value = JSON.stringify(changes, null, 2);
+                }
+                box.style.display = 'block';
+                box.select();
             };
         }
         
