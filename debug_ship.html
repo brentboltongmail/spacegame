@@ -1115,17 +1115,18 @@
                 div.appendChild(label);
                 list.appendChild(div);
 
-                // Hide everything initially
-                child.visible = false;
+                // Visibility handled by updateVisibility()
             });
             
-            let visibleCount = 0;
+            let visibleCount = capitalShip.children.length;
 
             const updateVisibility = () => {
                 capitalShip.children.forEach((child, i) => {
                     const isVisible = i < visibleCount;
                     child.visible = isVisible;
-                    document.getElementById('part_' + i).checked = isVisible;
+                    
+                    const cb = document.getElementById('part_' + i);
+                    if (cb) cb.checked = isVisible;
                 });
                 
                 if (visibleCount > 0 && visibleCount <= capitalShip.children.length) {
@@ -1133,6 +1134,9 @@
                     if (cb) cb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }
             };
+            
+            // Call it once to initialize state
+            updateVisibility();
 
             window.addEventListener('keydown', (e) => {
                 if (e.key === 'ArrowRight') {
