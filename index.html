@@ -5126,6 +5126,19 @@
             }
 
             // --- ANIMATE & DECAY EXPLOSION & SPARK PARTICLES (DOUBLED DURATION & EXPANSION) ---
+            // HARD CAP: Prevent browser hangs by aggressively culling old particles if the simulation gets overloaded
+            while (explosionParticles.length > 800) {
+                const oldP = explosionParticles.shift();
+                if (oldP && !oldP.userData.isShipDebris) { // Never delete the actual debris meshes early!
+                    scene.remove(oldP);
+                    if (oldP.geometry) oldP.geometry.dispose();
+                    if (oldP.material) oldP.material.dispose();
+                } else if (oldP) {
+                    explosionParticles.push(oldP); // Put debris back at the end
+                    break; // Stop culling if we hit debris
+                }
+            }
+
             for (let i = explosionParticles.length - 1; i >= 0; i--) {
                 const p = explosionParticles[i];
                 if (!p) continue;
@@ -5155,10 +5168,10 @@
                     }
                     
                     // Random micro-explosions and fiery trails
-                    if (Math.random() < 0.01 * p.userData.life) {
+                    if (Math.random() < 0.005 * p.userData.life) {
                         spawnLaserImpactSparks(p.position);
                     }
-                    if (Math.random() < 0.001 * p.userData.life) {
+                    if (Math.random() < 0.0002 * p.userData.life) {
                         createFieryExplosionFX(p.position); // Secondary explosions!
                     }
                 } else if (p.userData.vel) {
