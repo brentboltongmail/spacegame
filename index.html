@@ -4185,7 +4185,7 @@
             new THREE.MeshBasicMaterial({ color: 0xffffff })
         ];
 
-        const sharedRingGeo = new THREE.RingGeometry(1, 4, 32);
+        const sharedRingGeo = new THREE.RingGeometry(1, 4, 128);
         sharedRingGeo.rotateX(Math.PI / 2);
         const sharedRingMat = new THREE.MeshBasicMaterial({ color: 0xf97316, side: THREE.DoubleSide, transparent: true, opacity: 1.0 });
 
@@ -4215,10 +4215,17 @@
                 explosionParticles.push(p);
             }
 
-            // 2. Giant Expanding Shockwave Ring
-            const shockwave = new THREE.Mesh(sharedRingGeo, sharedRingMat.clone());
+            // 2. Giant Expanding Shockwave Ring (Made of Particles)
+            const shockwaveMat = new THREE.PointsMaterial({ 
+                color: 0xffffff, 
+                size: 2.5,
+                sizeAttenuation: true,
+                transparent: true,
+                opacity: 1.0
+            });
+            const shockwave = new THREE.Points(sharedRingGeo, shockwaveMat);
             // Randomize shockwave color to orange, red, or yellow
-            const colorChoices = [0xf97316, 0xef4444, 0xfbbf24];
+            const colorChoices = [0xf97316, 0xef4444, 0xfbbf24, 0xffffff];
             shockwave.material.color.setHex(colorChoices[Math.floor(Math.random() * colorChoices.length)]);
             shockwave.position.copy(pos);
             
@@ -4833,6 +4840,12 @@
 
             // Engine Exhaust Particle Trails (Short Crisp Bluish Glow)
             updateEngineParticleTrails();
+
+            // Regenerate Shields
+            if (shieldPercent < 100) {
+                const regenRate = 0.05 + (shipUpgrades.shields.level * 0.015);
+                shieldPercent = Math.min(100, shieldPercent + regenRate);
+            }
 
             drawTacticalRadar();
             drawShieldGauge();
