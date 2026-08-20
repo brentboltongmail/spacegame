@@ -4732,15 +4732,15 @@
                         const targetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), dir);
                         e.quaternion.slerp(targetQuat, 0.05);
 
-                        // Move based on distance
+                        // Move based on distance (75% slower)
                         if (dist > 400) {
-                            e.translateZ(-6);
+                            e.translateZ(-1.5);
                         } else if (dist < 150) {
-                            e.translateZ(3); // Back away
+                            e.translateZ(0.75); // Back away
                         } else {
                             // Strafe
-                            e.translateX(Math.sin(Date.now() * 0.001 + e.id) * 3);
-                            e.translateY(Math.cos(Date.now() * 0.001 + e.id) * 1.5);
+                            e.translateX(Math.sin(Date.now() * 0.001 + e.id) * 0.75);
+                            e.translateY(Math.cos(Date.now() * 0.001 + e.id) * 0.375);
                         }
 
                         // Shoot at player
@@ -4909,11 +4909,21 @@
                     document.body.appendChild(flash);
                     setTimeout(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 200); }, 20);
 
-                    // Damage Player
+                    // Damage Player (1 damage)
+                    let hullDamageTaken = false;
                     if (shieldPercent > 0) {
-                        shieldPercent = Math.max(0, shieldPercent - 15);
+                        shieldPercent -= 1;
+                        if (shieldPercent < 0) {
+                            playerHp = Math.max(0, playerHp + shieldPercent);
+                            shieldPercent = 0;
+                            hullDamageTaken = true;
+                        }
                     } else {
-                        playerHp = Math.max(0, playerHp - 10);
+                        playerHp = Math.max(0, playerHp - 1);
+                        hullDamageTaken = true;
+                    }
+
+                    if (hullDamageTaken) {
                         const speedElem = document.getElementById('hud-speed');
                         if (speedElem) {
                             speedElem.innerText = `HULL CRITICAL: ${Math.floor(playerHp)}%`;
