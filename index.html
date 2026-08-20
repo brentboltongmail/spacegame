@@ -2487,8 +2487,8 @@
             const planetGeo = new THREE.SphereGeometry(9000, 128, 128); // Doubled radius to 9,000 units (18,000 unit diameter!)
             const planetMat = new THREE.MeshStandardMaterial({ 
                 map: fallbackTex,
-                roughness: 0.55, 
-                metalness: 0.20,
+                roughness: 0.90, 
+                metalness: 0.05,
                 emissive: 0x0284c7,
                 emissiveIntensity: 0.20 // Radiant self-illuminating glow!
             });
@@ -3070,23 +3070,23 @@
 
             // Standard Materials
             const hullMat = new THREE.MeshStandardMaterial({
-                map: dreadHullTex, color: 0x8090a5, roughness: 0.45, metalness: 0.85
+                map: dreadHullTex, color: 0x8090a5, roughness: 0.85, metalness: 0.35
             });
 
             const armorPlateMat = new THREE.MeshStandardMaterial({
-                map: dreadHullTex, color: 0x475569, roughness: 0.35, metalness: 0.90
+                map: dreadHullTex, color: 0x475569, roughness: 0.80, metalness: 0.40
             });
 
             const greebleMat = new THREE.MeshStandardMaterial({
-                map: dreadGreebleTex, color: 0x334155, roughness: 0.6, metalness: 0.8
+                map: dreadGreebleTex, color: 0x334155, roughness: 0.90, metalness: 0.30
             });
 
             const goldTrimMat = new THREE.MeshStandardMaterial({
-                map: dreadGoldTrimTex, color: 0xffffff, roughness: 0.25, metalness: 0.95
+                map: dreadGoldTrimTex, color: 0xffffff, roughness: 0.55, metalness: 0.65
             });
 
             const darkMetalMat = new THREE.MeshStandardMaterial({
-                map: dreadDarkMetalTex, color: 0xffffff, roughness: 0.5, metalness: 0.9
+                map: dreadDarkMetalTex, color: 0xffffff, roughness: 0.85, metalness: 0.40
             });
 
             const engineNozzleMat = new THREE.MeshStandardMaterial({
