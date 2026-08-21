@@ -1,7 +1,7 @@
-﻿# ðŸŒŒ Workspace Rules & Directives for Solaris Horizon: Emergence
+# ðŸŒŒ Workspace Rules & Directives for Solaris Horizon: Emergence
 
 ## ðŸ“Œ Automatic Git Commit & Push Rule
-- **Mandatory Action**: After making any code, HTML, asset, documentation, or configuration changes, ALWAYS execute `git add -A`, `git commit -m "<descriptive message>"`, and `git push` to ensure all changes are committed and pushed to remote `origin/main`.
+- **Mandatory Action**: After making any code, HTML, asset, documentation, or configuration changes, ALWAYS execute `git add -A`, `git commit -m "<descriptive message>"`, and `git push https://brentboltongmail@github.com/brentboltongmail/spacegame.git main` to ensure all changes are committed and pushed to remote `origin/main` using the correct GitHub user.
 
 ## ðŸ“Œ Server Process Rules
 - Do NOT launch background server daemons inside Antigravity unless explicitly requested by the user. The user launches the server via taskbar shortcut or `restart_server.bat`.

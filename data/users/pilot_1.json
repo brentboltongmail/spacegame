@@ -2,92 +2,80 @@
   "username": "pilot_1",
   "boxPositions": {
     "hud-controls-card": {
-      "x": -24,
+      "x": -22,
       "y": -28
     },
     "drag-sector-objective": {
-      "x": 25,
-      "y": -28
+      "x": 0,
+      "y": 36
     },
     "title-card-0": {
       "x": 0,
-      "y": 68
+      "y": 1972
     },
     "title-card-1": {
       "x": 0,
-      "y": 68
+      "y": 1972
     },
     "title-card-2": {
       "x": 0,
-      "y": 68
+      "y": 1972
     },
     "title-card-3": {
       "x": 0,
-      "y": 68
+      "y": 1972
     },
     "title-card-4": {
       "x": 0,
-      "y": 68
+      "y": 1972
     },
     "title-card-5": {
       "x": 0,
-      "y": 68
+      "y": 1972
     },
     "drag-prologue-sol-system-the-crest": {
       "x": 0,
-      "y": 68
-    },
-    "drag-uncharted-galaxy-mercenary-warfare": {
-      "x": 0,
-      "y": 68
+      "y": 1972
     },
     "drag-the-truth-of-the-vanguard-throne": {
       "x": 0,
-      "y": 68
+      "y": 1972
     },
     "drag-all-out-multi-system-warfare": {
       "x": 0,
-      "y": 68
+      "y": 1972
     },
     "drag-the-battle-for-the-homeworld": {
       "x": 0,
-      "y": 68
+      "y": 1972
     },
     "drag-core-gameplay-mechanics-matrix": {
       "x": 0,
-      "y": 68
+      "y": 1972
     },
     "drag-key-factions": {
       "x": 0,
-      "y": 68
+      "y": 1972
     },
     "drag-void-interceptor": {
       "x": 0,
-      "y": 68
+      "y": 1972
     },
     "drag-heavy-strike-corvette": {
       "x": 0,
-      "y": 68
+      "y": 1972
     },
     "drag-vanguard-royal-battlecruiser": {
       "x": 0,
-      "y": 68
-    },
-    "hud-action-bar-card": {
-      "x": -627,
-      "y": -366
+      "y": 1972
     },
     "hud-shield-card": {
-      "x": -25,
-      "y": 74
+      "x": -21,
+      "y": 67
     },
-    "hud-radar-card": {
-      "x": 23,
-      "y": 81
-    },
-    "hud-top-target-card": {
-      "x": 8,
-      "y": -70
+    "hud-action-bar-card": {
+      "x": -47,
+      "y": 11
     }
   },
   "settings": {
@@ -96,12 +84,14 @@
     "firingVol": 85,
     "musicVol": 60,
     "rollSpeed": 125,
-    "cameraLag": 80,
-    "throttleAccel": 125,
-    "shieldRegenMult": 100,
-    "hullRegenMult": 100,
-    "enemyDamageMult": 100,
-    "playerDamageMult": 100
+    "cameraLag": 75,
+    "throttleAccel": 250,
+    "shieldRegenMult": 130,
+    "hullRegenMult": 120,
+    "enemyDamageMult": 40,
+    "playerDamageMult": 100,
+    "flashOnHit": false,
+    "turnSpeed": 293
   },
   "progress": {},
   "keyBindings": {
@@ -116,6 +106,9 @@
     "Escape": "Escape"
   },
   "minimizedBoxes": {
-    "drag-sector-objective": true
+    "drag-sector-objective": true,
+    "hud-top-target-card": true,
+    "hud-action-bar-card": true,
+    "hud-controls-card": false
   }
 }
