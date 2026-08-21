@@ -892,8 +892,8 @@
         }
         .modal-body-grid {
             display: grid;
-            grid-template-columns: 1.2fr 1fr;
-            gap: 30px;
+            grid-template-columns: var(--left-pane-width, 1.2fr) 10px 1fr;
+            gap: 15px;
             height: calc(100% - 100px);
         }
         .hangar-viewport-card {
@@ -1628,6 +1628,11 @@
                     <div class="hangar-overlay-hint">
                         🖱️ Click & Drag to Orbit/Rotate 3D Void Interceptor
                     </div>
+                </div>
+
+                <!-- Resizer Handle -->
+                <div id="hangar-resizer" style="width: 100%; height: 100%; background: rgba(0, 240, 255, 0.1); border-radius: 4px; cursor: col-resize; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">
+                    <div style="width: 2px; height: 30px; background: rgba(0, 240, 255, 0.5); border-radius: 2px;"></div>
                 </div>
 
                 <!-- Right Column: Pilot Profile & Ship Upgrade Modules -->
@@ -4427,6 +4432,40 @@ function createCapitalShip() {
             return enemyGroup;
         }
 
+
+        let explosionParticles = [];
+
+        function spawnLaserImpactSparks(pos) {
+            for (let i = 0; i < 14; i++) {
+                const pGeo = new THREE.SphereGeometry(0.25, 8, 8);
+                const pMat = new THREE.MeshBasicMaterial({ color: (i % 2 === 0) ? 0x00f0ff : 0xffffff });
+                const p = new THREE.Mesh(pGeo, pMat);
+                p.position.copy(pos);
+                p.userData.vel = new THREE.Vector3(
+                    (Math.random() - 0.5) * 8,
+                    (Math.random() - 0.5) * 8,
+                    (Math.random() - 0.5) * 8
+                );
+                p.userData.life = 1.0;
+                scene.add(p);
+                explosionParticles.push(p);
+            }
+        }
+
+        // Shared Geometries & Materials for Zero-Allocation Explosion FX
+        const sharedExpParticleGeo = new THREE.SphereGeometry(0.5, 8, 8);
+        const sharedExpColors = [
+            new THREE.MeshBasicMaterial({ color: 0xfbbf24 }),
+            new THREE.MeshBasicMaterial({ color: 0xf97316 }),
+            new THREE.MeshBasicMaterial({ color: 0xef4444 }),
+            new THREE.MeshBasicMaterial({ color: 0x00f0ff }),
+            new THREE.MeshBasicMaterial({ color: 0xffffff })
+        ];
+
+        const sharedRingGeo = new THREE.RingGeometry(1, 4, 128);
+        sharedRingGeo.rotateX(Math.PI / 2);
+        const sharedRingMat = new THREE.MeshBasicMaterial({ color: 0xf97316, side: THREE.DoubleSide, transparent: true, opacity: 1.0 });
+
 function createEpicPlayerDeathExplosion(pos) {
             // Massive scale explosion for player death
             for (let i = 0; i < 800; i++) {
@@ -6815,6 +6854,53 @@ function createEpicPlayerDeathExplosion(pos) {
                     if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
                 });
             });
+        });
+
+        // Hangar Modal Resizer Logic
+        window.addEventListener('DOMContentLoaded', () => {
+            const resizer = document.getElementById('hangar-resizer');
+            const grid = document.querySelector('.modal-body-grid');
+            let isResizing = false;
+
+            if (resizer && grid) {
+                resizer.addEventListener('mousedown', (e) => {
+                    isResizing = true;
+                    document.body.style.cursor = 'col-resize';
+                    document.body.style.userSelect = 'none'; // Prevent text selection
+                });
+
+                window.addEventListener('mousemove', (e) => {
+                    if (!isResizing) return;
+                    
+                    const gridRect = grid.getBoundingClientRect();
+                    // Calculate percentage width of the left pane
+                    let newWidth = ((e.clientX - gridRect.left) / gridRect.width) * 100;
+                    
+                    // Clamp between 20% and 80%
+                    if (newWidth < 20) newWidth = 20;
+                    if (newWidth > 80) newWidth = 80;
+                    
+                    grid.style.gridTemplateColumns = `${newWidth}% 10px 1fr`;
+                    
+                    // Trigger resize on the canvas so ThreeJS updates its aspect ratio
+                    if (window.upgradeHangarCamera && window.upgradeHangarRenderer) {
+                        const container = document.getElementById('hangar-canvas-container');
+                        if (container) {
+                            upgradeHangarCamera.aspect = container.clientWidth / container.clientHeight;
+                            upgradeHangarCamera.updateProjectionMatrix();
+                            upgradeHangarRenderer.setSize(container.clientWidth, container.clientHeight);
+                        }
+                    }
+                });
+
+                window.addEventListener('mouseup', () => {
+                    if (isResizing) {
+                        isResizing = false;
+                        document.body.style.cursor = '';
+                        document.body.style.userSelect = '';
+                    }
+                });
+            }
         });
     </script>
 </body>
