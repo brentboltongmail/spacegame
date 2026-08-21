@@ -5360,8 +5360,15 @@ function createEpicPlayerDeathExplosion(pos) {
                 const oldP = explosionParticles.shift();
                 if (oldP && !oldP.userData.isShipDebris) { // Never delete the actual debris meshes early!
                     scene.remove(oldP);
-                    if (oldP.geometry) oldP.geometry.dispose();
-                    if (oldP.material) oldP.material.dispose();
+                    if (oldP.geometry && oldP.geometry !== sharedExpParticleGeo && oldP.geometry !== sharedRingGeo) {
+                        oldP.geometry.dispose();
+                    }
+                    if (oldP.material && !sharedExpColors.includes(oldP.material) && oldP.material !== sharedRingMat) {
+                        // Some shockwaves clone the sharedRingMat in createEpicPlayerDeathExplosion!
+                        // "const shockwave = new THREE.Mesh(sharedRingGeo, sharedRingMat.clone());"
+                        // If it's cloned, it's not in the array and not strictly sharedRingMat, so we CAN dispose it.
+                        oldP.material.dispose();
+                    }
                 } else if (oldP) {
                     explosionParticles.push(oldP); // Put debris back at the end
                     break; // Stop culling if we hit debris
@@ -5463,7 +5470,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 let _shield = gameMechanicsConfig.shieldRegenMult !== undefined ? gameMechanicsConfig.shieldRegenMult : 33;
                 if (_shield > 100) _shield = 100;
                 const shieldMult = (_shield / 100) * 3.0;
-                const regenRate = (0.015 + (shipUpgrades.shields.level * 0.01)) * shieldMult;
+                const regenRate = (0.05 + (shipUpgrades.shields.level * 0.03)) * shieldMult;
                 shieldPercent = Math.min(100, shieldPercent + regenRate);
             }
             if (playerHp < 100 && playerHp > 0) { // Only regen if not dead
