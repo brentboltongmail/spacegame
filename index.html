@@ -2447,15 +2447,33 @@
             window.addEventListener('resize', onWindowResize);
             
             container.addEventListener('mousemove', (e) => {
-                if (!isFlightLocked && !isTacticalMapOpen) {
-                    normalizedMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-                    normalizedMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-                }
+                const isPointerLocked = document.pointerLockElement === container || document.pointerLockElement === document.body;
+                
+                if (isPointerLocked) {
+                    if (!isFlightLocked && !isTacticalMapOpen && typeof playerShip !== 'undefined') {
+                        const fpsSensitivity = 0.002;
+                        playerShip.rotateX(-e.movementY * fpsSensitivity);
+                        playerShip.rotateY(-e.movementX * fpsSensitivity);
+                    }
+                    normalizedMouse.x = 0;
+                    normalizedMouse.y = 0;
 
-                const crosshair = document.querySelector('.hud-center-crosshair');
-                if (crosshair) {
-                    crosshair.style.left = e.clientX + 'px';
-                    crosshair.style.top = e.clientY + 'px';
+                    const crosshair = document.querySelector('.hud-center-crosshair');
+                    if (crosshair) {
+                        crosshair.style.left = (window.innerWidth / 2) + 'px';
+                        crosshair.style.top = (window.innerHeight / 2) + 'px';
+                    }
+                } else {
+                    if (!isFlightLocked && !isTacticalMapOpen) {
+                        normalizedMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                        normalizedMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                    }
+
+                    const crosshair = document.querySelector('.hud-center-crosshair');
+                    if (crosshair) {
+                        crosshair.style.left = e.clientX + 'px';
+                        crosshair.style.top = e.clientY + 'px';
+                    }
                 }
             });
 
@@ -2493,6 +2511,16 @@
                         showToast("🔒 PILOT FLIGHT LOCK ENGAGED! Ship flying straight — Free mouse to drag windows!");
                     } else {
                         showToast("🔓 PILOT FLIGHT UNLOCKED! Mouse flight steering active");
+                    }
+                }
+                if (action === 'Tab') {
+                    e.preventDefault();
+                    if (document.pointerLockElement === container || document.pointerLockElement === document.body) {
+                        document.exitPointerLock();
+                        showToast("🔓 POINTER UNLOCKED: Follow mouse cursor mode active");
+                    } else {
+                        container.requestPointerLock();
+                        showToast("🔒 POINTER LOCKED: FPS steering mode active");
                     }
                 }
             });
