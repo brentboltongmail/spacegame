@@ -2400,6 +2400,8 @@
         }
 
         let normalizedMouse = { x: 0, y: 0 };
+        let virtualCursorX = window.innerWidth / 2;
+        let virtualCursorY = window.innerHeight / 2;
         const keys = { KeyW: false, KeyS: false, KeyA: false, KeyD: false, KeyQ: false, KeyE: false, Space: false };
         let keyBindings = { KeyW: 'KeyW', KeyS: 'KeyS', KeyA: 'KeyA', KeyD: 'KeyD', Space: 'Space', KeyM: 'KeyM', KeyL: 'KeyL', KeyC: 'KeyC', Escape: 'Escape' };
 
@@ -2459,23 +2461,29 @@
                 const isPointerLocked = document.pointerLockElement === container || document.pointerLockElement === document.body;
                 
                 if (isPointerLocked) {
-                    if (!isFlightLocked && !isTacticalMapOpen && typeof playerShip !== 'undefined') {
-                        const fpsSensitivity = 0.002;
-                        playerShip.rotateX(-e.movementY * fpsSensitivity);
-                        playerShip.rotateY(-e.movementX * fpsSensitivity);
+                    if (!isFlightLocked && !isTacticalMapOpen) {
+                        virtualCursorX += e.movementX;
+                        virtualCursorY += e.movementY;
+                        
+                        // Clamp virtual cursor to screen bounds
+                        virtualCursorX = Math.max(0, Math.min(window.innerWidth, virtualCursorX));
+                        virtualCursorY = Math.max(0, Math.min(window.innerHeight, virtualCursorY));
+                        
+                        normalizedMouse.x = (virtualCursorX / window.innerWidth) * 2 - 1;
+                        normalizedMouse.y = -(virtualCursorY / window.innerHeight) * 2 + 1;
                     }
-                    normalizedMouse.x = 0;
-                    normalizedMouse.y = 0;
 
                     const crosshair = document.querySelector('.hud-center-crosshair');
                     if (crosshair) {
-                        crosshair.style.left = (window.innerWidth / 2) + 'px';
-                        crosshair.style.top = (window.innerHeight / 2) + 'px';
+                        crosshair.style.left = virtualCursorX + 'px';
+                        crosshair.style.top = virtualCursorY + 'px';
                     }
                 } else {
                     if (!isFlightLocked && !isTacticalMapOpen) {
                         normalizedMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
                         normalizedMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                        virtualCursorX = e.clientX;
+                        virtualCursorY = e.clientY;
                     }
 
                     const crosshair = document.querySelector('.hud-center-crosshair');
