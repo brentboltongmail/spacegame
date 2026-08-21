@@ -1876,7 +1876,7 @@
 
                     <div class="volume-slider-group" style="display: flex; align-items: center; justify-content: space-between; margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;">
                         <span>💥 Enable Screen Flash on Hit</span>
-                        <input type="checkbox" id="chk-flash-on-hit" checked onchange="updateGameSettings()" style="width: 20px; height: 20px; accent-color: var(--accent-cyan);">
+                        <input type="checkbox" id="chk-flash-on-hit" onchange="updateGameSettings()" style="width: 20px; height: 20px; accent-color: var(--accent-cyan);">
                     </div>
                 </div>
 
@@ -6620,7 +6620,7 @@
             hullRegenMult: 100,
             enemyDamageMult: 100,
             playerDamageMult: 100,
-            flashOnHit: true
+            flashOnHit: false
         };
 
         function openOptionsModal() {
@@ -6645,7 +6645,7 @@
             const hullRegenVal = parseInt(document.getElementById('slider-set-hull-regen').value);
             const enemyDmgVal = parseInt(document.getElementById('slider-set-enemy-dmg').value);
             const playerDmgVal = parseInt(document.getElementById('slider-set-player-dmg').value);
-            const flashOnHitVal = document.getElementById('chk-flash-on-hit') ? document.getElementById('chk-flash-on-hit').checked : true;
+            const flashOnHitVal = document.getElementById('chk-flash-on-hit') ? document.getElementById('chk-flash-on-hit').checked : false;
 
             document.getElementById('lbl-set-roll').innerText = rollVal + '%';
             document.getElementById('lbl-set-cam').innerText = camVal + '%';
