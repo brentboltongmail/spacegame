@@ -38,8 +38,9 @@
             background-color: var(--bg-primary);
             color: var(--text-main);
             font-family: var(--font-body);
-            overflow-x: hidden;
-            min-height: 100vh;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
         }
 
         /* Header Bar */
@@ -5157,7 +5158,7 @@ function createEpicPlayerDeathExplosion(pos) {
 
             // --- 3D TARGET LOCK BOX UPDATER ---
             if (targetBox3D) {
-                if (closestEnemy && closestEnemy.userData && closestEnemy.userData.hp > 0 && (cameraMode === 0 || cameraMode === 1)) {
+                if (closestEnemy && closestEnemy.userData && closestEnemy.userData.hp > 0 && closestDist < 4000 && (cameraMode === 0 || cameraMode === 1)) {
                     targetBox3D.visible = true;
                     targetBox3D.position.copy(closestEnemy.position);
                     
@@ -6899,12 +6900,32 @@ function createEpicPlayerDeathExplosion(pos) {
             initEngineAudio();
             if (audioCtx) updateEngineAudio(currentSpeed / maxSpeedCap, cameraMode === 0);
 
-            // Transparently unlock AudioContext on any user interaction (mousemove, keydown, click)
-            ['keydown', 'mousedown', 'mousemove', 'touchstart'].forEach(evt => {
+            let isFullscreenRequested = false;
+            // Transparently unlock AudioContext and auto-fullscreen on first user interaction
+            ['keydown', 'mousedown', 'touchstart'].forEach(evt => {
                 window.addEventListener(evt, () => {
                     if (!isAudioInitialized) initEngineAudio();
                     if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                    
+                    if (!isFullscreenRequested && !document.fullscreenElement) {
+                        isFullscreenRequested = true;
+                        try {
+                            if (document.documentElement.requestFullscreen) {
+                                document.documentElement.requestFullscreen();
+                            } else if (document.documentElement.webkitRequestFullscreen) { // Safari/Mac support
+                                document.documentElement.webkitRequestFullscreen();
+                            }
+                        } catch (e) {
+                            console.log("Auto-fullscreen prevented by browser.");
+                        }
+                    }
                 });
+            });
+            
+            // Mousemove only unlocks audio, doesn't trigger fullscreen
+            window.addEventListener('mousemove', () => {
+                if (!isAudioInitialized) initEngineAudio();
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
             });
         });
 
