@@ -1833,9 +1833,9 @@
                     <div class="volume-slider-group">
                         <div class="slider-header">
                             <span>🕹️ Turn Speed (Pitch/Yaw)</span>
-                            <span id="lbl-set-turn">150%</span>
+                            <span id="lbl-set-turn">50%</span>
                         </div>
-                        <input type="range" id="slider-set-turn" min="10" max="1000" value="150" oninput="updateGameSettings()">
+                        <input type="range" id="slider-set-turn" min="10" max="100" value="50" oninput="updateGameSettings()">
                     </div>
 
                     <div class="volume-slider-group">
@@ -2044,6 +2044,7 @@
                             const chk = document.getElementById('chk-flash-on-hit');
                             if (chk) chk.checked = set.flashOnHit;
                         }
+                        updateGameSettings();
                         updateGameSettings();
                     }
                     if (currentProfile.keyBindings) {
@@ -4797,8 +4798,19 @@ function createEpicPlayerDeathExplosion(pos) {
 
             // --- SINGULARITY-FREE 360° QUATERNION FLIGHT (LOOPS & ROLLS WITHOUT FLIPPING) ---
             const deadzone = 0.03;
-            // Base turn rate of 0.0052 modified by the user's turn speed setting
-            const turnMult = (gameMechanicsConfig.turnSpeed !== undefined ? gameMechanicsConfig.turnSpeed : 150) / 100;
+            // Slider is 10% to 100%. Map 10% to a slow turn, 100% to an insanely fast turn.
+            let rawTurnValue = gameMechanicsConfig.turnSpeed !== undefined ? gameMechanicsConfig.turnSpeed : 50;
+            // Clamp to 100 to fix old profiles that might have saved "150" or "1000"
+            if (rawTurnValue > 100) rawTurnValue = 100;
+            
+            // Map 10-100 to a multiplier. 
+            // 50% = 1.5x (old default)
+            // 100% = 15.0x (insanely fast)
+            // 10% = 0.5x (very slow)
+            // We can use an exponential curve: 
+            const normalized = rawTurnValue / 100.0; // 0.1 to 1.0
+            const turnMult = Math.pow(normalized, 2) * 15.0; // At 1.0 -> 15.0x. At 0.5 -> 3.75x. At 0.3 -> 1.35x.
+            
             const turnRate = 0.0052 * turnMult;
 
             const normX = Math.abs(normalizedMouse.x) <= deadzone ? 0 : Math.min((Math.abs(normalizedMouse.x) - deadzone) / (1.0 - deadzone), 1.0);
@@ -6660,7 +6672,7 @@ function createEpicPlayerDeathExplosion(pos) {
 
         let gameMechanicsConfig = {
             rollSpeed: 125,
-            turnSpeed: 150,
+            turnSpeed: 50,
             cameraLag: 80,
             throttleAccel: 125,
             shieldRegenMult: 100,
