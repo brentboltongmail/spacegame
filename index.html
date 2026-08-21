@@ -1825,9 +1825,9 @@
                     <div class="volume-slider-group">
                         <div class="slider-header">
                             <span>🔄 Ship Roll Speed</span>
-                            <span id="lbl-set-roll">125%</span>
+                            <span id="lbl-set-roll">50%</span>
                         </div>
-                        <input type="range" id="slider-set-roll" min="10" max="250" value="125" oninput="updateGameSettings()">
+                        <input type="range" id="slider-set-roll" min="10" max="100" value="50" oninput="updateGameSettings()">
                     </div>
 
                     <div class="volume-slider-group">
@@ -1843,49 +1843,49 @@
                             <span>🎥 Camera Tracking Lag</span>
                             <span id="lbl-set-cam">80%</span>
                         </div>
-                        <input type="range" id="slider-set-cam" min="1" max="100" value="80" oninput="updateGameSettings()">
+                        <input type="range" id="slider-set-cam" min="10" max="100" value="80" oninput="updateGameSettings()">
                         <div style="font-size: 0.7rem; color: #64748b; margin-top: 4px;">Higher lag = heavier, more cinematic feel</div>
                     </div>
 
                     <div class="volume-slider-group">
                         <div class="slider-header">
                             <span>🚀 Throttle Response Speed</span>
-                            <span id="lbl-set-throttle">125%</span>
+                            <span id="lbl-set-throttle">50%</span>
                         </div>
-                        <input type="range" id="slider-set-throttle" min="50" max="250" value="125" oninput="updateGameSettings()">
+                        <input type="range" id="slider-set-throttle" min="10" max="100" value="50" oninput="updateGameSettings()">
                         <div style="font-size: 0.7rem; color: #64748b; margin-top: 4px;">Higher = faster engine spool up/down</div>
                     </div>
 
                     <div class="volume-slider-group">
                         <div class="slider-header">
                             <span>🛡️ Shield Regen Multiplier</span>
-                            <span id="lbl-set-shield-regen">100%</span>
+                            <span id="lbl-set-shield-regen">33%</span>
                         </div>
-                        <input type="range" id="slider-set-shield-regen" min="0" max="300" value="100" step="10" oninput="updateGameSettings()">
+                        <input type="range" id="slider-set-shield-regen" min="10" max="100" value="33" step="1" oninput="updateGameSettings()">
                     </div>
 
                     <div class="volume-slider-group">
                         <div class="slider-header">
                             <span>🔧 Hull Repair Multiplier</span>
-                            <span id="lbl-set-hull-regen">100%</span>
+                            <span id="lbl-set-hull-regen">33%</span>
                         </div>
-                        <input type="range" id="slider-set-hull-regen" min="0" max="300" value="100" step="10" oninput="updateGameSettings()">
+                        <input type="range" id="slider-set-hull-regen" min="10" max="100" value="33" step="1" oninput="updateGameSettings()">
                     </div>
 
                     <div class="volume-slider-group">
                         <div class="slider-header">
                             <span>💥 Enemy Void Damage Multiplier</span>
-                            <span id="lbl-set-enemy-dmg">100%</span>
+                            <span id="lbl-set-enemy-dmg">20%</span>
                         </div>
-                        <input type="range" id="slider-set-enemy-dmg" min="10" max="500" value="100" step="10" oninput="updateGameSettings()">
+                        <input type="range" id="slider-set-enemy-dmg" min="10" max="100" value="20" step="1" oninput="updateGameSettings()">
                     </div>
 
                     <div class="volume-slider-group">
                         <div class="slider-header">
                             <span>🔥 Player Laser Damage Multiplier</span>
-                            <span id="lbl-set-player-dmg">100%</span>
+                            <span id="lbl-set-player-dmg">20%</span>
                         </div>
-                        <input type="range" id="slider-set-player-dmg" min="10" max="500" value="100" step="10" oninput="updateGameSettings()">
+                        <input type="range" id="slider-set-player-dmg" min="10" max="100" value="20" step="1" oninput="updateGameSettings()">
                     </div>
 
                     <div class="volume-slider-group" style="display: flex; align-items: center; justify-content: space-between; margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;">
@@ -4782,7 +4782,9 @@ function createEpicPlayerDeathExplosion(pos) {
             }
 
             // --- W / S Throttle Speed Controls (W = Accelerate, S = Decelerate) ---
-            const throttleMult = (gameMechanicsConfig.throttleAccel || 100) / 100;
+            let _throttle = gameMechanicsConfig.throttleAccel !== undefined ? gameMechanicsConfig.throttleAccel : 50;
+            if (_throttle > 100) _throttle = 100;
+            const throttleMult = (_throttle / 100) * 2.5;
             const accelRate = 0.44 * throttleMult; 
 
             if (keys.KeyW) targetSpeed = Math.min(targetSpeed + accelRate, maxSpeedCap);
@@ -4825,7 +4827,9 @@ function createEpicPlayerDeathExplosion(pos) {
             playerShip.rotateY(-mouseXEff * turnRate);
 
             // A/D Keys for rolling the ship (very slowly)
-            const rollRate = turnRate * 0.4 * (gameMechanicsConfig.rollSpeed / 100);
+            let _roll = gameMechanicsConfig.rollSpeed !== undefined ? gameMechanicsConfig.rollSpeed : 50;
+            if (_roll > 100) _roll = 100;
+            const rollRate = turnRate * 0.4 * ((_roll / 100) * 2.5);
             if (keys.KeyA) playerShip.rotateZ(rollRate);
             if (keys.KeyD) playerShip.rotateZ(-rollRate);
 
@@ -5235,7 +5239,9 @@ function createEpicPlayerDeathExplosion(pos) {
                         playLaserImpactAudio();
 
                         enemy.userData.flashTimer = 5;
-                        const pDmgMult = (gameMechanicsConfig.playerDamageMult || 100) / 100;
+                        let _pDmg = gameMechanicsConfig.playerDamageMult !== undefined ? gameMechanicsConfig.playerDamageMult : 20;
+                        if (_pDmg > 100) _pDmg = 100;
+                        const pDmgMult = (_pDmg / 100) * 5.0;
                         enemy.userData.hp -= (25 * pDmgMult);
 
                         if (enemy.userData.hp <= 0) {
@@ -5299,7 +5305,9 @@ function createEpicPlayerDeathExplosion(pos) {
 
                     // Damage Player
                     let hullDamageTaken = false;
-                    const enemyDmgMult = (gameMechanicsConfig.enemyDamageMult || 100) / 100;
+                    let _eDmg = gameMechanicsConfig.enemyDamageMult !== undefined ? gameMechanicsConfig.enemyDamageMult : 20;
+                    if (_eDmg > 100) _eDmg = 100;
+                    const enemyDmgMult = (_eDmg / 100) * 5.0;
                     const damageAmt = 2 * enemyDmgMult;
                     
                     if (shieldPercent > 0) {
@@ -5449,12 +5457,16 @@ function createEpicPlayerDeathExplosion(pos) {
 
             // Regenerate Shields & Hull (Nanotech)
             if (shieldPercent < 100) {
-                const shieldMult = (gameMechanicsConfig.shieldRegenMult || 100) / 100;
+                let _shield = gameMechanicsConfig.shieldRegenMult !== undefined ? gameMechanicsConfig.shieldRegenMult : 33;
+                if (_shield > 100) _shield = 100;
+                const shieldMult = (_shield / 100) * 3.0;
                 const regenRate = (0.015 + (shipUpgrades.shields.level * 0.01)) * shieldMult;
                 shieldPercent = Math.min(100, shieldPercent + regenRate);
             }
             if (playerHp < 100 && playerHp > 0) { // Only regen if not dead
-                const hullMult = (gameMechanicsConfig.hullRegenMult || 100) / 100;
+                let _hull = gameMechanicsConfig.hullRegenMult !== undefined ? gameMechanicsConfig.hullRegenMult : 33;
+                if (_hull > 100) _hull = 100;
+                const hullMult = (_hull / 100) * 3.0;
                 playerHp = Math.min(100, playerHp + (0.02 * hullMult));
             }
 
