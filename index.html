@@ -1826,6 +1826,14 @@
 
                     <div class="volume-slider-group">
                         <div class="slider-header">
+                            <span>🕹️ Turn Speed (Pitch/Yaw)</span>
+                            <span id="lbl-set-turn">150%</span>
+                        </div>
+                        <input type="range" id="slider-set-turn" min="10" max="300" value="150" oninput="updateGameSettings()">
+                    </div>
+
+                    <div class="volume-slider-group">
+                        <div class="slider-header">
                             <span>🎥 Camera Tracking Lag</span>
                             <span id="lbl-set-cam">80%</span>
                         </div>
@@ -2019,6 +2027,7 @@
                         if (set.musicVol !== undefined) document.getElementById('slider-vol-music').value = set.musicVol;
                         updateAudioVolumes();
                         if (set.rollSpeed !== undefined) document.getElementById('slider-set-roll').value = set.rollSpeed;
+                        if (set.turnSpeed !== undefined) document.getElementById('slider-set-turn').value = set.turnSpeed;
                         if (set.cameraLag !== undefined) document.getElementById('slider-set-cam').value = set.cameraLag;
                         if (set.throttleAccel !== undefined) document.getElementById('slider-set-throttle').value = set.throttleAccel;
                         if (set.shieldRegenMult !== undefined) document.getElementById('slider-set-shield-regen').value = set.shieldRegenMult;
@@ -4808,7 +4817,9 @@
 
             // --- SINGULARITY-FREE 360° QUATERNION FLIGHT (LOOPS & ROLLS WITHOUT FLIPPING) ---
             const deadzone = 0.03;
-            const turnRate = 0.0052; // Reduced by 50% for smooth precision maneuvering
+            // Base turn rate of 0.0052 modified by the user's turn speed setting
+            const turnMult = (gameMechanicsConfig.turnSpeed !== undefined ? gameMechanicsConfig.turnSpeed : 150) / 100;
+            const turnRate = 0.0052 * turnMult;
 
             const normX = Math.abs(normalizedMouse.x) <= deadzone ? 0 : Math.min((Math.abs(normalizedMouse.x) - deadzone) / (1.0 - deadzone), 1.0);
             const normY = Math.abs(normalizedMouse.y) <= deadzone ? 0 : Math.min((Math.abs(normalizedMouse.y) - deadzone) / (1.0 - deadzone), 1.0);
@@ -6622,6 +6633,7 @@
 
         let gameMechanicsConfig = {
             rollSpeed: 125,
+            turnSpeed: 150,
             cameraLag: 80,
             throttleAccel: 125,
             shieldRegenMult: 100,
@@ -6647,6 +6659,7 @@
 
         function updateGameSettings() {
             const rollVal = parseInt(document.getElementById('slider-set-roll').value);
+            const turnVal = parseInt(document.getElementById('slider-set-turn').value);
             const camVal = parseInt(document.getElementById('slider-set-cam').value);
             const throttleVal = parseInt(document.getElementById('slider-set-throttle').value);
             const shieldRegenVal = parseInt(document.getElementById('slider-set-shield-regen').value);
@@ -6656,6 +6669,7 @@
             const flashOnHitVal = document.getElementById('chk-flash-on-hit') ? document.getElementById('chk-flash-on-hit').checked : false;
 
             document.getElementById('lbl-set-roll').innerText = rollVal + '%';
+            document.getElementById('lbl-set-turn').innerText = turnVal + '%';
             document.getElementById('lbl-set-cam').innerText = camVal + '%';
             document.getElementById('lbl-set-throttle').innerText = throttleVal + '%';
             document.getElementById('lbl-set-shield-regen').innerText = shieldRegenVal + '%';
@@ -6664,6 +6678,7 @@
             document.getElementById('lbl-set-player-dmg').innerText = playerDmgVal + '%';
 
             gameMechanicsConfig.rollSpeed = rollVal;
+            gameMechanicsConfig.turnSpeed = turnVal;
             gameMechanicsConfig.cameraLag = camVal;
             gameMechanicsConfig.throttleAccel = throttleVal;
             gameMechanicsConfig.shieldRegenMult = shieldRegenVal;
@@ -6675,6 +6690,7 @@
             if (currentProfile) {
                 if (!currentProfile.settings) currentProfile.settings = {};
                 currentProfile.settings.rollSpeed = rollVal;
+                currentProfile.settings.turnSpeed = turnVal;
                 currentProfile.settings.cameraLag = camVal;
                 currentProfile.settings.throttleAccel = throttleVal;
                 currentProfile.settings.shieldRegenMult = shieldRegenVal;
