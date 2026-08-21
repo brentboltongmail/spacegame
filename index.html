@@ -1873,6 +1873,11 @@
                         </div>
                         <input type="range" id="slider-set-player-dmg" min="10" max="500" value="100" step="10" oninput="updateGameSettings()">
                     </div>
+
+                    <div class="volume-slider-group" style="display: flex; align-items: center; justify-content: space-between; margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;">
+                        <span>💥 Enable Screen Flash on Hit</span>
+                        <input type="checkbox" id="chk-flash-on-hit" checked onchange="updateGameSettings()" style="width: 20px; height: 20px; accent-color: var(--accent-cyan);">
+                    </div>
                 </div>
 
                 <!-- Right Box: Keymap Control Editor -->
@@ -2020,6 +2025,10 @@
                         if (set.hullRegenMult !== undefined) document.getElementById('slider-set-hull-regen').value = set.hullRegenMult;
                         if (set.enemyDamageMult !== undefined) document.getElementById('slider-set-enemy-dmg').value = set.enemyDamageMult;
                         if (set.playerDamageMult !== undefined) document.getElementById('slider-set-player-dmg').value = set.playerDamageMult;
+                        if (set.flashOnHit !== undefined) {
+                            const chk = document.getElementById('chk-flash-on-hit');
+                            if (chk) chk.checked = set.flashOnHit;
+                        }
                         updateGameSettings();
                     }
                     if (currentProfile.keyBindings) {
@@ -5222,11 +5231,13 @@
                 
                 if (distToPlayer < 12) {
                     hitPlayer = true;
-                    // Flash red screen
-                    const flash = document.createElement('div');
-                    flash.style.position = 'fixed'; flash.style.top = '0'; flash.style.left = '0'; flash.style.width = '100%'; flash.style.height = '100%'; flash.style.backgroundColor = 'rgba(255,59,92,0.2)'; flash.style.zIndex = '9999'; flash.style.pointerEvents = 'none'; flash.style.transition = 'opacity 0.2s';
-                    document.body.appendChild(flash);
-                    setTimeout(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 200); }, 20);
+                    // Flash red screen if enabled
+                    if (gameMechanicsConfig.flashOnHit !== false) {
+                        const flash = document.createElement('div');
+                        flash.style.position = 'fixed'; flash.style.top = '0'; flash.style.left = '0'; flash.style.width = '100%'; flash.style.height = '100%'; flash.style.backgroundColor = 'rgba(255,59,92,0.2)'; flash.style.zIndex = '9999'; flash.style.pointerEvents = 'none'; flash.style.transition = 'opacity 0.2s';
+                        document.body.appendChild(flash);
+                        setTimeout(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 200); }, 20);
+                    }
 
                     // Damage Player
                     let hullDamageTaken = false;
@@ -6608,7 +6619,8 @@
             shieldRegenMult: 100,
             hullRegenMult: 100,
             enemyDamageMult: 100,
-            playerDamageMult: 100
+            playerDamageMult: 100,
+            flashOnHit: true
         };
 
         function openOptionsModal() {
@@ -6633,6 +6645,7 @@
             const hullRegenVal = parseInt(document.getElementById('slider-set-hull-regen').value);
             const enemyDmgVal = parseInt(document.getElementById('slider-set-enemy-dmg').value);
             const playerDmgVal = parseInt(document.getElementById('slider-set-player-dmg').value);
+            const flashOnHitVal = document.getElementById('chk-flash-on-hit') ? document.getElementById('chk-flash-on-hit').checked : true;
 
             document.getElementById('lbl-set-roll').innerText = rollVal + '%';
             document.getElementById('lbl-set-cam').innerText = camVal + '%';
@@ -6649,6 +6662,7 @@
             gameMechanicsConfig.hullRegenMult = hullRegenVal;
             gameMechanicsConfig.enemyDamageMult = enemyDmgVal;
             gameMechanicsConfig.playerDamageMult = playerDmgVal;
+            gameMechanicsConfig.flashOnHit = flashOnHitVal;
 
             if (currentProfile) {
                 if (!currentProfile.settings) currentProfile.settings = {};
@@ -6659,6 +6673,7 @@
                 currentProfile.settings.hullRegenMult = hullRegenVal;
                 currentProfile.settings.enemyDamageMult = enemyDmgVal;
                 currentProfile.settings.playerDamageMult = playerDmgVal;
+                currentProfile.settings.flashOnHit = flashOnHitVal;
                 saveProfileToServerSilent();
             }
         }
