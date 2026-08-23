@@ -3297,13 +3297,14 @@ function createCapitalShip() {
             // Load Battlecruiser PNG Texture
             const textureLoader = new THREE.TextureLoader();
             const battlecruiserTex = textureLoader.load('fbx/Meshy_AI_Battlecruiser_Ascenda_0823233538_texture.png');
+            battlecruiserTex.encoding = THREE.sRGBEncoding;
             battlecruiserTex.wrapS = THREE.RepeatWrapping;
             battlecruiserTex.wrapT = THREE.RepeatWrapping;
 
             const battlecruiserMat = new THREE.MeshStandardMaterial({
                 map: battlecruiserTex,
-                roughness: 0.45,
-                metalness: 0.65
+                roughness: 0.88,
+                metalness: 0.15
             });
 
             // Load Battlecruiser FBX Model
