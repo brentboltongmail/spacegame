@@ -1,4 +1,4 @@
-﻿# Spacegame Codebase Architecture Index
+# Spacegame Codebase Architecture Index
 
 This document serves as a high-level map of index.html (the primary 6000+ line application file) to help locate logic blocks, physics, UI, and initialization functions quickly. 
 
@@ -27,7 +27,7 @@ This document serves as a high-level map of index.html (the primary 6000+ line a
 
 ## 4. Ship Models & Construction
 *   createPlayerShip() - Constructs the player's primary Void Interceptor mesh and groups.
-*   createCapitalShip() - Assembles the massive Titan Dreadnought geometry and materials.
+*   createCapitalShip() - Loads the high-fidelity Battlecruiser FBX model (`fbx/Meshy_AI_Battlecruiser_Ascenda_...fbx`) with PNG diffuse texture, navigation beacons, and engine exhaust particle emitters.
 *   createEnemyInterceptorMesh() - Returns a cloned mesh for generating hostile AI fighters.
 
 ## 5. Main Game Loop & Physics

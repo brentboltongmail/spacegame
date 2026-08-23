@@ -11,63 +11,63 @@
     },
     "title-card-0": {
       "x": 0,
-      "y": 1972
+      "y": 2108
     },
     "title-card-1": {
       "x": 0,
-      "y": 1972
+      "y": 2108
     },
     "title-card-2": {
       "x": 0,
-      "y": 1972
+      "y": 2108
     },
     "title-card-3": {
       "x": 0,
-      "y": 1972
+      "y": 2108
     },
     "title-card-4": {
       "x": 0,
-      "y": 1972
+      "y": 2108
     },
     "title-card-5": {
       "x": 0,
-      "y": 1972
+      "y": 2108
     },
     "drag-prologue-sol-system-the-crest": {
       "x": 0,
-      "y": 1972
+      "y": 2108
     },
     "drag-the-truth-of-the-vanguard-throne": {
       "x": 0,
-      "y": 1972
+      "y": 2108
     },
     "drag-all-out-multi-system-warfare": {
       "x": 0,
-      "y": 1972
+      "y": 2108
     },
     "drag-the-battle-for-the-homeworld": {
       "x": 0,
-      "y": 1972
+      "y": 2108
     },
     "drag-core-gameplay-mechanics-matrix": {
       "x": 0,
-      "y": 1972
+      "y": 2108
     },
     "drag-key-factions": {
       "x": 0,
-      "y": 1972
+      "y": 2108
     },
     "drag-void-interceptor": {
       "x": 0,
-      "y": 1972
+      "y": 2108
     },
     "drag-heavy-strike-corvette": {
       "x": 0,
-      "y": 1972
+      "y": 2108
     },
     "drag-vanguard-royal-battlecruiser": {
       "x": 0,
-      "y": 1972
+      "y": 2108
     },
     "hud-shield-card": {
       "x": -21,
@@ -79,19 +79,19 @@
     }
   },
   "settings": {
-    "masterVol": 99,
-    "engineVol": 80,
-    "firingVol": 85,
-    "musicVol": 60,
-    "rollSpeed": 125,
-    "cameraLag": 75,
-    "throttleAccel": 250,
-    "shieldRegenMult": 130,
-    "hullRegenMult": 120,
-    "enemyDamageMult": 40,
-    "playerDamageMult": 100,
+    "masterVol": 11,
+    "engineVol": 100,
+    "firingVol": 100,
+    "musicVol": 100,
+    "rollSpeed": 55,
+    "cameraLag": 86,
+    "throttleAccel": 100,
+    "shieldRegenMult": 57,
+    "hullRegenMult": 56,
+    "enemyDamageMult": 27,
+    "playerDamageMult": 55,
     "flashOnHit": false,
-    "turnSpeed": 293
+    "turnSpeed": 53
   },
   "progress": {},
   "keyBindings": {
