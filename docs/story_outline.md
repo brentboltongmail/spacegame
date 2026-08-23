@@ -14,70 +14,70 @@ From Earth Defense Force Cadet to Sovereign Royal Scion. Action-driven pacing wi
 The year is 2244. You begin your journey as Kaelen Vance, a top-tier interceptor pilot in the Earth Defense Force (EDF). For as long as you can remember, your existence has been tethered to 'The Crest,' a colossal, ringed orbital defense platform that hovers like a bruised silver coin in the icy, desolate trade corridors between Jupiter and Neptune. Life here is a masterclass in sensory deprivation, punctuated only by the blaring klaxons of incoming ore freighters and the low, omnipresent hum of the station’s failing fusion reactors. The Crest is a brutalist masterwork of utilitarian engineering—a sprawling, multi-tiered citadel of gray steel, neon warning lights, and massive rotating habitation rings that cast long, sweeping shadows across the icy moons of the outer system.
 
 
-![Act 1 Scene 1](file:///d:/github/spacegame/docs/images/concept_art/act1/act1_scene1_1787218888778.jpg)
+![Act 1 Scene 1](/d:/github/spacegame/docs/images/concept_art/act1/act1_scene1_1787218888778.jpg)
 
 Walking the corridors of The Crest, you are constantly assaulted by the smells of ozone, recycled air that tastes like old pennies, and synthetic engine grease. The personnel here are hardened, cynical men and women who have traded the blue skies of Earth for a meager paycheck in the dark. You’ve spent countless hours in grueling simulator runs, mastering the delicate art of zero-G maneuvers until your hands bleed and your vision blurs. The military bureaucracy is stifling, reducing every act of bravery to a form in triplicate. Your only real action comes in the form of skirmishes with desperate, starvation-crazed asteroid miners who have turned to piracy out of sheer necessity, their patchwork ships easy prey for your advanced interceptor. Yet, even as you effortlessly outmaneuver them, pulling high-G turns that leave other pilots blacking out, you feel no thrill of victory. You are a ghost in a machine, going through the motions.
 
 This profound sense of alienation stems from a past shrouded in rusted metal and red dust. You were raised in the grimy, rust-stained orbital slums of Mars by Elias. Elias was a gruff, chain-smoking retired EDF mechanic who treated you like his own flesh and blood, despite your utterly mysterious origins. His garage was a labyrinth of half-cannibalized fusion drives and salvaged plasma coils, a haven of grease and sparks amidst the crushing poverty of the Martian undercity. Elias taught you everything about aerospace mechanics. He showed you how to bypass fusion limiters with a simple copper wire, how to hotwire ignition coils before you could even read a standard technical manual, and how to listen to the rhythm of an engine to diagnose a misfire.
 
 
-![Act 1 Scene 2](file:///d:/github/spacegame/docs/images/concept_art/act1/act1_scene2_1787218896806.jpg)
+![Act 1 Scene 2](/d:/github/spacegame/docs/images/concept_art/act1/act1_scene2_1787218896806.jpg)
 
 Elias is a man who speaks little of the past. His lungs are permanently scarred by decades of inhaling toxic thruster exhaust, resulting in a wet, rattling cough that punctuates his rare moments of laughter. But his loyalty to you is fierce and unwavering. He is the anchor that keeps you tethered to reality, the only father you have ever known. Despite his deep, unspoken love, you’ve always felt an inexplicable, maddening disconnect from him, from Mars, and from the rest of humanity. You are plagued by vivid, terrifyingly real recurring dreams. In your sleep, you stand beneath twin suns you've never seen, casting dual shadows across towering cities of golden glass that do not exist anywhere in the Sol System. You hear a woman's voice, melodic and heartbreakingly sad, singing a lullaby in a complex, flowing language that your brain understands perfectly, even if your waking mind cannot translate it.
 
 Your only physical link to this impossible past is a mysterious, glowing ancient pendant. Elias found it with you twenty years ago. You were just an infant, clutching the strange artifact in your tiny hands inside a derelict, heavily shielded escape pod drifting silently near the Kuiper Belt. The metal of the pod was completely unknown to Earth scientists—a seamless, self-repairing alloy that drank the light and resisted all attempts at laser-cutting, acid baths, or chemical analysis. The pendant itself hums with an erratic, warm energy signature that defies all known laws of thermodynamics, vibrating softly in your palm when pointed toward the galactic center. Elias, recognizing the danger of such an anomaly, hid the pod beneath the Martian surface and concealed the pendant's true nature. He called in favors with old, corrupt contacts to register you as an orphaned Martian refugee, keeping you safely off the radar of EDF intelligence.
 
 
-![Act 1 Scene 3](file:///d:/github/spacegame/docs/images/concept_art/act1/act1_scene3_1787218905774.jpg)
+![Act 1 Scene 3](/d:/github/spacegame/docs/images/concept_art/act1/act1_scene3_1787218905774.jpg)
 
 But the secrets of your past can only remain buried for so long. Life on The Crest remains a monotonous cycle of perimeter patrols and minor maintenance until a Tuesday shift that changes the trajectory of the universe.
 
 You are in the cockpit of your Void Interceptor, running pre-flight checks. The dogfighting mechanics of these ships require absolute synergy between pilot and machine. You must manually balance the energy distribution across three vital systems: the hexagonal kinetic shields, the primary fusion engines, and the twin-linked railgun blasters. Divert too much power to the shields, and you become a sitting duck; pump it all into the engines, and a single stray micrometeorite will tear through your hull. You grip the dual flight sticks, feeling the satisfying resistance of the yaw and pitch controls. Your HUD flickers to life, painting the blackness of space with tactical overlays, target locks, and vector projections.
 
 
-![Act 1 Scene 4](file:///d:/github/spacegame/docs/images/concept_art/act1/act1_scene4_1787218922147.jpg)
+![Act 1 Scene 4](/d:/github/spacegame/docs/images/concept_art/act1/act1_scene4_1787218922147.jpg)
 
 Without warning, the stars outside the station warp, stretch, and distort in a sickening display of gravitational lensing. A massive Iron Dominion raiding fleet drops out of slipspace directly over Titan's thin, nitrogen-rich atmosphere. Their arrival doesn't register on the EDF's standard tachyon scanners until it is too late; they simply tear a hole in reality and pour through. Their ships are jagged, brutalist wedges of dark, light-absorbing metal, adorned with crimson glowing thrusters that look like bleeding wounds in the void.
 
 Wielding unfamiliar, terrifying dark-energy beam weapons and impenetrable multi-layered plasma plating, the Dominion vanguard tears through the EDF perimeter patrols in seconds. The silence of space is abruptly replaced by the panicked, overlapping chatter of the EDF comms network. You hear the screams of veteran pilots as their interceptors are sheared in half by beams of pure, crackling violet energy. Entire squadrons are wiped from the tactical grid in the blink of an eye, their icons turning from green to a flat, dead gray.
 
 
-![Act 1 Scene 5](file:///d:/github/spacegame/docs/images/concept_art/act1/act1_scene5_1787218930393.jpg)
+![Act 1 Scene 5](/d:/github/spacegame/docs/images/concept_art/act1/act1_scene5_1787218930393.jpg)
 
 You launch from The Crest’s catapult, pinned to your seat by the acceleration, and dive into the fray. You quickly realize the Dominion aren't here to conquer Sol or strip-mine its resources; they possess technology far beyond the need for primitive fusion fuel. They are here for a specific target. Their colossal dreadnoughts ignore the EDF cruisers and begin bombarding the methane ice lakes of Titan. Their dark-energy beams melt through kilometers of crust in seconds, boiling the methane into massive clouds of vapor to reveal a dormant, colossal ancient wormhole gate. It is an artifact humanity never even knew existed, a ring of etched, golden metal the size of a small moon, buried for millions of years beneath the ice.
 
 The Earth Defense Force scrambles its heavy cruisers to respond, ordering a concentrated alpha strike. The massive human ships unleash a barrage of standard kinetic railguns and fusion missiles. But the devastating payload proves completely useless. The uranium-tipped slugs and nuclear warheads bounce harmlessly off the Dominion's advanced hexagonal shielding, detonating in spectacular, useless fireballs that merely illuminate the enemy hulls.
 
 
-![Act 1 Scene 6](file:///d:/github/spacegame/docs/images/concept_art/act1/act1_scene6_1787218937514.jpg)
+![Act 1 Scene 6](/d:/github/spacegame/docs/images/concept_art/act1/act1_scene6_1787218937514.jpg)
 
 The EDF capital ships are methodically, brutally ripped apart by Dominion gravity-shears. Invisible waves of crushed space-time fold the human cruisers in half, rupturing their fusion cores and scattering their wreckage across Titan's orbit. This leaves only the agile interceptor squadrons to weave through the dense, burning debris field and mount a futile defense. The battle is a massacre. You push your Void Interceptor to its absolute limits, manually bypassing the safety limiters just as Elias taught you. You toggle your power distribution wildly, shunting energy to the port shields just in time to deflect a glancing blow from a dark-energy beam, then throwing it all into the engines to perform a snap-roll, zero-G drift around the burning husk of a destroyed cruiser.
 
 You lock onto a Dominion fighter, your railguns spooling up. You squeeze the trigger, sending a stream of hyper-velocity tungsten slugs into the enemy ship's thruster bell, the only unshielded weak point. The alien fighter spins out of control and detonates, but for every one you destroy, ten more drop from the dreadnoughts' bays. You watch helplessly as your wingmen are disintegrated, their comms cutting out mid-scream.
 
 
-![Act 1 Scene 7](file:///d:/github/spacegame/docs/images/concept_art/act1/act1_scene7_1787218990558.jpg)
+![Act 1 Scene 7](/d:/github/spacegame/docs/images/concept_art/act1/act1_scene7_1787218990558.jpg)
 
 Beneath you, the massive precursor ring beneath Titan activates. It bursts through the boiling ice in a halo of blinding, violent violet light. The sheer energy output creates a massive gravitational shear that reaches all the way to The Crest. Through your reinforced canopy, you watch in horror as the orbital platform begins tearing apart. Massive steel bulkheads groan and buckle, primary habitation rings snap off like cheap plastic toys, and atmosphere vents violently into the void in massive, freezing geysers. Thousands of EDF personnel, men and women you shared bad coffee and worse jokes with, are carried out into the freezing vacuum, their tiny silhouettes tumbling into the dark.
 
 Seeing your squadron being decimated, the station falling, and the collapsing gravity well of the active wormhole threatening to swallow the entire sector, you make a split-second, suicidal decision. You realize Earth's only hope of survival is to close the gate from the inside before the full bulk of the Dominion armada can cross the threshold. The alien dreadnoughts are already maneuvering toward the rift, preparing to bring their planet-cracking weapons to bear on Earth.
 
 
-![Act 1 Scene 8](file:///d:/github/spacegame/docs/images/concept_art/act1/act1_scene8_1787219008816.jpg)
+![Act 1 Scene 8](/d:/github/spacegame/docs/images/concept_art/act1/act1_scene8_1787219008816.jpg)
 
 You divert all auxiliary power to your Void Interceptor's thrusters. You rip the physical limiter switch from the console, bypassing the fail-safes, pushing the reactor deep into the red, and ignoring the blaring klaxons and flashing warning lights illuminating your cockpit in a strobing panic. You push the g-force limits of your ship and your own body, the blood draining from your head, blacking out the edges of your vision until all you can see is the swirling violet vortex of the wormhole.
 
 As you dive toward the gate, dodging a barrage of anti-aircraft fire from the Dominion dreadnoughts, the comms crackle to life. It is Elias. He is broadcasting on a hyper-wave frequency, bypassing the jammed military channels. He is begging you to turn back, his gruff voice breaking through the static in a rare, desperate display of raw emotion. You can hear the rattling cough, the panic in his breath.
 
 
-![Act 1 Scene 9](file:///d:/github/spacegame/docs/images/concept_art/act1/act1_scene9_1787218956046.jpg)
+![Act 1 Scene 9](/d:/github/spacegame/docs/images/concept_art/act1/act1_scene9_1787218956046.jpg)
 
 "Kaelen, no! You can't take that ship in there! The shear will tear you apart! Come back, son!"
 
 Tears streak your face, floating in the microgravity of the cockpit. You lock your flight stick forward, the g-forces pinning your hand in place. You take a deep, shaky breath, looking down at the glowing pendant on your chest. It is pulsing wildly, resonating with the frequency of the open gate.
 
 
-![Act 1 Scene 10](file:///d:/github/spacegame/docs/images/concept_art/act1/act1_scene10_1787219027147.jpg)
+![Act 1 Scene 10](/d:/github/spacegame/docs/images/concept_art/act1/act1_scene10_1787219027147.jpg)
 
 "Someone has to shut the door, old man," you whisper into the mic, your voice steady despite the chaos. "I love you. Goodbye."
 
@@ -88,21 +88,21 @@ You plunge directly into the collapsing, blinding rift, drawing the entirety of 
 Violently expelled from the chaotic, mind-bending subspace currents of the collapsing wormhole, Kaelen Vance slammed back into real-space with bone-jarring force. The transition from the sterile, gray void of the Sol System to this new sector was a sensory overload. Outside his shattered canopy, the sky was a breathtaking canvas of churning, luminescent nebulas—vibrant, bleeding ribbons of electric pink and toxic green, interwoven with treacherous, rogue asteroid clusters that drifted unpredictably like forgotten debris of creation. This was the Sovereign Reach, a lawless, uncharted expanse thousands of light-years from Earth, and it was as beautiful as it was deadly.
 
 
-![Act 2 Scene 1](file:///d:/github/spacegame/docs/images/concept_art/act2/act2_scene1_1787218890260.jpg)
+![Act 2 Scene 1](/d:/github/spacegame/docs/images/concept_art/act2/act2_scene1_1787218890260.jpg)
 
 His Void Interceptor was a floating coffin. Critical hull damage alarms wailed in a discordant symphony of imminent death, the life support system was failing, and the fusion reactor had completely drained in the desperate sprint to seal the Titan gate. Frost crept across the edges of the cockpit glass, and the bone-chilling cold of the void began to seep through Kaelen's flight suit. He was drifting lifelessly toward the corona of a harsh local star, his breath crystallizing in the failing atmosphere.
 
 Just as the edges of his vision began to darken, a sudden, violent jolt rocked the Interceptor. A brilliant azure tractor beam had locked onto his ruined hull, halting its descent toward the star. Kaelen watched through half-lidded eyes as the bulky, rust-colored silhouette of an independent salvage vessel eclipsed the blinding starlight, pulling him from the jaws of the freezing void.
 
 
-![Act 2 Scene 2](file:///d:/github/spacegame/docs/images/concept_art/act2/act2_scene2_1787218897262.jpg)
+![Act 2 Scene 2](/d:/github/spacegame/docs/images/concept_art/act2/act2_scene2_1787218897262.jpg)
 
 He awoke hours later in the cramped, sterile-smelling medical bay of the scavenger ship, his wounds hastily patched. When he finally staggered to the observation deck, the sight before him stole the breath he had just regained. The salvage vessel was docking at a deep-space independent outpost known only as 'The Rust Haven'. It wasn't a space station; it was the hollowed-out carcass of a colossal, millennia-old precursor dreadnought, a leviathan of dead metal suspended in the iridescent cosmic dust.
 
 The Rust Haven was a sprawling, chaotic hive of scum and villainy, built directly into the ribbed infrastructure of the ancient warship. It was a neon-drenched maze of illicit cantinas, unregulated chop shops, and sprawling black markets. Heavily armed local warlords rubbed shoulders with disgraced politicians in the shadows, while rogue AI synthetic units traded encrypted data drives for raw coolant. The air in the hangar bays tasted of sulfur, cheap synthehol, and the static charge of unshielded plasma cutters.
 
 
-![Act 2 Scene 3](file:///d:/github/spacegame/docs/images/concept_art/act2/act2_scene3_1787218906436.jpg)
+![Act 2 Scene 3](/d:/github/spacegame/docs/images/concept_art/act2/act2_scene3_1787218906436.jpg)
 
 To survive in this brutal, unforgiving new frontier, Kaelen had to make a choice. He was no longer an Earth Defense Force cadet; he was a ghost in a galaxy that didn't care if he lived or died. With a heavy heart, he stripped his pristine EDF insignias from his flight suit and meticulously repainted his Interceptor's hull in matte, radar-absorbent grays. He dove headfirst into the gritty underworld of mercenary warfare, knowing that out here, loyalty was bought with plasma fuel and survival belonged only to the swift and the ruthless.
 
@@ -111,14 +111,14 @@ His first contracts were acts of sheer desperation. Rival factions, criminal syn
 He quickly learned the art of the ambush, shedding the rigid military doctrines of the EDF to adapt to the lawless void. He mastered the terrifying maneuver of hiding his ship's heat signature within the blistering corona of dying stars, striking out at passing bounties before vanishing back into the flames. He learned to salvage highly advanced, alien tech from the derelict capital ships left over from ancient, forgotten wars that littered the fringes of the sector.
 
 
-![Act 2 Scene 4](file:///d:/github/spacegame/docs/images/concept_art/act2/act2_scene4_1787218927540.jpg)
+![Act 2 Scene 4](/d:/github/spacegame/docs/images/concept_art/act2/act2_scene4_1787218927540.jpg)
 
 His tactics evolved. Kaelen learned to rely on stealth, speed, and environmental hazards rather than sheer firepower. He would lure heavily armored pirate galleons into dense gas clouds, shooting the explosive pockets of methane to disintegrate his pursuers in localized supernovas. When outgunned by overwhelming missile swarms, he utilized the terrifying gravitational pull of micro black holes, slingshotting his Interceptor at incredible, hull-stressing speeds to outrun the very weapons designed to annihilate him.
 
 But a pilot is only as good as his crew, and The Rust Haven was the perfect place to assemble a family of outcasts. His first recruit was Jax, a brilliant but deeply cynical cyber-warfare hacker whom Kaelen rescued from a warlord's torture rack. Jax was a living wire, constantly jacked into a web of illicit data streams. Operating from the shadows of Kaelen’s newly acquired, heavily modified cargo freighter—which served as their mobile base—Jax handled ship sub-systems, deployed complex electronic countermeasures, and sliced into enemy communications grids with terrifying ease, turning their own automated turrets against them.
 
 
-![Act 2 Scene 5](file:///d:/github/spacegame/docs/images/concept_art/act2/act2_scene5_1787218938347.jpg)
+![Act 2 Scene 5](/d:/github/spacegame/docs/images/concept_art/act2/act2_scene5_1787218938347.jpg)
 
 Then came Kael, a towering, four-armed alien heavy-weapons specialist who Kaelen won in a high-stakes game of Sabacc. Kael was a mountain of muscle and scaled flesh, serving as both the freighter’s chief gunner and primary mechanic. He possessed a terrifying, pragmatic calm in battle, capable of dead-lifting overheated plasma cannons with his bare hands to realign their focusing lenses mid-firefight. Beneath his gruff exterior, Kael possessed a deeply ingrained sense of honor, finding a kindred spirit in the displaced Earth pilot.
 
@@ -127,21 +127,21 @@ The final addition was Lyra, a disgraced tactician seeking redemption. She was a
 Together, they transformed the battered Interceptor into a masterpiece of illicit engineering. Their combined expertise allowed Kaelen to heavily customize his fighter, integrating black-market beam weaponry, illicit multi-layered shield generators, and illegal thruster modifications that made his ship the fastest, deadliest strike craft in the Verdant Reach. They were no longer just mercenaries; they were an apex predator unit.
 
 
-![Act 2 Scene 6](file:///d:/github/spacegame/docs/images/concept_art/act2/act2_scene6_1787218971818.jpg)
+![Act 2 Scene 6](/d:/github/spacegame/docs/images/concept_art/act2/act2_scene6_1787218971818.jpg)
 
 It was during one of these deep-frontier salvage runs that the strange pendant Kaelen had carried since infancy awoke. The ancient metal began reacting violently to the environment, pulsing with a bioluminescent, rhythmic glow when they approached uncharted coordinates. It acted as a cosmic tuning fork, vibrating with increasing intensity, leading Kaelen away from the trade lanes and into the darkest corners of the sector. 
 
 The pendant guided them to derelict, ancient wormhole gates hidden within the hollowed-out cores of dead moons and buried deep within the crushing, swirling atmospheres of massive gas giants. These precursors structures had laid dormant for millions of years, vast rings of obsidian metal that defied the crushing pressure of their environments. 
 
 
-![Act 2 Scene 7](file:///d:/github/spacegame/docs/images/concept_art/act2/act2_scene7_1787218980430.jpg)
+![Act 2 Scene 7](/d:/github/spacegame/docs/images/concept_art/act2/act2_scene7_1787218980430.jpg)
 
 When Kaelen placed the glowing pendant into the central console of the first gate they found, the structure hummed to life, recognizing a genetic signature he didn't know he possessed. The gate didn't open a wormhole; instead, it unlocked a cache of dormant precursor technology, granting Kaelen's ship incredible abilities that defied standard physics and far exceeded anything Earth's engineers had ever dreamed of.
 
 With Kael and Jax's help, they integrated a short-range teleportation drive into the Interceptor. In combat, it allowed Kaelen to literally 'blink' across the battlefield. He could jump directly behind pursuing enemy fighters during a high-speed dogfight, bypassing their shields and causing them to blindly fire upon their own wingmen in the confusion. The sensation of the blink was nauseating—a momentary plunge into a dimension of pure light and screaming silence—but the tactical advantage was absolute.
 
 
-![Act 2 Scene 8](file:///d:/github/spacegame/docs/images/concept_art/act2/act2_scene8_1787218999741.jpg)
+![Act 2 Scene 8](/d:/github/spacegame/docs/images/concept_art/act2/act2_scene8_1787218999741.jpg)
 
 From another ruin, they retrieved the schematics and raw materials for dark-matter torpedoes. These heavy munitions were terrifying in their execution. Upon impact, they didn't just explode; they collapsed the enemy's shields by warping the localized gravity field, creating a momentary micro-singularity that crushed heavy cruiser hulls inward like tin cans before violently detonating. 
 
@@ -150,14 +150,14 @@ The most defensive upgrade was the phase-shifting armor. Tied directly to his ne
 However, secrets in the Verdant Reach were currency, and currency never stayed hidden for long. Whispers began to spread rapidly among the cantinas, the mercenary guilds, and the bounty hunting syndicates about a ghost pilot from the stars wielding the forbidden "Star Key." Legends spoke of a lost royal bloodline that would one day return to unite the fractured sector and cast down the Iron Dominion. Kaelen's impossible victories and ancient weaponry fueled the fire of these prophecies.
 
 
-![Act 2 Scene 9](file:///d:/github/spacegame/docs/images/concept_art/act2/act2_scene9_1787219008505.jpg)
+![Act 2 Scene 9](/d:/github/spacegame/docs/images/concept_art/act2/act2_scene9_1787219008505.jpg)
 
 This newfound fame was a double-edged sword. It drew the unwanted, aggressive attention of brutal local warlords who saw Kaelen not as a savior, but as a walking payday. Massive bounties were placed on his head, leading to constant ambushes and betrayals by former clients. But the warlords were the least of his concerns. The ripples of his precursor technology had reached the dark corners of the galaxy, alerting the very empire he had fled.
 
 The Iron Dominion had arrived in the Reach. They immediately recognized the energy signatures of the sacred, forbidden technology Kaelen wielded. Regent Vaelen, the Dominion's ruthless dictator, dispatched his elite hunter-killer squadrons—relentless, fanatical pilots flying jagged, dark-energy shielded strike craft—to capture Kaelen dead or alive.
 
 
-![Act 2 Scene 10](file:///d:/github/spacegame/docs/images/concept_art/act2/act2_scene10_1787219016454.jpg)
+![Act 2 Scene 10](/d:/github/spacegame/docs/images/concept_art/act2/act2_scene10_1787219016454.jpg)
 
 The first encounter with the hunter-killers occurred over a volatile mining colony. They didn't hail, they didn't demand surrender; they simply dropped out of slipspace and opened fire with terrifying precision. It was a brutal test of Kaelen's new crew and his ancient upgrades. Lyra called out their attack patterns before they formed, Jax scrambled their targeting optics, and Kaelen blinked through their formations, dropping dark-matter torpedoes into their engines. 
 
@@ -169,14 +169,14 @@ They survived, but just barely. As Kaelen's battered freighter jumped to hypersp
 The deep void of the Tenebris System offered no comfort, only an oppressive, starless silence that pressed against the viewport of your heavily scarred Interceptor. Here, the ancient pendant resting against your chest did not merely hum—it throbbed with a frantic, bioluminescent rhythm, casting long, erratic azure shadows across the dimly lit cockpit. It had guided you and your ragtag mercenary crew across the perilous breadth of the galaxy, away from the neon-drenched safety of the Rust Haven, plunging you headfirst into the uncharted depths of the Nexus. 
 
 
-![Act 3 Scene 1](file:///d:/github/spacegame/docs/images/concept_art/act3/act3_scene1.jpg)
+![Act 3 Scene 1](/d:/github/spacegame/docs/images/concept_art/act3/act3_scene1.jpg)
 
 This was the graveyard of empires. Before you floated a dead, lightless star, a black dwarf that exerted a horrific, complex gravitational pull on the surrounding space. Trapped in its orbit were thousands—perhaps tens of thousands—of ancient, petrified vessels. 
 
 They were suspended like insects in amber, frozen in time and frost. Some were jagged and brutalist, others sleek and aerodynamic, but all had failed to navigate the labyrinthine gravity wells that protected this sacred anomaly. The absolute stillness of this metallic cemetery was chilling to the bone. You navigated your ship through floating debris fields of crystallized dreadnoughts and shattered frigates, feeling the ghosts of million-year-old battles scraping against your hull.
 
 
-![Act 3 Scene 2](file:///d:/github/spacegame/docs/images/concept_art/act3/act3_scene2.jpg)
+![Act 3 Scene 2](/d:/github/spacegame/docs/images/concept_art/act3/act3_scene2.jpg)
 
 Suddenly, the ship’s navigational computers shrieked in blaring alarm. Red warning lights bathed the cockpit as a massive, invisible force seized your vessel. Manual overrides failed instantly. The engines screamed as they were abruptly powered down by an external command. 
 
@@ -185,14 +185,14 @@ A colossal, central gate—the heart of the Nexus—emerged from the dark. Its a
 Securing your EVA suit, you drifted from the airlock into the cavernous chamber. It was completely silent, save for the sound of your own ragged breathing echoing over the comms. The scale was incomprehensible, making you feel no larger than a grain of sand. As you approached the primary console—a floating dais of obsidian glass—the pendant around your neck flared with blinding, transcendent intensity. 
 
 
-![Act 3 Scene 3](file:///d:/github/spacegame/docs/images/concept_art/act3/act3_scene3.jpg)
+![Act 3 Scene 3](/d:/github/spacegame/docs/images/concept_art/act3/act3_scene3.jpg)
 
 A crimson scan line swept over you, analyzing your genetic signature, diving deep into the marrow of your bones, recognizing the blood that pulsed in your veins. The chamber erupted to life. The floating monoliths reoriented themselves, projecting a towering, crystalline hologram in the center of the dais. 
 
 It was a woman, clad in regal, flowing armor of white and gold. The resemblance was terrifyingly precise; she possessed your exact eyes, the same resolute jawline, the same defiant stance. She was beautiful, profoundly sad, and undeniably royal. 
 
 
-![Act 3 Scene 4](file:///d:/github/spacegame/docs/images/concept_art/act3/act3_scene4.jpg)
+![Act 3 Scene 4](/d:/github/spacegame/docs/images/concept_art/act3/act3_scene4.jpg)
 
 Her voice, carrying the weight of a dying civilization, echoed directly into your helmet. The message she delivered tore down the very foundation of your existence. You were not a human orphan scraped from the gutters of a Martian slum. You were the last surviving blood heir to House Vanguard, the ancient, benevolent rulers of the Sovereign Reach. 
 
@@ -201,14 +201,14 @@ For centuries, your bloodline had maintained a golden age of peace and scientifi
 Regent Vaelen, a trusted military advisor consumed by ambition and a lust for dark matter, had orchestrated a sudden and total massacre. The Iron Dominion was born in the fires of your family’s destruction. Vaelen had usurped the Sovereign throne, enslaved your people in brutal work camps to fuel his war machine, and relentlessly purged any trace of the Vanguard lineage. 
 
 
-![Act 3 Scene 5](file:///d:/github/spacegame/docs/images/concept_art/act3/act3_scene5.jpg)
+![Act 3 Scene 5](/d:/github/spacegame/docs/images/concept_art/act3/act3_scene5.jpg)
 
 Your mother, bleeding and surrounded by enemies, had placed you into a highly experimental, heavily shielded escape pod in her final moments. She launched you blindly into an unstable, ancient wormhole network, praying the cosmic currents would carry you far from Vaelen’s wrath. You were delivered to the uncharted Sol System, hidden among humanity, raised by an old mechanic who knew the truth but kept it buried to keep you safe.
 
 The revelation hit the comms channel like a shockwave, reverberating through your mercenary crew waiting aboard your freighter. Jax, the cynical hacker, immediately advocated for retreat, his voice trembling as he calculated the impossible, suicidal odds of facing a galactic empire. Kael, the towering heavy-weapons specialist, fell to one knee in the cargo bay, his four arms crossed in a solemn pledge of fealty, seeing an opportunity for a glorious, honorable crusade. Lyra, the disgraced Dominion tactician, remained silent for a long time before weeping softly, realizing that the child of the queen she had once betrayed now stood before her, offering a singular path to redemption.
 
 
-![Act 3 Scene 6](file:///d:/github/spacegame/docs/images/concept_art/act3/act3_scene6.jpg)
+![Act 3 Scene 6](/d:/github/spacegame/docs/images/concept_art/act3/act3_scene6.jpg)
 
 But Vaelen’s paranoia had not waned over the decades. The activation of the Nexus sent a ripple across the subspace network, a beacon that alerted the Iron Dominion. You were immediately thrust into a galaxy-spanning political web, hunted relentlessly by Vaelen’s shadow-assassins. 
 
@@ -217,14 +217,14 @@ These elite, fanatical operatives were the terror of the Reach. They piloted sle
 Yet, you were not alone. Whispers of your survival reached the Vanguard Remnant, desperate loyalists who had spent twenty years in hiding. These scattered, impoverished rebel cells had clung to the prophecy of the lost heir. But they were not starry-eyed dreamers; they were hardened, cynical survivors. When you finally made contact with the Remnant generals in a clandestine meeting on a stormy, acidic moon, they did not bow. They sneered.
 
 
-![Act 3 Scene 7](file:///d:/github/spacegame/docs/images/concept_art/act3/act3_scene7.jpg)
+![Act 3 Scene 7](/d:/github/spacegame/docs/images/concept_art/act3/act3_scene7.jpg)
 
 To them, you were a soft, naive child who had played in the mud of a primitive, backwater world. You lacked the royal bearing, the tactical acumen, and the sheer ruthlessness required to dismantle the Iron Dominion’s terrifying war machine. They viewed your survival as a fluke and your pendant as a stolen toy. They demanded a brutal trial by fire, a demonstration of absolute supremacy, before they would risk their remaining ships and lives for your cause.
 
 The trial was a suicide mission: the liberation of the Kaelen-Tor Prison Colony. It was a high-gravity nightmare fortress built into the core of a dying, hyper-dense planetoid. It was here that the highest-ranking Vanguard generals—the true tacticians of the old regime—were scheduled for public execution. 
 
 
-![Act 3 Scene 8](file:///d:/github/spacegame/docs/images/concept_art/act3/act3_scene8.jpg)
+![Act 3 Scene 8](/d:/github/spacegame/docs/images/concept_art/act3/act3_scene8.jpg)
 
 You didn't lead from a command deck. You led from the front. Engaging your Interceptor's phase-shifting armor, you dove straight into the orbital defense grid, weaving through a blizzard of dark-energy flak. You breached the colony’s outer hull, abandoning your ship to lead the boarding action personally.
 
@@ -233,14 +233,14 @@ In the crushing, zero-gravity environment of the prison's central rotunda, you f
 You fought with the desperation of a cornered animal and the fury of a wronged monarch. You personally ripped the executioner's blade from his hands, saving the loyalist generals seconds before their demise. Fleeing the colony, you engaged in a massive dogfight against overwhelming Dominion reinforcements. This was where your true brilliance shone. 
 
 
-![Act 3 Scene 9](file:///d:/github/spacegame/docs/images/concept_art/act3/act3_scene9.jpg)
+![Act 3 Scene 9](/d:/github/spacegame/docs/images/concept_art/act3/act3_scene9.jpg)
 
 You didn't rely on brute force; you outsmarted the rigid Dominion commanders. You baited their heavy cruisers into the planetoid's lethal gravity shears, watching their impenetrable shields collapse under the sheer physics of the trap. You used the debris of destroyed ships as cover, orchestrating a ballet of destruction that left the Remnant fleet watching in stunned awe.
 
 You had proven yourself not just as a survivor, but as a predator capable of hunting the Dominion. The skepticism of the Remnant generals evaporated, replaced by a fervent, burning loyalty. Slowly, the scattered rebel cells united under your banner. You shed the rusty, mismatched mercenary ships, replacing them with the advanced, graceful Vanguard cruisers retrieved from hidden orbital caches. 
 
 
-![Act 3 Scene 10](file:///d:/github/spacegame/docs/images/concept_art/act3/act3_scene10.jpg)
+![Act 3 Scene 10](/d:/github/spacegame/docs/images/concept_art/act3/act3_scene10.jpg)
 
 These sleek vessels shimmered with devastating plasma-shield technology, elegant long-range beam weapons, and advanced slipspace drives. You established a massive, hidden base of operations in the heart of a rogue asteroid field, completely surrounded by a masking nebula that rendered Dominion sensors blind. 
 
@@ -254,28 +254,28 @@ It was here, amidst the roar of engines and the clatter of munitions, that you f
 The mantle of Sovereign is not merely a title; it is a profound burden that transforms every facet of your existence. Accepting your destiny, you realize that guerrilla raids and scattered resistance will no longer suffice. The Vanguard Remnant must transition from a hidden insurgency into a unified, systemic military force. To tear down the Iron Dominion, you launch a massive, coordinated multi-system war across the interconnected wormhole networks, seeking to systematically dismantle the tyrant Vaelen's dark-energy infrastructure.
 
 
-![Act 4 Scene 1](file:///d:/github/spacegame/docs/images/concept_art/act4/act4_scene1_1787218890556.jpg)
+![Act 4 Scene 1](/d:/github/spacegame/docs/images/concept_art/act4/act4_scene1_1787218890556.jpg)
 
 In this crucible of conflict, you undergo a staggering evolution from a lone, maverick dogfighter relying on instinct to a Grand Fleet Commander burdened with the lives of millions. The transition is jarring. Where you once calculated trajectories and thruster output, you now evaluate acceptable casualty rates and the strategic viability of entire star systems. The cockpit of your Interceptor, once your entire universe, is temporarily exchanged for the sprawling, immaculate command deck of your newly christened flagship, *The Crown of Vanguard*.
 
 This colossal dreadnought is a masterpiece of ancient Vanguard engineering, recovered from the deepest reaches of the Nexus graveyard. Its hull gleams with polished aurum-alloy, heavily augmented with layered plasma-shield emitters and rows of heavy beam batteries. The heart of the ship—and the nerve center of your rebellion—is the holographic war room. 
 
 
-![Act 4 Scene 2](file:///d:/github/spacegame/docs/images/concept_art/act4/act4_scene2_1787218898015.jpg)
+![Act 4 Scene 2](/d:/github/spacegame/docs/images/concept_art/act4/act4_scene2_1787218898015.jpg)
 
 Stepping into the war room for the first time is an awe-inspiring and terrifying experience. The circular chamber is dominated by a massive, floating three-dimensional projection of the Sovereign Reach, illuminated in shifting hues of sapphire, emerald, and hostile crimson. Thousands of individual blips represent dreadnoughts, frigates, fighter squadrons, and supply convoys, all moving in real-time across the galactic map. This is your chessboard. The air thrums with the continuous hum of quantum communication relays, processing petabytes of tactical data from across a dozen warzones. 
 
 From your elevated command dais, you issue sweeping tactical orders to entire armadas of high-tech plasma dreadnoughts, agile missile frigates, and swarms of strike fighters. With a wave of your hand, you direct fleet movements across lightyears, calculating slipspace jump coordinates and establishing overlapping fields of fire. You watch as lines of light intersect on the holo-map, representing the devastating clash of thousands of ships. Every system you liberate brings you one step closer to Vanguard Prime, but every order you give carries a tremendous weight in blood.
 
 
-![Act 4 Scene 3](file:///d:/github/spacegame/docs/images/concept_art/act4/act4_scene3_1787218905067.jpg)
+![Act 4 Scene 3](/d:/github/spacegame/docs/images/concept_art/act4/act4_scene3_1787218905067.jpg)
 
 Yet, despite the grand scale of your new role, the soul of a pilot still burns fiercely within you. You refuse to be a commander who merely watches from the safety of a heavily armored citadel. *The Crown of Vanguard* features a specialized rapid-launch tube that allows you to dynamically jump into the cockpit of your elite, modified Vanguard fighter. Mid-battle, when a flank begins to crumble or a crucial objective must be secured, you launch from the hangar bays, instantly transitioning from macro-tactics to the visceral, high-G reality of deep-space combat.
 
 The combat scale expands drastically, dwarfing the intimate skirmishes of your mercenary days. You are thrust into screen-filling, apocalyptic fleet engagements that defy comprehension. You coordinate orbital artillery strikes that streak through the void like angry gods, manage massive, overlapping shield walls that ripple with blinding energy as they absorb Dominion salvos, and dive headlong through the blistering crossfire of hundreds of warships. 
 
 
-![Act 4 Scene 4](file:///d:/github/spacegame/docs/images/concept_art/act4/act4_scene4_1787218915030.jpg)
+![Act 4 Scene 4](/d:/github/spacegame/docs/images/concept_art/act4/act4_scene4_1787218915030.jpg)
 
 Your Interceptor becomes a scalpel amidst a battle of sledgehammers. You weave through debris fields composed of shattered cruisers, surgically taking out enemy shield generators, severing communication relays, and neutralizing anti-aircraft batteries to clear a path for your capital ships. The juxtaposition of sitting in the war room and then feeling the bone-rattling roar of your own thrusters creates a frantic, exhilarating, and exhausting tempo to the war.
 
@@ -284,21 +284,21 @@ The Iron Dominion is not slow to react. Regent Vaelen, terrified of the unifying
 The first time one of these monstrosities drops out of slipspace, the sheer gravitational displacement causes local space to warp. They are brutalist spheres of jagged black metal and glowing crimson fissures, looking like dying stars encased in armor. They possess the terrifying capability to shatter continental plates and boil oceans in mere minutes, rendering entire thriving worlds into lifeless, molten slag. 
 
 
-![Act 4 Scene 5](file:///d:/github/spacegame/docs/images/concept_art/act4/act4_scene5_1787218922356.jpg)
+![Act 4 Scene 5](/d:/github/spacegame/docs/images/concept_art/act4/act4_scene5_1787218922356.jpg)
 
 The arrival of a Planet-Cracker in a system changes the stakes entirely. A calculated tactical engagement instantly devolves into a desperate, chaotic race against time. You are forced to split your attention between crippling the superweapon and organizing the evacuation of billions of civilians from the doomed world below. You listen to the panicked, echoing pleas of planetary governors begging for salvation over the comms, a cacophony of terror that haunts your rare moments of sleep.
 
 You must strategically manage your fleet's resources, making brutal command decisions on a galactic scale. You must decide which systems to fiercely liberate to gain vital resources, plasma fuel, and strategic footholds, and which allied worlds must be tragically sacrificed to stall the Dominion's relentless advance. There are moments when you must sit in your command chair, knuckles white as you grip the armrests, and order your fleets to retreat, knowing that the world below—and everyone on it—will be reduced to ash. 
 
 
-![Act 4 Scene 6](file:///d:/github/spacegame/docs/images/concept_art/act4/act4_scene6_1787218938957.jpg)
+![Act 4 Scene 6](/d:/github/spacegame/docs/images/concept_art/act4/act4_scene6_1787218938957.jpg)
 
 Every victory unlocks new sectors, shipyard upgrades, and allied factions flocking to your banner, but it also escalates the Dominion's brutal, system-burning retaliation. Entire planets are reduced to glowing glass as Vaelen's desperation grows. The psychological toll of command weighs heavily upon you. You are no longer just fighting for your own life or the survival of your small mercenary crew; you are fighting for the very existence of billions of innocent souls.
 
 The war is not without its deep, personal tragedies. It forces you to make impossible, heart-wrenching sacrifices, and the cost of leadership is paid in the lives of those you love. Members of your original scavenger crew—the misfits who pulled you from the void and became your family—fall in battle defending critical supply lines and vulnerable evacuation transports. 
 
 
-![Act 4 Scene 7](file:///d:/github/spacegame/docs/images/concept_art/act4/act4_scene7_1787218982100.jpg)
+![Act 4 Scene 7](/d:/github/spacegame/docs/images/concept_art/act4/act4_scene7_1787218982100.jpg)
 
 The losses are devastating. Jax, your brilliant and cynical cyber-warfare specialist, meets his end when his stealth-ship is caught in a catastrophic warp-core breach during a daring, high-stakes hacking operation on a Dominion central server. His final transmission is a crackling, sarcastic joke, cutting off into static as his ship vaporizes. Kael, the towering alien heavy-weapons expert, holds the line alone in a breached hangar bay, manually firing a capital-ship cannon to cover a civilian retreat until he is overwhelmed by a swarm of Dominion shock troops.
 
@@ -307,21 +307,21 @@ Most painful of all is the loss of Lyra. Seeking ultimate redemption for the atr
 Through these agonizing losses, the pristine, honorable Vanguard loyalists must learn to adapt. They are forced to abandon their ancient chivalric codes and fight dirty. Under your hardened command, they employ brutal ambushes, systemic sabotage, and relentless guerrilla tactics to survive the sheer attrition of the Dominion war machine. You learn to fight like a gutter-born mercenary on a galactic scale.
 
 
-![Act 4 Scene 8](file:///d:/github/spacegame/docs/images/concept_art/act4/act4_scene8_1787218947289.jpg)
+![Act 4 Scene 8](/d:/github/spacegame/docs/images/concept_art/act4/act4_scene8_1787218947289.jpg)
 
 The escalating conflict culminates in a massive, desperate siege on the Dominion's primary dark-energy foundry—the heavily fortified heart of Vaelen's war machine. This colossal installation is located deep within the treacherous, lightning-filled center of a super-dense nebula known as the Abyssal Veil. The environment itself is a deadly enemy; the dense, swirling plasma storms scramble targeting sensors, severely drain deflector shields, and tear unshielded hulls apart.
 
 The siege is an absolute nightmare. Your armada must navigate blindly through the blinding, violent plasma storms, constantly bombarded by hidden Dominion defense platforms and rogue asteroid collisions. Communication is reduced to garbled static, forcing fleet captains to rely on visual signals and pre-planned maneuvers. You lead the vanguard in your Interceptor, weaving through building-sized bolts of ambient lightning to clear a path for your heavy bombers.
 
 
-![Act 4 Scene 9](file:///d:/github/spacegame/docs/images/concept_art/act4/act4_scene9_1787218955093.jpg)
+![Act 4 Scene 9](/d:/github/spacegame/docs/images/concept_art/act4/act4_scene9_1787218955093.jpg)
 
 The battle is a terrifying, claustrophobic melee in the dark. Capital ships collide in the thick nebula gas, their weapons firing blindly at point-blank range. You engage in brutal dogfights where the only illumination comes from the deadly flash of plasma cannons and the chaotic explosions of dying ships. 
 
 Through sheer determination and staggering casualties, you successfully breach the foundry's outer defenses. You navigate your fighter through a perilous trench run along the facility's super-structure, dodging automated turrets and venting plasma exhaust. In a heart-stopping climax, you disable the foundry's main core with a surgical, perfectly timed dark-matter torpedo strike. 
 
 
-![Act 4 Scene 10](file:///d:/github/spacegame/docs/images/concept_art/act4/act4_scene10_1787218962561.jpg)
+![Act 4 Scene 10](/d:/github/spacegame/docs/images/concept_art/act4/act4_scene10_1787218962561.jpg)
 
 The resulting chain reaction is apocalyptic. The massive foundry collapses in a spectacular, blinding supernova of dark energy that briefly outshines the entire nebula. The shockwave tosses your massive dreadnoughts like toys, but the mission is a success. You have severely crippled Vaelen's fleet production capabilities and destroyed his primary source of dark matter.
 
@@ -335,35 +335,35 @@ However, it is a profoundly pyrrhic victory. You leave the Abyssal Veil with you
 With the Iron Dominion’s supply chains severed and their planet-cracking superweapons reduced to drifting slag in the outer sectors, the path to the Vanguard homeworld finally lay open. The campaign, which had exacted a terrible, bloody toll on your united armada, was about to culminate in the very heart of the enemy’s power. You stand on the bridge of *The Crown of Vanguard*, gazing out through the main viewport as your fleet drops out of slipspace. Before you hangs Vanguard Prime—the jewel of the galaxy, the stolen cradle of your ancestors, and the throne you were born to reclaim. 
 
 
-![Act 5 Scene 1](file:///d:/github/spacegame/docs/images/concept_art/act5/act5_scene1_1787218896341.jpg)
+![Act 5 Scene 1](/d:/github/spacegame/docs/images/concept_art/act5/act5_scene1_1787218896341.jpg)
 
 Vanguard Prime is a breathtaking, continent-spanning ecumenopolis, a world entirely swallowed by a single, unimaginably vast city. In its golden age, it had been a beacon of art, culture, and enlightened governance, its skies dominated by soaring alabaster spires, suspended arc-gravity monorails, and sprawling, bioluminescent hanging gardens that breathed life into the steel canyons. Now, however, the planet bears the ugly, festering scars of two decades of Dominion occupation. 
 
 Under Regent Vaelen’s brutal martial law, the skies have been choked with industrial smog, casting a permanent, sickly twilight over the world. The bioluminescent gardens are dead, replaced by sprawling, brutalist foundries that vomit toxic ash into the atmosphere. Oppressive, angular Dominion patrol ships drift like carrion birds through the clouds, strictly enforcing planetary curfews with automated sniper batteries and sensory sweepers. The oceans have been dammed and siphoned to cool the massive dark-matter reactors that power Vaelen’s military machine. 
 
 
-![Act 5 Scene 2](file:///d:/github/spacegame/docs/images/concept_art/act5/act5_scene2_1787218905454.jpg)
+![Act 5 Scene 2](/d:/github/spacegame/docs/images/concept_art/act5/act5_scene2_1787218905454.jpg)
 
 A massive planetary blockade encircles the ecumenopolis—a suffocating ring of jagged dreadnoughts, heavily fortified minefields, and orbital weapon platforms bristling with anti-ship plasma cannons. It is the largest defensive grid you have ever faced, a testament to the sheer desperation of a crumbling regime. Vaelen has pulled every remaining loyalist ship back to the homeworld, fortifying his position for a final, apocalyptic stand. 
 
 Within his personal command fortress—a brutalist, spiked citadel of black iron that pierces the smog layer and anchors the primary ancient gate network in high orbit—Regent Vaelen has descended into pure, spiteful madness. Realizing his grip on the sector is slipping and that the "Lost Scion" has come to exact vengeance, Vaelen abandons any pretense of tactical retreat. Driven by a volatile mix of paranoia, malice, and wounded pride, he powers up the colossal precursor ring suspended above his citadel. 
 
 
-![Act 5 Scene 3](file:///d:/github/spacegame/docs/images/concept_art/act5/act5_scene3_1787218915147.jpg)
+![Act 5 Scene 3](/d:/github/spacegame/docs/images/concept_art/act5/act5_scene3_1787218915147.jpg)
 
 He broadcasts a sector-wide transmission, his pale, scarred face filling the hololithic displays of every ship in your fleet. Vaelen’s intention is not to flee. Instead, he plans to launch his elite vanguard armada directly into the Sol System. He knows your true identity, knows of your upbringing on the grimy fringes of Mars, and knows you still harbor a deep, unshakeable love for humanity and your adoptive father, Elias. As his ultimate act of revenge, Vaelen intends to enslave Earth and burn it to glass, forcing you to watch your past be eradicated before he destroys your future.
 
 The ticking clock forces your hand. You order the fleet to advance. A massive, all-or-nothing assault is launched against the planetary defense grid. The vacuum of space erupts into a chaotic, screen-filling maelstrom of blinding lasers, shattering shields, and expanding clouds of vaporized metal. Thousands of swift fighters clash in a deadly, swirling dance between the colossal, lumbering dreadnoughts. 
 
 
-![Act 5 Scene 4](file:///d:/github/spacegame/docs/images/concept_art/act5/act5_scene4_1787218922437.jpg)
+![Act 5 Scene 4](/d:/github/spacegame/docs/images/concept_art/act5/act5_scene4_1787218922437.jpg)
 
 You dive into the fray in your custom Interceptor, leading the spearhead assault. You navigate the treacherous, glowing minefields, weaving through the overlapping fields of anti-aircraft fire that sweep across the void like scythes. Your remaining Vanguard loyalists—those hardened captains who once doubted you—now sacrifice themselves willingly to carve a path for you. Heavy cruisers absorb devastating broadsides, ramming Dominion defense platforms to create a narrow, fleeting corridor through the blockade. 
 
 With the orbital defenses temporarily fractured, you plunge your fighter into the smog-choked atmosphere of Vanguard Prime. The friction burns across your energy shields as you break through the cloud cover, plunging into the towering, metallic canyons of the ecumenopolis. The heat of the orbital bombardment and the sheer scale of the conflict begin generating massive, unnatural atmospheric storms. Lightning arcs between the skyscrapers, illuminating the rain-slicked durasteel of the city.
 
 
-![Act 5 Scene 5](file:///d:/github/spacegame/docs/images/concept_art/act5/act5_scene5_1787218943500.jpg)
+![Act 5 Scene 5](/d:/github/spacegame/docs/images/concept_art/act5/act5_scene5_1787218943500.jpg)
 
 Down in the subterranean levels and the crowded habitation blocks, the citizens of Vanguard Prime look up to the sky. For twenty years, they have lived under the heel of the Dominion, their hope ground into dust. But as they see the sleek, graceful silhouettes of Vanguard fighters tearing through the clouds, painted in the forgotten colors of their rightful rulers, a spark ignites into a roaring inferno. 
 
@@ -372,35 +372,35 @@ A massive, bloody planetary revolt erupts in the streets below. Factory workers 
 You push your ship to its absolute limit, tearing through the burning skies toward Vaelen’s towering citadel. Dominion interceptors swarm you, but you outmaneuver them, using the dense architecture of the city to your advantage. You perform high-g turns around suspended transit tubes, threading the needle through the narrow gaps between residential spires, leaving your pursuers to crash in fiery explosions against the concrete. 
 
 
-![Act 5 Scene 6](file:///d:/github/spacegame/docs/images/concept_art/act5/act5_scene6_1787218951349.jpg)
+![Act 5 Scene 6](/d:/github/spacegame/docs/images/concept_art/act5/act5_scene6_1787218951349.jpg)
 
 Finally, you breach the localized shields of the command fortress. Rather than cowering in his throne room, Vaelen takes to the sky. The massive hangar doors of the citadel grind open, and the Regent launches in a terrifying, heavily modified prototype dread-fighter. It is a monstrous machine, black as the void, equipped with stolen ancient technology that mirrors your own. 
 
 The final showdown commences—a hyper-fast, brutal, one-on-one dogfight through the towering skyscrapers and neon-lit canyons of the capital. It is a battle of equals, pushing the absolute limits of your piloting skills, your crew’s desperate engineering tweaks, and the mysterious ancient technology you wield. 
 
 
-![Act 5 Scene 7](file:///d:/github/spacegame/docs/images/concept_art/act5/act5_scene7_1787218959325.jpg)
+![Act 5 Scene 7](/d:/github/spacegame/docs/images/concept_art/act5/act5_scene7_1787218959325.jpg)
 
 Vaelen matches your short-range teleportation blinks blow for blow. As you warp behind him to lock on with plasma cannons, he phases out of reality, reappearing above you to unleash a barrage of gravity-warping dark-matter torpedoes. You dive sharply, the torpedoes missing you by inches and instead striking a massive, glowing holographic billboard, sending shattered glass and sparking conduit raining down into the streets below.
 
 The chase is relentless, an incredible display of velocity and lethal precision. You weave through collapsing transit bridges and dodge the falling debris of crippled capital ships plummeting from orbit. The neon lights of the city streak past your canopy in a blur of color as you and Vaelen trade devastating blows. His dark-energy beams scorch your hull, while your advanced phase-shifting armor barely keeps you from being vaporized. 
 
 
-![Act 5 Scene 8](file:///d:/github/spacegame/docs/images/concept_art/act5/act5_scene8_1787218977863.jpg)
+![Act 5 Scene 8](/d:/github/spacegame/docs/images/concept_art/act5/act5_scene8_1787218977863.jpg)
 
 Realizing that conventional tactics will not break the stalemate, you tap into the lessons Elias taught you in the rust-stained garages of Mars. You purposefully fly into a narrow, highly volatile industrial ventilation shaft, goading Vaelen to follow. As he enters the confined space, you abruptly cut your main thrusters, flip your fighter 180 degrees using auxiliary maneuvering jets, and unleash a point-blank, concentrated barrage of plasma fire directly into his unshielded exhaust ports.
 
 The explosion is blinding. Vaelen’s prototype fighter loses primary power, its advanced engines sputtering and dying. You watch as his crippled ship plummets from the sky, trailing thick black smoke, and crashes violently into the grand central plaza of the capital, skidding to a halt before the steps of the Vanguard palace.
 
 
-![Act 5 Scene 9](file:///d:/github/spacegame/docs/images/concept_art/act5/act5_scene9_1787218987594.jpg)
+![Act 5 Scene 9](/d:/github/spacegame/docs/images/concept_art/act5/act5_scene9_1787218987594.jpg)
 
 You land your battered Interceptor in the plaza, the heat of your thrusters distorting the air. Stepping out of the cockpit, you draw your sidearm and approach the smoking wreckage. Vaelen, bloodied and broken, drags himself from the cockpit. The tyrant who slaughtered your family, who oppressed a galaxy, finally meets his end by the hand of the child he failed to kill. You execute him, formally ending the Iron Dominion’s reign of terror. 
 
 With Vaelen dead and his command structure shattered, the remaining Dominion forces surrender. You swiftly move to the citadel's command center and permanently shut down the Sol gate, severing the connection and saving Earth from the intended genocide. The battle is won. 
 
 
-![Act 5 Scene 10](file:///d:/github/spacegame/docs/images/concept_art/act5/act5_scene10_1787218995454.jpg)
+![Act 5 Scene 10](/d:/github/spacegame/docs/images/concept_art/act5/act5_scene10_1787218995454.jpg)
 
 The game concludes with a breathtaking cinematic sequence. The smog begins to clear from the skies of Vanguard Prime as planetary atmospheric scrubbers are brought back online. Sunlight pierces the clouds, illuminating the golden spires once more. You slowly ascend the steps of the grand palace, stepping into the sunlit throne room to the deafening cheers of your victorious fleet and a liberated planet. You have finally connected your humble past as a lowly Earth cadet with your grand destiny, taking your rightful place as the Sovereign of a new, peaceful era.
 
