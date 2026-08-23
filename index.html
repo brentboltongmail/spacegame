@@ -3372,15 +3372,15 @@ function createCapitalShip() {
                 const engineHaloMat = new THREE.MeshBasicMaterial({
                     color: 0x38bdf8,
                     transparent: true,
-                    opacity: 0.45,
+                    opacity: 0.35,
                     blending: THREE.AdditiveBlending,
                     side: THREE.DoubleSide
                 });
 
-                // Twin Engine Nozzles (Port [-89, -75.6, 454] & Starboard [+89, -75.6, 454], Radius 74)
+                // Twin Engine Nozzles (Port [-111.25, -88.5, 470] & Starboard [+111.25, -88.5, 470], Radius 32)
                 const enginePositions = [
-                    { x: -89.0, y: -75.6, z: 454.0, r: 74.0 },
-                    { x:  89.0, y: -75.6, z: 454.0, r: 74.0 }
+                    { x: -111.25, y: -88.5, z: 470.0, r: 32.0 },
+                    { x:  111.25, y: -88.5, z: 470.0, r: 32.0 }
                 ];
 
                 capitalShip.userData.engineEmitters = [];
@@ -3390,7 +3390,7 @@ function createCapitalShip() {
                     engGroup.position.set(eng.x, eng.y, eng.z);
 
                     // 1. Deep Engine Interior Cavity Glow
-                    const cavityGeo = new THREE.CylinderGeometry(eng.r * 0.88, eng.r * 0.96, 40, 32, 1, true);
+                    const cavityGeo = new THREE.CylinderGeometry(eng.r * 0.85, eng.r * 0.95, 25, 24, 1, true);
                     const cavityMat = new THREE.MeshBasicMaterial({
                         color: 0x0284c7,
                         side: THREE.BackSide,
@@ -3399,30 +3399,30 @@ function createCapitalShip() {
                     });
                     const cavity = new THREE.Mesh(cavityGeo, cavityMat);
                     cavity.rotation.x = Math.PI / 2;
-                    cavity.position.z = -20;
+                    cavity.position.z = -12;
                     engGroup.add(cavity);
 
                     // 2. Main Cyan Plasma Thruster Disc
-                    const diskGeo = new THREE.CircleGeometry(eng.r * 0.92, 32);
+                    const diskGeo = new THREE.CircleGeometry(eng.r * 0.90, 24);
                     const disk = new THREE.Mesh(diskGeo, engineGlowMat);
                     disk.position.z = 1.0;
                     engGroup.add(disk);
 
                     // 3. Superheated White Core Disc
-                    const coreGeo = new THREE.CircleGeometry(eng.r * 0.48, 32);
+                    const coreGeo = new THREE.CircleGeometry(eng.r * 0.45, 24);
                     const core = new THREE.Mesh(coreGeo, engineCoreMat);
-                    core.position.z = 2.0;
+                    core.position.z = 1.5;
                     engGroup.add(core);
 
-                    // 4. Outer Cyan Plasma Halo Ring (Additive Blending)
-                    const haloGeo = new THREE.RingGeometry(eng.r * 0.7, eng.r * 1.35, 32);
+                    // 4. Subtle Outer Cyan Plasma Halo Ring (Additive Blending)
+                    const haloGeo = new THREE.RingGeometry(eng.r * 0.8, eng.r * 1.25, 24);
                     const halo = new THREE.Mesh(haloGeo, engineHaloMat);
-                    halo.position.z = 3.0;
+                    halo.position.z = 2.0;
                     engGroup.add(halo);
 
                     // 5. Dynamic Engine Exhaust Point Light
-                    const engineLight = new THREE.PointLight(0x00f0ff, 4.5, 500);
-                    engineLight.position.set(0, 0, 25);
+                    const engineLight = new THREE.PointLight(0x00f0ff, 3.5, 350);
+                    engineLight.position.set(0, 0, 15);
                     engGroup.add(engineLight);
 
                     capitalShip.add(engGroup);

@@ -6,68 +6,68 @@
       "y": -28
     },
     "drag-sector-objective": {
-      "x": 0,
-      "y": 36
+      "x": 23,
+      "y": -28
     },
     "title-card-0": {
       "x": 0,
-      "y": 2380
+      "y": 2516
     },
     "title-card-1": {
       "x": 0,
-      "y": 2380
+      "y": 2516
     },
     "title-card-2": {
       "x": 0,
-      "y": 2380
+      "y": 2516
     },
     "title-card-3": {
       "x": 0,
-      "y": 2380
+      "y": 2516
     },
     "title-card-4": {
       "x": 0,
-      "y": 2380
+      "y": 2516
     },
     "title-card-5": {
       "x": 0,
-      "y": 2380
+      "y": 2516
     },
     "drag-prologue-sol-system-the-crest": {
       "x": 0,
-      "y": 2380
+      "y": 2516
     },
     "drag-the-truth-of-the-vanguard-throne": {
       "x": 0,
-      "y": 2380
+      "y": 2516
     },
     "drag-all-out-multi-system-warfare": {
       "x": 0,
-      "y": 2380
+      "y": 2516
     },
     "drag-the-battle-for-the-homeworld": {
       "x": 0,
-      "y": 2380
+      "y": 2516
     },
     "drag-core-gameplay-mechanics-matrix": {
       "x": 0,
-      "y": 2380
+      "y": 2516
     },
     "drag-key-factions": {
       "x": 0,
-      "y": 2380
+      "y": 2516
     },
     "drag-void-interceptor": {
       "x": 0,
-      "y": 2380
+      "y": 2516
     },
     "drag-heavy-strike-corvette": {
       "x": 0,
-      "y": 2380
+      "y": 2516
     },
     "drag-vanguard-royal-battlecruiser": {
       "x": 0,
-      "y": 2380
+      "y": 2516
     },
     "hud-shield-card": {
       "x": -21,
@@ -76,6 +76,10 @@
     "hud-action-bar-card": {
       "x": -47,
       "y": 11
+    },
+    "hud-top-target-card": {
+      "x": 18,
+      "y": -71
     }
   },
   "settings": {
@@ -106,8 +110,8 @@
     "Escape": "Escape"
   },
   "minimizedBoxes": {
-    "drag-sector-objective": true,
-    "hud-top-target-card": true,
+    "drag-sector-objective": false,
+    "hud-top-target-card": false,
     "hud-action-bar-card": true,
     "hud-controls-card": false
   }
