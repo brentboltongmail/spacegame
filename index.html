@@ -2890,8 +2890,8 @@
             const fallbackTex = createTitanSurfaceTexture();
 
             spaceTitan = new THREE.Group();
-            // Positioned further out in Sol deep space vista, well spaced from Saturn and its ring system
-            spaceTitan.position.set(13500, 4800, -18500);
+            // Positioned level with Saturn's equatorial ring plane and moved out 300% further (+300% distance = ~92,000 units from Saturn in ring plane)
+            spaceTitan.position.set(75590, -5513, -51251);
             scene.add(spaceTitan);
 
             const titanGeo = new THREE.SphereGeometry(1100, 64, 64); // Scaled down to authentic moon proportions (2,200 unit diameter)
@@ -5907,7 +5907,7 @@ function createEpicPlayerDeathExplosion(pos) {
             const titanIconMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
             mapTitanMesh = new THREE.Mesh(titanIconGeo, titanIconMat);
             mapTitanMesh.userData = { label: "Titan (Saturn's Moon)" };
-            mapTitanMesh.position.set(54, 19.2, -74);
+            mapTitanMesh.position.set(302.4, -22.1, -205.0); // 75590, -5513, -51251 * 0.004
             mapGroup.add(mapTitanMesh);
 
             // 3. Sol Primary Star
@@ -6433,9 +6433,9 @@ function createEpicPlayerDeathExplosion(pos) {
                 mapTargetRotationX = 0.50;
                 mapTargetRotationY = 0.75;
             } else if (targetType === 'titan') {
-                mapTargetCamDistance = 65;
+                mapTargetCamDistance = 160;
                 mapTargetRotationX = 0.35;
-                mapTargetRotationY = -0.55;
+                mapTargetRotationY = 1.05;
             } else if (targetType === 'wormhole') {
                 mapTargetCamDistance = 35;
                 mapTargetRotationX = 0.55;
