@@ -37,19 +37,28 @@ A routine scan of an ore freighter turns deadly when starvation-crazed miners la
 *   **Completion:** Destroy 10 pirate drones without colliding with the asteroids.
 
 ### Mission 3: The Titan Gate (Inciting Incident)
-**Location:** Titan's Orbit
-**Ship:** Standard EDF Interceptor
+**Location:** Titan's Orbit  
+**Ship:** Standard EDF Void Interceptor  
+**Voices:** Kaylen Vance (`Liam` / `TX3LPaxmHKxFdv7VOQHJ`), Elias Vance (`Bill` / `pqHfZKP75CvOlQylNhV4`)
 
 **Scene / Cinematic:** 
-A massive spatial distortion rips open above Titan. The Iron Dominion fleet drops out of slipspace, uncovering an ancient wormhole gate.
+A massive spatial distortion rips open above Titan. The Iron Dominion fleet drops out of slipspace, vaporizing the methane crust to reveal an ancient moon-sized Precursor Wormhole Gate. The defense platform *The Crest* tears apart. In the final cinematic sequence, Kaylen locks his controls forward and dives through the singularity to close the gate from the inside.
 
-**Dialogue:**
-*   **Kaylen:** "They're tearing our cruisers apart! Their shields are ignoring our kinetic rounds!"
-*   **Elias (Static-filled):** "Kaylen, get out of there! You can't win this!"
+**Cinematic Dialogue & Comms Sequence:**
+*   **Elias (Hyper-wave Comms):** *"Kaylen! Kaylen, do you read me?! The long-range sensors on Mars just went red—The Crest is gone from the grid! Report in, kid!"*
+*   **Kaylen (Cockpit):** *"Elias... they wiped out the fleet. The kinetic rounds bounced right off their hulls. They're lining up their dreadnoughts on the rift right now."*
+*   **Elias:** *"Then break off and burn hard for the outer moons! Divert everything to afterburners! I'm spooling the freighter down in the slums—I will come get you, son!"*
+*   **Kaylen:** *"You know my fuel reserves, Elias. I can't outrun them. If those dreadnoughts cross this threshold, Sol doesn't have a defense left. Earth won't last twenty minutes."*
+*   **Elias:** *"No... No, look at the telemetry! The gravitational shear inside that ring is tearing atoms apart! You take that interceptor in there, you'll be vaporized!"*
+*   **Kaylen:** *"It's vibrating, Elias. The pendant you found me with... it's singing with the gate. It's the same frequency. It knows what to do."*
+*   **Elias:** *"Kaylen, listen to me! You don't know what that thing is—what you are! I promised myself I'd keep you safe from all this... Don't you throw your life away for a war that isn't yours!"*
+*   **Kaylen:** *"You gave me twenty years, old man. You taught me how to fly, how to fight, and how to fix broken things. Earth is my home because you're on it."*
+*   **Elias:** *"Kaylen, NO! Turn the ship around! KAYLEN—"*
+*   **Kaylen:** *"Someone has to shut the door, old man. ...I love you. Goodbye."*
 
 **Gameplay Mechanics:**
 *   **Challenge:** Survive. The player must dodge massive dark-energy beams and weave through the debris of destroyed EDF cruisers.
-*   **Completion:** Survive for 3 minutes until the gate activates. Dive into the Wormhole by manually redirecting all power to engines.
+*   **Completion:** Survive for 3 minutes until the gate activates. Transition into the hands-free cinematic dive through the Precursor Wormhole into the Sovereign Reach.
 
 ---
 

@@ -893,6 +893,269 @@
             transition: all 0.2s ease;
         }
 
+        /* --- CINEMATIC LETTERBOX & COMMS TRANSMISSION OVERLAY --- */
+        .cinematic-letterbox {
+            position: fixed;
+            left: 0;
+            width: 100vw;
+            height: 9vh;
+            background: #000;
+            z-index: 900;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #cinematic-letterbox-top {
+            top: 0;
+            transform: translateY(-100%);
+        }
+        #cinematic-letterbox-bottom {
+            bottom: 0;
+            transform: translateY(100%);
+        }
+        body.in-cinematic-mode #cinematic-letterbox-top {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        body.in-cinematic-mode #cinematic-letterbox-bottom {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .cinematic-flash-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, rgba(168, 85, 247, 0.95), rgba(0, 240, 255, 0.9), #fff);
+            z-index: 950;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease-out;
+        }
+        .cinematic-flash-overlay.active {
+            opacity: 1;
+        }
+
+        .cinematic-comms-container {
+            position: fixed;
+            bottom: 11vh;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 720px;
+            max-width: 92vw;
+            z-index: 920;
+            animation: commsSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes commsSlideUp {
+            from { opacity: 0; transform: translate(-50%, 25px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+
+        .cinematic-comms-box {
+            background: rgba(10, 15, 30, 0.92);
+            backdrop-filter: blur(18px);
+            border: 1.5px solid rgba(0, 240, 255, 0.4);
+            border-radius: 12px;
+            padding: 14px 18px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.7), 0 0 25px rgba(0, 240, 255, 0.2);
+            position: relative;
+        }
+
+        .cinematic-comms-box.speaker-elias {
+            border-color: rgba(245, 158, 11, 0.7);
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.7), 0 0 25px rgba(245, 158, 11, 0.25);
+        }
+
+        .cinematic-comms-box.speaker-kaylen {
+            border-color: rgba(0, 240, 255, 0.7);
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.7), 0 0 25px rgba(0, 240, 255, 0.25);
+        }
+
+        .comms-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .comms-channel-tag {
+            font-family: Orbitron, monospace;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .comms-step-badge {
+            font-family: Orbitron, monospace;
+            font-size: 0.75rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #cbd5e1;
+        }
+
+        .comms-skip-btn {
+            background: rgba(255, 59, 92, 0.15);
+            border: 1px solid rgba(255, 59, 92, 0.5);
+            color: #ff3b5c;
+            font-family: Orbitron, monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .comms-skip-btn:hover {
+            background: #ff3b5c;
+            color: #fff;
+            box-shadow: 0 0 10px #ff3b5c;
+        }
+
+        .comms-body {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .comms-avatar {
+            width: 58px;
+            height: 58px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1.5px solid rgba(0, 240, 255, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .speaker-elias .comms-avatar {
+            border-color: #f59e0b;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.2), rgba(0,0,0,0.5));
+        }
+
+        .speaker-kaylen .comms-avatar {
+            border-color: #00f0ff;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.2), rgba(0,0,0,0.5));
+        }
+
+        .avatar-icon {
+            font-size: 1.8rem;
+        }
+
+        .comms-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .comms-speaker-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .comms-speaker {
+            font-family: Orbitron, monospace;
+            font-size: 1.05rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+        .speaker-elias .comms-speaker { color: #fbbf24; text-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+        .speaker-kaylen .comms-speaker { color: #00f0ff; text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
+
+        .comms-subspeaker {
+            font-size: 0.72rem;
+            color: #94a3b8;
+            letter-spacing: 0.5px;
+            font-family: Orbitron, monospace;
+            text-transform: uppercase;
+        }
+
+        .comms-waveform {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            height: 14px;
+            margin: 4px 0 6px 0;
+        }
+        .comms-waveform span {
+            width: 3px;
+            height: 4px;
+            background: #00f0ff;
+            border-radius: 1px;
+            animation: waveBar 0.8s infinite ease-in-out alternate;
+        }
+        .speaker-elias .comms-waveform span { background: #f59e0b; }
+        .comms-waveform span:nth-child(1) { animation-delay: 0.1s; }
+        .comms-waveform span:nth-child(2) { animation-delay: 0.3s; }
+        .comms-waveform span:nth-child(3) { animation-delay: 0.2s; }
+        .comms-waveform span:nth-child(4) { animation-delay: 0.5s; }
+        .comms-waveform span:nth-child(5) { animation-delay: 0.15s; }
+        .comms-waveform span:nth-child(6) { animation-delay: 0.4s; }
+        .comms-waveform span:nth-child(7) { animation-delay: 0.25s; }
+        .comms-waveform span:nth-child(8) { animation-delay: 0.35s; }
+
+        @keyframes waveBar {
+            from { height: 3px; }
+            to { height: 14px; }
+        }
+
+        .comms-subtitle {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            line-height: 1.4;
+            color: #f8fafc;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+        }
+
+        /* End of Cinematic Modal */
+        #cinematic-end-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(2, 6, 18, 0.94);
+            backdrop-filter: blur(22px);
+            z-index: 960;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+        #cinematic-end-modal.active {
+            opacity: 1;
+        }
+
+        .cinematic-end-card {
+            background: rgba(11, 18, 36, 0.95);
+            border: 1.5px solid rgba(168, 85, 247, 0.6);
+            border-radius: 16px;
+            max-width: 620px;
+            width: 100%;
+            padding: 32px;
+            text-align: center;
+            box-shadow: 0 0 45px rgba(168, 85, 247, 0.35);
+        }
+
         /* Pilot Profile & 3D Ship Upgrade Hangar Modal (ESC Key Toggle) */
         #ship-upgrade-modal {
             position: fixed;
@@ -1322,6 +1585,7 @@
                 <!-- Action Bar Container (Tight Fit Card around Buttons with Centered Drag Handle) -->
                 <div class="hud-card draggable-box" id="hud-action-bar-card" style="position: absolute; bottom: 25px; left: calc(50vw - 440px); width: max-content; max-width: max-content; padding: 6px 14px; z-index: 40; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px; display: inline-flex; flex-direction: column; align-items: center;">
                     <div style="display: flex; flex-direction: column; gap: 10px; align-items: stretch; width: max-content; margin-bottom: 0;">
+                        <button class="sim-btn" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.45), rgba(0, 240, 255, 0.25)); border-color: #c084fc; color: #f0abfc; font-weight: 800; box-shadow: 0 0 14px rgba(192, 132, 252, 0.45);" onclick="startTitanGateCinematic()">🎬 Titan Gate Wormhole Cinematic</button>
                         <button class="sim-btn" style="border-color: rgba(0, 240, 255, 0.6); color: #00f0ff; font-weight: 700;" onclick="window.open('audiobook.html', '_blank')">🎧 Open Story Audiobook</button>
                         <button class="sim-btn" id="btn-audio-toggle" onclick="toggleEngineAudioMute()">🔊 Cockpit Engine Audio</button>
                         <button class="sim-btn" style="border-color: rgba(56, 189, 248, 0.6); color: #38bdf8; font-weight: 700;" onclick="approachTheCrest()">🛰️ Target The Crest Station</button>
@@ -1332,6 +1596,60 @@
                         <button class="sim-btn" style="border-color: rgba(168, 85, 247, 0.6); color: #c084fc; font-weight: 700;" onclick="triggerDominionFleetHyperspaceEmergence()">⚡ Fleet Hyperspace Jump</button>
                         <button class="sim-btn" style="border-color: rgba(255, 59, 92, 0.6); color: #ff3b5c; font-weight: 700;" onclick="approachCapitalShip()">⚔️ Target Dominion Flagship</button>
                         <button class="sim-btn danger" onclick="resetSimView()">🔄 Reset Spaceflight</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Letterbox Bars for Cinematic Mode -->
+            <div id="cinematic-letterbox-top" class="cinematic-letterbox"></div>
+            <div id="cinematic-letterbox-bottom" class="cinematic-letterbox"></div>
+
+            <!-- Full Screen Exotic Warp Flash -->
+            <div id="cinematic-flash-overlay" class="cinematic-flash-overlay"></div>
+
+            <!-- Radio Comms Dialogue Overlay (Draggable Box per Workspace Rules) -->
+            <div id="cinematic-comms-overlay" class="cinematic-comms-container draggable-box" style="display: none;">
+                <div class="drag-handle-bar"></div>
+                <div class="cinematic-comms-box" id="cinematic-comms-box">
+                    <div class="comms-header">
+                        <div class="comms-channel-tag" id="comms-channel-tag">
+                            <span>📡 HYPERWAVE CHANNEL OVERRIDE</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="comms-step-badge" id="comms-step-badge">1 / 10</div>
+                            <button class="comms-skip-btn" onclick="stopTitanGateCinematic()">✕ SKIP [ESC]</button>
+                        </div>
+                    </div>
+                    <div class="comms-body">
+                        <div class="comms-avatar" id="comms-avatar">
+                            <div class="avatar-icon" id="comms-avatar-icon">📻</div>
+                        </div>
+                        <div class="comms-content">
+                            <div class="comms-speaker-row">
+                                <div class="comms-speaker" id="comms-speaker">ELIAS VANCE</div>
+                                <div class="comms-subspeaker" id="comms-subspeaker">MARS COMMS</div>
+                            </div>
+                            <div class="comms-waveform" id="comms-waveform">
+                                <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                            </div>
+                            <div class="comms-subtitle" id="comms-subtitle">"..."</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- End of Cinematic Act Transition Modal -->
+            <div id="cinematic-end-modal" style="display: none;">
+                <div class="cinematic-end-card">
+                    <div style="font-size: 2.2rem; margin-bottom: 8px;">🌀</div>
+                    <div style="font-family: Orbitron; font-size: 0.85rem; color: #a855f7; letter-spacing: 2px; font-weight: 700; margin-bottom: 6px;">ACT I — INCITING INCIDENT COMPLETE</div>
+                    <h2 style="font-family: Orbitron; font-size: 1.6rem; color: #f8fafc; margin-bottom: 12px;">THE SOL GATE SEVERED</h2>
+                    <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px;">
+                        Kaylen's Void Interceptor plunged through the collapsing singularity, drawing the enemy's alpha-strike and triggering an exotic-matter shockwave that imploded the wormhole. Sol is saved from the Dominion armada, but Kaylen has been hurled thousands of light-years across subspace into the lawless <strong>Sovereign Reach</strong>.
+                    </p>
+                    <div style="display: flex; justify-content: center; gap: 14px;">
+                        <button class="sim-btn" style="border-color: rgba(168, 85, 247, 0.7); color: #c084fc; font-weight: 700; padding: 10px 20px;" onclick="startTitanGateCinematic()">🔄 Replay Cinematic</button>
+                        <button class="sim-btn" style="background: linear-gradient(135deg, rgba(0, 240, 255, 0.4), rgba(168, 85, 247, 0.4)); border-color: #00f0ff; color: #fff; font-weight: 800; padding: 10px 24px;" onclick="closeCinematicEndModal()">🚀 Return to Flight Simulator</button>
                     </div>
                 </div>
             </div>
@@ -2079,6 +2397,7 @@
             if (id === 'hud-top-target-card') return '🎯 TARGET DAMAGE';
             if (id === 'hud-target-card') return '🎯 TARGET LOCK';
             if (id === 'hud-action-bar-card') return '🚀 ACTIONS';
+            if (id === 'cinematic-comms-overlay') return '📻 COMMS';
 
             if (!text) return 'WINDOW';
             const clean = text.replace(/[\n\r]+/g, ' ').trim();
@@ -2547,6 +2866,10 @@
                 if (keys.hasOwnProperty(e.code)) keys[e.code] = true;
                 if (action === 'KeyM') toggleTacticalMapModal();
                 if (action === 'Escape') {
+                    if (typeof isTitanCinematicActive !== 'undefined' && isTitanCinematicActive) {
+                        stopTitanGateCinematic();
+                        return;
+                    }
                     if (isTacticalMapOpen) {
                         toggleTacticalMapModal();
                     } else {
@@ -4669,8 +4992,8 @@
             // --- THE CREST DESTRUCTION & MULTI-STEP BREAKUP LOGIC ---
             // Triggered during the extraction sequence:
             // At 14.5s: Struck by Dominion barrage
-            // At 16.5s: Catastrophic multi-step fireball explosions
-            // At 19.5s: Station breaks apart into tumbling debris
+            // At 16.5s: Catastrophic multi-step fireball explosions (Lasts strictly 2.0s!)
+            // At 18.5s+: Explosion vanishes completely; shattered debris scatters outward into space
             if (elapsedExcavation < 14.5) {
                 theCrestState = 'INTACT';
                 if (theCrestModelOriginal) theCrestModelOriginal.visible = true;
@@ -4681,63 +5004,72 @@
             } else if (elapsedExcavation >= 14.5 && elapsedExcavation < 16.5) {
                 if (theCrestState !== 'STRUCK') {
                     theCrestState = 'STRUCK';
-                    showToast("⚠️ WARNING: DOMINION DREADNOUGHTS FIRING GRAVITY-SHEARS AT THE CREST!");
+                    showToast("⚠️ WARNING: DOMINION DREADNOUGHTS TARGETING THE CREST!");
                 }
                 if (theCrestExplosionLight) theCrestExplosionLight.intensity = 8.0 + Math.sin(timeSec * 20.0) * 6.0;
-            } else if (elapsedExcavation >= 16.5 && elapsedExcavation < 19.5) {
+            } else if (elapsedExcavation >= 16.5 && elapsedExcavation < 18.5) {
+                // MASSIVE FIREBALL EXPLOSION (2.0 SECONDS DURATION)
                 if (theCrestState !== 'EXPLODING') {
                     theCrestState = 'EXPLODING';
                     theCrestExplosionStartTime = nowMs;
                     playTheCrestExplosionAudio(playerShip.position.distanceTo(theCrestStation.position));
-                    showToast("🚨 MAYDAY! THE CREST REACTOR BREACH — MULTI-STEP EXPLOSION DETECTED!");
+                    showToast("🚨 MAYDAY! THE CREST REACTOR BREACH — MASSIVE FIREBALL EXPLOSION!");
                 }
-                // Animate Multi-Step Expanding Fireballs
                 const expElapsed = (nowMs - theCrestExplosionStartTime) / 1000.0;
-                if (theCrestExplosionLight) {
-                    theCrestExplosionLight.intensity = Math.max(0, 35.0 * (1.0 - expElapsed / 3.0));
-                }
-                if (theCrestFireballs) {
-                    theCrestFireballs.forEach(fb => {
-                        const ud = fb.userData;
-                        if (expElapsed >= ud.delay) {
-                            fb.visible = true;
-                            const fbAge = (expElapsed - ud.delay) / 1.8;
-                            if (fbAge < 1.0) {
-                                const s = Math.sin(fbAge * Math.PI * 0.5) * ud.maxScale;
-                                fb.scale.set(s, s, s);
-                                fb.position.copy(ud.offset).addScaledVector(ud.offset.clone().normalize(), fbAge * 120);
-                                if (fb.material) fb.material.opacity = Math.max(0, (1.0 - fbAge) * 0.9);
-                            } else {
-                                fb.visible = false;
+                if (expElapsed < 2.0) {
+                    if (theCrestExplosionLight) {
+                        theCrestExplosionLight.intensity = Math.max(0, 50.0 * (1.0 - expElapsed / 2.0));
+                    }
+                    if (theCrestFireballs) {
+                        theCrestFireballs.forEach(fb => {
+                            const ud = fb.userData;
+                            if (expElapsed >= ud.delay) {
+                                fb.visible = true;
+                                const fbAge = (expElapsed - ud.delay) / 1.35;
+                                if (fbAge >= 0 && fbAge < 1.0) {
+                                    const s = Math.sin(fbAge * Math.PI) * ud.maxScale;
+                                    fb.scale.set(s, s, s);
+                                    fb.position.copy(ud.offset).addScaledVector(ud.offset.clone().normalize(), fbAge * 140);
+                                    if (fb.material) fb.material.opacity = Math.max(0, (1.0 - fbAge) * 0.95);
+                                } else {
+                                    fb.visible = false;
+                                }
                             }
-                        }
-                    });
-                }
-                if (theCrestShockwaves) {
-                    theCrestShockwaves.forEach(sw => {
-                        const ud = sw.userData;
-                        if (expElapsed >= ud.delay) {
-                            sw.visible = true;
-                            ud.radius += ud.speed * timeDelta;
-                            const s = ud.radius / 100;
-                            sw.scale.set(s, s, s);
-                            if (sw.material) {
-                                sw.material.opacity = Math.max(0, 0.85 * (1.0 - (ud.radius / ud.maxRadius)));
+                        });
+                    }
+                    if (theCrestShockwaves) {
+                        theCrestShockwaves.forEach(sw => {
+                            const ud = sw.userData;
+                            if (expElapsed >= ud.delay) {
+                                sw.visible = true;
+                                ud.radius += ud.speed * timeDelta * 1.8;
+                                const s = ud.radius / 100;
+                                sw.scale.set(s, s, s);
+                                if (sw.material) {
+                                    sw.material.opacity = Math.max(0, 0.90 * (1.0 - (expElapsed / 2.0)));
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
+                } else {
+                    // Explosion ended at 2.0s mark
+                    if (theCrestFireballs) theCrestFireballs.forEach(fb => fb.visible = false);
+                    if (theCrestShockwaves) theCrestShockwaves.forEach(sw => sw.visible = false);
+                    if (theCrestExplosionLight) theCrestExplosionLight.intensity = 0;
                 }
             } else {
-                // DESTROYED & BROKEN APART
+                // DESTROYED: Explosion is 100% GONE, station broken apart, debris scatters outward
                 if (theCrestState !== 'DESTROYED') {
                     theCrestState = 'DESTROYED';
-                    showToast("💥 THE CREST HAS BROKEN APART INTO BURNING ORBITAL DEBRIS!");
+                    showToast("💥 THE CREST HAS EXPLODED — DEBRIS SCATTERING OUTWARD IN TITAN ORBIT!");
                 }
                 if (theCrestModelOriginal) theCrestModelOriginal.visible = false; // Hide intact model
-                if (theCrestExplosionLight) theCrestExplosionLight.intensity = Math.sin(timeSec * 3.0) * 2.0;
+                if (theCrestFireballs) theCrestFireballs.forEach(fb => fb.visible = false); // Explosion gone
+                if (theCrestShockwaves) theCrestShockwaves.forEach(sw => sw.visible = false);
+                if (theCrestExplosionLight) theCrestExplosionLight.intensity = 0;
 
-                // Animate Tumbling Shattered Debris Chunks
-                const debrisAge = (elapsedExcavation - 19.5);
+                // Animate Tumbling Shattered Debris Chunks Scattering Outward
+                const debrisAge = (elapsedExcavation - 18.5);
                 if (theCrestDebrisChunks) {
                     theCrestDebrisChunks.forEach(chunk => {
                         chunk.visible = true;
@@ -4876,7 +5208,7 @@
                 }
             }
 
-            // 6. Animate Dreadnought Spinal Beams (Bombardment -> Tractor -> Off)
+            // 6. Animate Dreadnought Spinal Beams (Gold Bombardment Beams -> Purple Tractor Beams -> Off)
             if (capitalSpinalBeams && capitalSpinalBeams.length > 0) {
                 capitalSpinalBeams.forEach(bData => {
                     const ship = bData.ship;
@@ -4896,14 +5228,14 @@
                     bData.group.visible = true;
                     bData.flare.visible = true;
 
-                    // Muzzle at prow of dreadnought
+                    // Muzzle at front prow of dreadnought
                     const prowWorld = ship.localToWorld(new THREE.Vector3(0, -35, -475));
                     bData.flare.position.copy(prowWorld);
                     bData.flare.scale.setScalar(1.0 + Math.sin(timeSec * 8.0 + bData.shipIndex) * 0.2);
 
                     // Target point:
-                    // In Bombardment: Target is crater floor
-                    // In Tractor: Target is crystal node on one of the 12 golden pylons
+                    // In Bombardment: Target is strictly the gate excavation crater on Titan
+                    // In Tractor: Target is crystal node on one of the 12 golden pylons on the rising gate
                     let targetWorld = new THREE.Vector3();
                     if (isBombardmentFiring) {
                         targetWorld.copy(craterWorldPos);
@@ -4951,15 +5283,19 @@
                         });
                     }
 
-                    // Color shift between Bombardment (Dark-Energy Violent Purple) and Tractor (Radiant Graviton Purple/Gold)
+                    // Beam Color Configuration:
+                    // Bombardment: Intense Radiant Gold Beams from front of each ship to the gate on Titan
+                    // Tractor: Radiant Graviton Purple Beams pulling the gate up into space
                     if (isBombardmentFiring) {
-                        bData.plasma.material.color.setHex(0x9333ea);
-                        bData.cage.material.color.setHex(0xd946ef);
-                        bData.flare.material.color.setHex(0xd946ef);
+                        bData.core.material.color.setHex(0xffffff);
+                        bData.plasma.material.color.setHex(0xfbbf24); // Radiant Gold
+                        bData.cage.material.color.setHex(0xfef08a);   // Luminous Gold
+                        bData.flare.material.color.setHex(0xf59e0b);  // Gold Prow Flare
                     } else {
-                        bData.plasma.material.color.setHex(0xa855f7);
-                        bData.cage.material.color.setHex(0xfbbf24);
-                        bData.flare.material.color.setHex(0xa855f7);
+                        bData.core.material.color.setHex(0xfdf4ff);   // White-Violet
+                        bData.plasma.material.color.setHex(0xa855f7); // Radiant Purple
+                        bData.cage.material.color.setHex(0xc084fc);   // Violet Field
+                        bData.flare.material.color.setHex(0xd946ef);  // Purple Prow Flare
                     }
                 });
             }
@@ -5686,7 +6022,294 @@ function createEpicPlayerDeathExplosion(pos) {
             showToast("Approaching Dominion Capital Flagship near Titan!");
         }
 
+        // =========================================================================
+        // 🎬 TITAN GATE WORMHOLE CINEMATIC SEQUENCE & ELEVENLABS DIALOGUE ENGINE
+        // =========================================================================
+        let isTitanCinematicActive = false;
+        let titanCinematicAudio = null;
+        let titanCinematicIndex = 0;
+        let titanCinematicTimeout = null;
+
+        const titanCinematicScript = [
+            {
+                id: "titan_gate_01_elias",
+                speaker: "ELIAS VANCE",
+                subspeaker: "MARS COMMS / HYPERWAVE OVERRIDE",
+                theme: "speaker-elias",
+                icon: "📻",
+                camMode: 0, // Cockpit View
+                speed: 95,
+                text: "Kaylen! Kaylen, do you read me?! The long-range sensors on Mars just went red—The Crest is gone from the grid! Report in, kid!",
+                audioSrc: "audio/cinematics/titan_gate/titan_gate_01_elias.mp3"
+            },
+            {
+                id: "titan_gate_02_kaylen",
+                speaker: "KAYLEN VANCE",
+                subspeaker: "VOID INTERCEPTOR COCKPIT",
+                theme: "speaker-kaylen",
+                icon: "🚀",
+                camMode: 0, // Cockpit View
+                speed: 130,
+                text: "Elias... they wiped out the fleet. The kinetic rounds bounced right off their hulls. They're lining up their dreadnoughts on the rift right now.",
+                audioSrc: "audio/cinematics/titan_gate/titan_gate_02_kaylen.mp3"
+            },
+            {
+                id: "titan_gate_03_elias",
+                speaker: "ELIAS VANCE",
+                subspeaker: "MARS COMMS / HYPERWAVE OVERRIDE",
+                theme: "speaker-elias",
+                icon: "📻",
+                camMode: 1, // Rear Third-Person Close
+                speed: 170,
+                text: "Then break off and burn hard for the outer moons! Divert everything to afterburners! I'm spooling the freighter down in the slums—I will come get you, son!",
+                audioSrc: "audio/cinematics/titan_gate/titan_gate_03_elias.mp3"
+            },
+            {
+                id: "titan_gate_04_kaylen",
+                speaker: "KAYLEN VANCE",
+                subspeaker: "VOID INTERCEPTOR COCKPIT",
+                theme: "speaker-kaylen",
+                icon: "🚀",
+                camMode: 1,
+                speed: 210,
+                text: "You know my fuel reserves, Elias. I can't outrun them. If those dreadnoughts cross this threshold, Sol doesn't have a defense left. Earth won't last twenty minutes.",
+                audioSrc: "audio/cinematics/titan_gate/titan_gate_04_kaylen.mp3"
+            },
+            {
+                id: "titan_gate_05_elias",
+                speaker: "ELIAS VANCE",
+                subspeaker: "MARS COMMS / HYPERWAVE OVERRIDE",
+                theme: "speaker-elias",
+                icon: "📻",
+                camMode: 3, // Cinematic Showcase Orbit
+                speed: 260,
+                text: "No... No, look at the telemetry! The gravitational shear inside that ring is tearing atoms apart! You take that interceptor in there, you'll be vaporized!",
+                audioSrc: "audio/cinematics/titan_gate/titan_gate_05_elias.mp3"
+            },
+            {
+                id: "titan_gate_06_kaylen",
+                speaker: "KAYLEN VANCE",
+                subspeaker: "VOID INTERCEPTOR COCKPIT / PENDANT RESONANCE",
+                theme: "speaker-kaylen",
+                icon: "💎",
+                camMode: 0, // Cockpit View
+                speed: 300,
+                text: "It's vibrating, Elias. The pendant you found me with... it's singing with the gate. It's the same frequency. It knows what to do.",
+                audioSrc: "audio/cinematics/titan_gate/titan_gate_06_kaylen.mp3"
+            },
+            {
+                id: "titan_gate_07_elias",
+                speaker: "ELIAS VANCE",
+                subspeaker: "MARS COMMS / HYPERWAVE OVERRIDE",
+                theme: "speaker-elias",
+                icon: "📻",
+                camMode: 2, // Far Third Person
+                speed: 340,
+                text: "Kaylen, listen to me! You don't know what that thing is—what you are! I promised myself I'd keep you safe from all this... Don't you throw your life away for a war that isn't yours!",
+                audioSrc: "audio/cinematics/titan_gate/titan_gate_07_elias.mp3"
+            },
+            {
+                id: "titan_gate_08_kaylen",
+                speaker: "KAYLEN VANCE",
+                subspeaker: "VOID INTERCEPTOR COCKPIT",
+                theme: "speaker-kaylen",
+                icon: "🚀",
+                camMode: 0, // Cockpit View
+                speed: 390,
+                text: "You gave me twenty years, old man. You taught me how to fly, how to fight, and how to fix broken things. Earth is my home because you're on it.",
+                audioSrc: "audio/cinematics/titan_gate/titan_gate_08_kaylen.mp3"
+            },
+            {
+                id: "titan_gate_09_elias",
+                speaker: "ELIAS VANCE",
+                subspeaker: "MARS COMMS / HYPERWAVE OVERRIDE",
+                theme: "speaker-elias",
+                icon: "📻",
+                camMode: 3, // Cinematic Showcase Orbit
+                speed: 440,
+                text: "Kaylen, NO! Turn the ship around! KAYLEN—",
+                audioSrc: "audio/cinematics/titan_gate/titan_gate_09_elias.mp3"
+            },
+            {
+                id: "titan_gate_10_kaylen",
+                speaker: "KAYLEN VANCE",
+                subspeaker: "VOID INTERCEPTOR COCKPIT / OVERDRIVE BURST",
+                theme: "speaker-kaylen",
+                icon: "✨",
+                camMode: 1, // Rear Close diving in
+                speed: 520,
+                text: "Someone has to shut the door, old man. ...I love you. Goodbye.",
+                audioSrc: "audio/cinematics/titan_gate/titan_gate_10_kaylen.mp3"
+            }
+        ];
+
+        function startTitanGateCinematic() {
+            if (!ancientGoldenGate) return;
+            isTitanCinematicActive = true;
+            isWormholeActive = false;
+            titanCinematicIndex = 0;
+            document.body.classList.add('in-cinematic-mode');
+
+            const endModal = document.getElementById('cinematic-end-modal');
+            if (endModal) {
+                endModal.style.display = 'none';
+                endModal.classList.remove('active');
+            }
+
+            // Position ship at initial vantage point facing the Titan Gate with Dominion dreadnoughts in frame
+            const gateWorldPos = ancientGoldenGate.position.clone();
+            const startOffset = new THREE.Vector3(0, 160, 1750);
+            playerShip.position.copy(gateWorldPos).add(startOffset);
+            playerShip.lookAt(gateWorldPos);
+            targetSpeed = titanCinematicScript[0].speed;
+            currentSpeed = titanCinematicScript[0].speed;
+
+            // Make sure overlay is visible
+            const overlay = document.getElementById('cinematic-comms-overlay');
+            if (overlay) overlay.style.display = 'block';
+
+            const sec = document.getElementById('hud-sector');
+            const obj = document.getElementById('hud-objective');
+            if (sec) sec.innerText = "TITAN PRECURSOR GATE — CINEMATIC";
+            if (obj) obj.innerText = "Watching Kaylen Vance's final transmission & wormhole threshold jump...";
+
+            showToast("🎬 TITAN GATE CINEMATIC: Watching Kaylen's final transmission...");
+            playNextCinematicLine();
+        }
+
+        function playNextCinematicLine() {
+            if (!isTitanCinematicActive) return;
+
+            if (titanCinematicIndex >= titanCinematicScript.length) {
+                finishTitanGateCinematic();
+                return;
+            }
+
+            const lineData = titanCinematicScript[titanCinematicIndex];
+            
+            // Switch camera mode per cinematic line
+            if (lineData.camMode !== undefined) {
+                cameraMode = lineData.camMode;
+            }
+            targetSpeed = lineData.speed;
+
+            // Update UI elements
+            const commsBox = document.getElementById('cinematic-comms-box');
+            const commsSpeaker = document.getElementById('comms-speaker');
+            const commsSubspeaker = document.getElementById('comms-subspeaker');
+            const commsSubtitle = document.getElementById('comms-subtitle');
+            const commsBadge = document.getElementById('comms-step-badge');
+            const commsIcon = document.getElementById('comms-avatar-icon');
+
+            if (commsBox) {
+                commsBox.className = 'cinematic-comms-box ' + lineData.theme;
+            }
+            if (commsSpeaker) commsSpeaker.innerText = lineData.speaker;
+            if (commsSubspeaker) commsSubspeaker.innerText = lineData.subspeaker;
+            if (commsSubtitle) commsSubtitle.innerText = `"${lineData.text}"`;
+            if (commsBadge) commsBadge.innerText = `${titanCinematicIndex + 1} / ${titanCinematicScript.length}`;
+            if (commsIcon) commsIcon.innerText = lineData.icon;
+
+            // Play voice audio
+            if (titanCinematicAudio) {
+                titanCinematicAudio.pause();
+                titanCinematicAudio = null;
+            }
+
+            titanCinematicAudio = new Audio(lineData.audioSrc);
+            titanCinematicAudio.volume = 1.0;
+
+            titanCinematicAudio.onended = () => {
+                titanCinematicIndex++;
+                titanCinematicTimeout = setTimeout(() => {
+                    playNextCinematicLine();
+                }, 400); // slight pause between transmissions
+            };
+
+            titanCinematicAudio.onerror = (e) => {
+                console.warn("Cinematic audio playback fallback:", e);
+                // Advance after estimated reading time
+                titanCinematicIndex++;
+                titanCinematicTimeout = setTimeout(() => {
+                    playNextCinematicLine();
+                }, 3500);
+            };
+
+            titanCinematicAudio.play().catch(e => {
+                console.warn("Audio play prevented (user gesture needed or error):", e);
+                titanCinematicIndex++;
+                titanCinematicTimeout = setTimeout(() => {
+                    playNextCinematicLine();
+                }, 3500);
+            });
+        }
+
+        function finishTitanGateCinematic() {
+            if (!isTitanCinematicActive) return;
+
+            // Trigger full screen blinding flash
+            const flash = document.getElementById('cinematic-flash-overlay');
+            if (flash) {
+                flash.classList.add('active');
+                setTimeout(() => {
+                    flash.classList.remove('active');
+                }, 1400);
+            }
+
+            // Engage warp hyperspace tunnel
+            isWormholeActive = true;
+            targetSpeed = 450;
+            currentSpeed = 450;
+
+            // Hide comms overlay
+            const overlay = document.getElementById('cinematic-comms-overlay');
+            if (overlay) overlay.style.display = 'none';
+
+            // Open End Modal after flash
+            setTimeout(() => {
+                const endModal = document.getElementById('cinematic-end-modal');
+                if (endModal) {
+                    endModal.style.display = 'flex';
+                    setTimeout(() => endModal.classList.add('active'), 50);
+                }
+            }, 1000);
+        }
+
+        function stopTitanGateCinematic() {
+            isTitanCinematicActive = false;
+            document.body.classList.remove('in-cinematic-mode');
+
+            if (titanCinematicAudio) {
+                titanCinematicAudio.pause();
+                titanCinematicAudio = null;
+            }
+            if (titanCinematicTimeout) {
+                clearTimeout(titanCinematicTimeout);
+                titanCinematicTimeout = null;
+            }
+
+            const overlay = document.getElementById('cinematic-comms-overlay');
+            if (overlay) overlay.style.display = 'none';
+
+            const flash = document.getElementById('cinematic-flash-overlay');
+            if (flash) flash.classList.remove('active');
+
+            showToast("Cinematic ended. Flight control restored.");
+        }
+
+        function closeCinematicEndModal() {
+            const endModal = document.getElementById('cinematic-end-modal');
+            if (endModal) {
+                endModal.classList.remove('active');
+                setTimeout(() => endModal.style.display = 'none', 600);
+            }
+            stopTitanGateCinematic();
+        }
+
         function resetSimView() {
+            if (typeof isTitanCinematicActive !== 'undefined' && isTitanCinematicActive) {
+                stopTitanGateCinematic();
+            }
             playerShip.position.set(75200, 350, -34000);
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
@@ -5778,19 +6401,25 @@ function createEpicPlayerDeathExplosion(pos) {
             const totalPitch = Math.max(-1.0, Math.min(1.0, mouseYEff + arrowPitch));
             const totalYaw = Math.max(-1.0, Math.min(1.0, -mouseXEff + arrowYaw));
 
-            // Apply local pitch (X) and yaw (Y) quaternion rotations directly
-            // Allows full 360° loop-de-loops over the top without any view snapping or gimbal flips!
-            if (!isFlightLocked) {
-                playerShip.rotateX(totalPitch * turnRate);
-                playerShip.rotateY(totalYaw * turnRate);
-            }
+            if (isTitanCinematicActive && ancientGoldenGate) {
+                // In cinematic mode, autonomously steer directly toward the Ancient Precursor Gate center
+                const gateCenter = ancientGoldenGate.position.clone();
+                playerShip.lookAt(gateCenter);
+            } else {
+                // Apply local pitch (X) and yaw (Y) quaternion rotations directly
+                // Allows full 360° loop-de-loops over the top without any view snapping or gimbal flips!
+                if (!isFlightLocked) {
+                    playerShip.rotateX(totalPitch * turnRate);
+                    playerShip.rotateY(totalYaw * turnRate);
+                }
 
-            // A/D Keys for rolling the ship (very slowly)
-            let _roll = gameMechanicsConfig.rollSpeed !== undefined ? gameMechanicsConfig.rollSpeed : 50;
-            if (_roll > 100) _roll = 100;
-            const rollRate = turnRate * 0.4 * ((_roll / 100) * 2.5);
-            if (keys.KeyA) playerShip.rotateZ(rollRate);
-            if (keys.KeyD) playerShip.rotateZ(-rollRate);
+                // A/D Keys for rolling the ship (very slowly)
+                let _roll = gameMechanicsConfig.rollSpeed !== undefined ? gameMechanicsConfig.rollSpeed : 50;
+                if (_roll > 100) _roll = 100;
+                const rollRate = turnRate * 0.4 * ((_roll / 100) * 2.5);
+                if (keys.KeyA) playerShip.rotateZ(rollRate);
+                if (keys.KeyD) playerShip.rotateZ(-rollRate);
+            }
 
             // Move ship forward (Physical 3D world movement doubled per user request)
             const moveDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
