@@ -2792,21 +2792,22 @@
             const atmoMat = new THREE.MeshBasicMaterial({
                 color: 0xf59e0b,
                 transparent: true,
-                opacity: 0.15,
+                opacity: 0.22,
                 blending: THREE.AdditiveBlending,
-                side: THREE.BackSide
+                side: THREE.BackSide,
+                depthWrite: false
             });
             const atmosphere = new THREE.Mesh(atmoGeo, atmoMat);
             spacePlanetSphere.add(atmosphere);
 
-            // High-Resolution Textured Continuous Planetary Ring Disc
+            // High-Resolution Textured Continuous Planetary Ring Disc (Dual Volumetric Layers for 3D depth)
             const ringDiscGeo = new THREE.RingGeometry(10500, 23000, 128, 8);
             ringDiscGeo.rotateX(Math.PI / 2); // Aligns ring disc directly into planetary equatorial plane (parallel to cloud bands)
             
             const ringDiscMat = new THREE.MeshBasicMaterial({
                 color: 0xffffff,
                 transparent: true,
-                opacity: 0.95,
+                opacity: 0.98,
                 side: THREE.DoubleSide,
                 depthWrite: false
             });
@@ -2821,6 +2822,15 @@
 
             spacePlanetRingMesh = new THREE.Mesh(ringDiscGeo, ringDiscMat);
             spacePlanet.add(spacePlanetRingMesh);
+
+            // Upper & Lower Volumetric Offset Ring Discs (Prevents edge-on invisible hairline disappearance)
+            const ringUpper = new THREE.Mesh(ringDiscGeo, ringDiscMat);
+            ringUpper.position.y = 35;
+            spacePlanet.add(ringUpper);
+
+            const ringLower = new THREE.Mesh(ringDiscGeo, ringDiscMat);
+            ringLower.position.y = -35;
+            spacePlanet.add(ringLower);
 
             // Gigantic Planetary Ring System - 3D particle asteroids in Equatorial XZ plane (aligned with planet cloud bands)
             const particleCount = 20000;
@@ -2890,8 +2900,9 @@
             const fallbackTex = createTitanSurfaceTexture();
 
             spaceTitan = new THREE.Group();
-            // Positioned level with Saturn's equatorial ring plane and moved out 300% further (+300% distance = ~92,000 units from Saturn in ring plane)
-            spaceTitan.position.set(75590, -5513, -51251);
+            // Positioned 300% further out from Saturn with 2.8° natural celestial orbital inclination above ring plane
+            // Allows Saturn's majestic rings, cloud bands, and Cassini division to be fully visible from Titan
+            spaceTitan.position.set(76560, -1586, -49280);
             scene.add(spaceTitan);
 
             const titanGeo = new THREE.SphereGeometry(1100, 64, 64); // Scaled down to authentic moon proportions (2,200 unit diameter)
@@ -2913,14 +2924,15 @@
             spaceTitanSphere = new THREE.Mesh(titanGeo, titanMat);
             spaceTitan.add(spaceTitanSphere);
 
-            // Glowing Amber Atmospheric Veil (1,135 radius)
+            // Glowing Amber Atmospheric Veil (1,135 radius with depthWrite: false to never occlude background celestial bodies)
             const titanAtmoGeo = new THREE.SphereGeometry(1135, 48, 48);
             const titanAtmoMat = new THREE.MeshBasicMaterial({
                 color: 0xf59e0b,
                 transparent: true,
                 opacity: 0.20,
                 blending: THREE.AdditiveBlending,
-                side: THREE.BackSide
+                side: THREE.BackSide,
+                depthWrite: false
             });
             spaceTitanAtmosphere = new THREE.Mesh(titanAtmoGeo, titanAtmoMat);
             spaceTitanSphere.add(spaceTitanAtmosphere);
@@ -5907,7 +5919,7 @@ function createEpicPlayerDeathExplosion(pos) {
             const titanIconMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
             mapTitanMesh = new THREE.Mesh(titanIconGeo, titanIconMat);
             mapTitanMesh.userData = { label: "Titan (Saturn's Moon)" };
-            mapTitanMesh.position.set(302.4, -22.1, -205.0); // 75590, -5513, -51251 * 0.004
+            mapTitanMesh.position.set(306.2, -6.3, -197.1); // 76560, -1586, -49280 * 0.004
             mapGroup.add(mapTitanMesh);
 
             // 3. Sol Primary Star
