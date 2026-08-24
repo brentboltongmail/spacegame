@@ -5788,18 +5788,6 @@
             }
         }
 
-        function triggerWormholeJump() {
-            isWormholeActive = true;
-            const sec = document.getElementById('hud-sector');
-            const obj = document.getElementById('hud-objective');
-            if (sec) sec.innerText = "WORMHOLE HYPERSPACE TUNNEL";
-            if (obj) obj.innerText = "Transitioning to Sovereign Reach...";
-            showToast("HYPERSPACE WARP ENGAGED! Warp Drive Active!");
-
-            playerShip.position.set(-150, 20, -310);
-        }
-
-        
         function createEnemyInterceptorMesh() {
             const enemyGroup = new THREE.Group();
             const meshContainer = new THREE.Group();
@@ -6275,6 +6263,7 @@ function createEpicPlayerDeathExplosion(pos) {
         // 🎬 TITAN GATE WORMHOLE CINEMATIC SEQUENCE & ELEVENLABS DIALOGUE ENGINE
         // =========================================================================
         let isTitanCinematicActive = false;
+        let isTitanCinematicEnteringGate = false;
         let titanCinematicAudio = null;
         let titanCinematicIndex = 0;
         let titanCinematicTimeout = null;
@@ -6391,12 +6380,6 @@ function createEpicPlayerDeathExplosion(pos) {
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_10_kaylen.mp3"
             }
         ];
-
-        let isTitanCinematicActive = false;
-        let isTitanCinematicEnteringGate = false;
-        let titanCinematicAudio = null;
-        let titanCinematicIndex = 0;
-        let titanCinematicTimeout = null;
 
         function startTitanGateCinematic() {
             if (!ancientGoldenGate) return;
