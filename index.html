@@ -2423,10 +2423,10 @@
             scene = new THREE.Scene();
             scene.fog = new THREE.FogExp2(0x070913, 0.00003); // 16x lighter fog for crystal clear space visibility!
 
-            camera = new THREE.PerspectiveCamera(65, container.clientWidth / container.clientHeight, 0.1, 2000000);
+            camera = new THREE.PerspectiveCamera(65, container.clientWidth / container.clientHeight, 1.0, 2000000);
             camera.position.set(0, 6.0, 22.0);
 
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, logarithmicDepthBuffer: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.shadowMap.enabled = true;
@@ -5005,11 +5005,11 @@ function createEpicPlayerDeathExplosion(pos) {
             upgradeHangarScene = new THREE.Scene();
             upgradeHangarScene.background = new THREE.Color(0x060914);
 
-            upgradeHangarCamera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 100);
+            upgradeHangarCamera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.5, 100);
             upgradeHangarCamera.position.copy(hangarCamTargetPos);
             upgradeHangarCamera.lookAt(hangarCamLookAtPos);
 
-            upgradeHangarRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            upgradeHangarRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, logarithmicDepthBuffer: true });
             upgradeHangarRenderer.setSize(container.clientWidth, container.clientHeight);
             upgradeHangarRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
