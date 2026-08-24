@@ -8174,8 +8174,16 @@ function createEpicPlayerDeathExplosion(pos) {
             if (typeof mission1Active !== 'undefined' && typeof mission1Rings !== 'undefined' && typeof mission1Stage !== 'undefined') {
                 mission1Rings.forEach((ring, idx) => {
                     if (ring && ring.position) {
-                        const isCleared = idx < mission1Stage;
-                        const isCurrent = idx === mission1Stage;
+                        const isCleared = ring.userData && ring.userData.cleared;
+                        // Find the next uncleared ring index to mark as current target
+                        let currentTargetIdx = -1;
+                        for (let i=0; i<mission1Rings.length; i++) {
+                            if (!mission1Rings[i].userData || !mission1Rings[i].userData.cleared) {
+                                currentTargetIdx = i;
+                                break;
+                            }
+                        }
+                        const isCurrent = idx === currentTargetIdx;
                         // Green for cleared, Cyan for current target, Blue for future rings
                         const color = isCleared ? '#10b981' : (isCurrent ? '#00f0ff' : '#0284c7'); 
                         drawBlip(ring.position, color, isCleared ? 3.5 : 5, false, 'TRAINING RING');
@@ -9599,7 +9607,7 @@ function createEpicPlayerDeathExplosion(pos) {
             ];
             
             const ringGeo = new THREE.TorusGeometry(800, 20, 16, 100);
-            const ringMat = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.5 });
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
             
             ringPos.forEach((pos, i) => {
                 const ring = new THREE.Mesh(ringGeo, ringMat);
@@ -9609,6 +9617,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 else if (i === 1) ring.rotation.y = 0; // facing front/back
                 else if (i === 2) ring.lookAt(72060, 214, -81280); 
                 
+                ring.userData = { cleared: false };
                 scene.add(ring);
                 mission1Rings.push(ring);
             });
@@ -9631,26 +9640,24 @@ function createEpicPlayerDeathExplosion(pos) {
             if (!mission1Active) return;
             
             if (mission1Stage < 3) {
-                const targetRing = mission1Rings[mission1Stage];
-                const dist = playerShip.position.distanceTo(targetRing.position);
-                
-                // Draw blip on radar for current ring
-                if (window.drawBlip) {
-                    // Try to draw it on radar (might be cleared every frame, so this needs to run in render loop ideally, 
-                    // but we can just let them find it visually since it's around Saturn).
-                }
-
-                if (dist < 1500) {
-                    // Passed through
-                    // Turn ring green instead of removing it
-                    targetRing.material.color.setHex(0x10b981);
-                    targetRing.material.opacity = 0.2;
-                    mission1Stage++;
-                    if (mission1Stage < 3) {
-                        showToast(`Ring ${mission1Stage} cleared. Next target locked.`, "var(--accent-cyan)");
-                        const obj = document.getElementById('hud-objective');
-                        if (obj) obj.innerText = `Fly around Saturn and clear 3 training rings on the dark side (${mission1Stage}/3).`;
-                    } else {
+                // Check all rings for collision to allow any order
+                for (let i = 0; i < mission1Rings.length; i++) {
+                    const targetRing = mission1Rings[i];
+                    if (targetRing.userData.cleared) continue;
+                    
+                    const dist = playerShip.position.distanceTo(targetRing.position);
+                    if (dist < 1500) {
+                        // Passed through
+                        targetRing.userData.cleared = true;
+                        targetRing.material.color.setHex(0x10b981);
+                        targetRing.material.opacity = 0.2;
+                        mission1Stage++;
+                        
+                        if (mission1Stage < 3) {
+                            showToast(`Ring ${mission1Stage} cleared. Next target locked.`, "var(--accent-cyan)");
+                            const obj = document.getElementById('hud-objective');
+                            if (obj) obj.innerText = `Fly around Saturn and clear 3 training rings on the dark side (${mission1Stage}/3).`;
+                        } else {
                         showCommsTransmission("KAYLEN VANCE", "Copy that, old man. Controls are stiff, but responsive. Rings cleared.", 5000);
                         setTimeout(() => {
                             showCommsTransmission("ELIAS VANCE", "Good. Now dock back at The Crest.", 5000);
@@ -9670,6 +9677,7 @@ function createEpicPlayerDeathExplosion(pos) {
                         }, 12000);
                     }
                 }
+            }
             }
         }
 

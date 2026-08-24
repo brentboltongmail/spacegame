@@ -3,75 +3,75 @@
   "boxPositions": {
     "hud-controls-card": {
       "x": -22,
-      "y": -28
+      "y": 36
     },
     "drag-sector-objective": {
       "x": 23,
-      "y": -28
+      "y": 36
     },
     "title-card-0": {
       "x": 0,
-      "y": 14620
+      "y": 14756
     },
     "title-card-1": {
       "x": 0,
-      "y": 14620
+      "y": 14756
     },
     "title-card-2": {
       "x": 0,
-      "y": 14620
+      "y": 14756
     },
     "title-card-3": {
       "x": 0,
-      "y": 14620
+      "y": 14756
     },
     "title-card-4": {
       "x": 0,
-      "y": 14620
+      "y": 14756
     },
     "title-card-5": {
       "x": 0,
-      "y": 14620
+      "y": 14756
     },
     "drag-prologue-sol-system-the-crest": {
       "x": 0,
-      "y": 14620
+      "y": 14756
     },
     "drag-the-truth-of-the-vanguard-throne": {
       "x": 0,
-      "y": 14620
+      "y": 14756
     },
     "drag-all-out-multi-system-warfare": {
       "x": 0,
-      "y": 14620
+      "y": 14756
     },
     "drag-the-battle-for-the-homeworld": {
       "x": 0,
-      "y": 14620
+      "y": 14756
     },
     "drag-core-gameplay-mechanics-matrix": {
       "x": 0,
-      "y": 14620
+      "y": 14756
     },
     "drag-key-factions": {
       "x": 0,
-      "y": 14620
+      "y": 14756
     },
     "drag-void-interceptor": {
       "x": 0,
-      "y": 14620
+      "y": 14756
     },
     "drag-heavy-strike-corvette": {
       "x": 0,
-      "y": 14620
+      "y": 14756
     },
     "drag-vanguard-royal-battlecruiser": {
       "x": 0,
-      "y": 14620
+      "y": 14756
     },
     "hud-shield-card": {
-      "x": -21,
-      "y": 67
+      "x": -8,
+      "y": 6
     },
     "hud-action-bar-card": {
       "x": -47,
@@ -79,15 +79,15 @@
     },
     "hud-top-target-card": {
       "x": 18,
-      "y": -71
+      "y": -7
     },
     "drag-the-scavenger-frontier": {
       "x": 0,
-      "y": 7888
+      "y": 8024
     },
     "hud-radar-card": {
-      "x": 25,
-      "y": 75
+      "x": 23,
+      "y": 12
     },
     "cinematic-comms-overlay": {
       "x": 0,
@@ -102,10 +102,10 @@
     "rollSpeed": 55,
     "cameraLag": 86,
     "throttleAccel": 100,
-    "shieldRegenMult": 57,
-    "hullRegenMult": 56,
+    "shieldRegenMult": 72,
+    "hullRegenMult": 74,
     "enemyDamageMult": 27,
-    "playerDamageMult": 55,
+    "playerDamageMult": 35,
     "flashOnHit": false,
     "turnSpeed": 25
   },
