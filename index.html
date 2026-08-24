@@ -2461,6 +2461,7 @@
             createStarfield();
             createSolarSun();
             createSpacePlanet();
+            loadVoidInterceptorFBX();
             createPlayerShip();
             createCapitalShip();
             createWormholeGate();
@@ -2827,11 +2828,7 @@
                 // Random rotation
                 dummy.rotation.set(
                     Math.random() * Math.PI,
-                    Math.random() * Math.PI,
-                    Math.random() * Math.PI
-                );
-                
-                dummy.updateMatrix();
+dummy.updateMatrix();
                 ring.setMatrixAt(i, dummy.matrix);
                 
                 // Apply color variation
@@ -2844,418 +2841,179 @@
             spacePlanet.add(ring);
         }
 
-        // --- PROCEDURAL VOID INTERCEPTOR HULL TEXTURE GENERATORS ---
-        function createVoidHullTexture() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 512; canvas.height = 512;
-            const ctx = canvas.getContext('2d');
+        // --- VOID INTERCEPTOR FBX MODEL & MATERIAL MANAGEMENT ---
+        let voidInterceptorTemplate = null;
+        const pendingVoidInterceptorShips = [];
 
-            ctx.fillStyle = '#1e293b';
-            ctx.fillRect(0, 0, 512, 512);
+        // Load Void Interceptor PNG Diffuse Texture
+        const voidInterceptorTexLoader = new THREE.TextureLoader();
+        const voidInterceptorTex = voidInterceptorTexLoader.load('fbx/Meshy_AI_VoidInterceptor_Vanguard_0824002458_texture.png');
+        voidInterceptorTex.encoding = THREE.sRGBEncoding;
+        voidInterceptorTex.wrapS = THREE.RepeatWrapping;
+        voidInterceptorTex.wrapT = THREE.RepeatWrapping;
 
-            // Metallic carbon weave pattern
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-            ctx.lineWidth = 1;
-            for (let i = 0; i < 512; i += 8) {
-                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 512); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(512, i); ctx.stroke();
-            }
+        const voidInterceptorMat = new THREE.MeshStandardMaterial({
+            map: voidInterceptorTex,
+            roughness: 0.85,
+            metalness: 0.18
+        });
 
-            // Alloy armor seams
-            ctx.strokeStyle = '#64748b';
-            ctx.lineWidth = 3;
-            ctx.strokeRect(16, 16, 480, 480);
-            ctx.strokeRect(48, 48, 416, 416);
+        const enemyVoidInterceptorMat = new THREE.MeshStandardMaterial({
+            map: voidInterceptorTex,
+            color: 0xff8899,
+            roughness: 0.85,
+            metalness: 0.18
+        });
 
-            // Luminescent Cyan Circuit Trimming
-            ctx.strokeStyle = '#00f0ff';
-            ctx.shadowColor = '#00f0ff';
-            ctx.shadowBlur = 10;
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(48, 256); ctx.lineTo(160, 256); ctx.lineTo(256, 160); ctx.lineTo(256, 48);
-            ctx.moveTo(464, 256); ctx.lineTo(352, 256); ctx.lineTo(256, 352); ctx.lineTo(256, 464);
-            ctx.stroke();
-            ctx.shadowBlur = 0;
+        function loadVoidInterceptorFBX() {
+            const fbxLoader = new THREE.FBXLoader();
+            fbxLoader.load('fbx/Meshy_AI_VoidInterceptor_Vanguard_0824002458_texture.fbx', function(fbx) {
+                fbx.traverse(function(child) {
+                    if (child.isMesh) {
+                        child.material = voidInterceptorMat;
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
 
-            const texture = new THREE.CanvasTexture(canvas);
-            texture.wrapS = THREE.RepeatWrapping;
-            texture.wrapT = THREE.RepeatWrapping;
-            return texture;
+                // Compute Bounding Box & Scale to ~7.2 units length
+                const box = new THREE.Box3().setFromObject(fbx);
+                const size = new THREE.Vector3();
+                box.getSize(size);
+                const center = new THREE.Vector3();
+                box.getCenter(center);
+
+                // size.x is length (1.125), size.y is wingspan (1.908), size.z is height (0.362)
+                const targetScale = 7.2 / (size.x || 1);
+                fbx.scale.set(targetScale, targetScale, targetScale);
+
+                // Orient FBX model: Nose (-X) -> Three.js Forward (-Z), Dorsal (+Z) -> Three.js Up (+Y), Starboard (+Y) -> Three.js Right (+X)
+                fbx.rotation.set(-Math.PI / 2, 0, -Math.PI / 2);
+                fbx.position.set(-center.y * targetScale, -center.z * targetScale, -center.x * targetScale);
+
+                voidInterceptorTemplate = fbx;
+
+                // Populate any pending ships created before FBX finished loading
+                pendingVoidInterceptorShips.forEach(item => {
+                    attachVoidInterceptorFBX(item.group, item.isEvil);
+                });
+                pendingVoidInterceptorShips.length = 0;
+
+                console.log("[VOID INTERCEPTOR] FBX Model and Texture Loaded & Mapped Successfully!");
+            }, function(xhr) {
+                if (xhr.total) {
+                    console.log("[VOID INTERCEPTOR FBX] Loading: " + Math.round((xhr.loaded / xhr.total) * 100) + "%");
+                }
+            }, function(err) {
+                console.error("[VOID INTERCEPTOR FBX ERROR]", err);
+            });
         }
 
-        function createVoidBumpMap() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 512; canvas.height = 512;
-            const ctx = canvas.getContext('2d');
-
-            ctx.fillStyle = '#808080';
-            ctx.fillRect(0, 0, 512, 512);
-
-            ctx.fillStyle = '#b0b0b0'; // Raised armor plates
-            ctx.fillRect(48, 48, 416, 416);
-
-            ctx.strokeStyle = '#000000'; // Recessed armor seams
-            ctx.lineWidth = 5;
-            ctx.strokeRect(16, 16, 480, 480);
-            ctx.strokeRect(48, 48, 416, 416);
-
-            const texture = new THREE.CanvasTexture(canvas);
-            texture.wrapS = THREE.RepeatWrapping;
-            texture.wrapT = THREE.RepeatWrapping;
-            return texture;
+        function attachVoidInterceptorFBX(shipGroup, isEvil) {
+            if (!voidInterceptorTemplate || !shipGroup.userData || !shipGroup.userData.meshContainer) return;
+            shipGroup.userData.meshContainer.clear();
+            const cloned = voidInterceptorTemplate.clone(true);
+            const mat = isEvil ? enemyVoidInterceptorMat : voidInterceptorMat;
+            cloned.traverse(child => {
+                if (child.isMesh) {
+                    child.material = mat;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+            shipGroup.userData.meshContainer.add(cloned);
         }
-
-        // --- PROCEDURAL IMPERIAL GOLD TEXTURE & BUMP MAP GENERATORS ---
-        function createGoldHullTexture() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 512; canvas.height = 512;
-            const ctx = canvas.getContext('2d');
-
-            // Rich Metallic Gold Gradient
-            const grad = ctx.createLinearGradient(0, 0, 512, 512);
-            grad.addColorStop(0, '#f59e0b');
-            grad.addColorStop(0.3, '#fbbf24');
-            grad.addColorStop(0.7, '#d97706');
-            grad.addColorStop(1, '#b45309');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, 512, 512);
-
-            // Fine brushed metallic micro-grain
-            ctx.strokeStyle = 'rgba(255, 245, 204, 0.18)';
-            ctx.lineWidth = 1;
-            for (let i = 0; i < 512; i += 4) {
-                ctx.beginPath();
-                ctx.moveTo(i, 0);
-                ctx.lineTo(i + 128, 512);
-                ctx.stroke();
-            }
-
-            // Engraved Tech Grid & Gold Trim Seams
-            ctx.strokeStyle = 'rgba(180, 83, 9, 0.45)';
-            ctx.lineWidth = 3;
-            ctx.strokeRect(20, 20, 472, 472);
-            ctx.strokeRect(50, 50, 412, 412);
-
-            ctx.beginPath();
-            for (let x = 60; x < 460; x += 80) {
-                ctx.moveTo(x, 20); ctx.lineTo(x, 492);
-                ctx.moveTo(20, x); ctx.lineTo(492, x);
-            }
-            ctx.stroke();
-
-            // Luminous Gold Energy Circuit Trimming
-            ctx.strokeStyle = '#fef08a';
-            ctx.shadowColor = '#fbbf24';
-            ctx.shadowBlur = 8;
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(50, 256); ctx.lineTo(150, 150); ctx.lineTo(362, 150); ctx.lineTo(462, 256);
-            ctx.moveTo(50, 256); ctx.lineTo(150, 362); ctx.lineTo(362, 362); ctx.lineTo(462, 256);
-            ctx.stroke();
-            ctx.shadowBlur = 0;
-
-            const texture = new THREE.CanvasTexture(canvas);
-            texture.wrapS = THREE.RepeatWrapping;
-            texture.wrapT = THREE.RepeatWrapping;
-            return texture;
-        }
-
-        function createGoldBumpMap() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 512; canvas.height = 512;
-            const ctx = canvas.getContext('2d');
-
-            ctx.fillStyle = '#808080';
-            ctx.fillRect(0, 0, 512, 512);
-
-            ctx.fillStyle = '#cfcfcf'; // Raised gold filigree plates
-            ctx.fillRect(50, 50, 412, 412);
-
-            ctx.strokeStyle = '#101010'; // Recessed bevel channels
-            ctx.lineWidth = 6;
-            ctx.strokeRect(20, 20, 472, 472);
-            ctx.strokeRect(50, 50, 412, 412);
-
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            for (let x = 60; x < 460; x += 80) {
-                ctx.moveTo(x, 20); ctx.lineTo(x, 492);
-                ctx.moveTo(20, x); ctx.lineTo(492, x);
-            }
-            ctx.stroke();
-
-            const texture = new THREE.CanvasTexture(canvas);
-            texture.wrapS = THREE.RepeatWrapping;
-            texture.wrapT = THREE.RepeatWrapping;
-            return texture;
-        }
-
-        
-
-        let _sharedShipMats = { evil: null, good: null };
 
         function buildDetailedShipMesh(isEvil) {
             const shipGroup = new THREE.Group();
-            
-            if (!_sharedShipMats.evil) {
-                const hullMap = createVoidHullTexture();
-                const bumpMap = createVoidBumpMap();
-                const goldMap = createGoldHullTexture();
-                const goldBump = createGoldBumpMap();
-                
-                const createTheme = (evil) => {
-                    const glow = evil ? 0xff0044 : 0x00f0ff;
-                    return {
-                        dark: new THREE.MeshStandardMaterial({ color: evil ? 0x110000 : 0x1e293b, metalness: 0.88, roughness: 0.25, map: hullMap, bumpMap: bumpMap, bumpScale: 0.08 }),
-                        silver: new THREE.MeshStandardMaterial({ color: evil ? 0x330011 : 0x64748b, metalness: 0.85, roughness: 0.30, map: hullMap, bumpMap: bumpMap, bumpScale: 0.05 }),
-                        gold: new THREE.MeshStandardMaterial({ color: evil ? 0xff0044 : 0xf59e0b, metalness: 0.96, roughness: 0.18, map: goldMap, bumpMap: goldBump, bumpScale: 0.05, emissive: evil ? 0x440011 : 0x3b1a03, emissiveIntensity: 0.4 }),
-                        glow: new THREE.MeshBasicMaterial({ color: glow }),
-                        glass: new THREE.MeshPhysicalMaterial({ color: glow, roughness: 0.08, metalness: 0.90, transmission: 0.85, opacity: 0.88, transparent: true, clearcoat: 1.0 })
-                    };
-                };
-                _sharedShipMats.evil = createTheme(true);
-                _sharedShipMats.good = createTheme(false);
-            }
-            
-            const theme = isEvil ? _sharedShipMats.evil : _sharedShipMats.good;
-            const darkArmorMat = theme.dark;
-            const silverPlateMat = theme.silver;
-            const goldTrimMat = theme.gold;
-            const cyanGlowMat = theme.glow;
-            const canopyGlassMat = theme.glass;
-            const glowColor = isEvil ? 0xff0044 : 0x00f0ff;
+            const meshContainer = new THREE.Group();
+            shipGroup.add(meshContainer);
 
-// 1. Extended Sleek Forward Stealth Nose Cone & Sensor Probe
-            // Nose extended and made blunter (less pointed) by using a cylinder instead of a cone
-            const noseGeo = new THREE.CylinderGeometry(0.15, 0.85, 6.8, 4);
-            noseGeo.rotateX(-Math.PI / 2); // Rotates blunt tip FORWARD towards -Z!
-            noseGeo.rotateZ(Math.PI / 4);  // Diamond stealth cross section
-            const nose = new THREE.Mesh(noseGeo, darkArmorMat);
-            nose.position.set(0, -0.05, -2.8);
-            shipGroup.add(nose);
-
-            // Upper Tapered Armor Cowl (Stealth Chine Nose Plate)
-            const upperNoseGeo = new THREE.CylinderGeometry(0.08, 0.6, 4.4, 4);
-            upperNoseGeo.rotateX(-Math.PI / 2); // Tip facing forward
-            upperNoseGeo.rotateZ(Math.PI / 4);
-            const upperNose = new THREE.Mesh(upperNoseGeo, silverPlateMat);
-            upperNose.position.set(0, 0.12, -2.8);
-            shipGroup.add(upperNose);
-
-            // Detailed Tiered Gold Nose Ridge Trim Line
-            const noseGoldGeo = new THREE.BoxGeometry(0.10, 0.14, 3.2);
-            const noseGold = new THREE.Mesh(noseGoldGeo, goldTrimMat);
-            noseGold.position.set(0, 0.28, -2.8);
-            shipGroup.add(noseGold);
-
-            const noseGoldRidge = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.16, 3.0), goldTrimMat);
-            noseGoldRidge.position.set(0, 0.30, -2.8);
-            shipGroup.add(noseGoldRidge);
-
-            // Forward Luminescent Sensor Needle Probe (Shortened)
-            const probeGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.6, 8);
-            probeGeo.rotateX(Math.PI / 2);
-            const probe = new THREE.Mesh(probeGeo, cyanGlowMat);
-            probe.position.set(0, -0.05, -6.5);
-            shipGroup.add(probe);
-
-            // Ventral Air Scoop Intake with Gold Accent Bezel
-            const scoopGeo = new THREE.BoxGeometry(0.8, 0.3, 1.8);
-            const scoop = new THREE.Mesh(scoopGeo, darkArmorMat);
-            scoop.position.set(0, -0.4, -0.6);
-            shipGroup.add(scoop);
-
-            const scoopGold = new THREE.Mesh(new THREE.BoxGeometry(0.86, 0.08, 1.84), goldTrimMat);
-            scoopGold.position.set(0, -0.4, -0.6);
-            shipGroup.add(scoopGold);
-
-            // Main Cockpit Body Hull
-            const mainHullGeo = new THREE.BoxGeometry(1.4, 0.9, 3.8);
-            const mainHull = new THREE.Mesh(mainHullGeo, darkArmorMat);
-            mainHull.position.set(0, -0.1, 0.5);
-            shipGroup.add(mainHull);
-
-            // Armor Spine Ridge with Gold Accent Trim (Shortened & pulled back behind canopy)
-            const spineGeo = new THREE.BoxGeometry(0.55, 0.35, 1.8);
-            const spine = new THREE.Mesh(spineGeo, silverPlateMat);
-            spine.position.set(0, 0.45, 1.3);
-            shipGroup.add(spine);
-
-            const spineGold = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.38, 1.7), goldTrimMat);
-            spineGold.position.set(0, 0.46, 1.35);
-            shipGroup.add(spineGold);
-
-            // 2. Cockpit Glass Canopy & Internal Pilot Yoke Seat
-            const canopyGeo = new THREE.SphereGeometry(0.55, 16, 16);
-            canopyGeo.scale(0.85, 0.6, 1.8);
-            const canopy = new THREE.Mesh(canopyGeo, canopyGlassMat);
-            canopy.position.set(0, 0.4, -0.6);
-            shipGroup.add(canopy);
-
-            // Interior Flight Seat
-            const seatGeo = new THREE.BoxGeometry(0.4, 0.5, 0.4);
-            const seatMat = new THREE.MeshStandardMaterial({ color: 0x020617, roughness: 0.8 });
-            const seat = new THREE.Mesh(seatGeo, seatMat);
-            seat.position.set(0, 0.2, -0.4);
-            shipGroup.add(seat);
-
-            // 3. Swept-Forward Main Wings (Left & Right Batteries)
-            const createSweptWing = (isLeft) => {
-                const wingGroup = new THREE.Group();
-
-                // Main Swept Wing Blade
-                const wingShape = new THREE.Shape();
-                wingShape.moveTo(0, 0);
-                wingShape.lineTo(3.2, -1.4);  // Sweep out
-                wingShape.lineTo(2.7, -3.0);  // Forward tip
-                wingShape.lineTo(0, -2.0);    // Attach back to body
-                wingShape.closePath();
-
-                const extrudeSettings = { depth: 0.12, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.04, bevelThickness: 0.04 };
-                const wingGeo = new THREE.ExtrudeGeometry(wingShape, extrudeSettings);
-                wingGeo.rotateX(Math.PI / 2);
-                
-                const wing = new THREE.Mesh(wingGeo, silverPlateMat);
-                wingGroup.add(wing);
-
-                // Wing Armor Plate Panel
-                const plateGeo = new THREE.BoxGeometry(2.0, 0.08, 1.4);
-                const plate = new THREE.Mesh(plateGeo, darkArmorMat);
-                plate.position.set(1.6, 0, -1.2);
-                wingGroup.add(plate);
-
-                // Gold Wing Leading Edge Chevron Inlay
-                const wingGoldGeo = new THREE.BoxGeometry(2.2, 0.06, 0.22);
-                const wingGold = new THREE.Mesh(wingGoldGeo, goldTrimMat);
-                wingGold.position.set(1.5, 0.05, -1.7);
-                wingGold.rotation.y = -0.38;
-                wingGroup.add(wingGold);
-
-                // Gold Winglet Endcap Fin
-                const endcapGeo = new THREE.BoxGeometry(0.12, 0.6, 1.2);
-                const endcap = new THREE.Mesh(endcapGeo, goldTrimMat);
-                endcap.position.set(2.8, 0, -2.2);
-                wingGroup.add(endcap);
-
-                // Dual Plasma Cannon Battery Pod Assembly (2 barrels per wing!)
-                for (let b = -0.15; b <= 0.15; b += 0.3) {
-                    const cannonBaseGeo = new THREE.CylinderGeometry(0.10, 0.12, 1.8, 12);
-                    cannonBaseGeo.rotateX(Math.PI / 2);
-                    const cannonBase = new THREE.Mesh(cannonBaseGeo, darkArmorMat);
-                    cannonBase.position.set(2.7 + b, -0.1, -1.6);
-                    wingGroup.add(cannonBase);
-
-                    // Gold Cannon Housing Bezel Ring
-                    const cannonGoldGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.2, 12);
-                    cannonGoldGeo.rotateX(Math.PI / 2);
-                    const cannonGold = new THREE.Mesh(cannonGoldGeo, goldTrimMat);
-                    cannonGold.position.set(2.7 + b, -0.1, -1.0);
-                    wingGroup.add(cannonGold);
-
-                    const barrelGeo = new THREE.CylinderGeometry(0.05, 0.05, 1.4, 12);
-                    barrelGeo.rotateX(Math.PI / 2);
-                    const barrel = new THREE.Mesh(barrelGeo, cyanGlowMat);
-                    barrel.position.set(2.7 + b, -0.1, -2.6);
-                    wingGroup.add(barrel);
-                }
-
-                // Underwing Torpedo Missile Hardpoints
-                const missileGeo = new THREE.ConeGeometry(0.14, 1.2, 8);
-                missileGeo.rotateX(Math.PI / 2);
-                const missile = new THREE.Mesh(missileGeo, darkArmorMat);
-                missile.position.set(1.6, -0.25, -1.2);
-                wingGroup.add(missile);
-
-                if (isLeft) wingGroup.scale.set(-1, 1, 1);
-                return wingGroup;
+            shipGroup.userData = {
+                isEvil: !!isEvil,
+                engineLights: [],
+                meshContainer: meshContainer
             };
 
-            shipGroup.add(createSweptWing(false)); // Right Wing
-            shipGroup.add(createSweptWing(true));  // Left Wing
+            const glowColor = isEvil ? 0xff0044 : 0x00f0ff;
 
-            // 4. Forward Canard Stabilizer Winglets with Gold Edge Trim
-            const canardGeo = new THREE.BoxGeometry(1.4, 0.06, 0.6);
-            const canardR = new THREE.Mesh(canardGeo, silverPlateMat);
-            canardR.position.set(1.0, 0.1, -2.0);
-            canardR.rotation.y = -0.3;
-            shipGroup.add(canardR);
+            // --- TWIN REAR ENGINE GLOW & THRUSTER ARRAYS ---
+            const engineGlowMat = new THREE.MeshBasicMaterial({
+                color: glowColor,
+                transparent: true,
+                opacity: 0.95
+            });
+            const engineCoreMat = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.98
+            });
+            const engineHaloMat = new THREE.MeshBasicMaterial({
+                color: isEvil ? 0xff0055 : 0x38bdf8,
+                transparent: true,
+                opacity: 0.35,
+                blending: THREE.AdditiveBlending,
+                side: THREE.DoubleSide
+            });
 
-            const canardGoldR = new THREE.Mesh(new THREE.BoxGeometry(1.44, 0.08, 0.10), goldTrimMat);
-            canardGoldR.position.set(1.0, 0.11, -1.8);
-            canardGoldR.rotation.y = -0.3;
-            shipGroup.add(canardGoldR);
-
-            const canardL = new THREE.Mesh(canardGeo, silverPlateMat);
-            canardL.position.set(-1.0, 0.1, -2.0);
-            canardL.rotation.y = 0.3;
-            shipGroup.add(canardL);
-
-            const canardGoldL = new THREE.Mesh(new THREE.BoxGeometry(1.44, 0.08, 0.10), goldTrimMat);
-            canardGoldL.position.set(-1.0, 0.11, -1.8);
-            canardGoldL.rotation.y = 0.3;
-            shipGroup.add(canardGoldL);
-
-            // 5. Dorsal & Ventral Tail Stabilization Fins
-            const finGeo = new THREE.BoxGeometry(0.08, 1.2, 1.6);
-
-            const dorsalFin = new THREE.Mesh(finGeo, silverPlateMat);
-            dorsalFin.position.set(0, 1.0, 1.2);
-            dorsalFin.rotation.x = -0.3;
-            shipGroup.add(dorsalFin);
-
-            const dorsalGold = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.12, 1.64), goldTrimMat);
-            dorsalGold.position.set(0, 1.58, 1.2);
-            dorsalGold.rotation.x = -0.3;
-            shipGroup.add(dorsalGold);
-
-            const ventralFinL = new THREE.Mesh(finGeo, silverPlateMat);
-            ventralFinL.position.set(-0.6, -0.6, 1.2);
-            ventralFinL.rotation.z = -0.5;
-            shipGroup.add(ventralFinL);
-
-            const ventralFinR = new THREE.Mesh(finGeo, silverPlateMat);
-            ventralFinR.position.set(0.6, -0.6, 1.2);
-            ventralFinR.rotation.z = 0.5;
-            shipGroup.add(ventralFinR);
-
-            // 6. Sleeker Quad Engine Thrusters with Gold Ring Bezels
-            shipGroup.userData.engineLights = [];
+            // Twin Engine Nozzles (Port [-0.654, 0.095, 3.58] & Starboard [+0.654, 0.095, 3.58], Radius 0.55)
             const enginePositions = [
-                { x: -0.50, y: 0.05, z: 1.8, size: 0.32 },
-                { x:  0.50, y: 0.05, z: 1.8, size: 0.32 },
-                { x: -0.30, y: 0.55, z: 1.6, size: 0.20 },
-                { x:  0.30, y: 0.55, z: 1.6, size: 0.20 }
+                { x: -0.654, y: 0.095, z: 3.58, r: 0.55 },
+                { x:  0.654, y: 0.095, z: 3.58, r: 0.55 }
             ];
 
             enginePositions.forEach(eng => {
-                const nacelleGeo = new THREE.CylinderGeometry(eng.size, eng.size * 1.15, 1.0, 16);
-                nacelleGeo.rotateX(Math.PI / 2);
-                const nacelle = new THREE.Mesh(nacelleGeo, darkArmorMat);
-                nacelle.position.set(eng.x, eng.y, eng.z);
-                shipGroup.add(nacelle);
+                const engGroup = new THREE.Group();
+                engGroup.position.set(eng.x, eng.y, eng.z);
 
-                const nacelleGoldGeo = new THREE.CylinderGeometry(eng.size * 1.06, eng.size * 1.06, 0.14, 16);
-                nacelleGoldGeo.rotateX(Math.PI / 2);
-                const nacelleGold = new THREE.Mesh(nacelleGoldGeo, goldTrimMat);
-                nacelleGold.position.set(eng.x, eng.y, eng.z - 0.2);
-                shipGroup.add(nacelleGold);
+                // 1. Deep Engine Interior Cavity Glow
+                const cavityGeo = new THREE.CylinderGeometry(eng.r * 0.85, eng.r * 0.95, 0.45, 16, 1, true);
+                const cavityMat = new THREE.MeshBasicMaterial({
+                    color: isEvil ? 0x990022 : 0x0284c7,
+                    side: THREE.BackSide,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                const cavity = new THREE.Mesh(cavityGeo, cavityMat);
+                cavity.rotation.x = Math.PI / 2;
+                cavity.position.z = -0.22;
+                engGroup.add(cavity);
 
-                const nozzleGeo = new THREE.CylinderGeometry(eng.size * 0.75, eng.size * 0.65, 0.25, 16);
-                nozzleGeo.rotateX(Math.PI / 2);
-                const nozzle = new THREE.Mesh(nozzleGeo, cyanGlowMat);
-                nozzle.position.set(eng.x, eng.y, eng.z + 0.5);
-                shipGroup.add(nozzle);
+                // 2. Main Plasma Thruster Disc
+                const diskGeo = new THREE.CircleGeometry(eng.r * 0.90, 20);
+                const disk = new THREE.Mesh(diskGeo, engineGlowMat);
+                disk.position.z = 0.02;
+                engGroup.add(disk);
 
-                if (!isEvil) {
-                    const engineLight = new THREE.PointLight(glowColor, 2.8, 18);
-                    engineLight.position.set(eng.x, eng.y, eng.z + 0.7);
-                    shipGroup.add(engineLight);
-                    shipGroup.userData.engineLights.push(engineLight);
-                }
+                // 3. Superheated White Core Disc
+                const coreGeo = new THREE.CircleGeometry(eng.r * 0.45, 20);
+                const core = new THREE.Mesh(coreGeo, engineCoreMat);
+                core.position.z = 0.03;
+                engGroup.add(core);
+
+                // 4. Subtle Outer Plasma Halo Ring (Additive Blending)
+                const haloGeo = new THREE.RingGeometry(eng.r * 0.8, eng.r * 1.30, 20);
+                const halo = new THREE.Mesh(haloGeo, engineHaloMat);
+                halo.position.z = 0.04;
+                engGroup.add(halo);
+
+                // 5. Dynamic Engine Exhaust Point Light
+                const engineLight = new THREE.PointLight(glowColor, 2.8, 18);
+                engineLight.position.set(0, 0, 0.3);
+                engGroup.add(engineLight);
+                shipGroup.userData.engineLights.push(engineLight);
+
+                shipGroup.add(engGroup);
             });
 
-                        return shipGroup;
+            // If FBX is ready, attach immediately, else queue
+            if (voidInterceptorTemplate) {
+                attachVoidInterceptorFBX(shipGroup, isEvil);
+            } else {
+                pendingVoidInterceptorShips.push({ group: shipGroup, isEvil: !!isEvil });
+            }
+
+            return shipGroup;
         }
 
 
@@ -3595,8 +3353,8 @@ function createCapitalShip() {
             // Reuse pre-allocated helper vectors - ZERO GC allocations!
             _fwdDir.set(0, 0, -1).applyQuaternion(playerShip.quaternion);
 
-            _offsetL.set(-2.4, -0.1, -2.4).applyQuaternion(playerShip.quaternion);
-            _offsetR.set(2.4, -0.1, -2.4).applyQuaternion(playerShip.quaternion);
+            _offsetL.set(-2.8, -0.3, -2.5).applyQuaternion(playerShip.quaternion);
+            _offsetR.set(2.8, -0.3, -2.5).applyQuaternion(playerShip.quaternion);
 
             const laserL = getPooledLaserBolt();
             const laserR = getPooledLaserBolt();
@@ -4840,10 +4598,8 @@ function createEpicPlayerDeathExplosion(pos) {
             }
 
             const nozzleOffsets = [
-                new THREE.Vector3(-0.50, 0.05, 2.3),
-                new THREE.Vector3( 0.50, 0.05, 2.3),
-                new THREE.Vector3(-0.30, 0.55, 2.1),
-                new THREE.Vector3( 0.30, 0.55, 2.1)
+                new THREE.Vector3(-0.654, 0.095, 3.65),
+                new THREE.Vector3( 0.654, 0.095, 3.65)
             ];
 
             const shipQuat = playerShip.quaternion;
