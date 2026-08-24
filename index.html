@@ -9562,6 +9562,17 @@ function createEpicPlayerDeathExplosion(pos) {
             targetSpeed = 200;
             currentSpeed = 200;
             
+            // Snap camera instantly to player
+            if (camera) {
+                const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
+                camera.up.copy(localUp);
+                const initCamOffset = new THREE.Vector3(0, 6.0, 22.0).applyQuaternion(playerShip.quaternion);
+                camera.position.copy(playerShip.position).add(initCamOffset);
+                const targetLookAt = playerShip.position.clone().add(new THREE.Vector3(0, 0, -50).applyQuaternion(playerShip.quaternion));
+                camera.lookAt(targetLookAt);
+                camera.updateMatrixWorld();
+            }
+            
             // Create 3 holographic rings on the opposite side of Saturn
             // Saturn radius is 9000
             const ringPos = [
