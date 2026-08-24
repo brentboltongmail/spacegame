@@ -123,11 +123,11 @@
     "id": "titan_arrival_03_kaylen",
     "speaker": "Kaylen Vance",
     "role": "Void Interceptor Cockpit",
-    "text": "There is a giant ring... an ancient artifact?! What are they doing?!",
+    "text": "There is some kind of giant circle down on Titan.  They are pulling up out of the ice.  I think they may be creating a wormhole.",
     "audio": "audio/cinematics/titan_gate/titan_arrival_03_kaylen.mp3",
     "voice_id": "TX3LPaxmHKxFdv7VOQHJ",
     "voice_name": "Liam",
-    "size_bytes": 58140
+    "size_bytes": 110385
   },
   {
     "id": "titan_arrival_04_kaylen",

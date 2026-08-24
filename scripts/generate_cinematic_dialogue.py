@@ -104,7 +104,7 @@ TITAN_GATE_DIALOGUE = [
         "char_key": "kaylen_vance",
         "speaker": "Kaylen Vance",
         "role": "Void Interceptor Cockpit",
-        "text": "There is a giant ring... an ancient artifact?! What are they doing?!"
+        "text": "There is some kind of giant circle down on Titan.  They are pulling up out of the ice.  I think they may be creating a wormhole."
     },
     {
         "id": "titan_arrival_04_kaylen",
