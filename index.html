@@ -6393,6 +6393,7 @@ function createEpicPlayerDeathExplosion(pos) {
             if (!ancientGoldenGate) return;
             isTitanCinematicActive = true;
             isTitanCinematicEnteringGate = false;
+            isShipInvincible = true; // 100% Invulnerable during cinematic!
             isWormholeActive = false;
             titanCinematicIndex = 0;
             document.body.classList.add('in-cinematic-mode');
@@ -6424,7 +6425,7 @@ function createEpicPlayerDeathExplosion(pos) {
             if (sec) sec.innerText = "TITAN PRECURSOR GATE — CINEMATIC";
             if (obj) obj.innerText = "Watching Kaylen Vance's final transmission & wormhole threshold jump...";
 
-            showToast("🎬 TITAN GATE CINEMATIC: Watching Kaylen's final transmission...");
+            showToast("🎬 TITAN GATE CINEMATIC: Watching Kaylen's final transmission (INVULNERABLE)...");
             playNextCinematicLine();
         }
 
@@ -6498,23 +6499,32 @@ function createEpicPlayerDeathExplosion(pos) {
         function finishTitanGateCinematic() {
             if (!isTitanCinematicActive) return;
 
-            // Lock camera behind the Void Interceptor in dramatic third-person view so player sees their ship enter the gate
+            // Lock camera behind the Void Interceptor in dramatic third-person view so player flies through the ring
             cameraMode = 1;
             playerShip.visible = true;
+            isShipInvincible = true;
 
             // Hide comms overlay to leave the view completely cinematic and clean
             const overlay = document.getElementById('cinematic-comms-overlay');
             if (overlay) overlay.style.display = 'none';
 
-            // Accelerate ship at full overdrive thrust straight into the gate
+            // Accelerate ship at full overdrive thrust straight through the ring
             isTitanCinematicEnteringGate = true;
             targetSpeed = 550;
             currentSpeed = 550;
+
+            const sec = document.getElementById('hud-sector');
+            const obj = document.getElementById('hud-objective');
+            if (sec) sec.innerText = "OVERDRIVE ENGAGED — SLIPSPACE THRESHOLD";
+            if (obj) obj.innerText = "⚡ FLY STRAIGHT THROUGH THE ANCIENT PRECURSOR RING GATE!";
+
+            showToast("⚡ OVERDRIVE ENGAGED — FLY THROUGH THE GOLDEN RING GATE!");
         }
 
         function stopTitanGateCinematic() {
             isTitanCinematicActive = false;
             isTitanCinematicEnteringGate = false;
+            isShipInvincible = (cameraMode === 3);
             document.body.classList.remove('in-cinematic-mode');
 
             if (titanCinematicAudio) {
@@ -6643,26 +6653,41 @@ function createEpicPlayerDeathExplosion(pos) {
             const totalYaw = Math.max(-1.0, Math.min(1.0, -mouseXEff + arrowYaw));
 
             if (isTitanCinematicActive && ancientGoldenGate) {
-                // In cinematic mode, autonomously steer directly toward the Ancient Precursor Gate center
+                // In cinematic mode, steer directly toward and through the Ancient Precursor Gate center
                 const gateCenter = ancientGoldenGate.position.clone();
                 playerShip.lookAt(gateCenter);
 
                 const distToGate = playerShip.position.distanceTo(gateCenter);
-                if (isTitanCinematicEnteringGate && distToGate < 75) {
+                if (isTitanCinematicEnteringGate && distToGate < 140) {
                     isTitanCinematicEnteringGate = false;
+                    isWormholeActive = true;
                     
-                    // Trigger cinematic fade to black as Void Interceptor penetrates the gate vortex
-                    const blackout = document.getElementById('cinematic-blackout-overlay');
-                    if (blackout) {
-                        blackout.classList.add('active');
-                    }
-                    
-                    // Quick flash pulse before darkness
+                    // Quick blinding relativistic flash pulse
                     const flash = document.getElementById('cinematic-flash-overlay');
                     if (flash) {
                         flash.classList.add('active');
-                        setTimeout(() => flash.classList.remove('active'), 500);
+                        setTimeout(() => flash.classList.remove('active'), 600);
                     }
+                    
+                    // Play space-time tear hyperspace crack sound
+                    playHyperspaceCrackAudio(playerShip.position);
+
+                    // Fade to black as Void Interceptor penetrates the deep wormhole singularity
+                    setTimeout(() => {
+                        const blackout = document.getElementById('cinematic-blackout-overlay');
+                        if (blackout) {
+                            blackout.classList.add('active');
+                        }
+                    }, 250);
+
+                    // Reveal Act 1 Transition modal after penetrating the singularity
+                    setTimeout(() => {
+                        const endModal = document.getElementById('cinematic-end-modal');
+                        if (endModal) {
+                            endModal.style.display = 'flex';
+                            setTimeout(() => endModal.classList.add('active'), 50);
+                        }
+                    }, 1400);
                 }
             } else {
                 // Apply local pitch (X) and yaw (Y) quaternion rotations directly
@@ -7247,6 +7272,15 @@ function createEpicPlayerDeathExplosion(pos) {
                 
                 if (distToPlayer < 12) {
                     hitPlayer = true;
+                    if (isShipInvincible || isTitanCinematicActive) {
+                        // 100% Invulnerable during cinematic / showcase mode!
+                        triggerPlayerShieldHit();
+                        laser.visible = false;
+                        laser.userData.active = false;
+                        enemyLaserProjectiles.splice(i, 1);
+                        continue;
+                    }
+
                     // Flash red screen if enabled
                     if (gameMechanicsConfig.flashOnHit !== false) {
                         const flash = document.createElement('div');
