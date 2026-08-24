@@ -5219,10 +5219,10 @@
             const elapsedExcavation = (nowMs - titanExcavationStartTime) / 1000.0;
 
             // --- PHASE TIMELINE ---
-            // 0 - 10s: BOMBARDMENT (Dark-energy gold beams melt Titan methane ice crust; gate is hidden beneath ice)
-            // 10 - 12s: GATE_REVEALED (Ice melted away, huge golden gate exposed on surface, gold bombardment beams SHUT OFF)
-            // 12 - 34s: TRACTOR_EXTRACTION (Purple tractor beams pull gate off Titan into space; The Crest hit & explodes)
-            // 34s+: GATE_ACTIVE (Gate in space, tractor beams SHUT OFF, slipspace event horizon vortex active)
+            // 0 - 10s: BOMBARDMENT (Dark-energy purple beams melt Titan methane ice crust; gate is hidden beneath ice)
+            // 10 - 12s: GATE_REVEALED (Ice melted away, huge golden gate exposed on surface, purple bombardment beams SHUT OFF)
+            // 12 - 34s: TRACTOR_EXTRACTION (Gold tractor beams pull gate off Titan into space; The Crest hit & explodes)
+            // 34s+: GATE_ACTIVE (Gate in space, gold tractor beams SHUT OFF, slipspace event horizon vortex active)
 
             let isBombardmentFiring = false;
             let isTractorFiring = false;
@@ -5666,35 +5666,41 @@
                     bData.plasma.scale.set(pulse * 1.1, 1, pulse * 1.1);
                     bData.cage.rotation.y += 0.02;
 
-                    // Animate Tractor Rings sliding UPWARD along the shaft from gate toward ship
+                    // Animate Traveling Energy Rings along the beam shaft
                     if (bData.rings) {
                         bData.rings.forEach(ring => {
-                            if (isTractorFiring) {
-                                ring.visible = true;
-                                ring.userData.offset -= timeDelta * 0.35; // Move toward y=0 (ship)
+                            ring.visible = true;
+                            if (isBombardmentFiring) {
+                                // Purple bombardment energy streaming downward toward Titan
+                                ring.userData.offset += timeDelta * 0.35;
+                                if (ring.userData.offset > 1.0) ring.userData.offset -= 1.0;
+                                ring.position.y = ring.userData.offset;
+                                ring.material.color.setHex(0xd946ef); // Radiant Purple-Magenta Rings
+                            } else if (isTractorFiring) {
+                                // Gold tractor graviton rings streaming upward toward the ship hauling the gate
+                                ring.userData.offset -= timeDelta * 0.35;
                                 if (ring.userData.offset < 0.0) ring.userData.offset += 1.0;
                                 ring.position.y = ring.userData.offset;
-                                const ringScale = 1.0 + Math.sin(timeSec * 6.0 + ring.userData.offset * Math.PI) * 0.25;
-                                ring.scale.set(ringScale, 1, ringScale);
-                            } else {
-                                ring.visible = false;
+                                ring.material.color.setHex(0xfbbf24); // Radiant Gold Tractor Rings
                             }
+                            const ringScale = 1.0 + Math.sin(timeSec * 6.0 + ring.userData.offset * Math.PI) * 0.25;
+                            ring.scale.set(ringScale, 1, ringScale);
                         });
                     }
 
                     // Beam Color Configuration:
-                    // Bombardment: Intense Radiant Gold Beams from middle of each ship to the gate on Titan
-                    // Tractor: Radiant Graviton Purple Beams pulling the gate up into space
+                    // First Beams (Bombardment): Intense Radiant Purple Dark-Energy Beams
+                    // Second Beams (Tractor): Identical Beam Structure in Brilliant Radiant Gold
                     if (isBombardmentFiring) {
-                        bData.core.material.color.setHex(0xffffff);
-                        bData.plasma.material.color.setHex(0xfbbf24); // Radiant Gold
-                        bData.cage.material.color.setHex(0xfef08a);   // Luminous Gold
-                        bData.flare.material.color.setHex(0xf59e0b);  // Gold Ventral Flare
-                    } else {
-                        bData.core.material.color.setHex(0xfdf4ff);   // White-Violet
-                        bData.plasma.material.color.setHex(0xa855f7); // Radiant Purple
-                        bData.cage.material.color.setHex(0xc084fc);   // Violet Field
-                        bData.flare.material.color.setHex(0xd946ef);  // Purple Ventral Flare
+                        bData.core.material.color.setHex(0xfdf4ff);   // White-Violet Superheated Core
+                        bData.plasma.material.color.setHex(0xa855f7); // Deep Radiant Imperial Purple
+                        bData.cage.material.color.setHex(0xd946ef);   // Magenta/Violet Magnetic Confinement Cage
+                        bData.flare.material.color.setHex(0x9333ea);  // Deep Purple Ventral Flare
+                    } else if (isTractorFiring) {
+                        bData.core.material.color.setHex(0xffffff);   // Brilliant White Core
+                        bData.plasma.material.color.setHex(0xfbbf24); // Radiant Amber Precursor Gold
+                        bData.cage.material.color.setHex(0xfef08a);   // Luminous Solar Gold Cage
+                        bData.flare.material.color.setHex(0xf59e0b);  // Amber Gold Ventral Flare
                     }
                 });
             }
@@ -7186,7 +7192,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 isTitanExcavationStarted = true;
                 titanExcavationPhase = 'BOMBARDMENT';
                 titanExcavationStartTime = performance.now();
-                showToast("⚡ DOMINION DREADNOUGHTS ENGAGING HEAVY GOLD BOMBARDMENT BEAMS ON TITAN CRUST!");
+                showToast("⚡ DOMINION DREADNOUGHTS ENGAGING HEAVY PURPLE BOMBARDMENT BEAMS ON TITAN CRUST!");
             } else if (!fleetEmergenceActive && !isTitanExcavationStarted) {
                 isTitanExcavationStarted = true;
                 titanExcavationPhase = 'BOMBARDMENT';
