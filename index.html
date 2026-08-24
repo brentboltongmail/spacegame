@@ -3861,6 +3861,31 @@
             triggerDominionFleetHyperspaceEmergence();
         }
 
+        function launchFightersFromCapitalShip(ship, count = 3) {
+            if (!ship || !ship.userData) return;
+            for (let f = 0; f < count; f++) {
+                const newFighter = createEnemyInterceptorMesh();
+                const tubeX = (f === 0) ? 0 : (f % 2 === 1 ? -48 : 48);
+                const tubeZ = -80 - f * 35;
+                const ventralOffset = new THREE.Vector3(
+                    tubeX,
+                    -40,
+                    tubeZ
+                ).applyQuaternion(ship.quaternion);
+
+                newFighter.position.copy(ship.position).add(ventralOffset);
+                newFighter.quaternion.copy(ship.quaternion);
+                newFighter.userData.aiState = 'ATTACK_RUN';
+                newFighter.userData.flightSpeed = 0.60;
+                newFighter.userData.hp = 100;
+                newFighter.userData.maxHp = 100;
+
+                scene.add(newFighter);
+                enemyShips.push(newFighter);
+                spawnLaserImpactSparks(newFighter.position);
+            }
+        }
+
         function triggerDominionFleetHyperspaceEmergence() {
             fleetEmergenceStartTime = performance.now();
             fleetEmergenceActive = true;
@@ -3871,6 +3896,7 @@
             capitalShips.forEach(ship => {
                 ship.visible = false;
                 ship.userData.jumpPhase = 'WAITING';
+                ship.userData.hasInitialLaunched = false;
 
                 ship.userData.fwdDir = flightDirection.clone();
                 ship.userData.entryPos = ship.userData.targetPos.clone().sub(flightDirection.clone().multiplyScalar(4500));
@@ -4891,6 +4917,13 @@ function createEpicPlayerDeathExplosion(pos) {
                     else if (ship.userData.jumpPhase === 'RIFT_OPENING' && elapsedFleetEmergence >= delay + 0.45) {
                         ship.userData.jumpPhase = 'EMERGING';
                         ship.visible = true;
+
+                        // Launch fighter squadron IMMEDIATELY as the capital ship arrives out of hyperspace
+                        if (!ship.userData.hasInitialLaunched) {
+                            ship.userData.hasInitialLaunched = true;
+                            launchFightersFromCapitalShip(ship, 3);
+                            showToast(`🚨 ${ship.userData.name.toUpperCase()} ARRIVED — FIGHTERS SCRAMBLED!`);
+                        }
                     }
                     else if (ship.userData.jumpPhase === 'EMERGING') {
                         const progress = Math.min(1.0, (elapsedFleetEmergence - (delay + 0.45)) / 1.4);
@@ -4901,25 +4934,6 @@ function createEpicPlayerDeathExplosion(pos) {
                             ship.userData.jumpPhase = 'COMPLETED';
                             ship.position.copy(ship.userData.targetPos);
                             ship.userData.lastFighterLaunchTime = Date.now();
-                            
-                            // Immediately launch 2 escort fighters from ventral bay upon completing jump
-                            for (let f = 0; f < 2; f++) {
-                                const newFighter = createEnemyInterceptorMesh();
-                                const ventralOffset = new THREE.Vector3(
-                                    (f === 0 ? -45 : 45),
-                                    -40,
-                                    -120
-                                ).applyQuaternion(ship.quaternion);
-
-                                newFighter.position.copy(ship.position).add(ventralOffset);
-                                newFighter.quaternion.copy(ship.quaternion);
-                                newFighter.userData.aiState = 'ATTACK_RUN';
-                                newFighter.userData.flightSpeed = 0.55;
-
-                                scene.add(newFighter);
-                                enemyShips.push(newFighter);
-                                spawnLaserImpactSparks(newFighter.position);
-                            }
                         }
                     }
                 }
@@ -4929,26 +4943,12 @@ function createEpicPlayerDeathExplosion(pos) {
                     const nowMs = Date.now();
                     if (nowMs - ship.userData.lastFighterLaunchTime > ship.userData.fighterLaunchInterval) {
                         ship.userData.lastFighterLaunchTime = nowMs;
-                        ship.userData.fighterLaunchInterval = 10000 + Math.random() * 6000; // Launch every 10-16s
+                        ship.userData.fighterLaunchInterval = 8000 + Math.random() * 5000; // Launch every 8-13s
 
-                        // Maintain active swarm cap of up to 18 living fighters
+                        // Maintain active swarm cap of up to 24 living fighters
                         const livingEnemies = enemyShips.filter(e => e && e.userData && e.userData.hp > 0);
-                        if (livingEnemies.length < 18) {
-                            const newFighter = createEnemyInterceptorMesh();
-                            const ventralOffset = new THREE.Vector3(
-                                (Math.random() - 0.5) * 60,
-                                -40,
-                                -120
-                            ).applyQuaternion(ship.quaternion);
-
-                            newFighter.position.copy(ship.position).add(ventralOffset);
-                            newFighter.quaternion.copy(ship.quaternion);
-                            newFighter.userData.aiState = 'ATTACK_RUN';
-                            newFighter.userData.flightSpeed = 0.50;
-
-                            scene.add(newFighter);
-                            enemyShips.push(newFighter);
-                            spawnLaserImpactSparks(newFighter.position);
+                        if (livingEnemies.length < 24) {
+                            launchFightersFromCapitalShip(ship, 1 + Math.floor(Math.random() * 2));
                         }
                     }
                 }
