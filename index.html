@@ -1685,7 +1685,7 @@
                     </div>
                     <div class="legend-item" onclick="focusMapObject('titan')">
                         <span style="color: #f59e0b; font-weight: 700;">🌑 Titan (Moon)</span>
-                        <span style="color: #94a3b8;">8.9 KM</span>
+                        <span style="color: #94a3b8;">23.4 KM</span>
                     </div>
                     <div class="legend-item" onclick="focusMapObject('wormhole')">
                         <span style="color: #8b5cf6; font-weight: 700;">🌀 Ancient Wormhole</span>
@@ -2653,50 +2653,53 @@
 
         function createSaturnSurfaceTexture() {
             const canvas = document.createElement('canvas');
-            canvas.width = 1024; canvas.height = 512;
+            canvas.width = 2048; canvas.height = 1024;
             const ctx = canvas.getContext('2d');
 
-            // Rich golden-amber Saturnian background
+            // Rich golden-amber Saturnian atmospheric base
             ctx.fillStyle = '#c28b38';
-            ctx.fillRect(0, 0, 1024, 512);
+            ctx.fillRect(0, 0, 2048, 1024);
 
-            // Horizontal atmospheric bands in authentic NASA Saturn hues
+            // Horizontal atmospheric bands in authentic NASA Cassini/Hubble Saturn hues
             const bandColors = [
                 '#d4a359', '#e8c48a', '#b87c2c', '#f3ddb3', 
-                '#9c621d', '#dfb16c', '#faeccd', '#a46e28', '#c99347'
+                '#9c621d', '#dfb16c', '#faeccd', '#a46e28', '#c99347',
+                '#ecd09f', '#be8942', '#dfba7e', '#8c5318', '#e5c58b'
             ];
-            for (let i = 0; i < 60; i++) {
-                const y = Math.random() * 512;
-                const h = 4 + Math.random() * 22;
+            for (let i = 0; i < 90; i++) {
+                const y = Math.random() * 1024;
+                const h = 6 + Math.random() * 36;
                 ctx.fillStyle = bandColors[Math.floor(Math.random() * bandColors.length)];
-                ctx.globalAlpha = 0.55 + Math.random() * 0.40;
-                ctx.fillRect(0, y, 1024, h);
+                ctx.globalAlpha = 0.50 + Math.random() * 0.45;
+                ctx.fillRect(0, y, 2048, h);
             }
             ctx.globalAlpha = 1.0;
 
             // Northern polar blue hexagon atmospheric feature
-            ctx.fillStyle = 'rgba(56, 189, 248, 0.45)';
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.40)';
             ctx.beginPath();
-            ctx.ellipse(512, 45, 240, 35, 0, 0, Math.PI * 2);
+            ctx.ellipse(1024, 90, 480, 70, 0, 0, Math.PI * 2);
             ctx.fill();
 
             // South polar storm swirl
-            ctx.fillStyle = 'rgba(146, 64, 14, 0.5)';
+            ctx.fillStyle = 'rgba(146, 64, 14, 0.45)';
             ctx.beginPath();
-            ctx.ellipse(512, 480, 200, 25, 0, 0, Math.PI * 2);
+            ctx.ellipse(1024, 960, 400, 50, 0, 0, Math.PI * 2);
             ctx.fill();
 
-            // Subtle cyclone swirls
-            ctx.fillStyle = 'rgba(254, 243, 199, 0.4)';
-            for (let i = 0; i < 20; i++) {
-                const x = Math.random() * 1024;
-                const y = 80 + Math.random() * 340;
+            // Subtle atmospheric cyclone swirls
+            ctx.fillStyle = 'rgba(254, 243, 199, 0.35)';
+            for (let i = 0; i < 30; i++) {
+                const x = Math.random() * 2048;
+                const y = 160 + Math.random() * 680;
                 ctx.beginPath();
-                ctx.ellipse(x, y, 30 + Math.random() * 60, 8 + Math.random() * 16, 0, 0, Math.PI * 2);
+                ctx.ellipse(x, y, 60 + Math.random() * 120, 14 + Math.random() * 28, 0, 0, Math.PI * 2);
                 ctx.fill();
             }
 
             const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.ClampToEdgeWrapping;
             return texture;
         }
 
@@ -2710,8 +2713,8 @@
             ctx.fillRect(0, 0, 1024, 512);
 
             // Atmospheric photochemical haze gradients
-            const hazeColors = ['#d97706', '#f59e0b', '#fbbf24', '#92400e', '#78350f'];
-            for (let i = 0; i < 35; i++) {
+            const hazeColors = ['#d97706', '#f59e0b', '#fbbf24', '#92400e', '#78350f', '#e58e1b'];
+            for (let i = 0; i < 40; i++) {
                 const y = Math.random() * 512;
                 const h = 10 + Math.random() * 45;
                 ctx.fillStyle = hazeColors[Math.floor(Math.random() * hazeColors.length)];
@@ -2721,7 +2724,7 @@
             ctx.globalAlpha = 1.0;
 
             // Dark polar hood
-            ctx.fillStyle = 'rgba(69, 26, 3, 0.55)';
+            ctx.fillStyle = 'rgba(69, 26, 3, 0.50)';
             ctx.fillRect(0, 0, 1024, 70);
             ctx.fillRect(0, 442, 1024, 70);
 
@@ -2746,6 +2749,8 @@
             }
 
             const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.ClampToEdgeWrapping;
             return texture;
         }
 
@@ -2754,15 +2759,12 @@
             const fallbackTex = createSaturnSurfaceTexture();
 
             const planetGeo = new THREE.SphereGeometry(9000, 128, 128); // 18,000 unit diameter colossal gas giant
-            const planetMat = new THREE.MeshStandardMaterial({ 
-                map: fallbackTex,
-                roughness: 0.92, 
-                metalness: 0.02,
-                emissive: 0xd97706,
-                emissiveIntensity: 0.08 // Warm golden planetary core ambiance
+            // MeshBasicMaterial guarantees authentic texture albedo without overexposure from scene lights
+            const planetMat = new THREE.MeshBasicMaterial({ 
+                map: fallbackTex
             });
 
-            // Async load high-res AI photorealistic Saturn texture map with fallback
+            // Async load high-res photorealistic Saturn texture map with fallback
             new THREE.TextureLoader().load(
                 'docs/images/saturn_surface.jpg',
                 (tex) => {
@@ -2785,28 +2787,27 @@
             spacePlanetSphere = new THREE.Mesh(planetGeo, planetMat);
             spacePlanet.add(spacePlanetSphere);
 
-            // Glowing Golden-Amber Atmospheric Horizon Rim Halo (9,180 radius)
-            const atmoGeo = new THREE.SphereGeometry(9180, 64, 64);
+            // Subtle Golden-Amber Atmospheric Horizon Rim Halo (9,080 radius)
+            const atmoGeo = new THREE.SphereGeometry(9080, 64, 64);
             const atmoMat = new THREE.MeshBasicMaterial({
                 color: 0xf59e0b,
                 transparent: true,
-                opacity: 0.28,
+                opacity: 0.15,
+                blending: THREE.AdditiveBlending,
                 side: THREE.BackSide
             });
             const atmosphere = new THREE.Mesh(atmoGeo, atmoMat);
             spacePlanetSphere.add(atmosphere);
 
             // High-Resolution Textured Continuous Planetary Ring Disc
-            const ringDiscGeo = new THREE.RingGeometry(10500, 22500, 128, 8);
-            ringDiscGeo.rotateX(Math.PI / 2);
+            const ringDiscGeo = new THREE.RingGeometry(10500, 23000, 128, 8);
+            ringDiscGeo.rotateX(Math.PI / 2); // Aligns ring disc directly into planetary equatorial plane (parallel to cloud bands)
             
-            const ringDiscMat = new THREE.MeshStandardMaterial({
+            const ringDiscMat = new THREE.MeshBasicMaterial({
                 color: 0xffffff,
                 transparent: true,
                 opacity: 0.95,
                 side: THREE.DoubleSide,
-                roughness: 0.65,
-                metalness: 0.10,
                 depthWrite: false
             });
 
@@ -2824,17 +2825,15 @@
             // Gigantic Planetary Ring System - 3D particle asteroids in Equatorial XZ plane (aligned with planet cloud bands)
             const particleCount = 20000;
             const particleGeo = new THREE.TetrahedronGeometry(1, 0);
-            const particleMat = new THREE.MeshStandardMaterial({ 
-                color: 0xffffff,
-                roughness: 0.85,
-                metalness: 0.15
+            const particleMat = new THREE.MeshBasicMaterial({ 
+                color: 0xffffff
             });
             spacePlanetRing = new THREE.InstancedMesh(particleGeo, particleMat, particleCount);
             
             const dummy = new THREE.Object3D();
             
             const innerRadius = 10800;
-            const outerRadius = 22200;
+            const outerRadius = 22800;
             const ringThickness = 180;
             
             // Saturn ring particle color palette (creams, warm golds, icy silvers, dusty silicates)
@@ -2891,20 +2890,16 @@
             const fallbackTex = createTitanSurfaceTexture();
 
             spaceTitan = new THREE.Group();
-            // Positioned in Sol perimeter orbit over Saturn (forming celestial vista)
-            spaceTitan.position.set(4800, 2200, -8200);
+            // Positioned further out in Sol deep space vista, well spaced from Saturn and its ring system
+            spaceTitan.position.set(13500, 4800, -18500);
             scene.add(spaceTitan);
 
-            const titanGeo = new THREE.SphereGeometry(2600, 64, 64); // 5,200 unit diameter colossal moon
-            const titanMat = new THREE.MeshStandardMaterial({
-                map: fallbackTex,
-                roughness: 0.95,
-                metalness: 0.02,
-                emissive: 0xd97706,
-                emissiveIntensity: 0.12 // Glowing photochemical haze atmosphere
+            const titanGeo = new THREE.SphereGeometry(1100, 64, 64); // Scaled down to authentic moon proportions (2,200 unit diameter)
+            const titanMat = new THREE.MeshBasicMaterial({
+                map: fallbackTex
             });
 
-            // Async load high-res AI Titan texture map with fallback
+            // Async load high-res photorealistic Titan texture map with fallback
             new THREE.TextureLoader().load(
                 'docs/images/titan_surface.jpg',
                 (tex) => {
@@ -2918,12 +2913,13 @@
             spaceTitanSphere = new THREE.Mesh(titanGeo, titanMat);
             spaceTitan.add(spaceTitanSphere);
 
-            // Glowing Amber Atmospheric Veil (2,670 radius)
-            const titanAtmoGeo = new THREE.SphereGeometry(2670, 48, 48);
+            // Glowing Amber Atmospheric Veil (1,135 radius)
+            const titanAtmoGeo = new THREE.SphereGeometry(1135, 48, 48);
             const titanAtmoMat = new THREE.MeshBasicMaterial({
                 color: 0xf59e0b,
                 transparent: true,
-                opacity: 0.35,
+                opacity: 0.20,
+                blending: THREE.AdditiveBlending,
                 side: THREE.BackSide
             });
             spaceTitanAtmosphere = new THREE.Mesh(titanAtmoGeo, titanAtmoMat);
@@ -3991,7 +3987,7 @@ function createEpicPlayerDeathExplosion(pos) {
 
             // Prevent clipping into Titan (Smooth sliding atmospheric repulsor buffer)
             if (spaceTitan) {
-                const titanRadius = 2600;
+                const titanRadius = 1100;
                 const titanBuffer = 80;
                 const distToTitan = playerShip.position.distanceTo(spaceTitan.position);
                 
@@ -4263,7 +4259,7 @@ function createEpicPlayerDeathExplosion(pos) {
 
             // Rotate Saturn cloud bands, textured ring disc, asteroid ring particles, and Titan moon
             if (spacePlanetSphere) spacePlanetSphere.rotation.y += 0.00015;
-            if (spacePlanetRingMesh) spacePlanetRingMesh.rotation.z += 0.00025;
+            if (spacePlanetRingMesh) spacePlanetRingMesh.rotation.y += 0.00025;
             if (spacePlanetRing) spacePlanetRing.rotation.y += 0.00025;
             if (spaceTitanSphere) spaceTitanSphere.rotation.y += 0.00018;
 
@@ -5767,11 +5763,11 @@ function createEpicPlayerDeathExplosion(pos) {
             mapPlanetMesh.rotation.z = -0.22;
 
             // 2b. Titan (Saturn's Moon)
-            const titanIconGeo = new THREE.SphereGeometry(10.4, 24, 24); // 2600 * 0.004
+            const titanIconGeo = new THREE.SphereGeometry(4.4, 24, 24); // 1100 * 0.004
             const titanIconMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
             mapTitanMesh = new THREE.Mesh(titanIconGeo, titanIconMat);
             mapTitanMesh.userData = { label: "Titan (Saturn's Moon)" };
-            mapTitanMesh.position.set(19.2, 8.8, -32.8);
+            mapTitanMesh.position.set(54, 19.2, -74);
             mapGroup.add(mapTitanMesh);
 
             // 3. Sol Primary Star
@@ -6297,9 +6293,9 @@ function createEpicPlayerDeathExplosion(pos) {
                 mapTargetRotationX = 0.50;
                 mapTargetRotationY = 0.75;
             } else if (targetType === 'titan') {
-                mapTargetCamDistance = 50;
-                mapTargetRotationX = 0.40;
-                mapTargetRotationY = -0.45;
+                mapTargetCamDistance = 65;
+                mapTargetRotationX = 0.35;
+                mapTargetRotationY = -0.55;
             } else if (targetType === 'wormhole') {
                 mapTargetCamDistance = 35;
                 mapTargetRotationX = 0.55;
