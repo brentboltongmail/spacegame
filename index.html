@@ -2955,10 +2955,10 @@
                 side: THREE.DoubleSide
             });
 
-            // Twin Engine Nozzles (Port [-0.654, 0.095, 3.58] & Starboard [+0.654, 0.095, 3.58], Radius 0.55)
+            // Twin Engine Nozzles (Port [-0.788, -0.032, 3.50] & Starboard [+0.788, -0.032, 3.50], Radius 0.43)
             const enginePositions = [
-                { x: -0.654, y: 0.095, z: 3.58, r: 0.55 },
-                { x:  0.654, y: 0.095, z: 3.58, r: 0.55 }
+                { x: -0.788, y: -0.032, z: 3.50, r: 0.43 },
+                { x:  0.788, y: -0.032, z: 3.50, r: 0.43 }
             ];
 
             enginePositions.forEach(eng => {
@@ -2979,19 +2979,19 @@
                 engGroup.add(cavity);
 
                 // 2. Main Plasma Thruster Disc
-                const diskGeo = new THREE.CircleGeometry(eng.r * 0.90, 20);
+                const diskGeo = new THREE.CircleGeometry(eng.r * 0.90, 24);
                 const disk = new THREE.Mesh(diskGeo, engineGlowMat);
                 disk.position.z = 0.02;
                 engGroup.add(disk);
 
                 // 3. Superheated White Core Disc
-                const coreGeo = new THREE.CircleGeometry(eng.r * 0.45, 20);
+                const coreGeo = new THREE.CircleGeometry(eng.r * 0.45, 24);
                 const core = new THREE.Mesh(coreGeo, engineCoreMat);
                 core.position.z = 0.03;
                 engGroup.add(core);
 
                 // 4. Subtle Outer Plasma Halo Ring (Additive Blending)
-                const haloGeo = new THREE.RingGeometry(eng.r * 0.8, eng.r * 1.30, 20);
+                const haloGeo = new THREE.RingGeometry(eng.r * 0.85, eng.r * 1.15, 24);
                 const halo = new THREE.Mesh(haloGeo, engineHaloMat);
                 halo.position.z = 0.04;
                 engGroup.add(halo);
@@ -4601,8 +4601,8 @@ function createEpicPlayerDeathExplosion(pos) {
             }
 
             const nozzleOffsets = [
-                new THREE.Vector3(-0.654, 0.095, 3.65),
-                new THREE.Vector3( 0.654, 0.095, 3.65)
+                new THREE.Vector3(-0.788, -0.032, 3.55),
+                new THREE.Vector3( 0.788, -0.032, 3.55)
             ];
 
             const shipQuat = playerShip.quaternion;
