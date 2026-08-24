@@ -3865,20 +3865,22 @@
             if (!ship || !ship.userData) return;
             for (let f = 0; f < count; f++) {
                 const newFighter = createEnemyInterceptorMesh();
-                const tubeX = (f === 0) ? 0 : (f % 2 === 1 ? -48 : 48);
-                const tubeZ = -80 - f * 35;
+                const tubeX = (f === 0) ? 0 : (f % 2 === 1 ? -65 : 65);
+                const tubeZ = -80 - f * 45;
                 const ventralOffset = new THREE.Vector3(
                     tubeX,
-                    -40,
+                    -45,
                     tubeZ
                 ).applyQuaternion(ship.quaternion);
 
                 newFighter.position.copy(ship.position).add(ventralOffset);
                 newFighter.quaternion.copy(ship.quaternion);
-                newFighter.userData.aiState = 'ATTACK_RUN';
-                newFighter.userData.flightSpeed = 0.60;
+                newFighter.userData.aiState = 'CHASE';
+                newFighter.userData.flightSpeed = 24.0;
                 newFighter.userData.hp = 100;
                 newFighter.userData.maxHp = 100;
+                newFighter.userData.flankSign = (f % 2 === 0) ? 1 : -1;
+                newFighter.userData.stateTimer = Date.now() + 4000;
 
                 scene.add(newFighter);
                 enemyShips.push(newFighter);
@@ -5037,7 +5039,7 @@ function createEpicPlayerDeathExplosion(pos) {
                             (Math.random() - 0.5) * 1.0,
                             -1.0
                         ).normalize();
-                        e.userData.flightSpeed = 0.325 + Math.random() * 0.10;
+                        e.userData.flightSpeed = 16.0 + Math.random() * 4.0;
                         e.userData.currentRoll = 0;
                     }
 
@@ -5052,16 +5054,15 @@ function createEpicPlayerDeathExplosion(pos) {
 
                         // State Machine Transitions
                         if (e.userData.aiState === 'CHASE') {
-                            if (dist < 900 && facingDot > 0.65) {
+                            if (dist < 4500 && facingDot > 0.65) {
                                 e.userData.aiState = 'ATTACK_RUN';
-                                e.userData.stateTimer = now + 3500 + Math.random() * 2000;
+                                e.userData.stateTimer = now + 4000 + Math.random() * 2500;
                             }
                         } else if (e.userData.aiState === 'ATTACK_RUN') {
                             // Break away if too close to avoid ramming or buzzing in place
-                            if (dist < 220 || now > e.userData.stateTimer) {
+                            if (dist < 350 || now > e.userData.stateTimer) {
                                 e.userData.aiState = 'BREAKAWAY';
                                 e.userData.stateTimer = now + 2500 + Math.random() * 1500;
-                                // Choose an authentic evasive peel-off vector (banking outwards and clearing distance)
                                 const rightVec = new THREE.Vector3(1, 0, 0).applyQuaternion(e.quaternion);
                                 const upVec = new THREE.Vector3(0, 1, 0).applyQuaternion(e.quaternion);
                                 e.userData.evadeDir = rightVec.multiplyScalar(e.userData.flankSign * 1.2)
@@ -5070,10 +5071,10 @@ function createEpicPlayerDeathExplosion(pos) {
                                     .normalize();
                             }
                         } else if (e.userData.aiState === 'BREAKAWAY') {
-                            if (dist > 650 || now > e.userData.stateTimer) {
+                            if (dist > 1800 || now > e.userData.stateTimer) {
                                 e.userData.aiState = 'RE_ENGAGE';
                                 e.userData.stateTimer = now + 3000 + Math.random() * 2000;
-                                e.userData.flankSign = -e.userData.flankSign; // Alternate flank sides
+                                e.userData.flankSign = -e.userData.flankSign;
                             }
                         } else if (e.userData.aiState === 'RE_ENGAGE') {
                             if (facingDot > 0.6 || now > e.userData.stateTimer) {
@@ -5083,31 +5084,36 @@ function createEpicPlayerDeathExplosion(pos) {
 
                         // Determine target steering direction based on tactical state
                         let desiredDir = toPlayerDir.clone();
-                        let targetSpeed = 0.325;
-                        let turnSlerp = 0.022;
+                        let targetSpeed = 16.0;
+                        let turnSlerp = 0.038;
 
-                        if (e.userData.aiState === 'CHASE') {
+                        if (dist > 3500) {
+                            // High-speed intercept scramble across sector
+                            desiredDir = toPlayerDir;
+                            targetSpeed = 26.0;
+                            turnSlerp = 0.045;
+                        } else if (e.userData.aiState === 'CHASE') {
                             // Lead the target slightly with individual flanking offset
-                            const flankOffset = new THREE.Vector3(e.userData.flankSign * 120, Math.sin(now * 0.001 + e.id) * 40, 0);
+                            const flankOffset = new THREE.Vector3(e.userData.flankSign * 160, Math.sin(now * 0.001 + e.id) * 50, 0);
                             const leadTarget = playerShip.position.clone().add(flankOffset);
                             desiredDir = leadTarget.sub(e.position).normalize();
-                            targetSpeed = 0.36;
-                            turnSlerp = 0.024;
+                            targetSpeed = 18.0;
+                            turnSlerp = 0.040;
                         } else if (e.userData.aiState === 'ATTACK_RUN') {
                             // Zero in on player with smooth steady gun run
                             desiredDir = toPlayerDir;
-                            targetSpeed = 0.30;
-                            turnSlerp = 0.032;
+                            targetSpeed = 14.5;
+                            turnSlerp = 0.048;
                         } else if (e.userData.aiState === 'BREAKAWAY') {
                             // Peel away along evasion vector at high speed to open separation
                             desiredDir = e.userData.evadeDir;
-                            targetSpeed = 0.41;
-                            turnSlerp = 0.028;
+                            targetSpeed = 22.0;
+                            turnSlerp = 0.040;
                         } else if (e.userData.aiState === 'RE_ENGAGE') {
                             // Wide sweeping banking turn back toward the combat area
                             desiredDir = toPlayerDir;
-                            targetSpeed = 0.34;
-                            turnSlerp = 0.016; // Wide sweeping turn arc
+                            targetSpeed = 16.0;
+                            turnSlerp = 0.028;
                         }
 
                         // Smoothly orient fighter towards desired steering direction
@@ -5125,7 +5131,7 @@ function createEpicPlayerDeathExplosion(pos) {
 
                         // Shoot at player during attack runs or when cleanly aligned
                         e.userData.lastFireTime = e.userData.lastFireTime || 0;
-                        if (dist < 3200 && facingDot > 0.82 && now - e.userData.lastFireTime > (e.userData.aiState === 'ATTACK_RUN' ? 700 : 1200) + Math.random() * 600) {
+                        if (dist < 4000 && facingDot > 0.80 && now - e.userData.lastFireTime > (e.userData.aiState === 'ATTACK_RUN' ? 700 : 1200) + Math.random() * 600) {
                             e.userData.lastFireTime = now;
                             const eLaser = getPooledEnemyLaserBolt();
                             if (eLaser) {
@@ -5135,7 +5141,7 @@ function createEpicPlayerDeathExplosion(pos) {
                                 const offset = new THREE.Vector3(side, -0.1, -2.4).applyQuaternion(e.quaternion);
                                 eLaser.position.copy(e.position).add(offset);
                                 eLaser.userData.prevPos.copy(eLaser.position);
-                                eLaser.userData.velocity.copy(enemyFwd).multiplyScalar(12);
+                                eLaser.userData.velocity.copy(enemyFwd).multiplyScalar(45);
                                 if (!enemyLaserProjectiles.includes(eLaser)) enemyLaserProjectiles.push(eLaser);
                             }
                         }
