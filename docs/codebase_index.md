@@ -21,7 +21,7 @@ This document serves as a high-level map of index.html (the primary 6000+ line a
 ## 3. World Generation (Three.js)
 *   createStarfield() - Spawns background star particles.
 *   createSolarSun() - Creates the central star and its procedural texture.
-*   createSpacePlanet() - Spawns the colossal photorealistic gas giant Saturn, glowing golden atmospheric halo, continuous high-resolution textured ring disc (`RingGeometry` with `docs/images/saturn_rings.png`), and instanced 3D asteroid particle belt with Cassini division gaps.
+*   createSpacePlanet() - Spawns the colossal photorealistic gas giant Saturn in the background vista overlooking Titan and The Crest (`(72060, 214, -81280)`), with glowing golden atmospheric halo, continuous high-resolution textured ring disc (`RingGeometry` with `docs/images/saturn_rings.png`), and instanced 3D asteroid particle belt with Cassini division gaps.
 *   createTitanMoon() - Spawns Saturn's largest moon Titan (`docs/images/titan_surface.jpg`) with photochemical smog haze atmosphere and atmospheric repulsor buffer.
 *   createTheCrestStation() - Loads and places the massive binary glTF orbital station model (`fbx/the_crest.glb`) in perimeter orbit around Titan with correct upright orientation (+Y axis command bridge/antennae, X-Z ring plane), 1,600-unit diameter scale, dual-tone lighting, station collision repulsor buffer, and 3D tactical map / radar blips.
 *   createWormholeGate() - Generates the massive ancient wormhole structure.

@@ -2382,7 +2382,7 @@
             scene.fog = new THREE.FogExp2(0x070913, 0.00003); // 16x lighter fog for crystal clear space visibility!
 
             camera = new THREE.PerspectiveCamera(65, container.clientWidth / container.clientHeight, 1.0, 2000000);
-            camera.position.set(78940, -1190, -47278);
+            camera.position.set(78600, -1174, -47158);
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, logarithmicDepthBuffer: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
@@ -2782,9 +2782,9 @@
                 }
             );
             
-            // Parent planetary group at horizon (~14,000 units away)
+            // Parent planetary group (Saturn overlooking Titan & The Crest in background vista)
             spacePlanet = new THREE.Group();
-            spacePlanet.position.set(-8500, -3200, -14000);
+            spacePlanet.position.set(72060, 214, -81280);
             
             // Planetary axial tilt (26.73° natural celestial tilt, syncing planet cloud bands and ring plane)
             spacePlanet.rotation.x = 0.466;
@@ -2948,8 +2948,8 @@
         // --- THE CREST ORBITAL DEFENSE PLATFORM (STATION) GLB LOADER ---
         function createTheCrestStation() {
             theCrestStation = new THREE.Group();
-            // Positioned in perimeter orbit around Titan
-            theCrestStation.position.set(78760, -1236, -47680);
+            // Positioned in perimeter orbit around Titan overlooking Saturn
+            theCrestStation.position.set(78360, -1236, -47680);
             scene.add(theCrestStation);
 
             // Local station accent lighting
@@ -3327,13 +3327,13 @@
             playerShieldBubble.visible = false;
             playerShip.add(playerShieldBubble);
 
-            // Start Void Interceptor in perimeter orbit of Titan near The Crest station
-            playerShip.position.set(78940, -1196, -47300);
-            playerShip.lookAt(new THREE.Vector3(78760, -1236, -47680));
+            // Start Void Interceptor in perimeter orbit of Titan overlooking The Crest and Saturn
+            playerShip.position.set(78600, -1180, -47180);
+            playerShip.lookAt(new THREE.Vector3(78100, -1200, -48200));
             scene.add(playerShip);
 
             if (camera) {
-                camera.position.set(78940, -1190, -47278);
+                camera.position.set(78600, -1174, -47158);
                 camera.lookAt(playerShip.position);
             }
         }
@@ -4048,9 +4048,9 @@ function createEpicPlayerDeathExplosion(pos) {
 
         function approachTheCrest() {
             if (!theCrestStation) return;
-            const backwardOffset = new THREE.Vector3(180, 40, 380);
+            const backwardOffset = new THREE.Vector3(240, 56, 500);
             playerShip.position.copy(theCrestStation.position).add(backwardOffset);
-            playerShip.lookAt(theCrestStation.position);
+            playerShip.lookAt(new THREE.Vector3(78100, -1200, -48200));
             targetSpeed = 40;
             currentSpeed = 40;
             const sec = document.getElementById('hud-sector');
@@ -4075,10 +4075,10 @@ function createEpicPlayerDeathExplosion(pos) {
         }
 
         function resetSimView() {
-            playerShip.position.set(78940, -1196, -47300);
+            playerShip.position.set(78600, -1180, -47180);
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
-            playerShip.lookAt(new THREE.Vector3(78760, -1236, -47680));
+            playerShip.lookAt(new THREE.Vector3(78100, -1200, -48200));
             targetSpeed = 0;
             currentSpeed = 0;
             isWormholeActive = false;
