@@ -1930,7 +1930,7 @@
     <!-- Include Three.js for 3D Flight Engine -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous"></script>
     <script src="libs/fflate.min.js"></script>
-    <script src="libs/FBXLoader.js"></script>
+    <script src="libs/GLTFLoader.js"></script>
     <script>
         // --- REALTIME SERVER DEBUG LOGGER HELPER ---
         function remoteLog(msg) {
@@ -2443,7 +2443,7 @@
             createStarfield();
             createSolarSun();
             createSpacePlanet();
-            loadVoidInterceptorFBX();
+            loadVoidInterceptorModel();
             createPlayerShip();
             createCapitalShip();
             createWormholeGate();
@@ -2769,7 +2769,7 @@
             // Gigantic Planetary Ring System - Converted to 3D particle asteroids
             const particleCount = 20000;
             // Using a tetrahedron as a low-poly asteroid shape
-            const particleGeo = new THREE.TetrahedronGeometry(1, 1);
+            const particleGeo = new THREE.TetrahedronGeometry(1, 0);
             const particleMat = new THREE.MeshStandardMaterial({ 
                 color: 0xffffff, // Base color white to let instance colors shine
                 roughness: 0.8,
@@ -2831,81 +2831,51 @@
             spacePlanet.add(ring);
         }
 
-        // --- VOID INTERCEPTOR FBX MODEL & MATERIAL MANAGEMENT ---
+        // --- VOID INTERCEPTOR GLB MODEL & MATERIAL MANAGEMENT ---
         let voidInterceptorTemplate = null;
         const pendingVoidInterceptorShips = [];
 
-        // Load Void Interceptor PNG Diffuse Texture
-        const voidInterceptorTexLoader = new THREE.TextureLoader();
-        const voidInterceptorTex = voidInterceptorTexLoader.load('fbx/Meshy_AI_VoidInterceptor_Vanguard_0824002458_texture.png');
-        voidInterceptorTex.encoding = THREE.sRGBEncoding;
-        voidInterceptorTex.wrapS = THREE.RepeatWrapping;
-        voidInterceptorTex.wrapT = THREE.RepeatWrapping;
+        function loadVoidInterceptorModel() {
+            const gltfLoader = new THREE.GLTFLoader();
+            gltfLoader.load('fbx/void_interceptor.glb', function(gltf) {
+                const model = gltf.scene;
 
-        const voidInterceptorMat = new THREE.MeshStandardMaterial({
-            map: voidInterceptorTex,
-            roughness: 0.85,
-            metalness: 0.18
-        });
-
-        const enemyVoidInterceptorMat = new THREE.MeshStandardMaterial({
-            map: voidInterceptorTex,
-            color: 0xff8899,
-            roughness: 0.85,
-            metalness: 0.18
-        });
-
-        function loadVoidInterceptorFBX() {
-            const fbxLoader = new THREE.FBXLoader();
-            fbxLoader.load('fbx/Meshy_AI_VoidInterceptor_Vanguard_0824002458_texture.fbx', function(fbx) {
-                fbx.traverse(function(child) {
-                    if (child.isMesh) {
-                        child.material = voidInterceptorMat;
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                    }
-                });
-
-                const box = new THREE.Box3().setFromObject(fbx);
+                const box = new THREE.Box3().setFromObject(model);
                 const size = new THREE.Vector3();
                 box.getSize(size);
                 const center = new THREE.Vector3();
                 box.getCenter(center);
 
                 const targetScale = 7.2 / (size.x || 1);
-                fbx.scale.set(targetScale, targetScale, targetScale);
-                fbx.rotation.set(0, -Math.PI / 2, 0);
-                fbx.position.set(center.z * targetScale, -center.y * targetScale, -center.x * targetScale);
+                model.scale.set(targetScale, targetScale, targetScale);
+                model.rotation.set(0, -Math.PI / 2, 0);
+                model.position.set(center.z * targetScale, -center.y * targetScale, -center.x * targetScale);
 
-                voidInterceptorTemplate = fbx;
+                voidInterceptorTemplate = model;
 
                 pendingVoidInterceptorShips.forEach(item => {
-                    attachVoidInterceptorFBX(item.group, item.isEvil);
+                    attachVoidInterceptorModel(item.group, item.isEvil);
                 });
                 pendingVoidInterceptorShips.length = 0;
 
-                console.log("[VOID INTERCEPTOR] FBX Model and Texture Loaded & Mapped Successfully!");
-            }, function(xhr) {
-                if (xhr.total) {
-                    console.log("[VOID INTERCEPTOR FBX] Loading: " + Math.round((xhr.loaded / xhr.total) * 100) + "%");
-                }
-            }, function(err) {
-                console.error("[VOID INTERCEPTOR FBX ERROR]", err);
+                console.log("[VOID INTERCEPTOR] GLB Model and Texture Loaded Successfully!");
+            }, undefined, function(err) {
+                console.error("[VOID INTERCEPTOR GLB ERROR]", err);
             });
         }
 
-        function attachVoidInterceptorFBX(shipGroup, isEvil) {
+        function attachVoidInterceptorModel(shipGroup, isEvil) {
             if (!voidInterceptorTemplate || !shipGroup.userData || !shipGroup.userData.meshContainer) return;
             shipGroup.userData.meshContainer.clear();
             const cloned = voidInterceptorTemplate.clone(true);
-            const mat = isEvil ? enemyVoidInterceptorMat : voidInterceptorMat;
-            cloned.traverse(child => {
-                if (child.isMesh) {
-                    child.material = mat;
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                }
-            });
+            if (isEvil) {
+                cloned.traverse(child => {
+                    if (child.isMesh && child.material) {
+                        child.material = child.material.clone();
+                        child.material.color.setHex(0xff8899);
+                    }
+                });
+            }
             shipGroup.userData.meshContainer.add(cloned);
         }
 
@@ -2991,16 +2961,15 @@
                 shipGroup.add(engGroup);
             });
 
-            // If FBX is ready, attach immediately, else queue
+            // If GLB is ready, attach immediately, else queue
             if (voidInterceptorTemplate) {
-                attachVoidInterceptorFBX(shipGroup, isEvil);
+                attachVoidInterceptorModel(shipGroup, isEvil);
             } else {
                 pendingVoidInterceptorShips.push({ group: shipGroup, isEvil: !!isEvil });
             }
 
             return shipGroup;
         }
-
 
         function createPlayerShip() {
             playerShip = buildDetailedShipMesh(false);
@@ -3023,7 +2992,7 @@
             scene.add(playerShip);
         }
 
-function createCapitalShip() {
+        function createCapitalShip() {
             capitalShip = new THREE.Group();
             capitalShip.userData = {
                 crystalCore: null,
@@ -3036,19 +3005,6 @@ function createCapitalShip() {
                 engineEmitters: [],
                 particles: []
             };
-
-            // Load Battlecruiser PNG Texture
-            const textureLoader = new THREE.TextureLoader();
-            const battlecruiserTex = textureLoader.load('fbx/Meshy_AI_Battlecruiser_Ascenda_0823233538_texture.png');
-            battlecruiserTex.encoding = THREE.sRGBEncoding;
-            battlecruiserTex.wrapS = THREE.RepeatWrapping;
-            battlecruiserTex.wrapT = THREE.RepeatWrapping;
-
-            const battlecruiserMat = new THREE.MeshStandardMaterial({
-                map: battlecruiserTex,
-                roughness: 0.88,
-                metalness: 0.15
-            });
 
             const setupBattlecruiserFeatures = () => {
                 // Navigation Beacon Lights (Port = Red, Starboard = Green, Dorsal = White Pulse)
@@ -3149,19 +3105,13 @@ function createCapitalShip() {
                 });
             };
 
-            // Load Battlecruiser FBX Model
-            const fbxLoader = new THREE.FBXLoader();
-            fbxLoader.load('fbx/Meshy_AI_Battlecruiser_Ascenda_0823233538_texture.fbx', function(fbx) {
-                fbx.traverse(function(child) {
-                    if (child.isMesh) {
-                        child.material = battlecruiserMat;
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                    }
-                });
+            // Load Battlecruiser GLB Model
+            const gltfLoader = new THREE.GLTFLoader();
+            gltfLoader.load('fbx/battlecruiser.glb', function(gltf) {
+                const model = gltf.scene;
 
                 // Compute Bounding Box & Scale to ~950 units length
-                const box = new THREE.Box3().setFromObject(fbx);
+                const box = new THREE.Box3().setFromObject(model);
                 const size = new THREE.Vector3();
                 box.getSize(size);
                 const center = new THREE.Vector3();
@@ -3169,27 +3119,21 @@ function createCapitalShip() {
 
                 const maxDim = Math.max(size.x, size.y, size.z);
                 const targetScale = 950 / (maxDim || 1);
-                fbx.scale.set(targetScale, targetScale, targetScale);
+                model.scale.set(targetScale, targetScale, targetScale);
 
-                // Center FBX model in local group
-                fbx.position.set(-center.x * targetScale, -center.y * targetScale, -center.z * targetScale);
+                // Center model in local group
+                model.position.set(-center.x * targetScale, -center.y * targetScale, -center.z * targetScale);
 
                 // Align nose (-X) with Three.js forward (-Z)
                 if (size.x > size.z) {
-                    fbx.rotation.y = -Math.PI / 2;
+                    model.rotation.y = -Math.PI / 2;
                 }
 
-                capitalShip.add(fbx);
-
+                capitalShip.add(model);
                 setupBattlecruiserFeatures();
-
-                console.log("[BATTLECRUISER] FBX Model, Texture, and Twin Engine Glow Mapped Successfully!");
-            }, function(xhr) {
-                if (xhr.total) {
-                    console.log("[BATTLECRUISER FBX] Loading: " + Math.round((xhr.loaded / xhr.total) * 100) + "%");
-                }
-            }, function(err) {
-                console.error("[BATTLECRUISER FBX ERROR]", err);
+                console.log("[BATTLECRUISER] GLB Model and Twin Engine Glow Mapped Successfully!");
+            }, undefined, function(err) {
+                console.error("[BATTLECRUISER GLB ERROR]", err);
             });
 
             // Initial Placement in Orbit around Space Planet
@@ -4570,9 +4514,6 @@ function createEpicPlayerDeathExplosion(pos) {
             drawTacticalRadar();
             drawShieldGauge();
             drawThrottleGauge();
-            if (isTacticalMapOpen) {
-                renderTacticalMap3D();
-            }
             renderer.render(scene, camera);
         }
 
@@ -4881,24 +4822,25 @@ function createEpicPlayerDeathExplosion(pos) {
             if (!playerShip) return;
 
             // Full 3D Orientation: Transform any world target directly to cockpit local space
-            const invShipQuat = playerShip.quaternion.clone().invert();
+            if (!_radarInvQuat) {
+                window._radarInvQuat = new THREE.Quaternion();
+                window._radarRelPos = new THREE.Vector3();
+            }
+            _radarInvQuat.copy(playerShip.quaternion).invert();
 
             function drawBlip(objPos, color, size, isSquare, label = '') {
                 if (!objPos) return;
 
                 // Relative position in player cockpit local space
-                // rel.x: +Right / -Left
-                // rel.y: +Up / -Down
-                // rel.z: -In Front / +Behind
-                const rel = objPos.clone().sub(playerShip.position).applyQuaternion(invShipQuat);
-                const dist = rel.length();
+                _radarRelPos.copy(objPos).sub(playerShip.position).applyQuaternion(_radarInvQuat);
+                const dist = _radarRelPos.length();
                 if (dist < 1) return;
 
-                const isBehind = rel.z > 0;
+                const isBehind = _radarRelPos.z > 0;
                 
                 // Normalized direction in player's field of view
-                const nx = rel.x / dist;
-                const ny = rel.y / dist;
+                const nx = _radarRelPos.x / dist;
+                const ny = _radarRelPos.y / dist;
 
                 let rx, ry;
                 if (!isBehind) {

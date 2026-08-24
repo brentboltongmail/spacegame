@@ -25,10 +25,17 @@ class AstraGameRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
-        # Prevent aggressive browser caching so all HTML/JS changes update instantly
-        self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
-        self.send_header('Pragma', 'no-cache')
-        self.send_header('Expires', '0')
+        
+        # Static asset caching: Fast caching for large 3D models (.glb), textures, audio, and vendor scripts
+        path_lower = self.path.lower().split('?')[0]
+        if any(path_lower.endswith(ext) for ext in ('.glb', '.gltf', '.png', '.jpg', '.jpeg', '.mp3', '.wav', '.ogg', '.woff2', '.ttf', '.svg')) or '/libs/' in path_lower:
+            self.send_header('Cache-Control', 'public, max-age=86400')
+        else:
+            # Prevent aggressive browser caching on HTML and API endpoints so UI/logic edits update immediately
+            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            self.send_header('Pragma', 'no-cache')
+            self.send_header('Expires', '0')
+            
         super().end_headers()
 
     def do_OPTIONS(self):

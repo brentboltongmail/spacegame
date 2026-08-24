@@ -26,10 +26,10 @@ This document serves as a high-level map of index.html (the primary 6000+ line a
 *   createMapEnvironment() - Populates the mini-map / holographic star map models.
 
 ## 4. Ship Models & Construction
-*   loadVoidInterceptorFBX() / buildDetailedShipMesh() - Loads the high-fidelity Void Interceptor FBX model (`fbx/Meshy_AI_VoidInterceptor_Vanguard_...fbx`) with PNG diffuse texture, centering, scaling, and twin engine exhaust glow assemblies (cavities, thruster discs, core discs, halos, point lights).
+*   loadVoidInterceptorModel() / buildDetailedShipMesh() - Loads the ultra-fast binary glTF model (`fbx/void_interceptor.glb`) via `THREE.GLTFLoader`, centering, scaling, and twin engine exhaust glow assemblies (cavities, thruster discs, core discs, halos, point lights).
 *   createPlayerShip() - Constructs the player's primary Void Interceptor group, shield bubble, and engine lights.
-*   createCapitalShip() - Loads the high-fidelity Battlecruiser FBX model (`fbx/Meshy_AI_Battlecruiser_Ascenda_...fbx`) with PNG diffuse texture, navigation beacons, and engine exhaust particle emitters.
-*   createEnemyInterceptorMesh() - Returns a crimson-tinted cloned FBX mesh for generating hostile AI fighters.
+*   createCapitalShip() - Loads the ultra-fast binary glTF Battlecruiser model (`fbx/battlecruiser.glb`) via `THREE.GLTFLoader`, navigation beacons, and engine exhaust particle emitters.
+*   createEnemyInterceptorMesh() - Returns a crimson-tinted cloned GLB mesh for generating hostile AI fighters.
 
 ## 5. Main Game Loop & Physics
 *   nimate() - The core rendering loop (requestAnimationFrame).
