@@ -2949,8 +2949,8 @@
         // --- THE CREST ORBITAL DEFENSE PLATFORM (STATION) GLB LOADER ---
         function createTheCrestStation() {
             theCrestStation = new THREE.Group();
-            // Positioned in perimeter orbit around Titan overlooking Saturn
-            theCrestStation.position.set(78360, -1236, -47680);
+            // Positioned in expanded perimeter orbit around Titan overlooking Saturn
+            theCrestStation.position.set(80160, -886, -46080);
             scene.add(theCrestStation);
 
             // Local station accent lighting
@@ -3375,12 +3375,12 @@
             playerShip.add(playerShieldBubble);
 
             // Start Void Interceptor in perimeter orbit of Titan overlooking The Crest and Saturn
-            playerShip.position.set(78600, -1180, -47180);
-            playerShip.lookAt(new THREE.Vector3(78100, -1200, -48200));
+            playerShip.position.set(80400, -830, -45580);
+            playerShip.lookAt(new THREE.Vector3(79900, -850, -46600));
             scene.add(playerShip);
 
             if (camera) {
-                camera.position.set(78600, -1174, -47158);
+                camera.position.set(80400, -824, -45558);
                 camera.lookAt(playerShip.position);
             }
         }
@@ -4254,7 +4254,7 @@ function createEpicPlayerDeathExplosion(pos) {
             if (!theCrestStation) return;
             const backwardOffset = new THREE.Vector3(240, 56, 500);
             playerShip.position.copy(theCrestStation.position).add(backwardOffset);
-            playerShip.lookAt(new THREE.Vector3(78100, -1200, -48200));
+            playerShip.lookAt(new THREE.Vector3(79900, -850, -46600));
             targetSpeed = 40;
             currentSpeed = 40;
             const sec = document.getElementById('hud-sector');
@@ -4279,10 +4279,10 @@ function createEpicPlayerDeathExplosion(pos) {
         }
 
         function resetSimView() {
-            playerShip.position.set(78600, -1180, -47180);
+            playerShip.position.set(80400, -830, -45580);
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
-            playerShip.lookAt(new THREE.Vector3(78100, -1200, -48200));
+            playerShip.lookAt(new THREE.Vector3(79900, -850, -46600));
             targetSpeed = 0;
             currentSpeed = 0;
             isWormholeActive = false;
