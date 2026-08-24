@@ -2888,8 +2888,8 @@
 
                 const targetScale = 7.2 / (size.x || 1);
                 fbx.scale.set(targetScale, targetScale, targetScale);
-                fbx.rotation.set(-Math.PI, Math.PI / 2, 0);
-                fbx.position.set(-center.z * targetScale, center.y * targetScale, -center.x * targetScale);
+                fbx.rotation.set(-Math.PI / 2, 0, -Math.PI / 2);
+                fbx.position.set(-center.y * targetScale, -center.z * targetScale, -center.x * targetScale);
 
                 voidInterceptorTemplate = fbx;
 
