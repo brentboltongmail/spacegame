@@ -21,9 +21,10 @@ This document serves as a high-level map of index.html (the primary 6000+ line a
 ## 3. World Generation (Three.js)
 *   createStarfield() - Spawns background star particles.
 *   createSolarSun() - Creates the central star and its procedural texture.
-*   createSpacePlanet() - Spawns the colossal planetary body and instanced asteroid rings.
+*   createSpacePlanet() - Spawns the colossal photorealistic gas giant Saturn, glowing golden atmospheric halo, continuous high-resolution textured ring disc (`RingGeometry` with `docs/images/saturn_rings.png`), and instanced 3D asteroid particle belt with Cassini division gaps.
+*   createTitanMoon() - Spawns Saturn's largest moon Titan (`docs/images/titan_surface.jpg`) with photochemical smog haze atmosphere and atmospheric repulsor buffer.
 *   createWormholeGate() - Generates the massive ancient wormhole structure.
-*   createMapEnvironment() - Populates the mini-map / holographic star map models.
+*   initTacticalMap3D() / renderTacticalMap3D() - Populates and renders the real-time 3D interactive holographic tactical system map (tracking Player, Sol, Saturn, Titan, Ancient Gate, Capital Dreadnought, and Hostile Swarms).
 
 ## 4. Ship Models & Construction
 *   loadVoidInterceptorModel() / buildDetailedShipMesh() - Loads the ultra-fast binary glTF model (`fbx/void_interceptor.glb`) via `THREE.GLTFLoader`, centering, scaling, and twin engine exhaust glow assemblies (cavities, thruster discs, core discs, halos, point lights).
