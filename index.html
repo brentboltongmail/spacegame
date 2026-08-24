@@ -4951,6 +4951,15 @@ function createEpicPlayerDeathExplosion(pos) {
             const timeSec = Date.now() * 0.001;
             const elapsedFleetEmergence = fleetEmergenceActive ? (nowPerf - fleetEmergenceStartTime) / 1000 : 999;
 
+            // Display HUD arrival countdown during the 15-second startup phase
+            if (fleetEmergenceActive && elapsedFleetEmergence < 15.0) {
+                const remaining = Math.max(0, Math.ceil(15.0 - elapsedFleetEmergence));
+                const objElem = document.getElementById('hud-objective');
+                if (objElem && remaining > 0) {
+                    objElem.innerHTML = `<span style="color: #f43f5e; font-weight: bold; text-shadow: 0 0 8px rgba(244,63,94,0.8);">⚠️ DOMINION FLEET WARP IN: ${remaining}s</span>`;
+                }
+            }
+
             capitalShips.forEach(ship => {
                 if (!ship || !ship.userData) return;
 
@@ -5171,11 +5180,13 @@ function createEpicPlayerDeathExplosion(pos) {
                         // Continuous Natural Forward Flight Momentum
                         e.translateZ(-targetSpeed);
 
-                        // Natural Banking into Turns (Roll angle based on yaw turn rate)
+                        // Natural Banking into Turns (Roll angle applied ONLY to child meshContainer to preserve 6-DOF quaternion steering)
                         const crossTurn = new THREE.Vector3().crossVectors(enemyFwd, desiredDir);
                         const rollTarget = THREE.MathUtils.clamp(-crossTurn.y * 3.5, -0.65, 0.65);
                         e.userData.currentRoll = THREE.MathUtils.lerp(e.userData.currentRoll, rollTarget, 0.05);
-                        e.rotation.z = e.userData.currentRoll;
+                        if (e.userData.meshContainer) {
+                            e.userData.meshContainer.rotation.z = e.userData.currentRoll;
+                        }
 
                         // Shoot at player during attack runs or when cleanly aligned
                         e.userData.lastFireTime = e.userData.lastFireTime || 0;
