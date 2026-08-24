@@ -5648,6 +5648,7 @@
 
                     // Animate Traveling Energy Rings strictly along the shaft between ship center (y = -0.5) and ring on Titan (y = +0.5)
                     if (bData.rings) {
+                        const invBeamDist = 1.0 / Math.max(1, beamDist);
                         bData.rings.forEach(ring => {
                             ring.visible = true;
                             if (isBombardmentFiring) {
@@ -5664,7 +5665,8 @@
                                 ring.material.color.setHex(0xfbbf24); // Radiant Gold Tractor Rings
                             }
                             const ringScale = 1.0 + Math.sin(timeSec * 6.0 + ring.userData.offset * Math.PI) * 0.25;
-                            ring.scale.set(ringScale, 1, ringScale);
+                            // Counteract parent beamGroup.scale.y (beamDist) so rings remain flat toruses rather than stretching thousands of units past both ends!
+                            ring.scale.set(ringScale, invBeamDist, ringScale);
                         });
                     }
 
