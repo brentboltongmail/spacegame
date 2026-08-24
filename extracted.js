@@ -425,7 +425,7 @@
         // --- 3D THREE.JS SPACE FLIGHT SIMULATOR (MOUSE TARGETING & SPEED) ---
         let scene, camera, renderer;
         let playerShip;
-        let playerShieldBubble, capitalShip, wormholeGate, starfield, spacePlanet, spaceSun, targetBox3D;
+        let playerShieldBubble, capitalShip, wormholeGate, starfield, spacePlanet, spacePlanetSphere, spacePlanetRing, spaceSun, targetBox3D;
         let dreadOrbitAngle = 0.5; // Orbit angle around spacePlanet
         let enemyShips = [];
         let laserProjectiles = [];
@@ -804,10 +804,17 @@
                 }
             );
             
-            spacePlanet = new THREE.Mesh(planetGeo, planetMat);
-            // Position colossal 18,000-unit planet far off on horizon (~14,000 units away)
+            // Parent planetary group at horizon (~14,000 units away)
+            spacePlanet = new THREE.Group();
             spacePlanet.position.set(-8500, -3200, -14000);
+            
+            // Planetary axial tilt (26.7° natural celestial tilt, syncing planet cloud bands and ring plane)
+            spacePlanet.rotation.x = 0.46;
+            spacePlanet.rotation.z = -0.22;
             scene.add(spacePlanet);
+
+            spacePlanetSphere = new THREE.Mesh(planetGeo, planetMat);
+            spacePlanet.add(spacePlanetSphere);
 
             // Glowing Cyan Atmospheric Horizon Rim Halo (9,160 radius)
             const atmoGeo = new THREE.SphereGeometry(9160, 64, 64);
@@ -818,22 +825,20 @@
                 side: THREE.BackSide
             });
             const atmosphere = new THREE.Mesh(atmoGeo, atmoMat);
-            spacePlanet.add(atmosphere);
+            spacePlanetSphere.add(atmosphere);
 
-            // Gigantic Planetary Ring System - Converted to 3D particle asteroids
+            // Gigantic Planetary Ring System - 3D particle asteroids in Equatorial XZ plane (aligned with planet cloud bands)
             const particleCount = 20000;
-            // Using a tetrahedron as a low-poly asteroid shape
-            const particleGeo = new THREE.TetrahedronGeometry(1, 1);
+            const particleGeo = new THREE.TetrahedronGeometry(1, 0);
             const particleMat = new THREE.MeshStandardMaterial({ 
-                color: 0xffffff, // Base color white to let instance colors shine
+                color: 0xffffff,
                 roughness: 0.8,
                 metalness: 0.2
             });
-            const ring = new THREE.InstancedMesh(particleGeo, particleMat, particleCount);
+            spacePlanetRing = new THREE.InstancedMesh(particleGeo, particleMat, particleCount);
             
             const dummy = new THREE.Object3D();
             
-            // Widen the ring significantly
             const innerRadius = 11675; // Increased to center the narrower ring
             const outerRadius = 16025; // Adjusted to center the 50% narrower ring width
             const ringThickness = 200; // Vertical ring particle thickness set to 200
@@ -853,11 +858,10 @@
                 const r = innerRadius + Math.random() * (outerRadius - innerRadius);
                 const theta = Math.random() * Math.PI * 2;
                 
-                // Ring particles in XY plane to match the original RingGeometry axis
-                // Using Math.random() - 0.5 gives a spread from -thickness/2 to +thickness/2
+                // Position in equatorial XZ plane parallel to the planet's cloud bands
                 const x = r * Math.cos(theta);
-                const y = r * Math.sin(theta);
-                const z = (Math.random() - 0.5) * (Math.random() * ringThickness);
+                const z = r * Math.sin(theta);
+                const y = (Math.random() - 0.5) * ringThickness;
                 
                 dummy.position.set(x, y, z);
                 
@@ -873,16 +877,14 @@
                 );
                 
                 dummy.updateMatrix();
-                ring.setMatrixAt(i, dummy.matrix);
+                spacePlanetRing.setMatrixAt(i, dummy.matrix);
                 
                 // Apply color variation
                 const color = colors[Math.floor(Math.random() * colors.length)];
-                ring.setColorAt(i, color);
+                spacePlanetRing.setColorAt(i, color);
             }
             
-            ring.rotation.x = Math.PI / 2.3;
-            ring.rotation.y = -Math.PI / 8;
-            spacePlanet.add(ring);
+            spacePlanet.add(spacePlanetRing);
         }
 
         // --- PROCEDURAL VOID INTERCEPTOR HULL TEXTURE GENERATORS ---
@@ -3122,8 +3124,9 @@
                         }
                     }
                 }
-            }
-            if (spacePlanet) spacePlanet.rotation.y += 0.00015;
+            // Rotate planet surface cloud bands and asteroid ring particles in the exact same direction
+            if (spacePlanetSphere) spacePlanetSphere.rotation.y += 0.00015;
+            if (spacePlanetRing) spacePlanetRing.rotation.y += 0.00030;
 
             // --- ANIMATE ENEMY INTERCEPTORS & TARGET LOCK SELECTION ---
             let closestEnemy = null;
