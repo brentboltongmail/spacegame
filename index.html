@@ -2735,8 +2735,9 @@
         let goldenGateLight = null;
         let goldenGateRipples = [];
 
-        let titanExcavationPhase = 'BOMBARDMENT'; // 'BOMBARDMENT' -> 'TRACTOR_EXTRACTION' -> 'GATE_ACTIVE'
-        let titanExcavationStartTime = performance.now();
+        let titanExcavationPhase = 'WAITING_FOR_FLEET'; // 'WAITING_FOR_FLEET' -> 'BOMBARDMENT' -> 'GATE_REVEALED' -> 'TRACTOR_EXTRACTION' -> 'GATE_ACTIVE'
+        let isTitanExcavationStarted = false;
+        let titanExcavationStartTime = 0;
         let goldenRingLiftProgress = 0.0; // 0.0 (in crater) -> 1.0 (in orbit)
         const titanExtractionCraterLocalPos = new THREE.Vector3(-246, 178, 1047).normalize().multiplyScalar(1100);
         const titanExtractionOrbitWorldPos = new THREE.Vector3(75200, -750, -45200);
@@ -5009,10 +5010,12 @@
 
             capitalShips.forEach((ship, idx) => {
                 const beamGroup = new THREE.Group();
+                beamGroup.visible = false;
                 scene.add(beamGroup);
 
-                // 1. Inner Intense Core Cylinder
+                // 1. Inner Intense Core Cylinder (Height 1, translated from y=0 to y=1)
                 const coreGeo = new THREE.CylinderGeometry(10, 16, 1, 16);
+                coreGeo.translate(0, 0.5, 0);
                 const coreMat = new THREE.MeshBasicMaterial({
                     color: 0xfdf4ff,
                     blending: THREE.AdditiveBlending
@@ -5022,6 +5025,7 @@
 
                 // 2. Graviton Plasma Sheath Column
                 const plasmaGeo = new THREE.CylinderGeometry(28, 52, 1, 16);
+                plasmaGeo.translate(0, 0.5, 0);
                 const plasmaMat = new THREE.MeshBasicMaterial({
                     color: 0x9333ea,
                     transparent: true,
@@ -5033,6 +5037,7 @@
 
                 // 3. Helical Magnetic Confinement Cage
                 const cageGeo = new THREE.CylinderGeometry(52, 92, 1, 16);
+                cageGeo.translate(0, 0.5, 0);
                 const cageMat = new THREE.MeshBasicMaterial({
                     color: 0xd946ef,
                     wireframe: true,
@@ -5043,7 +5048,7 @@
                 const cageMesh = new THREE.Mesh(cageGeo, cageMat);
                 beamGroup.add(cageMesh);
 
-                // 4. Traveling Tractor Rings (Stream Upward along Shaft)
+                // 4. Traveling Tractor Rings (Stream Upward along Shaft from Gate to Ship)
                 const tractorRings = [];
                 for (let r = 0; r < 5; r++) {
                     const tRingGeo = new THREE.TorusGeometry(36, 4.5, 8, 24);
@@ -5056,11 +5061,12 @@
                     });
                     const tRingMesh = new THREE.Mesh(tRingGeo, tRingMat);
                     tRingMesh.userData = { offset: r * 0.20 };
+                    tRingMesh.visible = false;
                     beamGroup.add(tRingMesh);
                     tractorRings.push(tRingMesh);
                 }
 
-                // 5. Prow Muzzle Corona Flare
+                // 5. Ventral Core Flare
                 const flareGeo = new THREE.SphereGeometry(38, 16, 16);
                 const flareMat = new THREE.MeshBasicMaterial({
                     color: 0xd946ef,
@@ -5069,6 +5075,7 @@
                     blending: THREE.AdditiveBlending
                 });
                 const flareMesh = new THREE.Mesh(flareGeo, flareMat);
+                flareMesh.visible = false;
                 scene.add(flareMesh);
 
                 const beamData = {
@@ -5089,17 +5096,24 @@
         }
 
         function toggleTractorExtraction() {
-            if (titanExcavationPhase === 'BOMBARDMENT') {
+            if (titanExcavationPhase === 'WAITING_FOR_FLEET' || titanExcavationPhase === 'BOMBARDMENT') {
                 titanExcavationPhase = 'TRACTOR_EXTRACTION';
+                isTitanExcavationStarted = true;
                 titanExcavationStartTime = performance.now() - 13000; // Jump immediately to tractor phase
+                if (ancientGoldenGate) ancientGoldenGate.visible = true;
+                if (titanIceCrustMesh) titanIceCrustMesh.visible = false;
                 showToast("🧲 DOMINION TRACTOR BEAMS LOCKED — HAULING HUGE GOLDEN RING INTO SPACE!");
             } else if (titanExcavationPhase === 'TRACTOR_EXTRACTION') {
                 titanExcavationPhase = 'GATE_ACTIVE';
+                isTitanExcavationStarted = true;
                 titanExcavationStartTime = performance.now() - 35000; // Jump to gate in space
                 goldenRingLiftProgress = 1.0;
+                if (ancientGoldenGate) ancientGoldenGate.visible = true;
+                if (titanIceCrustMesh) titanIceCrustMesh.visible = false;
                 showToast("🌀 GOLDEN PRECURSOR GATE IN SPACE — TRACTOR BEAMS DISENGAGED — SLIPSPACE VORTEX OPEN!");
             } else {
                 titanExcavationPhase = 'BOMBARDMENT';
+                isTitanExcavationStarted = true;
                 titanExcavationStartTime = performance.now();
                 goldenRingLiftProgress = 0.0;
                 theCrestState = 'INTACT';
@@ -5122,14 +5136,34 @@
         function updateTitanExcavationAndTractorBeams(timeSec, timeDelta) {
             if (!titanExcavationSite || !ancientGoldenGate) return;
 
+            // If fleet has not arrived yet, keep the gate hidden and beams off
+            if (!isTitanExcavationStarted || titanExcavationPhase === 'WAITING_FOR_FLEET') {
+                if (ancientGoldenGate) ancientGoldenGate.visible = false;
+                if (titanIceCrustMesh) {
+                    titanIceCrustMesh.visible = true;
+                    titanIceCrustMesh.scale.set(1, 1, 1);
+                    titanIceCrustMesh.material.opacity = 0.95;
+                }
+                if (titanExcavationLight) titanExcavationLight.intensity = 0;
+                if (titanShockwaves) titanShockwaves.forEach(sw => sw.visible = false);
+                if (titanLightningBolts) titanLightningBolts.forEach(l => l.visible = false);
+                if (capitalSpinalBeams && capitalSpinalBeams.length > 0) {
+                    capitalSpinalBeams.forEach(bData => {
+                        if (bData.group) bData.group.visible = false;
+                        if (bData.flare) bData.flare.visible = false;
+                    });
+                }
+                return;
+            }
+
             const nowMs = performance.now();
             const elapsedExcavation = (nowMs - titanExcavationStartTime) / 1000.0;
 
             // --- PHASE TIMELINE ---
-            // 0 - 10s: BOMBARDMENT (Dark-energy beams melt Titan methane ice crust; gate is hidden)
-            // 10 - 12s: GATE_REVEALED (Ice melted away, huge golden gate exposed, bombardment STOPS)
+            // 0 - 10s: BOMBARDMENT (Dark-energy gold beams melt Titan methane ice crust; gate is hidden beneath ice)
+            // 10 - 12s: GATE_REVEALED (Ice melted away, huge golden gate exposed on surface, gold bombardment beams SHUT OFF)
             // 12 - 34s: TRACTOR_EXTRACTION (Purple tractor beams pull gate off Titan into space; The Crest hit & explodes)
-            // 34s+: GATE_ACTIVE (Gate in space, tractor beams STOP, slipspace event horizon vortex active)
+            // 34s+: GATE_ACTIVE (Gate in space, tractor beams SHUT OFF, slipspace event horizon vortex active)
 
             let isBombardmentFiring = false;
             let isTractorFiring = false;
@@ -5150,17 +5184,17 @@
                     titanExcavationPhase = 'GATE_REVEALED';
                     showToast("❄️ ICE CRUST MELTED! BOMBARDMENT CEASED — HUGE GOLDEN PRECURSOR GATE REVEALED!");
                 }
-                isBombardmentFiring = false; // STOP BOMBARDMENT
-                isTractorFiring = false;
-                if (ancientGoldenGate) ancientGoldenGate.visible = true;
+                isBombardmentFiring = false; // SHUT OFF GOLD BEAMS
+                isTractorFiring = false;     // TRACTOR NOT ACTIVE YET
+                if (ancientGoldenGate) ancientGoldenGate.visible = true; // GATE IS NOW VISIBLE ON TITAN SURFACE
                 if (titanIceCrustMesh) titanIceCrustMesh.visible = false;
             } else if (elapsedExcavation >= 12.0 && elapsedExcavation < 34.0) {
                 if (titanExcavationPhase !== 'TRACTOR_EXTRACTION') {
                     titanExcavationPhase = 'TRACTOR_EXTRACTION';
                     showToast("🧲 DOMINION TRACTOR BEAMS ENGAGED — PULLING GOLDEN GATE OFF TITAN INTO SPACE!");
                 }
-                isBombardmentFiring = false;
-                isTractorFiring = true; // TRACTOR BEAMS ACTIVE
+                isBombardmentFiring = false; // GOLD BEAMS REMAIN OFF
+                isTractorFiring = true;      // TRACTOR BEAMS ACTIVE
                 if (ancientGoldenGate) ancientGoldenGate.visible = true;
                 if (titanIceCrustMesh) titanIceCrustMesh.visible = false;
             } else {
@@ -5169,12 +5203,13 @@
                     showToast("🌀 GOLDEN GATE IN SPACE — TRACTOR BEAMS DISENGAGED — SLIPSPACE VORTEX OPEN!");
                 }
                 isBombardmentFiring = false;
-                isTractorFiring = false; // STOP TRACTOR BEAM ONCE GATE IS IN SPACE!
+                isTractorFiring = false;     // TRACTOR BEAMS SHUT OFF IN SPACE
                 if (ancientGoldenGate) ancientGoldenGate.visible = true;
                 if (titanIceCrustMesh) titanIceCrustMesh.visible = false;
             }
 
             // Calculate current Golden Ring World Position, Orientation (Turned on side in space), and Scale (2x in space)
+            // As Titan rotates, craterWorldPos & craterWorldQuat update dynamically!
             const craterWorldPos = titanExcavationSite.getWorldPosition(new THREE.Vector3());
             const craterWorldQuat = titanExcavationSite.getWorldQuaternion(new THREE.Quaternion());
             // In space: Turned 90 degrees on its side (standing upright as a vertical gate portal) facing the fleet corridor
@@ -5485,13 +5520,13 @@
                     bData.group.visible = true;
                     bData.flare.visible = true;
 
-                    // Muzzle at front prow of dreadnought
-                    const prowWorld = ship.localToWorld(new THREE.Vector3(0, -35, -475));
-                    bData.flare.position.copy(prowWorld);
+                    // Origin: Middle / ventral center of each capital ship
+                    const shipCenterWorld = ship.localToWorld(new THREE.Vector3(0, -10, 0));
+                    bData.flare.position.copy(shipCenterWorld);
                     bData.flare.scale.setScalar(1.0 + Math.sin(timeSec * 8.0 + bData.shipIndex) * 0.2);
 
                     // Target point:
-                    // In Bombardment: Target is strictly the gate excavation crater on Titan
+                    // In Bombardment: Target is strictly the gate excavation crater on Titan (following Titan rotation)
                     // In Tractor: Target is crystal node on one of the 12 golden pylons on the rising gate
                     let targetWorld = new THREE.Vector3();
                     if (isBombardmentFiring) {
@@ -5506,16 +5541,16 @@
                         }
                     }
 
-                    // Vector from prow to target
-                    const beamVec = targetWorld.clone().sub(prowWorld);
+                    // Vector from middle of capital ship to target on Titan
+                    const beamVec = targetWorld.clone().sub(shipCenterWorld);
                     const beamDist = beamVec.length();
                     const beamDir = beamVec.clone().normalize();
 
-                    // Position beam at midpoint
-                    bData.group.position.copy(prowWorld).addScaledVector(beamDir, beamDist * 0.5);
+                    // Position beam group EXACTLY at the middle of the capital ship
+                    bData.group.position.copy(shipCenterWorld);
+                    // Direct +Y axis towards target
                     bData.group.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), beamDir);
-
-                    // Scale beam along Y axis to match distance
+                    // Scale along Y to reach target distance (y=0 is ship center, y=1 is target on Titan)
                     bData.group.scale.set(1, beamDist, 1);
 
                     // Pulse core & plasma thickness
@@ -5524,13 +5559,13 @@
                     bData.plasma.scale.set(pulse * 1.1, 1, pulse * 1.1);
                     bData.cage.rotation.y += 0.02;
 
-                    // Animate Tractor Rings sliding UPWARD along the shaft toward the dreadnoughts
+                    // Animate Tractor Rings sliding UPWARD along the shaft from gate toward ship
                     if (bData.rings) {
                         bData.rings.forEach(ring => {
                             if (isTractorFiring) {
                                 ring.visible = true;
-                                ring.userData.offset -= timeDelta * 0.65; // Move toward -Y / ship prow
-                                if (ring.userData.offset < -0.5) ring.userData.offset += 1.0;
+                                ring.userData.offset -= timeDelta * 0.35; // Move toward y=0 (ship)
+                                if (ring.userData.offset < 0.0) ring.userData.offset += 1.0;
                                 ring.position.y = ring.userData.offset;
                                 const ringScale = 1.0 + Math.sin(timeSec * 6.0 + ring.userData.offset * Math.PI) * 0.25;
                                 ring.scale.set(ringScale, 1, ringScale);
@@ -5541,18 +5576,18 @@
                     }
 
                     // Beam Color Configuration:
-                    // Bombardment: Intense Radiant Gold Beams from front of each ship to the gate on Titan
+                    // Bombardment: Intense Radiant Gold Beams from middle of each ship to the gate on Titan
                     // Tractor: Radiant Graviton Purple Beams pulling the gate up into space
                     if (isBombardmentFiring) {
                         bData.core.material.color.setHex(0xffffff);
                         bData.plasma.material.color.setHex(0xfbbf24); // Radiant Gold
                         bData.cage.material.color.setHex(0xfef08a);   // Luminous Gold
-                        bData.flare.material.color.setHex(0xf59e0b);  // Gold Prow Flare
+                        bData.flare.material.color.setHex(0xf59e0b);  // Gold Ventral Flare
                     } else {
                         bData.core.material.color.setHex(0xfdf4ff);   // White-Violet
                         bData.plasma.material.color.setHex(0xa855f7); // Radiant Purple
                         bData.cage.material.color.setHex(0xc084fc);   // Violet Field
-                        bData.flare.material.color.setHex(0xd946ef);  // Purple Prow Flare
+                        bData.flare.material.color.setHex(0xd946ef);  // Purple Ventral Flare
                     }
                 });
             }
@@ -5564,7 +5599,7 @@
         let lastExcavationAudioTime = 0;
         function updatePlanetaryExcavationAndTractorAudio(playerPos, timeSec) {
             if (!audioCtx || audioCtx.state !== 'running' || isAudioMuted) return;
-            if (!ancientGoldenGate) return;
+            if (!ancientGoldenGate || !isTitanExcavationStarted || titanExcavationPhase === 'WAITING_FOR_FLEET') return;
 
             const dist = playerPos.distanceTo(ancientGoldenGate.position);
             if (dist > 55000) return; // Audio distance falloff
@@ -6955,6 +6990,18 @@ function createEpicPlayerDeathExplosion(pos) {
                 if (objElem && objElem.innerHTML.includes('WARP IN')) {
                     objElem.innerHTML = `<span style="color: #f43f5e; font-weight: bold; text-shadow: 0 0 8px rgba(244,63,94,0.8);">⚔️ ENGAGE DOMINION SIEGE FLEET & ESCORT FIGHTERS</span>`;
                 }
+            }
+
+            // Trigger planetary bombardment once ships have emerged at Titan
+            if (fleetEmergenceActive && elapsedFleetEmergence >= 9.5 && !isTitanExcavationStarted) {
+                isTitanExcavationStarted = true;
+                titanExcavationPhase = 'BOMBARDMENT';
+                titanExcavationStartTime = performance.now();
+                showToast("⚡ DOMINION DREADNOUGHTS ENGAGING HEAVY GOLD BOMBARDMENT BEAMS ON TITAN CRUST!");
+            } else if (!fleetEmergenceActive && !isTitanExcavationStarted) {
+                isTitanExcavationStarted = true;
+                titanExcavationPhase = 'BOMBARDMENT';
+                titanExcavationStartTime = performance.now();
             }
 
             capitalShips.forEach(ship => {
