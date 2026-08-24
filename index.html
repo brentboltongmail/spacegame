@@ -9554,11 +9554,12 @@ function createEpicPlayerDeathExplosion(pos) {
             mission1Rings.forEach(r => scene.remove(r));
             mission1Rings = [];
 
-            // Saturn is at 72060, 214, -81280
-            // Place player in front of Saturn, facing it
-            playerShip.position.set(72060, 214, -65000);
-            playerShip.rotation.set(0, Math.PI, 0); // face -z
-            playerShip.quaternion.setFromEuler(new THREE.Euler(0, Math.PI, 0));
+            // Start at the same spot as Mission 3 / Free Roam
+            playerShip.position.set(75200, 350, -25000);
+            playerShip.rotation.set(0, 0, 0);
+            playerShip.quaternion.set(0, 0, 0, 1);
+            playerShip.lookAt(new THREE.Vector3(75200, -600, -43500));
+            playerShip.rotateY(Math.PI); // 180-degree rotation
             targetSpeed = 200;
             currentSpeed = 200;
             
