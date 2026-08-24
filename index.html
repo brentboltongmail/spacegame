@@ -685,6 +685,41 @@
             white-space: nowrap;
         }
 
+        .autopilot-indicator {
+            position: absolute;
+            bottom: -48px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #fbbf24;
+            text-shadow: 0 0 8px rgba(251, 191, 36, 0.9), 0 0 16px rgba(245, 158, 11, 0.7);
+            font-family: Orbitron, sans-serif;
+            letter-spacing: 2px;
+            white-space: nowrap;
+            display: none;
+            padding: 3px 12px;
+            background: rgba(251, 191, 36, 0.12);
+            border: 1px solid rgba(251, 191, 36, 0.5);
+            border-radius: 4px;
+            box-shadow: 0 0 12px rgba(251, 191, 36, 0.25);
+            animation: pulse-autopilot 1.6s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        @keyframes pulse-autopilot {
+            0%, 100% {
+                opacity: 1;
+                border-color: rgba(251, 191, 36, 0.7);
+                box-shadow: 0 0 14px rgba(251, 191, 36, 0.4);
+            }
+            50% {
+                opacity: 0.75;
+                border-color: rgba(251, 191, 36, 0.3);
+                box-shadow: 0 0 6px rgba(251, 191, 36, 0.15);
+            }
+        }
+
         .crosshair-line-v {
             position: absolute;
             width: 2px;
@@ -1179,7 +1214,9 @@
             <div class="target-lock-box" id="target-lock-box"></div>
             
             <!-- Auto-Target Zone Indicator -->
-            <div class="target-lock-zone" id="target-lock-zone"></div>
+            <div class="target-lock-zone" id="target-lock-zone">
+                <div class="autopilot-indicator" id="autopilot-indicator">⚡ AUTO-PILOT ON</div>
+            </div>
 
             
             <div class="hud-overlay">
@@ -1198,7 +1235,7 @@
                             <div title="Left Click to fire twin plasma blasters"><kbd>L-CLICK</kbd> Fire</div>
                             <div title="Right Click to fire twin plasma blasters"><kbd>R-CLICK</kbd> Fire</div>
                             <div title="Spacebar to fire twin plasma blasters"><kbd>SPACE</kbd> Fire</div>
-                            <div title="Lock flight straight to free mouse cursor for UI windows"><kbd>L</kbd> Lock</div>
+                            <div title="Auto-Pilot: lock flight straight to free mouse cursor for UI windows"><kbd>L</kbd> Auto-Pilot</div>
                             <div title="Open 3D Tactical System Star Map"><kbd>M</kbd> 3D Map</div>
                             <div title="Pause flight & open Pilot Profile & 3D Ship Upgrade Hangar"><kbd>ESC</kbd> Hangar</div>
                         </div>
@@ -1926,7 +1963,7 @@
                         <div class="keymap-row"><span>Yaw Right (Turn Right)</span><kbd id="key-YawRight" onclick="startRebindingKey('YawRight')">► RIGHT</kbd></div>
                         <div class="keymap-row"><span>Fire Plasma Cannons</span><kbd id="key-Space" onclick="startRebindingKey('Space')">Space / Mouse 1</kbd></div>
                         <div class="keymap-row"><span>3D Tactical Map</span><kbd id="key-KeyM" onclick="startRebindingKey('KeyM')">M</kbd></div>
-                        <div class="keymap-row"><span>Flight Steering Lock</span><kbd id="key-KeyL" onclick="startRebindingKey('KeyL')">L</kbd></div>
+                        <div class="keymap-row"><span>Auto-Pilot / Heading Lock</span><kbd id="key-KeyL" onclick="startRebindingKey('KeyL')">L</kbd></div>
                         <div class="keymap-row"><span>Toggle Camera Mode</span><kbd id="key-KeyC" onclick="startRebindingKey('KeyC')">C</kbd></div>
                         <div class="keymap-row"><span>Pause / Pilot Profile</span><kbd id="key-Escape" onclick="startRebindingKey('Escape')">ESC</kbd></div>
                     </div>
@@ -2568,9 +2605,9 @@
                     if (isFlightLocked) {
                         normalizedMouse.x = 0;
                         normalizedMouse.y = 0;
-                        showToast("🔒 PILOT FLIGHT LOCK ENGAGED! Ship flying straight — Free mouse to drag windows!");
+                        showToast("🔒 AUTO-PILOT ENGAGED! Ship maintaining heading — Free mouse to drag windows!");
                     } else {
-                        showToast("🔓 PILOT FLIGHT UNLOCKED! Mouse flight steering active");
+                        showToast("🔓 AUTO-PILOT DISENGAGED! Flight steering active");
                     }
                 }
                 if (action === 'Tab') {
@@ -4335,6 +4372,12 @@ function createEpicPlayerDeathExplosion(pos) {
             // Hide the old 2D HTML lock box if it exists
             const lockBox = document.getElementById('target-lock-box');
             if (lockBox) lockBox.style.display = 'none';
+
+            // Auto-Pilot HUD indicator under auto target zone (Cockpit view only)
+            const autoPilotEl = document.getElementById('autopilot-indicator');
+            if (autoPilotEl) {
+                autoPilotEl.style.display = (isFlightLocked && cameraMode === 0) ? 'block' : 'none';
+            }
 
             // --- LASER PROJECTILE MOVEMENT & ZERO-ALLOCATION CONTINUOUS SEGMENT COLLISION ---
             for (let i = laserProjectiles.length - 1; i >= 0; i--) {
