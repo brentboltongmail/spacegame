@@ -4122,7 +4122,7 @@
             playerShip.add(playerShieldBubble);
 
             // Position Void Interceptor in panoramic vantage looking forward towards the battle line and Saturn
-            playerShip.position.set(75200, 350, -34000);
+            playerShip.position.set(75200, 350, -25000); // Started further back
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
             playerShip.lookAt(new THREE.Vector3(75200, -600, -43500));
@@ -6459,7 +6459,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-elias",
                 icon: "📻",
                 camMode: 2, // Far Third Person (Panoramic Vista)
-                speed: 120,
+                speed: 80,
                 text: "Kaylen! Kaylen, do you read me?! The long-range sensors on Mars just went red—The Crest is gone from the grid! Report in, kid!",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_01_elias.mp3"
             },
@@ -6470,7 +6470,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-kaylen",
                 icon: "🚀",
                 camMode: 1, // Rear Third-Person Close (Ship clearly visible)
-                speed: 160,
+                speed: 100,
                 text: "Elias... they wiped out the fleet. The kinetic rounds bounced right off their hulls. They're lining up their dreadnoughts on the rift right now.",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_02_kaylen.mp3"
             },
@@ -6481,7 +6481,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-elias",
                 icon: "📻",
                 camMode: 2, // Far Third Person
-                speed: 200,
+                speed: 120,
                 text: "Then break off and burn hard for the outer moons! Divert everything to afterburners! I'm spooling the freighter down in the slums—I will come get you, son!",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_03_elias.mp3"
             },
@@ -6492,7 +6492,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-kaylen",
                 icon: "🚀",
                 camMode: 1, // Rear Third-Person Close (Ship clearly visible)
-                speed: 240,
+                speed: 140,
                 text: "You know my fuel reserves, Elias. I can't outrun them. If those dreadnoughts cross this threshold, Sol doesn't have a defense left. Earth won't last twenty minutes.",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_04_kaylen.mp3"
             },
@@ -6503,7 +6503,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-elias",
                 icon: "📻",
                 camMode: 2, // Far Third Person
-                speed: 280,
+                speed: 160,
                 text: "No... No, look at the telemetry! The gravitational shear inside that ring is tearing atoms apart! You take that interceptor in there, you'll be vaporized!",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_05_elias.mp3"
             },
@@ -6514,7 +6514,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-kaylen",
                 icon: "💎",
                 camMode: 1, // Rear Third-Person Close (Ship clearly visible)
-                speed: 320,
+                speed: 180,
                 text: "It's vibrating, Elias. The pendant you found me with... it's singing with the gate. It's the same frequency. It knows what to do.",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_06_kaylen.mp3"
             },
@@ -6525,7 +6525,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-elias",
                 icon: "📻",
                 camMode: 2, // Far Third Person
-                speed: 360,
+                speed: 200,
                 text: "Kaylen, listen to me! You don't know what that thing is—what you are! I promised myself I'd keep you safe from all this... Don't you throw your life away for a war that isn't yours!",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_07_elias.mp3"
             },
@@ -6536,7 +6536,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-kaylen",
                 icon: "🚀",
                 camMode: 1, // Rear Third-Person Close (Ship clearly visible)
-                speed: 420,
+                speed: 220,
                 text: "You gave me twenty years, old man. You taught me how to fly, how to fight, and how to fix broken things. Earth is my home because you're on it.",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_08_kaylen.mp3"
             },
@@ -6547,7 +6547,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-elias",
                 icon: "📻",
                 camMode: 2, // Far Third Person
-                speed: 500,
+                speed: 250,
                 text: "Kaylen, NO! Turn the ship around! KAYLEN—",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_09_elias.mp3"
             },
@@ -6558,7 +6558,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-kaylen",
                 icon: "✨",
                 camMode: 1, // Rear Close diving in
-                speed: 650,
+                speed: 250, // Will jump to 1200 later
                 text: "Someone has to shut the door, old man. ... See you on the other side, Dad....",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_10_kaylen.mp3"
             }
@@ -6589,7 +6589,7 @@ function createEpicPlayerDeathExplosion(pos) {
             ancientGoldenGate.visible = true;
 
             // Position ship and camera EXACTLY like game start (facing Titan / Saturn panoramic vista)
-            playerShip.position.set(75200, 350, -34000);
+            playerShip.position.set(75200, 350, -25000); // Started further back
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
             playerShip.lookAt(new THREE.Vector3(75200, -600, -43500));
@@ -6642,13 +6642,19 @@ function createEpicPlayerDeathExplosion(pos) {
             targetSpeed = lineData.speed;
             currentSpeed = Math.max(currentSpeed, lineData.speed * 0.85);
 
-            // On Line 10, trigger full overdrive plunge
+            // On Line 10, hold until "Dad" is spoken
             if (titanCinematicIndex === 9) {
-                isTitanCinematicEnteringGate = true;
-                cameraMode = 1;
-                playerShip.visible = true;
-                targetSpeed = 650;
-                currentSpeed = 650;
+                // We keep targetSpeed at 250 initially
+                targetSpeed = 150;
+                
+                // Audio is around 8-9 seconds. Let's trigger the plunge at 7.0 seconds.
+                setTimeout(() => {
+                    if (!isTitanCinematicActive) return;
+                    isTitanCinematicEnteringGate = true;
+                    cameraMode = 1;
+                    targetSpeed = 1500;
+                    currentSpeed = 1000;
+                }, 7500);
             }
 
             // Update UI elements
@@ -6767,7 +6773,7 @@ function createEpicPlayerDeathExplosion(pos) {
             if (typeof isTitanCinematicActive !== 'undefined' && isTitanCinematicActive) {
                 stopTitanGateCinematic();
             }
-            playerShip.position.set(75200, 350, -34000);
+            playerShip.position.set(75200, 350, -25000); // Started further back
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
             playerShip.lookAt(new THREE.Vector3(75200, -600, -43500));
@@ -6868,8 +6874,8 @@ function createEpicPlayerDeathExplosion(pos) {
                 const gateCenter = ancientGoldenGate.position.clone();
                 const holdingThresholdZ = -44200; // 400 units in front of gate center (-44600)
                 
-                // During lines 1-9, clamp position so the ship holds in front of the gate and never enters early
-                if (titanCinematicIndex < 9 && !isTitanCinematicEnteringGate) {
+                // Clamp position so the ship holds in front of the gate and never enters early
+                if (!isTitanCinematicEnteringGate) {
                     if (playerShip.position.z < holdingThresholdZ) {
                         playerShip.position.z = holdingThresholdZ;
                     }
@@ -6885,7 +6891,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 const hasCrossedRingPlane = (playerShip.position.z <= gateCenter.z + 30);
 
                 // ONLY trigger gate penetration and singularity jump on final line / overdrive dive
-                if ((isTitanCinematicEnteringGate || titanCinematicIndex >= 9) && (distToGate < 120 || hasCrossedRingPlane)) {
+                if ((isTitanCinematicEnteringGate) && (distToGate < 120 || hasCrossedRingPlane)) {
                     if (!isWormholeActive) {
                         isWormholeActive = true;
                         isTitanCinematicEnteringGate = false;
