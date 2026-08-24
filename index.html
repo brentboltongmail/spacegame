@@ -1928,7 +1928,7 @@
     <div id="toast">Title Voted!</div>
 
     <!-- Include Three.js for 3D Flight Engine -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous"></script>
     <script src="libs/fflate.min.js"></script>
     <script src="libs/FBXLoader.js"></script>
     <script>
@@ -1945,33 +1945,15 @@
         }
 
         window.addEventListener('error', (e) => {
+            console.error("Global JS Error:", e);
             remoteLog(`GLOBAL JS ERROR: ${e.message} at ${e.filename}:${e.lineno}:${e.colno}`);
-            const errDiv = document.createElement('div');
-            errDiv.style.position = 'fixed';
-            errDiv.style.top = '0'; errDiv.style.left = '0';
-            errDiv.style.width = '100vw'; errDiv.style.height = '100vh';
-            errDiv.style.background = 'red';
-            errDiv.style.color = 'white';
-            errDiv.style.zIndex = '999999';
-            errDiv.style.padding = '20px';
-            errDiv.style.fontFamily = 'monospace';
-            errDiv.innerHTML = `<strong>JavaScript Error:</strong><br>${e.message}<br>Line: ${e.lineno}<br>Col: ${e.colno}<br><pre>${e.error ? e.error.stack : ''}</pre>`;
-            document.body.appendChild(errDiv);
+            // Ignore generic cross-origin "Script error." placeholders that provide no stack or line info
+            if (!e.message || e.message === 'Script error.' || e.lineno === 0) return;
         });
 
         window.addEventListener('unhandledrejection', (e) => {
+            console.warn("Unhandled Promise Rejection:", e.reason);
             remoteLog(`UNHANDLED PROMISE REJECTION: ${e.reason}`);
-            const errDiv = document.createElement('div');
-            errDiv.style.position = 'fixed';
-            errDiv.style.top = '0'; errDiv.style.left = '0';
-            errDiv.style.width = '100vw'; errDiv.style.height = '100vh';
-            errDiv.style.background = 'red';
-            errDiv.style.color = 'white';
-            errDiv.style.zIndex = '999999';
-            errDiv.style.padding = '20px';
-            errDiv.style.fontFamily = 'monospace';
-            errDiv.innerHTML = `<strong>Unhandled Promise Rejection:</strong><br><pre>${e.reason && e.reason.stack ? e.reason.stack : e.reason}</pre>`;
-            document.body.appendChild(errDiv);
         });
 
         // --- Game Titles Data ---
@@ -5826,6 +5808,44 @@ function createEpicPlayerDeathExplosion(pos) {
             isOptionsOpen = true;
             const modal = document.getElementById('options-modal');
             if (modal) modal.style.display = 'flex';
+            
+            // Sync slider inputs to current active config
+            try {
+                const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+                const setText = (id, text) => { const el = document.getElementById(id); if (el) el.innerText = text; };
+
+                setEl('slider-vol-master', Math.round(gameVolumeConfig.master * 100));
+                setText('lbl-vol-master', Math.round(gameVolumeConfig.master * 100) + '%');
+                setEl('slider-vol-engine', Math.round(gameVolumeConfig.engine * 100));
+                setText('lbl-vol-engine', Math.round(gameVolumeConfig.engine * 100) + '%');
+                setEl('slider-vol-firing', Math.round(gameVolumeConfig.firing * 100));
+                setText('lbl-vol-firing', Math.round(gameVolumeConfig.firing * 100) + '%');
+                setEl('slider-vol-music', Math.round(gameVolumeConfig.music * 100));
+                setText('lbl-vol-music', Math.round(gameVolumeConfig.music * 100) + '%');
+
+                setEl('slider-set-roll', gameMechanicsConfig.rollSpeed);
+                setText('lbl-set-roll', gameMechanicsConfig.rollSpeed + '%');
+                setEl('slider-set-turn', gameMechanicsConfig.turnSpeed);
+                setText('lbl-set-turn', gameMechanicsConfig.turnSpeed + '%');
+                setEl('slider-set-cam', gameMechanicsConfig.cameraLag);
+                setText('lbl-set-cam', gameMechanicsConfig.cameraLag + '%');
+                setEl('slider-set-throttle', gameMechanicsConfig.throttleAccel);
+                setText('lbl-set-throttle', gameMechanicsConfig.throttleAccel + '%');
+                setEl('slider-set-shield-regen', gameMechanicsConfig.shieldRegenMult);
+                setText('lbl-set-shield-regen', gameMechanicsConfig.shieldRegenMult + '%');
+                setEl('slider-set-hull-regen', gameMechanicsConfig.hullRegenMult);
+                setText('lbl-set-hull-regen', gameMechanicsConfig.hullRegenMult + '%');
+                setEl('slider-set-enemy-dmg', gameMechanicsConfig.enemyDamageMult);
+                setText('lbl-set-enemy-dmg', gameMechanicsConfig.enemyDamageMult + '%');
+                setEl('slider-set-player-dmg', gameMechanicsConfig.playerDamageMult);
+                setText('lbl-set-player-dmg', gameMechanicsConfig.playerDamageMult + '%');
+                
+                const chk = document.getElementById('chk-flash-on-hit');
+                if (chk) chk.checked = !!gameMechanicsConfig.flashOnHit;
+            } catch(e) {
+                console.warn("Error syncing options modal fields:", e);
+            }
+
             showToast("🔧 GAME OPTIONS & AUDIO CONTROLS OPEN");
         }
 
@@ -5837,83 +5857,110 @@ function createEpicPlayerDeathExplosion(pos) {
         }
 
         function updateGameSettings() {
-            const rollVal = parseInt(document.getElementById('slider-set-roll').value);
-            const turnVal = parseInt(document.getElementById('slider-set-turn').value);
-            const camVal = parseInt(document.getElementById('slider-set-cam').value);
-            const throttleVal = parseInt(document.getElementById('slider-set-throttle').value);
-            const shieldRegenVal = parseInt(document.getElementById('slider-set-shield-regen').value);
-            const hullRegenVal = parseInt(document.getElementById('slider-set-hull-regen').value);
-            const enemyDmgVal = parseInt(document.getElementById('slider-set-enemy-dmg').value);
-            const playerDmgVal = parseInt(document.getElementById('slider-set-player-dmg').value);
-            const flashOnHitVal = document.getElementById('chk-flash-on-hit') ? document.getElementById('chk-flash-on-hit').checked : false;
+            try {
+                const getVal = (id, fallback) => {
+                    const el = document.getElementById(id);
+                    return el ? parseInt(el.value) || fallback : fallback;
+                };
+                const setLbl = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerText = val + '%';
+                };
 
-            document.getElementById('lbl-set-roll').innerText = rollVal + '%';
-            document.getElementById('lbl-set-turn').innerText = turnVal + '%';
-            document.getElementById('lbl-set-cam').innerText = camVal + '%';
-            document.getElementById('lbl-set-throttle').innerText = throttleVal + '%';
-            document.getElementById('lbl-set-shield-regen').innerText = shieldRegenVal + '%';
-            document.getElementById('lbl-set-hull-regen').innerText = hullRegenVal + '%';
-            document.getElementById('lbl-set-enemy-dmg').innerText = enemyDmgVal + '%';
-            document.getElementById('lbl-set-player-dmg').innerText = playerDmgVal + '%';
+                const rollVal = getVal('slider-set-roll', 125);
+                const turnVal = getVal('slider-set-turn', 50);
+                const camVal = getVal('slider-set-cam', 80);
+                const throttleVal = getVal('slider-set-throttle', 125);
+                const shieldRegenVal = getVal('slider-set-shield-regen', 100);
+                const hullRegenVal = getVal('slider-set-hull-regen', 100);
+                const enemyDmgVal = getVal('slider-set-enemy-dmg', 100);
+                const playerDmgVal = getVal('slider-set-player-dmg', 100);
+                const chk = document.getElementById('chk-flash-on-hit');
+                const flashOnHitVal = chk ? chk.checked : false;
 
-            gameMechanicsConfig.rollSpeed = rollVal;
-            gameMechanicsConfig.turnSpeed = turnVal;
-            gameMechanicsConfig.cameraLag = camVal;
-            gameMechanicsConfig.throttleAccel = throttleVal;
-            gameMechanicsConfig.shieldRegenMult = shieldRegenVal;
-            gameMechanicsConfig.hullRegenMult = hullRegenVal;
-            gameMechanicsConfig.enemyDamageMult = enemyDmgVal;
-            gameMechanicsConfig.playerDamageMult = playerDmgVal;
-            gameMechanicsConfig.flashOnHit = flashOnHitVal;
+                setLbl('lbl-set-roll', rollVal);
+                setLbl('lbl-set-turn', turnVal);
+                setLbl('lbl-set-cam', camVal);
+                setLbl('lbl-set-throttle', throttleVal);
+                setLbl('lbl-set-shield-regen', shieldRegenVal);
+                setLbl('lbl-set-hull-regen', hullRegenVal);
+                setLbl('lbl-set-enemy-dmg', enemyDmgVal);
+                setLbl('lbl-set-player-dmg', playerDmgVal);
 
-            if (currentProfile) {
-                if (!currentProfile.settings) currentProfile.settings = {};
-                currentProfile.settings.rollSpeed = rollVal;
-                currentProfile.settings.turnSpeed = turnVal;
-                currentProfile.settings.cameraLag = camVal;
-                currentProfile.settings.throttleAccel = throttleVal;
-                currentProfile.settings.shieldRegenMult = shieldRegenVal;
-                currentProfile.settings.hullRegenMult = hullRegenVal;
-                currentProfile.settings.enemyDamageMult = enemyDmgVal;
-                currentProfile.settings.playerDamageMult = playerDmgVal;
-                currentProfile.settings.flashOnHit = flashOnHitVal;
-                saveProfileToServerSilent();
+                gameMechanicsConfig.rollSpeed = rollVal;
+                gameMechanicsConfig.turnSpeed = turnVal;
+                gameMechanicsConfig.cameraLag = camVal;
+                gameMechanicsConfig.throttleAccel = throttleVal;
+                gameMechanicsConfig.shieldRegenMult = shieldRegenVal;
+                gameMechanicsConfig.hullRegenMult = hullRegenVal;
+                gameMechanicsConfig.enemyDamageMult = enemyDmgVal;
+                gameMechanicsConfig.playerDamageMult = playerDmgVal;
+                gameMechanicsConfig.flashOnHit = flashOnHitVal;
+
+                if (currentProfile) {
+                    if (!currentProfile.settings) currentProfile.settings = {};
+                    currentProfile.settings.rollSpeed = rollVal;
+                    currentProfile.settings.turnSpeed = turnVal;
+                    currentProfile.settings.cameraLag = camVal;
+                    currentProfile.settings.throttleAccel = throttleVal;
+                    currentProfile.settings.shieldRegenMult = shieldRegenVal;
+                    currentProfile.settings.hullRegenMult = hullRegenVal;
+                    currentProfile.settings.enemyDamageMult = enemyDmgVal;
+                    currentProfile.settings.playerDamageMult = playerDmgVal;
+                    currentProfile.settings.flashOnHit = flashOnHitVal;
+                    saveProfileToServerSilent();
+                }
+            } catch(err) {
+                console.warn("Error updating game settings:", err);
             }
         }
 
         function updateAudioVolumes() {
-            const masterVal = parseInt(document.getElementById('slider-vol-master').value);
-            const engineVal = parseInt(document.getElementById('slider-vol-engine').value);
-            const firingVal = parseInt(document.getElementById('slider-vol-firing').value);
-            const musicVal = parseInt(document.getElementById('slider-vol-music').value || "60");
+            try {
+                const masterEl = document.getElementById('slider-vol-master');
+                const engineEl = document.getElementById('slider-vol-engine');
+                const firingEl = document.getElementById('slider-vol-firing');
+                const musicEl = document.getElementById('slider-vol-music');
 
-            document.getElementById('lbl-vol-master').innerText = masterVal + "%";
-            document.getElementById('lbl-vol-engine').innerText = engineVal + "%";
-            document.getElementById('lbl-vol-firing').innerText = firingVal + "%";
-            const lblMusic = document.getElementById('lbl-vol-music');
-            if (lblMusic) lblMusic.innerText = musicVal + "%";
+                const masterVal = masterEl ? parseInt(masterEl.value) : 70;
+                const engineVal = engineEl ? parseInt(engineEl.value) : 80;
+                const firingVal = firingEl ? parseInt(firingEl.value) : 85;
+                const musicVal = musicEl ? parseInt(musicEl.value) : 60;
 
-            gameVolumeConfig.master = masterVal / 100;
-            gameVolumeConfig.engine = engineVal / 100;
-            gameVolumeConfig.firing = firingVal / 100;
-            gameVolumeConfig.music = musicVal / 100;
+                const lblMaster = document.getElementById('lbl-vol-master');
+                const lblEngine = document.getElementById('lbl-vol-engine');
+                const lblFiring = document.getElementById('lbl-vol-firing');
+                const lblMusic = document.getElementById('lbl-vol-music');
 
-            if (engineMasterGain && audioCtx) {
-                engineMasterGain.gain.setValueAtTime(isAudioMuted ? 0 : gameVolumeConfig.master * gameVolumeConfig.engine * 0.40, audioCtx.currentTime);
-            }
-            
-            if (bgMusicGain && audioCtx) {
-                bgMusicGain.gain.setValueAtTime(isAudioMuted ? 0 : gameVolumeConfig.master * gameVolumeConfig.music, audioCtx.currentTime);
-            }
+                if (lblMaster) lblMaster.innerText = masterVal + "%";
+                if (lblEngine) lblEngine.innerText = engineVal + "%";
+                if (lblFiring) lblFiring.innerText = firingVal + "%";
+                if (lblMusic) lblMusic.innerText = musicVal + "%";
 
-            // Save settings permanently
-            if (currentProfile) {
-                if (!currentProfile.settings) currentProfile.settings = {};
-                currentProfile.settings.masterVol = masterVal;
-                currentProfile.settings.engineVol = engineVal;
-                currentProfile.settings.firingVol = firingVal;
-                currentProfile.settings.musicVol = musicVal;
-                saveProfileToServerSilent();
+                gameVolumeConfig.master = (isNaN(masterVal) ? 70 : masterVal) / 100;
+                gameVolumeConfig.engine = (isNaN(engineVal) ? 80 : engineVal) / 100;
+                gameVolumeConfig.firing = (isNaN(firingVal) ? 85 : firingVal) / 100;
+                gameVolumeConfig.music = (isNaN(musicVal) ? 60 : musicVal) / 100;
+
+                if (engineMasterGain && audioCtx && audioCtx.state === 'running') {
+                    engineMasterGain.gain.setValueAtTime(isAudioMuted ? 0 : gameVolumeConfig.master * gameVolumeConfig.engine * 0.40, audioCtx.currentTime);
+                }
+                
+                if (bgMusicGain && audioCtx && audioCtx.state === 'running') {
+                    bgMusicGain.gain.setValueAtTime(isAudioMuted ? 0 : gameVolumeConfig.master * gameVolumeConfig.music, audioCtx.currentTime);
+                }
+
+                // Save settings permanently
+                if (currentProfile) {
+                    if (!currentProfile.settings) currentProfile.settings = {};
+                    currentProfile.settings.masterVol = masterVal;
+                    currentProfile.settings.engineVol = engineVal;
+                    currentProfile.settings.firingVol = firingVal;
+                    currentProfile.settings.musicVol = musicVal;
+                    saveProfileToServerSilent();
+                }
+            } catch(err) {
+                console.warn("Error updating audio volumes:", err);
             }
         }
 
