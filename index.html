@@ -3126,8 +3126,8 @@
             const h = hexRadius * 1.5;
 
             ctx.strokeStyle = '#00f0ff';
-            ctx.lineWidth = 3.5;
-            ctx.fillStyle = 'rgba(0, 240, 255, 0.08)';
+            ctx.lineWidth = 2.0;
+            ctx.fillStyle = 'rgba(0, 240, 255, 0.03)';
 
             function drawHex(cx, cy, r) {
                 ctx.beginPath();
@@ -3197,7 +3197,7 @@
                 depthWrite: false
             });
             const outerMesh = new THREE.Mesh(baseGeo, outerMat);
-            outerMesh.scale.set(4.55, 1.55, 4.85);
+            outerMesh.scale.set(6.65, 1.60, 4.95);
             outerMesh.userData.isShield = true;
             shieldGroup.add(outerMesh);
             shieldGroup.userData.outerMat = outerMat;
@@ -3212,7 +3212,7 @@
                 depthWrite: false
             });
             const innerMesh = new THREE.Mesh(baseGeo, innerMat);
-            innerMesh.scale.set(4.45, 1.48, 4.75);
+            innerMesh.scale.set(6.55, 1.52, 4.85);
             innerMesh.userData.isShield = true;
             shieldGroup.add(innerMesh);
             shieldGroup.userData.innerMat = innerMat;
@@ -3228,7 +3228,7 @@
                 depthWrite: false
             });
             const wireMesh = new THREE.Mesh(wireGeo, wireMat);
-            wireMesh.scale.set(4.58, 1.57, 4.88);
+            wireMesh.scale.set(6.68, 1.62, 4.98);
             wireMesh.userData.isShield = true;
             shieldGroup.add(wireMesh);
             shieldGroup.userData.wireMat = wireMat;
@@ -4824,13 +4824,13 @@ function createEpicPlayerDeathExplosion(pos) {
                         playerShieldBubble.userData.hexTex.offset.y += 0.0005;
                     }
                     if (playerShieldBubble.userData.outerMat) {
-                        playerShieldBubble.userData.outerMat.opacity = (0.50 + 0.35 * pulse) * fade;
+                        playerShieldBubble.userData.outerMat.opacity = (0.24 + 0.16 * pulse) * fade;
                     }
                     if (playerShieldBubble.userData.innerMat) {
-                        playerShieldBubble.userData.innerMat.opacity = (0.12 + 0.08 * pulse) * fade;
+                        playerShieldBubble.userData.innerMat.opacity = (0.06 + 0.04 * pulse) * fade;
                     }
                     if (playerShieldBubble.userData.wireMat) {
-                        playerShieldBubble.userData.wireMat.opacity = (0.18 + 0.14 * pulse) * fade;
+                        playerShieldBubble.userData.wireMat.opacity = (0.10 + 0.08 * pulse) * fade;
                     }
                 } else {
                     playerShieldBubble.visible = false;
@@ -5419,9 +5419,9 @@ function createEpicPlayerDeathExplosion(pos) {
 
             // Visual shield pulse if shield upgraded
             if (modKey === 'shields' && hangarShieldMesh) {
-                if (hangarShieldMesh.userData.outerMat) hangarShieldMesh.userData.outerMat.opacity = 0.8;
-                if (hangarShieldMesh.userData.innerMat) hangarShieldMesh.userData.innerMat.opacity = 0.25;
-                if (hangarShieldMesh.userData.wireMat) hangarShieldMesh.userData.wireMat.opacity = 0.4;
+                if (hangarShieldMesh.userData.outerMat) hangarShieldMesh.userData.outerMat.opacity = 0.35;
+                if (hangarShieldMesh.userData.innerMat) hangarShieldMesh.userData.innerMat.opacity = 0.08;
+                if (hangarShieldMesh.userData.wireMat) hangarShieldMesh.userData.wireMat.opacity = 0.15;
                 setTimeout(() => {
                     if (hangarShieldMesh.userData.outerMat) hangarShieldMesh.userData.outerMat.opacity = 0.0;
                     if (hangarShieldMesh.userData.innerMat) hangarShieldMesh.userData.innerMat.opacity = 0.0;
