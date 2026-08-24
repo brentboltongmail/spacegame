@@ -4364,47 +4364,122 @@ function createEpicPlayerDeathExplosion(pos) {
             }
             if (spacePlanet) spacePlanet.rotation.y += 0.00015;
 
-            // --- ANIMATE ENEMY INTERCEPTORS & TARGET LOCK SELECTION ---
+            // --- ANIMATE ENEMY INTERCEPTORS (NATURAL 6-DOF DOGFIGHTING FLIGHT AI) ---
             let closestEnemy = null;
             let closestDist = 10500; // TRIPLED TARGET RANGE: 10,500 Units / 10.5 KM!
             const fwdDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
 
             enemyShips.forEach(e => {
                 if (e.userData && e.userData.hp > 0 && playerShip) {
+                    // Initialize individual tactical properties if missing
+                    if (!e.userData.aiState) {
+                        e.userData.aiState = 'CHASE';
+                        e.userData.stateTimer = Date.now() + Math.random() * 3000;
+                        e.userData.flankSign = Math.random() > 0.5 ? 1 : -1;
+                        e.userData.evadeDir = new THREE.Vector3(
+                            (Math.random() - 0.5) * 1.5,
+                            (Math.random() - 0.5) * 1.0,
+                            -1.0
+                        ).normalize();
+                        e.userData.flightSpeed = 0.65 + Math.random() * 0.20;
+                        e.userData.currentRoll = 0;
+                    }
+
                     const toPlayer = playerShip.position.clone().sub(e.position);
                     const dist = toPlayer.length();
-                    
-                    if (dist > 0) {
-                        const dir = toPlayer.clone().normalize();
-                        // Turn towards player smoothly (50% slower tracking rate)
-                        const targetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), dir);
-                        e.quaternion.slerp(targetQuat, 0.025);
+                    const now = Date.now();
 
-                        // Move based on distance (Slowed by 50%)
-                        if (dist > 400) {
-                            e.translateZ(-0.75);
-                        } else if (dist < 150) {
-                            e.translateZ(0.375); // Back away
-                        } else {
-                            // Strafe (50% slower)
-                            e.translateX(Math.sin(Date.now() * 0.0005 + e.id) * 0.375);
-                            e.translateY(Math.cos(Date.now() * 0.0005 + e.id) * 0.1875);
+                    if (dist > 0) {
+                        const toPlayerDir = toPlayer.clone().normalize();
+                        const enemyFwd = new THREE.Vector3(0, 0, -1).applyQuaternion(e.quaternion);
+                        const facingDot = enemyFwd.dot(toPlayerDir);
+
+                        // State Machine Transitions
+                        if (e.userData.aiState === 'CHASE') {
+                            if (dist < 900 && facingDot > 0.65) {
+                                e.userData.aiState = 'ATTACK_RUN';
+                                e.userData.stateTimer = now + 3500 + Math.random() * 2000;
+                            }
+                        } else if (e.userData.aiState === 'ATTACK_RUN') {
+                            // Break away if too close to avoid ramming or buzzing in place
+                            if (dist < 220 || now > e.userData.stateTimer) {
+                                e.userData.aiState = 'BREAKAWAY';
+                                e.userData.stateTimer = now + 2500 + Math.random() * 1500;
+                                // Choose an authentic evasive peel-off vector (banking outwards and clearing distance)
+                                const rightVec = new THREE.Vector3(1, 0, 0).applyQuaternion(e.quaternion);
+                                const upVec = new THREE.Vector3(0, 1, 0).applyQuaternion(e.quaternion);
+                                e.userData.evadeDir = rightVec.multiplyScalar(e.userData.flankSign * 1.2)
+                                    .add(upVec.multiplyScalar((Math.random() - 0.3) * 1.0))
+                                    .add(enemyFwd.multiplyScalar(0.8))
+                                    .normalize();
+                            }
+                        } else if (e.userData.aiState === 'BREAKAWAY') {
+                            if (dist > 650 || now > e.userData.stateTimer) {
+                                e.userData.aiState = 'RE_ENGAGE';
+                                e.userData.stateTimer = now + 3000 + Math.random() * 2000;
+                                e.userData.flankSign = -e.userData.flankSign; // Alternate flank sides
+                            }
+                        } else if (e.userData.aiState === 'RE_ENGAGE') {
+                            if (facingDot > 0.6 || now > e.userData.stateTimer) {
+                                e.userData.aiState = 'CHASE';
+                            }
                         }
 
-                        // Shoot at player
+                        // Determine target steering direction based on tactical state
+                        let desiredDir = toPlayerDir.clone();
+                        let targetSpeed = 0.65;
+                        let turnSlerp = 0.022;
+
+                        if (e.userData.aiState === 'CHASE') {
+                            // Lead the target slightly with individual flanking offset
+                            const flankOffset = new THREE.Vector3(e.userData.flankSign * 120, Math.sin(now * 0.001 + e.id) * 40, 0);
+                            const leadTarget = playerShip.position.clone().add(flankOffset);
+                            desiredDir = leadTarget.sub(e.position).normalize();
+                            targetSpeed = 0.72;
+                            turnSlerp = 0.024;
+                        } else if (e.userData.aiState === 'ATTACK_RUN') {
+                            // Zero in on player with smooth steady gun run
+                            desiredDir = toPlayerDir;
+                            targetSpeed = 0.60;
+                            turnSlerp = 0.032;
+                        } else if (e.userData.aiState === 'BREAKAWAY') {
+                            // Peel away along evasion vector at high speed to open separation
+                            desiredDir = e.userData.evadeDir;
+                            targetSpeed = 0.82;
+                            turnSlerp = 0.028;
+                        } else if (e.userData.aiState === 'RE_ENGAGE') {
+                            // Wide sweeping banking turn back toward the combat area
+                            desiredDir = toPlayerDir;
+                            targetSpeed = 0.68;
+                            turnSlerp = 0.016; // Wide sweeping turn arc
+                        }
+
+                        // Smoothly orient fighter towards desired steering direction
+                        const targetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), desiredDir);
+                        e.quaternion.slerp(targetQuat, turnSlerp);
+
+                        // Continuous Natural Forward Flight Momentum
+                        e.translateZ(-targetSpeed);
+
+                        // Natural Banking into Turns (Roll angle based on yaw turn rate)
+                        const crossTurn = new THREE.Vector3().crossVectors(enemyFwd, desiredDir);
+                        const rollTarget = THREE.MathUtils.clamp(-crossTurn.y * 3.5, -0.65, 0.65);
+                        e.userData.currentRoll = THREE.MathUtils.lerp(e.userData.currentRoll, rollTarget, 0.05);
+                        e.rotation.z = e.userData.currentRoll;
+
+                        // Shoot at player during attack runs or when cleanly aligned
                         e.userData.lastFireTime = e.userData.lastFireTime || 0;
-                        if (dist < 3000 && Date.now() - e.userData.lastFireTime > 800 + Math.random() * 1000) {
-                            e.userData.lastFireTime = Date.now();
+                        if (dist < 3200 && facingDot > 0.82 && now - e.userData.lastFireTime > (e.userData.aiState === 'ATTACK_RUN' ? 700 : 1200) + Math.random() * 600) {
+                            e.userData.lastFireTime = now;
                             const eLaser = getPooledEnemyLaserBolt();
                             if (eLaser) {
                                 eLaser.visible = true;
                                 eLaser.quaternion.copy(e.quaternion);
-                                // Random left or right wing offset
                                 const side = Math.random() > 0.5 ? -2.4 : 2.4;
                                 const offset = new THREE.Vector3(side, -0.1, -2.4).applyQuaternion(e.quaternion);
                                 eLaser.position.copy(e.position).add(offset);
                                 eLaser.userData.prevPos.copy(eLaser.position);
-                                eLaser.userData.velocity.copy(dir).multiplyScalar(12); // Speed 12
+                                eLaser.userData.velocity.copy(enemyFwd).multiplyScalar(12);
                                 if (!enemyLaserProjectiles.includes(eLaser)) enemyLaserProjectiles.push(eLaser);
                             }
                         }
