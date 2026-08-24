@@ -2424,9 +2424,7 @@
             loadDominionFighterModel();
             createPlayerShip();
             createCapitalShip();
-            initCapitalParticlePool();
             createWormholeGate();
-            spawnEnemySwarm();
             initLaserPool();
             // Create 3D Wireframe Target Lock Box
             const targetBoxGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(20, 20, 20));
@@ -3046,7 +3044,7 @@
 
                 const targetScale = 7.2 / (size.x || 1);
                 model.scale.set(targetScale, targetScale, targetScale);
-                model.rotation.set(-Math.PI / 2, 0, -Math.PI / 2);
+                model.rotation.set(-Math.PI / 2, -Math.PI / 2, 0);
                 model.position.set(-center.y * targetScale, -center.z * targetScale, -center.x * targetScale);
 
                 voidInterceptorTemplate = model;
@@ -3149,7 +3147,7 @@
 
             // Procedural Placeholder Hull (Immediate Zero-Latency Rendering while GLB loads)
             const fallbackGeo = new THREE.ConeGeometry(1.2, 4.2, 5);
-            fallbackGeo.rotateX(Math.PI / 2);
+            fallbackGeo.rotateX(-Math.PI / 2);
             const fallbackMat = new THREE.MeshStandardMaterial({
                 color: 0x1e293b,
                 roughness: 0.5,
@@ -3384,9 +3382,11 @@
             playerShieldBubble.visible = false;
             playerShip.add(playerShieldBubble);
 
-            // Position Void Interceptor in high vantage looking directly into the action corridor
-            playerShip.position.set(81600, 200, -38000);
-            playerShip.lookAt(new THREE.Vector3(77200, -650, -43800));
+            // Position Void Interceptor in panoramic vantage looking forward towards the battle line and Saturn
+            playerShip.position.set(75200, 350, -34000);
+            playerShip.rotation.set(0, 0, 0);
+            playerShip.quaternion.set(0, 0, 0, 1);
+            playerShip.lookAt(new THREE.Vector3(75200, -600, -43500));
             scene.add(playerShip);
 
             if (camera) {
@@ -3404,39 +3404,39 @@
 
         const DOMINION_FLEET_CONFIG = [
             {
-                id: "flagship",
-                name: "Dominion Flagship 'Iron Sovereign'",
-                targetPos: new THREE.Vector3(77200, -650, -43800),
-                jumpDelay: 0.6,
-                scale: 1320
+                id: "dread_3",
+                name: "Dominion Siege Cruiser 'Shadow of Aythelgard'",
+                targetPos: new THREE.Vector3(70400, -600, -43500),
+                jumpDelay: 15.0,
+                scale: 1180
             },
             {
                 id: "dread_1",
                 name: "Dominion Dreadnought 'Titan's Bane'",
-                targetPos: new THREE.Vector3(75400, -350, -42600),
-                jumpDelay: 1.8,
-                scale: 1180
+                targetPos: new THREE.Vector3(72800, -600, -43500),
+                jumpDelay: 16.2,
+                scale: 1220
+            },
+            {
+                id: "flagship",
+                name: "Dominion Flagship 'Iron Sovereign'",
+                targetPos: new THREE.Vector3(75200, -600, -43500),
+                jumpDelay: 17.4,
+                scale: 1350
             },
             {
                 id: "dread_2",
                 name: "Dominion Dreadnought 'Void Reaver'",
-                targetPos: new THREE.Vector3(79000, -950, -45000),
-                jumpDelay: 2.9,
-                scale: 1180
-            },
-            {
-                id: "dread_3",
-                name: "Dominion Siege Cruiser 'Shadow of Aythelgard'",
-                targetPos: new THREE.Vector3(73800, -100, -41400),
-                jumpDelay: 4.1,
-                scale: 1120
+                targetPos: new THREE.Vector3(77600, -600, -43500),
+                jumpDelay: 18.6,
+                scale: 1220
             },
             {
                 id: "dread_4",
                 name: "Dominion Siege Cruiser 'Blood Eclipse'",
-                targetPos: new THREE.Vector3(80800, -1250, -46200),
-                jumpDelay: 5.3,
-                scale: 1120
+                targetPos: new THREE.Vector3(80000, -600, -43500),
+                jumpDelay: 19.8,
+                scale: 1180
             }
         ];
 
@@ -3706,13 +3706,13 @@
                 shipGroup.userData.beacons.push(bGroup);
             });
 
-            // 2. Red Glowing Rear Engine Thruster Arrays (Shared materials & zero sub-nozzle lights)
+            // 2. Red Glowing Rear Engine Thruster Arrays (Shared materials & recessed inside rear housing)
             const engineClusters = [
-                { x: 0, y: -12, z: 580, r: 36.0 },
-                { x: -52, y: 15, z: 570, r: 24.0 },
-                { x: 52, y: 15, z: 570, r: 24.0 },
-                { x: -44, y: -38, z: 570, r: 20.0 },
-                { x: 44, y: -38, z: 570, r: 20.0 }
+                { x: 0, y: -12, z: 535, r: 36.0 },
+                { x: -52, y: 15, z: 525, r: 24.0 },
+                { x: 52, y: 15, z: 525, r: 24.0 },
+                { x: -44, y: -38, z: 525, r: 20.0 },
+                { x: 44, y: -38, z: 525, r: 20.0 }
             ];
 
             engineClusters.forEach(eng => {
@@ -3753,13 +3753,13 @@
             // Single subtle flagship engine illumination
             if (cfg.id === "flagship") {
                 const engLight = new THREE.PointLight(0xff0022, 3.5, 450);
-                engLight.position.set(0, -12, 595);
+                engLight.position.set(0, -12, 545);
                 shipGroup.add(engLight);
             }
 
-            // 3. Red Glow Inside Front Spinal Weapon Area
+            // 3. Red Glow Inside Front Spinal Weapon Area (Recessed inside prow cavity)
             const weaponAreaGroup = new THREE.Group();
-            weaponAreaGroup.position.set(0, 18, -520);
+            weaponAreaGroup.position.set(0, 18, -475);
 
             const weaponCoreMesh = new THREE.Mesh(sharedWeaponCoreGeo, sharedWeaponCoreMat);
             weaponAreaGroup.add(weaponCoreMesh);
@@ -3851,34 +3851,33 @@
                 console.error("[DOMINION CAPITAL SHIP GLB ERROR]", err);
             });
 
-            // Instantiate the 5 Dominion Capital Ships in formation near Titan and The Crest
+            // Instantiate the 5 Dominion Capital Ships in battle line formation
             capitalShips = DOMINION_FLEET_CONFIG.map(cfg => buildSingleCapitalShip(cfg));
-            capitalShip = capitalShips[0]; // Lead Flagship backward compatibility
+            capitalShip = capitalShips[2]; // Lead Flagship 'Iron Sovereign' (center)
 
-            // Trigger the initial cinematic hyperspace emergence sequence after 1.2s
-            setTimeout(() => {
-                triggerDominionFleetHyperspaceEmergence();
-            }, 1200);
+            // Arm initial fleet hyperspace emergence sequence with 15-second loading delay
+            triggerDominionFleetHyperspaceEmergence();
         }
 
         function triggerDominionFleetHyperspaceEmergence() {
             fleetEmergenceStartTime = performance.now();
             fleetEmergenceActive = true;
 
-            const targetCorridor = theCrestStation ? theCrestStation.position.clone() : new THREE.Vector3(80160, -886, -46080);
+            const fleetForward = new THREE.Vector3(0, 0, -1); // All ships locked facing the exact same direction
 
             capitalShips.forEach(ship => {
                 ship.visible = false;
                 ship.userData.jumpPhase = 'WAITING';
 
-                const fwd = targetCorridor.clone().sub(ship.userData.targetPos).normalize();
-                ship.userData.fwdDir = fwd;
-                ship.userData.entryPos = ship.userData.targetPos.clone().sub(fwd.clone().multiplyScalar(4200));
+                ship.userData.fwdDir = fleetForward.clone();
+                ship.userData.entryPos = ship.userData.targetPos.clone().sub(fleetForward.clone().multiplyScalar(4500));
                 ship.position.copy(ship.userData.entryPos);
-                ship.lookAt(targetCorridor);
+                
+                const lookTarget = ship.position.clone().add(fleetForward.clone().multiplyScalar(1000));
+                ship.lookAt(lookTarget);
             });
 
-            showToast("⚠️ MULTIPLE HYPERSPACE SIGNATURES DETECTED NEAR TITAN!");
+            showToast("⚠️ DOMINION SIEGE FLEET WARP SIGNATURES DETECTED — ARRIVAL IN 15 SECONDS!");
         }
 
         function createWormholeGate() {
@@ -4530,10 +4529,10 @@ function createEpicPlayerDeathExplosion(pos) {
         }
 
         function resetSimView() {
-            playerShip.position.set(81600, 200, -38000);
+            playerShip.position.set(75200, 350, -34000);
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
-            playerShip.lookAt(new THREE.Vector3(77200, -650, -43800));
+            playerShip.lookAt(new THREE.Vector3(75200, -600, -43500));
             if (camera) {
                 const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
                 camera.up.copy(localUp);
@@ -4892,7 +4891,26 @@ function createEpicPlayerDeathExplosion(pos) {
                         if (progress >= 1.0) {
                             ship.userData.jumpPhase = 'COMPLETED';
                             ship.position.copy(ship.userData.targetPos);
-                            ship.userData.lastFighterLaunchTime = Date.now() + 4000 + Math.random() * 6000;
+                            ship.userData.lastFighterLaunchTime = Date.now();
+                            
+                            // Immediately launch 2 escort fighters from ventral bay upon completing jump
+                            for (let f = 0; f < 2; f++) {
+                                const newFighter = createEnemyInterceptorMesh();
+                                const ventralOffset = new THREE.Vector3(
+                                    (f === 0 ? -45 : 45),
+                                    -40,
+                                    -120
+                                ).applyQuaternion(ship.quaternion);
+
+                                newFighter.position.copy(ship.position).add(ventralOffset);
+                                newFighter.quaternion.copy(ship.quaternion);
+                                newFighter.userData.aiState = 'ATTACK_RUN';
+                                newFighter.userData.flightSpeed = 0.55;
+
+                                scene.add(newFighter);
+                                enemyShips.push(newFighter);
+                                spawnLaserImpactSparks(newFighter.position);
+                            }
                         }
                     }
                 }
@@ -4910,14 +4928,14 @@ function createEpicPlayerDeathExplosion(pos) {
                             const newFighter = createEnemyInterceptorMesh();
                             const ventralOffset = new THREE.Vector3(
                                 (Math.random() - 0.5) * 60,
-                                -36,
-                                -130
+                                -40,
+                                -120
                             ).applyQuaternion(ship.quaternion);
 
                             newFighter.position.copy(ship.position).add(ventralOffset);
                             newFighter.quaternion.copy(ship.quaternion);
                             newFighter.userData.aiState = 'ATTACK_RUN';
-                            newFighter.userData.flightSpeed = 0.45;
+                            newFighter.userData.flightSpeed = 0.50;
 
                             scene.add(newFighter);
                             enemyShips.push(newFighter);
