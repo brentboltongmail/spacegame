@@ -57,3 +57,7 @@ This document serves as a high-level map of index.html (the primary 6000+ line a
 *   drawThrottleGauge() - Updates the 2D canvas speed and throttle UI.
 *   drawTacticalRadar() - Renders 2D radar blips for celestial bodies, The Crest station, Ancient Gate, active Dominion fighters, and all 5 Dominion Capital Dreadnoughts.
 *   renderTacticalMap3D() - Synchronizes real-time 3D holographic icons and interactive tooltips for Sol, Saturn, Titan, The Crest, Ancient Gate, all 5 Dominion Capital Dreadnoughts (`mapDreadGroup`), and hostile fighter swarms.
+
+## 8. Asset Pipelines & Automation Tools
+*   `scripts/optimize_glb.py` - CLI utility for batch and single-file GLB optimization. Implements boundary-preserving decimation (`preserve_border=True`, `aggressiveness=3`), KDTree nearest-surface UV coordinate projection for 100% PBR texture retention (diffuse, metallic, roughness, normal maps), and verified watertight geometry output for fluid 60+ FPS rendering.
+
