@@ -27,9 +27,9 @@
 ```
 
 ### The Protagonist's Origins
-- **Name**: Lieutenant Kaylen / Jax Vance (Callsign: *"Apex"*)
-- **Background**: Raised on Earth’s orbital colonies by an adoptive parent, Marcus Vance (a retired Earth Defense mechanic). Your only heirloom is an unidentified titanium-crystal artifact left in your pod as a baby.
-- **The Twist**: You are not human. You are the last bloodline heir to **House Aythelgard**, the ruling sovereign house of the distant *Sovereign Reach* star system, which was overthrown 20 years ago by an aggressive military junta known as **The Iron Dominion**.
+- **Name**: Lieutenant Kaylen Vance (Callsign: *"Apex"*)
+- **Background**: Raised on Mars by an adoptive parent, Elias (a retired Earth Defense Force mechanic). His only heirloom is a glowing precursor artifact (the Royal Star Key) found in his escape pod as an infant.
+- **The Twist**: He is not human. He is the last bloodline heir to **House Vanguard**, the ruling sovereign house of the distant *Sovereign Reach*, which was overthrown 20 years ago by an aggressive military junta known as **The Iron Dominion**.
 
 ![Precursor Civilization & Royal Lineage Concept Artwork](file:///d:/github/spacegame/docs/images/precursor_ruins_concept.jpg)
 

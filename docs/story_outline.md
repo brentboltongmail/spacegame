@@ -11,7 +11,7 @@ From Earth Defense Force Cadet to Sovereign Royal Scion. Action-driven pacing wi
 
 **Prologue — Sol System & The Crest**
 
-The year is 2244. Kaylen Vance begins his journey as an interceptor pilot in the Earth Defense Force (EDF). For as long as he can remember, his existence has been tethered to 'The Crest,' an orbital platform that hovers like a silver coin in the desolate trade corridors between Jupiter and Neptune. Life here is a masterclass in sensory deprivation, punctuated only by the klaxons of incoming ore freighters and the low hum of the station’s failing fusion reactors. The Crest is a masterwork of utilitarian engineering—a citadel of steel, warning lights, and rotating habitation rings that cast long shadows across the moons of the outer system.
+The year is 2244. Kaylen Vance begins his journey as an interceptor pilot in the Earth Defense Force (EDF). For as long as he can remember, his existence has been tethered to 'The Crest,' an orbital defense platform stationed in perimeter orbit over Saturn's moon Titan. Life here is a masterclass in sensory deprivation, punctuated only by the klaxons of incoming methane freighters and the low hum of the station’s failing fusion reactors. The Crest is a masterwork of utilitarian engineering—a citadel of steel, warning lights, and rotating habitation rings that cast long shadows across the methane lakes below.
 
 
 ![Act 1 Scene 1](./images/concept_art/act1/act1_scene1_1787218888778.jpg)
@@ -85,7 +85,7 @@ He plunges into the collapsing rift, drawing the enemy's fire, providing the sec
 
 ### ACT II: THE VERDANT REACH
 
-Expelled from the chaotic subspace currents of the collapsing wormhole, Kaylen Vance slammed back into real-space with bone-jarring force. The transition from the sterile void of the Sol System to this new sector was a sensory overload. Outside his shattered canopy, the sky was a canvas of luminescent nebulas—vibrant ribbons of pink and green, interwoven with rogue asteroid clusters that drifted like forgotten debris of creation. This was the Sovereign Reach, an uncharted expanse thousands of light-years from Earth, and it was deadly.
+Expelled from the chaotic subspace currents of the collapsing wormhole, Kaylen Vance slammed back into real-space with bone-jarring force. The transition from the sterile void of the Sol System to this new sector was a sensory overload. Outside his shattered canopy, the sky was a canvas of luminescent nebulas—vibrant ribbons of pink and green, interwoven with rogue asteroid clusters that drifted like forgotten debris of creation. This was the Verdant Reach, a lawless frontier sub-sector nestled on the outer rim of the vast Sovereign Reach, thousands of light-years from Earth, and it was deadly.
 
 
 ![Act 2 Scene 1](./images/concept_art/act2/act2_scene1_1787218890260.jpg)
@@ -104,7 +104,7 @@ The Rust Haven was a chaotic hive of scum and villainy, built into the ribbed in
 
 ![Act 2 Scene 3](./images/concept_art/act2/act2_scene3_1787218906436.jpg)
 
-To survive in this unforgiving frontier, Kaylen had to make a choice. He was no longer an Earth Defense Force cadet; he was a ghost in a galaxy that didn't care if he lived or died. With a heavy heart, he stripped his EDF insignias from his flight suit and repainted his Interceptor's hull in matte grays. He dove headfirst into the underworld of mercenary warfare, knowing that out here, loyalty was bought with plasma fuel and survival belonged only to the ruthless.
+To survive in this unforgiving frontier, Kaylen had to make a choice. He was no longer an Earth Defense Force cadet; he was a ghost in a galaxy that didn't care if he lived or died. With a heavy heart, he stripped his EDF insignias from his flight suit and repainted his Void Interceptor's hull in matte grays. He dove headfirst into the underworld of mercenary warfare, knowing that out here, loyalty was bought with plasma fuel and survival belonged only to the ruthless.
 
 His first contracts were acts of desperation. Rival factions, criminal syndicates, and corporate barons controlled the Reach, and Kaylen offered his piloting skills to the highest bidder. He took on dangerous jobs that seasoned mercenaries wouldn't touch. One week, he was escorting freighter convoys through pirate-infested asteroid belts, his Interceptor weaving between monolithic rocks to pick off ambushers. The next, he was flying into volatile nebulas to raid hidden smuggler strongholds for contraband circuitry.
 
@@ -124,7 +124,7 @@ Then came Kayl, a four-armed alien weapons specialist whom Kaylen won in a game 
 
 The final addition was Lyra, a disgraced tactician seeking redemption. She was a defector from the Iron Dominion—the very empire that had driven Kaylen into the wormhole. Lyra possessed knowledge of Dominion fleet formations, encryptions, and military strategies. Haunted by the war crimes she had facilitated under the tyrant Regent Vaylen, she offered her tactical mind to Kaylen's cause, determined to see her former masters fall.
 
-Together, they transformed the battered Interceptor into a masterpiece of engineering. Their combined expertise allowed Kaylen to customize his fighter, integrating beam weaponry, shield generators, and thruster modifications that made his ship the deadliest strike craft in the Verdant Reach. They were an apex predator unit.
+Together, they transformed the battered Void Interceptor into a masterpiece of engineering. Their combined expertise allowed Kaylen to customize his fighter, integrating beam weaponry, shield generators, and thruster modifications that made his ship the deadliest strike craft in the Verdant Reach. They were an apex predator unit.
 
 
 ![Act 2 Scene 6](./images/concept_art/act2/act2_scene6_1787218971818.jpg)
@@ -194,7 +194,7 @@ It was a woman, clad in regal armor of white and gold. The resemblance was preci
 
 ![Act 3 Scene 4](./images/concept_art/act3/act3_scene4.jpg)
 
-Her voice, carrying the weight of a dying civilization, echoed directly into his helmet. The message she delivered tore down the foundation of his existence. He was not a human orphan scraped from the gutters of a Martian slum. He was the last surviving blood heir to House Vanguard, the benevolent rulers of the Sovereign Reach. 
+Her voice, carrying the weight of a dying civilization, echoed directly into his helmet. The message she delivered tore down the foundation of his existence. She identified the glowing pendant around his neck as the **Royal Star Key of House Vanguard**—the ancestral bio-cipher of the throne that commanded the precursor gate network. He was not a human orphan scraped from the gutters of a Martian slum. He was the last surviving blood heir to House Vanguard, the benevolent rulers of the Sovereign Reach. 
 
 For centuries, his bloodline had maintained an age of peace and scientific enlightenment, unifying the stars before the darkness fell. The holographic queen detailed the tragedy that had wiped his family from the annals of history. Twenty years ago, the grand Vanguard palaces had burned in a treacherous coup. 
 
@@ -219,7 +219,7 @@ Yet, he was not alone. Whispers of his survival reached the Vanguard Remnant, lo
 
 ![Act 3 Scene 7](./images/concept_art/act3/act3_scene7.jpg)
 
-To them, he was a naive child who had played in the mud of a primitive world. He lacked the royal bearing, tactical acumen, and ruthlessness required to dismantle the Iron Dominion’s war machine. They viewed his survival as a fluke and his pendant as a stolen toy. They demanded a trial by fire, a demonstration of supremacy, before they would risk their remaining ships and lives for his cause.
+To them, he was a naive child who had played in the mud of a primitive world. He lacked the royal bearing, tactical acumen, and ruthlessness required to dismantle the Iron Dominion’s war machine. They viewed his survival as a fluke and his Star Key as a stolen toy. They demanded a trial by fire, a demonstration of supremacy, before they would risk their remaining ships and lives for his cause.
 
 The trial was a suicide mission: the liberation of the Kaylen-Tor Prison Colony. It was a fortress built into the core of a hyper-dense planetoid. It was here that the highest-ranking Vanguard generals—the tacticians of the old regime—were scheduled for execution. 
 
@@ -237,7 +237,7 @@ He fought with the desperation of a cornered animal and the fury of a wronged mo
 
 He didn't rely on brute force; he outsmarted the Dominion commanders. He baited their cruisers into the planetoid's gravity shears, watching their shields collapse under the sheer physics of the trap. He used the debris of destroyed ships as cover, orchestrating a ballet of destruction that left the Remnant fleet watching in awe.
 
-He had proven himself not just as a survivor, but as a predator capable of hunting the Dominion. The skepticism of the Remnant generals evaporated, replaced by a burning loyalty. Slowly, the scattered rebel cells united under his banner. He shed the mercenary ships, replacing them with graceful Vanguard cruisers retrieved from hidden orbital caches. 
+He had proven himself not just as a survivor, but as a predator capable of hunting the Dominion. The skepticism of the Remnant generals evaporated, replaced by a burning loyalty. Slowly, the scattered rebel cells united under his banner. He equipped the loyalists with graceful Vanguard cruisers retrieved from hidden orbital caches, while retaining his signature **Void Interceptor Mk-II** as his personal lead strike craft.
 
 
 ![Act 3 Scene 10](./images/concept_art/act3/act3_scene10.jpg)
@@ -270,14 +270,14 @@ From his command dais, Kaylen issues tactical orders to armadas of plasma dreadn
 
 ![Act 4 Scene 3](./images/concept_art/act4/act4_scene3_1787218905067.jpg)
 
-Yet, despite the grand scale of his new role, the soul of a pilot still burns within him. Kaylen refuses to be a commander who merely watches from the safety of a citadel. *The Crown of Vanguard* features a rapid-launch tube that allows him to jump into the cockpit of his modified Vanguard fighter. Mid-battle, when a flank begins to crumble or a crucial objective must be secured, he launches from the hangar bays, transitioning from macro-tactics to the visceral reality of deep-space combat.
+Yet, despite the grand scale of his new role, the soul of a pilot still burns within him. Kaylen refuses to be a commander who merely watches from the safety of a citadel. *The Crown of Vanguard* features a rapid-launch tube that allows him to jump into the cockpit of his modified **Void Interceptor Mk-II**, retrofitted with royal gold armor plating and precursor phase drives. Mid-battle, when a flank begins to crumble or a crucial objective must be secured, he launches from the hangar bays, transitioning from macro-tactics to the visceral reality of deep-space combat.
 
 The combat scale expands drastically, dwarfing the skirmishes of his mercenary days. Kaylen is thrust into fleet engagements that defy comprehension. He coordinates artillery strikes that streak through the void, manages shield walls that ripple with energy as they absorb Dominion salvos, and dives headlong through the crossfire of hundreds of warships. 
 
 
 ![Act 4 Scene 4](./images/concept_art/act4/act4_scene4_1787218915030.jpg)
 
-His Interceptor becomes a scalpel amidst a battle of sledgehammers. He weaves through debris fields composed of shattered cruisers, surgically taking out enemy shield generators, severing communication relays, and neutralizing anti-aircraft batteries to clear a path for his capital ships. The juxtaposition of sitting in the war room and then feeling the roar of his own thrusters creates a frantic tempo to the war.
+His Void Interceptor becomes a scalpel amidst a battle of sledgehammers. He weaves through debris fields composed of shattered cruisers, surgically taking out enemy shield generators, severing communication relays, and neutralizing anti-aircraft batteries to clear a path for his capital ships. The juxtaposition of sitting in the war room and then feeling the roar of his own thrusters creates a frantic tempo to the war.
 
 The Iron Dominion is not slow to react. Regent Vaylen, terrified of the unifying symbol of the Vanguard heir and realizing the magnitude of the threat Kaylen poses to his regime, unleashes the true horror of his arsenal. To crush the rebellion, he deploys the 'Planet-Crackers'—moon-sized dreadnoughts fueled by volatile dark matter. 
 
@@ -300,7 +300,7 @@ The war is not without its personal tragedies. It forces Kaylen to make heart-wr
 
 ![Act 4 Scene 7](./images/concept_art/act4/act4_scene7_1787218982100.jpg)
 
-The losses are devastating. Jax, his cynical cyber-warfare specialist, meets his end when his stealth-ship is caught in a warp-core breach during a daring hacking operation on a Dominion central server. His final transmission is a sarcastic joke, cutting off into static as his ship vaporizes. Kayl, the alien weapons expert, holds the line alone in a breached hangar bay, manually firing a cannon to cover a civilian retreat until he is overwhelmed by a swarm of Dominion shock troops.
+The losses are devastating. Jax, his cynical cyber-warfare specialist, meets his end when his stealth-ship is caught in a warp-core breach during a daring hacking operation on a Dominion central server. Before his ship was consumed, Jax successfully purged the fleet databases, but Dominion counter-intelligence intercepted decrypted telemetry from the Titan wormhole gate, tracing Kaylen's origins back to the Martian undercity and the mechanic Elias. Jax's final transmission is a sarcastic joke, cutting off into static as his ship vaporizes. Kayl, the alien weapons expert, holds the line alone in a breached hangar bay, manually firing a cannon to cover a civilian retreat until he is overwhelmed by a swarm of Dominion shock troops.
 
 Most painful of all is the loss of Lyra. Seeking redemption for the atrocities she committed under Vaylen's banner, she makes the ultimate sacrifice during an engagement over a populated refugee world. When a Dominion cruiser locks its dark-energy weapons onto a defenseless civilian transport, Lyra overloads her own reactor and rams her Interceptor directly into the cruiser's bridge. The resulting explosion saves millions, but leaves an aching void in Kaylen's heart. He watches her transponder signal vanish from the tactical holo-map, a testament to the true cost of this war.
 
@@ -311,7 +311,7 @@ Through these agonizing losses, the Vanguard loyalists must learn to adapt. They
 
 The escalating conflict culminates in a siege on the Dominion's primary dark-energy foundry—the fortified heart of Vaylen's war machine. This colossal installation is located deep within the center of a dense nebula known as the Abyssal Veil. The environment itself is a deadly enemy; the swirling plasma storms scramble targeting sensors, drain deflector shields, and tear unshielded hulls apart.
 
-The siege is a nightmare. The armada must navigate through blinding plasma storms, constantly bombarded by hidden Dominion defense platforms and asteroid collisions. Communication is reduced to static, forcing fleet captains to rely on visual signals and pre-planned maneuvers. Kaylen leads the vanguard in his Interceptor, weaving through bolts of lightning to clear a path for his heavy bombers.
+The siege is a nightmare. The armada must navigate through blinding plasma storms, constantly bombarded by hidden Dominion defense platforms and asteroid collisions. Communication is reduced to static, forcing fleet captains to rely on visual signals and pre-planned maneuvers. Kaylen leads the vanguard in his Void Interceptor, weaving through bolts of lightning to clear a path for his heavy bombers.
 
 
 ![Act 4 Scene 9](./images/concept_art/act4/act4_scene9_1787218955093.jpg)
@@ -351,14 +351,14 @@ Within his personal command fortress—a citadel of black iron that pierces the 
 
 ![Act 5 Scene 3](./images/concept_art/act5/act5_scene3_1787218915147.jpg)
 
-He broadcasts a sector-wide transmission, his scarred face filling the hololithic displays of every ship in the fleet. Vaylen’s intention is not to flee. Instead, he plans to launch his vanguard armada directly into the Sol System. He knows Kaylen's true identity, knows of his upbringing on the fringes of Mars, and knows he still harbors love for humanity and his adoptive father, Elias. As his ultimate act of revenge, Vaylen intends to enslave Earth and burn it to glass, forcing Kaylen to watch his past be eradicated before destroying his future.
+He broadcasts a sector-wide transmission, his scarred face filling the hololithic displays of every ship in the fleet. Vaylen’s intention is not to flee. Instead, he plans to launch his vanguard armada directly into the Sol System. Having decrypted the Titan gate telemetry from the Dominion server logs, he knows Kaylen's true identity, knows of his upbringing on the fringes of Mars, and knows he still harbors love for humanity and his adoptive father, Elias. As his ultimate act of revenge, Vaylen intends to enslave Earth and burn it to glass, forcing Kaylen to watch his past be eradicated before destroying his future.
 
 The ticking clock forces Kaylen's hand. He orders the fleet to advance. An all-out assault is launched against the planetary defense grid. The vacuum of space erupts into a maelstrom of blinding lasers, shattering shields, and expanding clouds of vaporized metal. Thousands of swift fighters clash in a swirling dance between the lumbering dreadnoughts. 
 
 
 ![Act 5 Scene 4](./images/concept_art/act5/act5_scene4_1787218922437.jpg)
 
-Kaylen dives into the fray in his custom Interceptor, leading the assault. He navigates the minefields, weaving through the overlapping fields of fire that sweep across the void like scythes. His remaining Vanguard loyalists—those hardened captains who once doubted him—now sacrifice themselves willingly to carve a path for him. Heavy cruisers absorb broadsides, ramming Dominion defense platforms to create a corridor through the blockade. 
+Kaylen dives into the fray in his custom Void Interceptor Mk-II, leading the assault. He navigates the minefields, weaving through the overlapping fields of fire that sweep across the void like scythes. His remaining Vanguard loyalists—those hardened captains who once doubted him—now sacrifice themselves willingly to carve a path for him. Heavy cruisers absorb broadsides, ramming Dominion defense platforms to create a corridor through the blockade. 
 
 With the orbital defenses temporarily fractured, Kaylen plunges his fighter into the smog-choked atmosphere of Vanguard Prime. Friction burns across his energy shields as he breaks through the cloud cover, plunging into the metallic canyons of the ecumenopolis. The heat of the bombardment and the scale of the conflict generate atmospheric storms. Lightning arcs between the skyscrapers, illuminating the wet durasteel of the city.
 
@@ -369,7 +369,7 @@ Down in the subterranean levels and the crowded habitation blocks, the citizens 
 
 A bloody revolt erupts in the streets below. Factory workers throw down their tools and take up blasters, storming the guard posts. Civilians use explosives to cripple Dominion patrol transports. The city becomes a warzone. Plumes of smoke rise from the lower levels as the oppressed masses fight back, matching the dogfights raging in the skies above.
 
-Kaylen pushes his ship to its limit, tearing through the skies toward Vaylen’s citadel. Dominion interceptors swarm him, but he outmaneuver them, using the architecture of the city to his advantage. He performs high-G turns around suspended transit tubes, threading the needle through the narrow gaps between residential spires, leaving his pursuers to crash in explosions against the concrete. 
+Kaylen pushes his ship to its limit, tearing through the skies toward Vaylen’s citadel. Dominion interceptors swarm him, but he outmaneuvers them, using the architecture of the city to his advantage. He performs high-G turns around suspended transit tubes, threading the needle through the narrow gaps between residential spires, leaving his pursuers to crash in explosions against the concrete. 
 
 
 ![Act 5 Scene 6](./images/concept_art/act5/act5_scene6_1787218951349.jpg)
@@ -395,7 +395,7 @@ The explosion is blinding. Vaylen’s prototype fighter loses power, its engines
 
 ![Act 5 Scene 9](./images/concept_art/act5/act5_scene9_1787218987594.jpg)
 
-Kaylen lands his battered Interceptor in the plaza, the heat of his thrusters distorting the air. Stepping out of the cockpit, he draws his sidearm and approaches the smoking wreckage. Vaylen, bloodied and broken, drags himself from the cockpit. The tyrant who slaughtered Kaylen's family, who oppressed a galaxy, finally meets his end by the hand of the child he failed to kill. Kaylen executes him, formally ending the Iron Dominion’s reign of terror. 
+Kaylen lands his battered Void Interceptor in the plaza, the heat of his thrusters distorting the air. Stepping out of the cockpit, he draws his sidearm and approaches the smoking wreckage. Vaylen, bloodied and broken, drags himself from the cockpit. The tyrant who slaughtered Kaylen's family, who oppressed a galaxy, finally meets his end by the hand of the child he failed to kill. Kaylen executes him, formally ending the Iron Dominion’s reign of terror. 
 
 With Vaylen dead and his command structure shattered, the remaining Dominion forces surrender. Kaylen swiftly moves to the citadel's command center and permanently shuts down the Sol gate, severing the connection and saving Earth from the intended genocide. The battle is won. 
 

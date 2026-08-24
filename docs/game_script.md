@@ -11,7 +11,7 @@ This document breaks down the story outline into 20 playable missions, detailing
 **Ship:** Standard EDF Interceptor
 
 **Scene / Cinematic:** 
-The game opens with a sweeping view of "The Crest," a massive, industrial orbital station near Jupiter. Kaylen is in the cockpit, running diagnostics. The radio crackles with Elias’s gruff voice. 
+The game opens with a sweeping view of "The Crest," a massive orbital defense platform stationed in perimeter orbit over Saturn's moon Titan. Kaylen is in the cockpit, running diagnostics. The radio crackles with Elias’s gruff voice. 
 
 **Dialogue:**
 *   **Elias:** "Alright, kid. Let's see if those stabilizer tweaks I made hold up. Cycle the thrusters, and keep an eye on the plasma intake—she runs hot."
