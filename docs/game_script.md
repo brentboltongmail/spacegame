@@ -19,7 +19,7 @@ The game opens with a sweeping view of "The Crest," a massive orbital defense pl
 
 **Gameplay Mechanics:**
 *   **Challenge:** Basic flight controls (6-DOF), targeting, and managing power distribution. 
-*   **Completion:** Fly through navigation rings to test thrusters and dock back at The Crest.
+*   **Completion:** Complete a flight around Saturn, passing through 3 holographic training rings on the opposite side of the planet, then dock back at The Crest.
 
 ### Mission 2: Pirate Ambush at Ceres
 **Location:** Ceres Asteroid Belt
