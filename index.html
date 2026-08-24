@@ -1560,7 +1560,7 @@
                     <div class="hud-card">
                         <div class="hud-title">SECTOR / OBJECTIVE</div>
                         <div class="hud-stat" id="hud-sector" style="color: var(--accent-gold);">MISSION 1: ROUTINE PATROL</div>
-                        <div id="hud-objective" style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Fly around Saturn and clear 3 training rings on the dark side.</div>
+                        <div id="hud-objective" style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Fly around Saturn and clear 3 training rings on the dark side (0/3).</div>
                     </div>
                 </div>
 
@@ -8169,6 +8169,19 @@ function createEpicPlayerDeathExplosion(pos) {
                     drawBlip(enemy.position, '#ff3b5c', 4.5, false, 'ENEMY');
                 }
             });
+
+            // Draw Blue/Green Blips for Mission 1 Rings
+            if (typeof mission1Active !== 'undefined' && typeof mission1Rings !== 'undefined' && typeof mission1Stage !== 'undefined') {
+                mission1Rings.forEach((ring, idx) => {
+                    if (ring && ring.position) {
+                        const isCleared = idx < mission1Stage;
+                        const isCurrent = idx === mission1Stage;
+                        // Green for cleared, Cyan for current target, Blue for future rings
+                        const color = isCleared ? '#10b981' : (isCurrent ? '#00f0ff' : '#0284c7'); 
+                        drawBlip(ring.position, color, isCleared ? 3.5 : 5, false, 'TRAINING RING');
+                    }
+                });
+            }
         }
 
         // --- PILOT PROFILE & 3D SHIP UPGRADE HANGAR RENDERER & LOGIC ---
@@ -9550,7 +9563,11 @@ function createEpicPlayerDeathExplosion(pos) {
             mission1Stage = 0;
             
             // Cleanup old rings if any
-            mission1Rings.forEach(r => scene.remove(r));
+            if (typeof mission1Rings !== 'undefined') {
+                mission1Rings.forEach(r => {
+                    if (typeof scene !== 'undefined' && scene) scene.remove(r);
+                });
+            }
             mission1Rings = [];
 
             // Start at the same spot as Mission 3 / Free Roam
@@ -9601,7 +9618,7 @@ function createEpicPlayerDeathExplosion(pos) {
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
             if (sec) sec.innerText = "MISSION 1: ROUTINE PATROL";
-            if (obj) obj.innerText = "Fly around Saturn and clear 3 training rings on the dark side.";
+            if (obj) obj.innerText = "Fly around Saturn and clear 3 training rings on the dark side (0/3).";
             showToast("🎯 NEW OBJECTIVE: Clear Saturn Training Rings");
             
             // Check ring distances in the animate loop
@@ -9625,7 +9642,9 @@ function createEpicPlayerDeathExplosion(pos) {
 
                 if (dist < 1500) {
                     // Passed through
-                    scene.remove(targetRing);
+                    // Turn ring green instead of removing it
+                    targetRing.material.color.setHex(0x10b981);
+                    targetRing.material.opacity = 0.2;
                     mission1Stage++;
                     if (mission1Stage < 3) {
                         showToast(`Ring ${mission1Stage} cleared. Next target locked.`, "var(--accent-cyan)");
