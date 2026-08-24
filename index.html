@@ -2309,6 +2309,10 @@
         let activeHyperspaceRifts = [];
         let fleetEmergenceActive = false;
         let fleetEmergenceStartTime = 0;
+        let globalHyperspaceFlashLight = null;
+        let capitalParticlePool = [];
+        const MAX_CAPITAL_PARTICLES = 100;
+        let activeCapitalParticles = [];
         let dreadOrbitAngle = 0.5; // Orbit angle around spacePlanet
         let mapCrestMesh, mapDreadGroup;
         let enemyShips = [];
@@ -2420,6 +2424,7 @@
             loadDominionFighterModel();
             createPlayerShip();
             createCapitalShip();
+            initCapitalParticlePool();
             createWormholeGate();
             spawnEnemySwarm();
             initLaserPool();
@@ -3379,15 +3384,18 @@
             playerShieldBubble.visible = false;
             playerShip.add(playerShieldBubble);
 
-            // Start Void Interceptor out away from The Crest looking back at The Crest, Titan, and Saturn
-            playerShip.position.set(82800, 420, -36200);
-            playerShip.lookAt(new THREE.Vector3(76800, -750, -47500));
+            // Position Void Interceptor in high vantage looking directly into the action corridor
+            playerShip.position.set(81600, 200, -38000);
+            playerShip.lookAt(new THREE.Vector3(77200, -650, -43800));
             scene.add(playerShip);
 
             if (camera) {
-                const initCamOffset = new THREE.Vector3(0, 7.5, 26).applyQuaternion(playerShip.quaternion);
+                const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
+                camera.up.copy(localUp);
+                const initCamOffset = new THREE.Vector3(0, 6.0, 22.0).applyQuaternion(playerShip.quaternion);
                 camera.position.copy(playerShip.position).add(initCamOffset);
-                camera.lookAt(playerShip.position);
+                const targetLookAt = playerShip.position.clone().add(new THREE.Vector3(0, 0, -50).applyQuaternion(playerShip.quaternion));
+                camera.lookAt(targetLookAt);
             }
         }
 
@@ -3506,10 +3514,50 @@
             } catch (e) {}
         }
 
+        // --- OPTIMIZED SHARED MATERIALS & GEOMETRIES FOR ZERO-ALLOCATION FLEET PERFORMANCE ---
+        const sharedCapitalParticleGeo = new THREE.SphereGeometry(2.0, 6, 6);
+        const sharedCapitalParticleMat = new THREE.MeshBasicMaterial({ color: 0xff2244, transparent: true, opacity: 0.42, depthWrite: false });
+
+        const sharedBeaconGeo = new THREE.SphereGeometry(4.0, 8, 8);
+        const sharedBeaconMat = new THREE.MeshBasicMaterial({ color: 0xff0033 });
+        const sharedBeaconHaloGeo = new THREE.RingGeometry(2.0, 9.0, 16);
+        const sharedBeaconHaloMat = new THREE.MeshBasicMaterial({ color: 0xff1e40, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false });
+
+        const sharedRedEngineGlowMat = new THREE.MeshBasicMaterial({ color: 0xff0033, transparent: true, opacity: 0.96 });
+        const sharedRedEngineCoreMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.98 });
+        const sharedRedEngineHaloMat = new THREE.MeshBasicMaterial({ color: 0xff1e40, transparent: true, opacity: 0.45, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false });
+        const sharedCavityMat = new THREE.MeshBasicMaterial({ color: 0x990022, side: THREE.BackSide, transparent: true, opacity: 0.85 });
+
+        const sharedWeaponCoreGeo = new THREE.SphereGeometry(22, 32, 32);
+        const sharedWeaponCoreMat = new THREE.MeshBasicMaterial({ color: 0xff0033, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false });
+        const sharedWeaponInnerGeo = new THREE.SphereGeometry(10, 24, 24);
+        const sharedWeaponInnerMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.98 });
+        const sharedWeaponRingMat = new THREE.MeshBasicMaterial({ color: 0xff1e38, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false });
+        const sharedWeaponBeamGeo = new THREE.CylinderGeometry(8, 16, 95, 16, 1, true);
+        sharedWeaponBeamGeo.rotateX(Math.PI / 2);
+        const sharedWeaponBeamMat = new THREE.MeshBasicMaterial({ color: 0xff0044, transparent: true, opacity: 0.65, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false });
+
+        function initCapitalParticlePool() {
+            if (capitalParticlePool.length > 0) return;
+            for (let i = 0; i < MAX_CAPITAL_PARTICLES; i++) {
+                const p = new THREE.Mesh(sharedCapitalParticleGeo, sharedCapitalParticleMat);
+                p.visible = false;
+                p.userData = { life: 0, vel: new THREE.Vector3() };
+                scene.add(p);
+                capitalParticlePool.push(p);
+            }
+        }
+
         function createHyperspaceRiftMesh(pos, fwdDir) {
             const riftGroup = new THREE.Group();
             riftGroup.position.copy(pos);
             riftGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), fwdDir);
+
+            // Ensure single global pooled hyperspace flash light
+            if (!globalHyperspaceFlashLight) {
+                globalHyperspaceFlashLight = new THREE.PointLight(0xa855f7, 0, 5500);
+                scene.add(globalHyperspaceFlashLight);
+            }
 
             // 1. Jagged Vertical Spacetime Tear Mesh
             const tearHeight = 700;
@@ -3576,31 +3624,32 @@
             const shockwaveMesh = new THREE.Mesh(ringGeo, ringMat);
             riftGroup.add(shockwaveMesh);
 
-            // 3. Dynamic Blinding Hyperspace Point Light
-            const flashLight = new THREE.PointLight(0xa855f7, 0, 5500);
-            riftGroup.add(flashLight);
-
-            // 4. Relativistic Tachyon Spark Particles
-            const sparkParticles = [];
-            const sparkGeo = new THREE.SphereGeometry(2.4, 6, 6);
-            const sparkMat = new THREE.MeshBasicMaterial({
-                color: 0x00f0ff,
-                transparent: true,
-                opacity: 0.95,
-                blending: THREE.AdditiveBlending
-            });
-
-            for (let s = 0; s < 50; s++) {
-                const spark = new THREE.Mesh(sparkGeo, sparkMat.clone());
-                spark.visible = false;
-                spark.userData.vel = new THREE.Vector3(
+            // 3. Relativistic Tachyon Spark Particles (Single Points Draw Call)
+            const sparkCount = 45;
+            const sparkPositions = new Float32Array(sparkCount * 3);
+            const sparkVelocities = [];
+            for (let s = 0; s < sparkCount; s++) {
+                sparkPositions[s * 3] = 0;
+                sparkPositions[s * 3 + 1] = 0;
+                sparkPositions[s * 3 + 2] = 0;
+                sparkVelocities.push(new THREE.Vector3(
                     (Math.random() - 0.5) * 160,
                     (Math.random() - 0.5) * 160,
                     (Math.random() - 0.5) * 160
-                );
-                riftGroup.add(spark);
-                sparkParticles.push(spark);
+                ));
             }
+            const sparkGeo = new THREE.BufferGeometry();
+            sparkGeo.setAttribute('position', new THREE.BufferAttribute(sparkPositions, 3));
+            const sparkMat = new THREE.PointsMaterial({
+                color: 0x00f0ff,
+                size: 8.0,
+                transparent: true,
+                opacity: 0.95,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+            const sparkPoints = new THREE.Points(sparkGeo, sparkMat);
+            riftGroup.add(sparkPoints);
 
             scene.add(riftGroup);
 
@@ -3608,8 +3657,8 @@
                 group: riftGroup,
                 tearMesh: tearMesh,
                 shockwaveMesh: shockwaveMesh,
-                flashLight: flashLight,
-                sparks: sparkParticles,
+                sparkPoints: sparkPoints,
+                sparkVelocities: sparkVelocities,
                 startTime: performance.now(),
                 pos: pos
             };
@@ -3632,39 +3681,32 @@
                 jumpPhase: 'WAITING',
                 beacons: [],
                 engineEmitters: [],
-                particles: [],
                 weaponLights: [],
                 weaponGlows: [],
                 meshContainer: meshContainer,
                 lastFighterLaunchTime: Date.now() + 5000 + Math.random() * 8000,
-                fighterLaunchInterval: 11000 + Math.random() * 6000 // launches every 11-17 seconds
+                fighterLaunchInterval: 11000 + Math.random() * 6000
             };
 
-            // Set up Dominion Features (Navigation Beacons, Rear Thrusters, Spinal Weapon Core)
-            // 1. Red Navigation Beacons & Warning Lights
-            const portBeacon = new THREE.PointLight(0xff0033, 4.0, 500);
-            portBeacon.position.set(-180, 25, 50);
-            portBeacon.userData = { baseIntensity: 4.0 };
-            shipGroup.add(portBeacon);
-            shipGroup.userData.beacons.push(portBeacon);
+            // 1. Red Emissive Navigation Beacons (Zero dynamic lights, high visibility)
+            const beaconConfigs = [
+                { x: -180, y: 25, z: 50 },
+                { x: 180, y: 25, z: 50 },
+                { x: 0, y: 180, z: 200 }
+            ];
 
-            const stbdBeacon = new THREE.PointLight(0xff0033, 4.0, 500);
-            stbdBeacon.position.set(180, 25, 50);
-            stbdBeacon.userData = { baseIntensity: 4.0 };
-            shipGroup.add(stbdBeacon);
-            shipGroup.userData.beacons.push(stbdBeacon);
+            beaconConfigs.forEach(bPos => {
+                const bGroup = new THREE.Group();
+                bGroup.position.set(bPos.x, bPos.y, bPos.z);
+                const bMesh = new THREE.Mesh(sharedBeaconGeo, sharedBeaconMat);
+                bGroup.add(bMesh);
+                const bHalo = new THREE.Mesh(sharedBeaconHaloGeo, sharedBeaconHaloMat);
+                bGroup.add(bHalo);
+                shipGroup.add(bGroup);
+                shipGroup.userData.beacons.push(bGroup);
+            });
 
-            const dorsalBridgeBeacon = new THREE.PointLight(0xff2244, 5.0, 600);
-            dorsalBridgeBeacon.position.set(0, 180, 200);
-            dorsalBridgeBeacon.userData = { baseIntensity: 5.0 };
-            shipGroup.add(dorsalBridgeBeacon);
-            shipGroup.userData.beacons.push(dorsalBridgeBeacon);
-
-            // 2. Red Glowing Rear Engine Thruster Arrays
-            const redEngineGlowMat = new THREE.MeshBasicMaterial({ color: 0xff0033, transparent: true, opacity: 0.96 });
-            const redEngineCoreMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.98 });
-            const redEngineHaloMat = new THREE.MeshBasicMaterial({ color: 0xff1e40, transparent: true, opacity: 0.45, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
-
+            // 2. Red Glowing Rear Engine Thruster Arrays (Shared materials & zero sub-nozzle lights)
             const engineClusters = [
                 { x: 0, y: -12, z: 580, r: 36.0 },
                 { x: -52, y: 15, z: 570, r: 24.0 },
@@ -3678,30 +3720,25 @@
                 engGroup.position.set(eng.x, eng.y, eng.z);
 
                 const cavityGeo = new THREE.CylinderGeometry(eng.r * 0.85, eng.r * 0.95, 28, 24, 1, true);
-                const cavityMat = new THREE.MeshBasicMaterial({ color: 0x990022, side: THREE.BackSide, transparent: true, opacity: 0.85 });
-                const cavity = new THREE.Mesh(cavityGeo, cavityMat);
+                const cavity = new THREE.Mesh(cavityGeo, sharedCavityMat);
                 cavity.rotation.x = Math.PI / 2;
                 cavity.position.z = -14;
                 engGroup.add(cavity);
 
                 const diskGeo = new THREE.CircleGeometry(eng.r * 0.92, 24);
-                const disk = new THREE.Mesh(diskGeo, redEngineGlowMat);
+                const disk = new THREE.Mesh(diskGeo, sharedRedEngineGlowMat);
                 disk.position.z = 1.0;
                 engGroup.add(disk);
 
                 const coreGeo = new THREE.CircleGeometry(eng.r * 0.42, 24);
-                const core = new THREE.Mesh(coreGeo, redEngineCoreMat);
+                const core = new THREE.Mesh(coreGeo, sharedRedEngineCoreMat);
                 core.position.z = 1.6;
                 engGroup.add(core);
 
                 const haloGeo = new THREE.RingGeometry(eng.r * 0.8, eng.r * 1.35, 24);
-                const halo = new THREE.Mesh(haloGeo, redEngineHaloMat);
+                const halo = new THREE.Mesh(haloGeo, sharedRedEngineHaloMat);
                 halo.position.z = 2.2;
                 engGroup.add(halo);
-
-                const engLight = new THREE.PointLight(0xff0022, 4.0, 400);
-                engLight.position.set(0, 0, 18);
-                engGroup.add(engLight);
 
                 shipGroup.add(engGroup);
 
@@ -3713,48 +3750,45 @@
                 });
             });
 
+            // Single subtle flagship engine illumination
+            if (cfg.id === "flagship") {
+                const engLight = new THREE.PointLight(0xff0022, 3.5, 450);
+                engLight.position.set(0, -12, 595);
+                shipGroup.add(engLight);
+            }
+
             // 3. Red Glow Inside Front Spinal Weapon Area
             const weaponAreaGroup = new THREE.Group();
             weaponAreaGroup.position.set(0, 18, -520);
 
-            const weaponCoreGeo = new THREE.SphereGeometry(22, 32, 32);
-            const weaponCoreMat = new THREE.MeshBasicMaterial({ color: 0xff0033, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending });
-            const weaponCoreMesh = new THREE.Mesh(weaponCoreGeo, weaponCoreMat);
+            const weaponCoreMesh = new THREE.Mesh(sharedWeaponCoreGeo, sharedWeaponCoreMat);
             weaponAreaGroup.add(weaponCoreMesh);
             shipGroup.userData.weaponGlows.push(weaponCoreMesh);
 
-            const weaponInnerCoreGeo = new THREE.SphereGeometry(10, 24, 24);
-            const weaponInnerCoreMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.98 });
-            const weaponInnerMesh = new THREE.Mesh(weaponInnerCoreGeo, weaponInnerCoreMat);
+            const weaponInnerMesh = new THREE.Mesh(sharedWeaponInnerGeo, sharedWeaponInnerMat);
             weaponAreaGroup.add(weaponInnerMesh);
 
             [ -35, 0, 35 ].forEach((zOff, idx) => {
                 const ringR = 26 - idx * 4;
                 const ringGeo = new THREE.TorusGeometry(ringR, 2.2, 16, 32);
-                const ringMat = new THREE.MeshBasicMaterial({ color: 0xff1e38, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending });
-                const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+                const ringMesh = new THREE.Mesh(ringGeo, sharedWeaponRingMat);
                 ringMesh.position.z = zOff;
                 weaponAreaGroup.add(ringMesh);
                 shipGroup.userData.weaponGlows.push(ringMesh);
             });
 
-            const beamGeo = new THREE.CylinderGeometry(8, 16, 95, 16, 1, true);
-            beamGeo.rotateX(Math.PI / 2);
-            const beamMat = new THREE.MeshBasicMaterial({ color: 0xff0044, transparent: true, opacity: 0.65, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
-            const beamMesh = new THREE.Mesh(beamGeo, beamMat);
+            const beamMesh = new THREE.Mesh(sharedWeaponBeamGeo, sharedWeaponBeamMat);
             beamMesh.position.z = -25;
             weaponAreaGroup.add(beamMesh);
             shipGroup.userData.weaponGlows.push(beamMesh);
 
-            const weaponLight = new THREE.PointLight(0xff0033, 6.0, 550);
-            weaponLight.position.set(0, 0, 0);
-            weaponAreaGroup.add(weaponLight);
-            shipGroup.userData.weaponLights.push(weaponLight);
-
-            const weaponMuzzleLight = new THREE.PointLight(0xff2244, 4.5, 400);
-            weaponMuzzleLight.position.set(0, 0, -60);
-            weaponAreaGroup.add(weaponMuzzleLight);
-            shipGroup.userData.weaponLights.push(weaponMuzzleLight);
+            // Single subtle flagship weapon illumination
+            if (cfg.id === "flagship") {
+                const weaponLight = new THREE.PointLight(0xff0033, 4.5, 500);
+                weaponLight.position.set(0, 0, 0);
+                weaponAreaGroup.add(weaponLight);
+                shipGroup.userData.weaponLights.push(weaponLight);
+            }
 
             shipGroup.add(weaponAreaGroup);
 
@@ -4157,11 +4191,6 @@
                 halo.position.z = 0.04;
                 engGroup.add(halo);
 
-                const engineLight = new THREE.PointLight(glowColor, 2.5, 20);
-                engineLight.position.set(0, 0, 0.3);
-                engGroup.add(engineLight);
-                engineLights.push(engineLight);
-
                 enemyGroup.add(engGroup);
             });
 
@@ -4178,17 +4207,17 @@
         let explosionParticles = [];
 
         function spawnLaserImpactSparks(pos) {
-            for (let i = 0; i < 14; i++) {
-                const pGeo = new THREE.SphereGeometry(0.25, 8, 8);
-                const pMat = new THREE.MeshBasicMaterial({ color: (i % 2 === 0) ? 0x00f0ff : 0xffffff });
-                const p = new THREE.Mesh(pGeo, pMat);
+            for (let i = 0; i < 10; i++) {
+                const pMat = sharedExpColors[i % sharedExpColors.length];
+                const p = new THREE.Mesh(sharedExpParticleGeo, pMat);
                 p.position.copy(pos);
+                p.scale.set(0.5, 0.5, 0.5);
                 p.userData.vel = new THREE.Vector3(
                     (Math.random() - 0.5) * 8,
                     (Math.random() - 0.5) * 8,
                     (Math.random() - 0.5) * 8
                 );
-                p.userData.life = 1.0;
+                p.userData.life = 0.8;
                 scene.add(p);
                 explosionParticles.push(p);
             }
@@ -4501,14 +4530,17 @@ function createEpicPlayerDeathExplosion(pos) {
         }
 
         function resetSimView() {
-            playerShip.position.set(82800, 420, -36200);
+            playerShip.position.set(81600, 200, -38000);
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
-            playerShip.lookAt(new THREE.Vector3(76800, -750, -47500));
+            playerShip.lookAt(new THREE.Vector3(77200, -650, -43800));
             if (camera) {
-                const initCamOffset = new THREE.Vector3(0, 7.5, 26).applyQuaternion(playerShip.quaternion);
+                const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
+                camera.up.copy(localUp);
+                const initCamOffset = new THREE.Vector3(0, 6.0, 22.0).applyQuaternion(playerShip.quaternion);
                 camera.position.copy(playerShip.position).add(initCamOffset);
-                camera.lookAt(playerShip.position);
+                const targetLookAt = playerShip.position.clone().add(new THREE.Vector3(0, 0, -50).applyQuaternion(playerShip.quaternion));
+                camera.lookAt(targetLookAt);
             }
             targetSpeed = 0;
             currentSpeed = 0;
@@ -4755,6 +4787,9 @@ function createEpicPlayerDeathExplosion(pos) {
 
             // --- ANIMATE ACTIVE HYPERSPACE RIFTS ---
             const nowPerf = performance.now();
+            let activeFlashPos = null;
+            let activeFlashIntensity = 0;
+
             for (let i = activeHyperspaceRifts.length - 1; i >= 0; i--) {
                 const rift = activeHyperspaceRifts[i];
                 const age = (nowPerf - rift.startTime) / 1000;
@@ -4765,6 +4800,8 @@ function createEpicPlayerDeathExplosion(pos) {
                     if (rift.tearMesh.material) rift.tearMesh.material.dispose();
                     if (rift.shockwaveMesh.geometry) rift.shockwaveMesh.geometry.dispose();
                     if (rift.shockwaveMesh.material) rift.shockwaveMesh.material.dispose();
+                    if (rift.sparkPoints && rift.sparkPoints.geometry) rift.sparkPoints.geometry.dispose();
+                    if (rift.sparkPoints && rift.sparkPoints.material) rift.sparkPoints.material.dispose();
                     activeHyperspaceRifts.splice(i, 1);
                     continue;
                 }
@@ -4774,7 +4811,8 @@ function createEpicPlayerDeathExplosion(pos) {
                     const progress = age / 0.5;
                     rift.tearMesh.scale.set(progress * 1.2, progress, 1.0);
                     rift.tearMesh.material.opacity = progress * 0.95;
-                    rift.flashLight.intensity = progress * 8.0;
+                    activeFlashPos = rift.pos;
+                    activeFlashIntensity = Math.max(activeFlashIntensity, progress * 8.0);
                 }
                 // Phase 2: Maximum Flash & Shockwave Expansion (0.5s -> 1.8s)
                 else if (age < 1.8) {
@@ -4783,19 +4821,27 @@ function createEpicPlayerDeathExplosion(pos) {
                     
                     // Flash spike and exponential decay
                     const flashT = Math.max(0, 1.0 - (age - 0.5) / 0.8);
-                    rift.flashLight.intensity = flashT * 26.0;
+                    activeFlashPos = rift.pos;
+                    activeFlashIntensity = Math.max(activeFlashIntensity, flashT * 26.0);
 
                     // Gravitational Shockwave Expansion
                     const shockScale = 1.0 + Math.pow(progress, 0.7) * 32.0;
                     rift.shockwaveMesh.scale.set(shockScale, shockScale, shockScale);
                     rift.shockwaveMesh.material.opacity = Math.max(0, (1.0 - progress) * 0.90);
 
-                    // Animate Tachyon Spark Bursts
-                    rift.sparks.forEach(s => {
-                        if (!s.visible) s.visible = true;
-                        s.position.add(s.userData.vel.clone().multiplyScalar(0.016));
-                        s.scale.setScalar(Math.max(0.1, 1.0 - progress));
-                    });
+                    // Animate Tachyon Spark Points (Direct Buffer Manipulation)
+                    if (rift.sparkPoints && rift.sparkVelocities) {
+                        const posAttr = rift.sparkPoints.geometry.attributes.position;
+                        const arr = posAttr.array;
+                        for (let s = 0; s < rift.sparkVelocities.length; s++) {
+                            const v = rift.sparkVelocities[s];
+                            arr[s * 3] += v.x * 0.016;
+                            arr[s * 3 + 1] += v.y * 0.016;
+                            arr[s * 3 + 2] += v.z * 0.016;
+                        }
+                        posAttr.needsUpdate = true;
+                        rift.sparkPoints.material.opacity = Math.max(0, 1.0 - progress);
+                    }
                 }
                 // Phase 3: Spatial Collapse (1.8s -> 2.6s)
                 else {
@@ -4803,8 +4849,16 @@ function createEpicPlayerDeathExplosion(pos) {
                     const collapseScale = Math.max(0.001, 1.0 - progress);
                     rift.tearMesh.scale.set(collapseScale * 1.2, collapseScale, collapseScale);
                     rift.tearMesh.material.opacity = (1.0 - progress) * 0.9;
-                    rift.flashLight.intensity = 0;
                     rift.shockwaveMesh.material.opacity = 0;
+                }
+            }
+
+            if (globalHyperspaceFlashLight) {
+                if (activeFlashPos && activeFlashIntensity > 0.01) {
+                    globalHyperspaceFlashLight.position.copy(activeFlashPos);
+                    globalHyperspaceFlashLight.intensity = activeFlashIntensity;
+                } else {
+                    globalHyperspaceFlashLight.intensity = 0;
                 }
             }
 
@@ -4876,7 +4930,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 if (ship.userData.weaponLights) {
                     const pulse = Math.sin(timeSec * 3.5 + (ship.userData.jumpDelay || 0));
                     ship.userData.weaponLights.forEach(wl => {
-                        wl.intensity = 5.5 + pulse * 2.0;
+                        wl.intensity = 4.5 + pulse * 1.5;
                     });
                 }
                 if (ship.userData.weaponGlows) {
@@ -4886,60 +4940,51 @@ function createEpicPlayerDeathExplosion(pos) {
                     });
                 }
 
-                // 4. Animate Blinking Navigation Beacons
+                // 4. Animate Blinking Navigation Beacons (Mesh pulsating scale & opacity)
                 if (ship.userData.beacons) {
-                    const blink = (Math.sin(timeSec * 5 + (ship.userData.jumpDelay || 0)) > 0 ? 1.0 : 0.15);
+                    const blink = (Math.sin(timeSec * 5 + (ship.userData.jumpDelay || 0)) > 0 ? 1.0 : 0.2);
                     ship.userData.beacons.forEach(b => {
-                        b.intensity = b.userData.baseIntensity * blink;
+                        b.scale.setScalar(blink > 0.5 ? 1.2 : 0.8);
+                        if (b.children[1] && b.children[1].material) {
+                            b.children[1].material.opacity = blink * 0.85;
+                        }
                     });
                 }
 
-                // 5. Animate Dreadnought Red Engine Exhaust Plumes
-                if (ship.userData.engineEmitters && ship.visible) {
-                    if (!ship.userData.particles) ship.userData.particles = [];
+                // 5. Animate Dreadnought Red Engine Exhaust Plumes (Zero-Allocation Pool)
+                if (ship.userData.engineEmitters && ship.visible && cameraMode !== 0) {
                     const shipQuat = ship.quaternion;
-
-                    if (cameraMode !== 0) {
-                        ship.userData.engineEmitters.forEach(em => {
-                            const pGeo = new THREE.SphereGeometry(Math.random() * 1.5 + 1.0, 6, 6);
-                            const pMat = new THREE.MeshBasicMaterial({
-                                color: 0xff2244,
-                                transparent: true,
-                                opacity: 0.42
-                            });
-                            const p = new THREE.Mesh(pGeo, pMat);
-                            const localPos = new THREE.Vector3(
-                                (em.x + (Math.random() - 0.5) * em.r * 0.6) * 3,
-                                (em.y + (Math.random() - 0.5) * em.r * 0.6) * 3,
-                                em.z * 3
-                            );
-                            p.position.copy(localPos).applyQuaternion(shipQuat).add(ship.position);
-                            p.userData.life = 1.0;
-                            const backwardDir = new THREE.Vector3(0, 0, 1).applyQuaternion(shipQuat);
-                            p.userData.vel = backwardDir.multiplyScalar(Math.random() * 1.8 + 0.8);
-
-                            scene.add(p);
-                            ship.userData.particles.push(p);
-                        });
-                    }
-
-                    for (let pIdx = ship.userData.particles.length - 1; pIdx >= 0; pIdx--) {
-                        const p = ship.userData.particles[pIdx];
-                        p.userData.life -= 0.022;
-                        if (p.userData.life <= 0 || cameraMode === 0) {
-                            scene.remove(p);
-                            p.geometry.dispose();
-                            p.material.dispose();
-                            ship.userData.particles.splice(pIdx, 1);
-                        } else {
-                            p.position.add(p.userData.vel);
-                            p.scale.setScalar(p.userData.life * 2.0);
-                            p.material.opacity = p.userData.life * 0.38;
-                            p.material.color.lerp(new THREE.Color(0x7f1d1d), 0.04);
-                        }
+                    if (Math.random() < 0.65 && capitalParticlePool.length > 0 && ship.userData.engineEmitters.length > 0) {
+                        const em = ship.userData.engineEmitters[Math.floor(Math.random() * ship.userData.engineEmitters.length)];
+                        const p = capitalParticlePool.pop();
+                        const localPos = new THREE.Vector3(
+                            (em.x + (Math.random() - 0.5) * em.r * 0.5) * 3,
+                            (em.y + (Math.random() - 0.5) * em.r * 0.5) * 3,
+                            em.z * 3
+                        );
+                        p.position.copy(localPos).applyQuaternion(shipQuat).add(ship.position);
+                        p.userData.life = 1.0;
+                        const backwardDir = new THREE.Vector3(0, 0, 1).applyQuaternion(shipQuat);
+                        p.userData.vel.copy(backwardDir).multiplyScalar(Math.random() * 1.6 + 0.8);
+                        p.visible = true;
+                        activeCapitalParticles.push(p);
                     }
                 }
             });
+
+            // Update all active capital particles in a single tight loop (zero garbage)
+            for (let pIdx = activeCapitalParticles.length - 1; pIdx >= 0; pIdx--) {
+                const p = activeCapitalParticles[pIdx];
+                p.userData.life -= 0.024;
+                if (p.userData.life <= 0 || cameraMode === 0) {
+                    p.visible = false;
+                    capitalParticlePool.push(p);
+                    activeCapitalParticles.splice(pIdx, 1);
+                } else {
+                    p.position.add(p.userData.vel);
+                    p.scale.setScalar(p.userData.life * 1.8);
+                }
+            }
 
             // Rotate Saturn cloud bands, textured ring disc, asteroid ring particles, Titan moon, and The Crest station
             if (spacePlanetSphere) spacePlanetSphere.rotation.y += 0.00015;
