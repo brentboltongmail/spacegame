@@ -3549,7 +3549,7 @@
             }
         }
 
-        function createHyperspaceRiftMesh(pos, fwdDir) {
+        function createHyperspaceRiftMesh(pos, fwdDir, ship) {
             const riftGroup = new THREE.Group();
             riftGroup.position.copy(pos);
             riftGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), fwdDir);
@@ -3661,7 +3661,8 @@
                 sparkPoints: sparkPoints,
                 sparkVelocities: sparkVelocities,
                 startTime: performance.now(),
-                pos: pos
+                pos: pos.clone ? pos.clone() : pos,
+                ship: ship
             };
             activeHyperspaceRifts.push(riftObj);
             return riftObj;
@@ -3864,17 +3865,18 @@
             fleetEmergenceStartTime = performance.now();
             fleetEmergenceActive = true;
 
-            const fleetForward = new THREE.Vector3(0, 0, 1); // Ships jump in facing forward towards the player and The Crest
+            const fleetFacing = new THREE.Vector3(0, 0, 1); // Maintain current correct facing direction towards player
+            const flightDirection = new THREE.Vector3(0, 0, -1); // Restored original flight path
 
             capitalShips.forEach(ship => {
                 ship.visible = false;
                 ship.userData.jumpPhase = 'WAITING';
 
-                ship.userData.fwdDir = fleetForward.clone();
-                ship.userData.entryPos = ship.userData.targetPos.clone().sub(fleetForward.clone().multiplyScalar(4500));
+                ship.userData.fwdDir = flightDirection.clone();
+                ship.userData.entryPos = ship.userData.targetPos.clone().sub(flightDirection.clone().multiplyScalar(4500));
                 ship.position.copy(ship.userData.entryPos);
                 
-                const lookTarget = ship.position.clone().add(fleetForward.clone().multiplyScalar(1000));
+                const lookTarget = ship.position.clone().add(fleetFacing.clone().multiplyScalar(1000));
                 ship.lookAt(lookTarget);
             });
 
@@ -4807,6 +4809,12 @@ function createEpicPlayerDeathExplosion(pos) {
                     continue;
                 }
 
+                // Continuously track and follow the emerging capital ship
+                if (rift.ship && rift.ship.userData) {
+                    rift.group.position.copy(rift.ship.position);
+                    rift.pos.copy(rift.ship.position);
+                }
+
                 // Phase 1: Rift Opening (0 -> 0.5s)
                 if (age < 0.5) {
                     const progress = age / 0.5;
@@ -4876,10 +4884,9 @@ function createEpicPlayerDeathExplosion(pos) {
 
                     if (ship.userData.jumpPhase === 'WAITING' && elapsedFleetEmergence >= delay) {
                         ship.userData.jumpPhase = 'RIFT_OPENING';
-                        const fwd = ship.userData.fwdDir || new THREE.Vector3(0, 0, 1);
-                        const riftPos = ship.userData.targetPos.clone().sub(fwd.clone().multiplyScalar(600));
-                        createHyperspaceRiftMesh(riftPos, fwd);
-                        playHyperspaceCrackAudio(playerShip.position.distanceTo(riftPos));
+                        const fwd = ship.userData.fwdDir || new THREE.Vector3(0, 0, -1);
+                        createHyperspaceRiftMesh(ship.position, fwd, ship);
+                        playHyperspaceCrackAudio(playerShip.position.distanceTo(ship.position));
                     }
                     else if (ship.userData.jumpPhase === 'RIFT_OPENING' && elapsedFleetEmergence >= delay + 0.45) {
                         ship.userData.jumpPhase = 'EMERGING';
