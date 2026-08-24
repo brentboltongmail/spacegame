@@ -6212,12 +6212,30 @@ function createEpicPlayerDeathExplosion(pos) {
             showToast("🎯 3D MAP RE-CENTERED ON PLAYER SHIP");
         }
 
+        function resizeHangarViewport() {
+            if (upgradeHangarCamera && upgradeHangarRenderer) {
+                const container = document.getElementById('hangar-canvas-container');
+                if (container && container.clientWidth > 0 && container.clientHeight > 0) {
+                    const w = container.clientWidth;
+                    const h = container.clientHeight;
+                    upgradeHangarCamera.aspect = w / h;
+                    upgradeHangarCamera.updateProjectionMatrix();
+                    upgradeHangarRenderer.setSize(w, h);
+                    if (isGamePaused) {
+                        renderUpgradeHangar3D();
+                    }
+                }
+            }
+        }
+
         function onWindowResize() {
             const container = document.getElementById('canvas-container');
-            if (!container || !renderer) return;
-            camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
+            if (container && renderer && camera) {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            }
+            resizeHangarViewport();
         }
 
         // Initialize on load & auto-start engine audio at initial 50% thrust speed
@@ -6289,15 +6307,8 @@ function createEpicPlayerDeathExplosion(pos) {
                     
                     grid.style.gridTemplateColumns = `${newWidth}fr 10px ${100 - newWidth}fr`;
                     
-                    // Trigger resize on the canvas so ThreeJS updates its aspect ratio
-                    if (window.upgradeHangarCamera && window.upgradeHangarRenderer) {
-                        const container = document.getElementById('hangar-canvas-container');
-                        if (container) {
-                            upgradeHangarCamera.aspect = container.clientWidth / container.clientHeight;
-                            upgradeHangarCamera.updateProjectionMatrix();
-                            upgradeHangarRenderer.setSize(container.clientWidth, container.clientHeight);
-                        }
-                    }
+                    // Trigger dynamic resize on the 3D ship view window immediately
+                    resizeHangarViewport();
                 });
 
                 window.addEventListener('mouseup', () => {
@@ -6305,6 +6316,7 @@ function createEpicPlayerDeathExplosion(pos) {
                         isResizing = false;
                         document.body.style.cursor = '';
                         document.body.style.userSelect = '';
+                        resizeHangarViewport();
                     }
                 });
             }
