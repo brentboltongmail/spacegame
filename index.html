@@ -1642,6 +1642,7 @@
                 <!-- Action Bar Container (Tight Fit Card around Buttons with Centered Drag Handle) -->
                 <div class="hud-card draggable-box" id="hud-action-bar-card" style="position: absolute; bottom: 25px; left: calc(50vw - 440px); width: max-content; max-width: max-content; padding: 6px 14px; z-index: 40; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px; display: inline-flex; flex-direction: column; align-items: center;">
                     <div style="display: flex; flex-direction: column; gap: 10px; align-items: stretch; width: max-content; margin-bottom: 0;">
+                        <button class="sim-btn" style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.45), rgba(0, 240, 255, 0.25)); border-color: #38bdf8; color: #a5f3fc; font-weight: 800; box-shadow: 0 0 14px rgba(56, 189, 248, 0.45);" onclick="startMission1()">🎬 Mission 1: Routine Patrol</button>
                         <button class="sim-btn" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.45), rgba(0, 240, 255, 0.25)); border-color: #c084fc; color: #f0abfc; font-weight: 800; box-shadow: 0 0 14px rgba(192, 132, 252, 0.45);" onclick="startTitanGateCinematic()">🎬 Titan Gate Wormhole Cinematic</button>
                         <button class="sim-btn" style="border-color: rgba(0, 240, 255, 0.6); color: #00f0ff; font-weight: 700;" onclick="window.open('audiobook.html', '_blank')">🎧 Open Story Audiobook</button>
                         <button class="sim-btn" id="btn-audio-toggle" onclick="toggleEngineAudioMute()">🔊 Cockpit Engine Audio</button>
@@ -9534,7 +9535,97 @@ function createEpicPlayerDeathExplosion(pos) {
                 });
             }
         });
-    </script>
+    
+        // ==========================================
+        // MISSION 1: ROUTINE PATROL
+        // ==========================================
+        let mission1Rings = [];
+        let mission1Active = false;
+        let mission1Stage = 0;
+
+        function startMission1() {
+            if (mission1Active) return;
+            mission1Active = true;
+            mission1Stage = 0;
+            
+            // Cleanup old rings if any
+            mission1Rings.forEach(r => scene.remove(r));
+            mission1Rings = [];
+
+            // Saturn is at 72060, 214, -81280
+            // Place player in front of Saturn, facing it
+            playerShip.position.set(72060, 214, -65000);
+            playerShip.rotation.set(0, Math.PI, 0); // face -z
+            playerShip.quaternion.setFromEuler(new THREE.Euler(0, Math.PI, 0));
+            targetSpeed = 200;
+            currentSpeed = 200;
+            
+            // Create 3 holographic rings on the opposite side of Saturn
+            // Saturn radius is 9000
+            const ringPos = [
+                {x: 60000, y: 214, z: -81280}, // Left of Saturn
+                {x: 72060, y: 214, z: -95000}, // Behind Saturn
+                {x: 84000, y: 214, z: -81280}  // Right of Saturn
+            ];
+            
+            const ringGeo = new THREE.TorusGeometry(800, 20, 16, 100);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.5 });
+            
+            ringPos.forEach((pos, i) => {
+                const ring = new THREE.Mesh(ringGeo, ringMat);
+                ring.position.set(pos.x, pos.y, pos.z);
+                // Aim them so they make a path. 
+                if (i === 0) ring.lookAt(72060, 214, -81280); 
+                else if (i === 1) ring.rotation.y = 0; // facing front/back
+                else if (i === 2) ring.lookAt(72060, 214, -81280); 
+                
+                scene.add(ring);
+                mission1Rings.push(ring);
+            });
+            
+            showCommsTransmission("ELIAS VANCE", "Alright, kid. Let's see if those stabilizer tweaks I made hold up. Cycle the thrusters, fly around Saturn and clear those 3 training rings on the opposite side.", 8000);
+            
+            // Check ring distances in the animate loop
+            if(!window.mission1Interval) {
+                window.mission1Interval = setInterval(checkMission1Progress, 500);
+            }
+        }
+        
+        function checkMission1Progress() {
+            if (!mission1Active) return;
+            
+            if (mission1Stage < 3) {
+                const targetRing = mission1Rings[mission1Stage];
+                const dist = playerShip.position.distanceTo(targetRing.position);
+                
+                // Draw blip on radar for current ring
+                if (window.drawBlip) {
+                    // Try to draw it on radar (might be cleared every frame, so this needs to run in render loop ideally, 
+                    // but we can just let them find it visually since it's around Saturn).
+                }
+
+                if (dist < 1500) {
+                    // Passed through
+                    scene.remove(targetRing);
+                    mission1Stage++;
+                    if (mission1Stage < 3) {
+                        showToast(`Ring ${mission1Stage} cleared. Next target locked.`, "var(--accent-cyan)");
+                    } else {
+                        showCommsTransmission("KAYLEN VANCE", "Copy that, old man. Controls are stiff, but responsive. Rings cleared.", 5000);
+                        setTimeout(() => {
+                            showCommsTransmission("ELIAS VANCE", "Good. Now dock back at The Crest.", 5000);
+                        }, 6000);
+                        setTimeout(() => {
+                             mission1Active = false; // end for now
+                             clearInterval(window.mission1Interval);
+                             window.mission1Interval = null;
+                        }, 12000);
+                    }
+                }
+            }
+        }
+
+</script>
 </body>
 </html>
 
