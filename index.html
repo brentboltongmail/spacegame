@@ -1938,6 +1938,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous"></script>
     <script src="libs/fflate.min.js"></script>
     <script src="libs/GLTFLoader.js"></script>
+    <script src="libs/BufferGeometryUtils.js"></script>
     <script>
         // --- REALTIME SERVER DEBUG LOGGER HELPER ---
         function remoteLog(msg) {
@@ -2847,6 +2848,20 @@
             gltfLoader.load('fbx/void_interceptor.glb', function(gltf) {
                 const model = gltf.scene;
 
+                // Weld split vertices and smooth normals on all meshes
+                model.traverse(function(child) {
+                    if (child.isMesh && child.geometry) {
+                        if (THREE.BufferGeometryUtils && THREE.BufferGeometryUtils.mergeVertices) {
+                            try {
+                                child.geometry = THREE.BufferGeometryUtils.mergeVertices(child.geometry);
+                                child.geometry.computeVertexNormals();
+                            } catch(e) {
+                                console.warn("[VOID INTERCEPTOR VERTEX MERGE ERROR]", e);
+                            }
+                        }
+                    }
+                });
+
                 const box = new THREE.Box3().setFromObject(model);
                 const size = new THREE.Vector3();
                 box.getSize(size);
@@ -3142,6 +3157,20 @@
             const gltfLoader = new THREE.GLTFLoader();
             gltfLoader.load('fbx/battlecruiser.glb', function(gltf) {
                 const model = gltf.scene;
+
+                // Weld split vertices and smooth normals on all meshes
+                model.traverse(function(child) {
+                    if (child.isMesh && child.geometry) {
+                        if (THREE.BufferGeometryUtils && THREE.BufferGeometryUtils.mergeVertices) {
+                            try {
+                                child.geometry = THREE.BufferGeometryUtils.mergeVertices(child.geometry);
+                                child.geometry.computeVertexNormals();
+                            } catch(e) {
+                                console.warn("[BATTLECRUISER VERTEX MERGE ERROR]", e);
+                            }
+                        }
+                    }
+                });
 
                 // Compute Bounding Box & Scale to ~950 units length
                 const box = new THREE.Box3().setFromObject(model);
