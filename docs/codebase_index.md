@@ -55,6 +55,7 @@ This document serves as a high-level map of index.html (the primary 6000+ line a
 ## 6. Combat & Interactions
 *   firePlasmaLaser() - Grabs from laser pool, sets positions, and assigns homing targets if closestEnemy is locked.
 *   approachTitanBombardment() / toggleTractorExtraction() / approachAncientGate() - Interactive HUD camera and positioning controls to observe the Titan dark-energy crater excavation, tractor ring ascent, and the stabilized Golden Precursor Gate.
+*   startTitanGateCinematic() / playNextCinematicLine() / finishTitanGateCinematic() / stopTitanGateCinematic() - Multi-stage cinematic cutscene engine driving the Act I climax. Features synchronized ElevenLabs voice acting for Elias Vance and Kaylen Vance, military comms transmission card HUD overlay with animated audio waveforms, dynamic multi-angle director camera cuts, autonomous full-overdrive interceptor flight into the Precursor Wormhole vortex, and seamless blackout fade to black upon crossing the threshold.
 *   triggerWormholeJump() - Initiates high-speed slipspace warp through the Ancient Golden Gate.
 *   triggerDominionFleetHyperspaceEmergence() - Triggers the full 5-ship fleet warp jump arrival sequence near Titan.
 *   spawnEnemySwarm() - Spawns AI enemies into the scene dynamically.
@@ -66,6 +67,8 @@ This document serves as a high-level map of index.html (the primary 6000+ line a
 *   drawTacticalRadar() - Renders 2D radar blips for celestial bodies, The Crest station, Ancient Golden Gate, Titan Excavation Crater, active Dominion fighters, and all 5 Dominion Capital Dreadnoughts.
 *   renderTacticalMap3D() - Synchronizes real-time 3D holographic icons and interactive tooltips for Sol, Saturn, Titan, The Crest, Ancient Golden Gate, Titan Excavation, all 5 Dominion Capital Dreadnoughts (`mapDreadGroup`), and hostile fighter swarms.
 
-## 8. Asset Pipelines & Automation Tools
+## 8. Audio, Voice Casting & Automation Tools
+*   `data/voices.json` & `docs/voice_casting.md` - Persistent character voice casting registry for ElevenLabs API, storing voice IDs, stability, and similarity parameters across characters (Kaylen Vance, Elias Vance, Precursor AI / Althea, Story Narrator, Jax, Kayl, Lyra, Regent Vaylen).
+*   `scripts/generate_cinematic_dialogue.py` - Automated ElevenLabs batch TTS generator for cinematic dialogue clips (`audio/cinematics/titan_gate/`).
 *   `scripts/optimize_glb.py` - CLI utility for batch and single-file GLB optimization. Implements boundary-preserving decimation (`preserve_border=True`, `aggressiveness=3`), KDTree nearest-surface UV coordinate projection for 100% PBR texture retention (diffuse, metallic, roughness, normal maps), and verified watertight geometry output for fluid 60+ FPS rendering.
 

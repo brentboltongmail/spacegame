@@ -938,6 +938,63 @@
             opacity: 1;
         }
 
+        .cinematic-blackout-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 998;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 2.0s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 24px;
+            box-sizing: border-box;
+        }
+        .cinematic-blackout-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .blackout-title {
+            font-family: Orbitron, monospace;
+            font-size: 1.8rem;
+            color: #c084fc;
+            letter-spacing: 5px;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-shadow: 0 0 35px rgba(192, 132, 252, 0.85);
+            opacity: 0;
+            transform: scale(0.92);
+            transition: opacity 1.8s ease 0.8s, transform 1.8s ease 0.8s;
+        }
+        .blackout-subtitle {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.25rem;
+            color: #cbd5e1;
+            letter-spacing: 2px;
+            margin-top: 14px;
+            opacity: 0;
+            transition: opacity 1.8s ease 1.8s;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+        .cinematic-blackout-overlay.active .blackout-title {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .cinematic-blackout-overlay.active .blackout-subtitle {
+            opacity: 1;
+        }
+        .cinematic-blackout-overlay.active #blackout-actions {
+            opacity: 1 !important;
+        }
+
         .cinematic-comms-container {
             position: fixed;
             bottom: 11vh;
@@ -1635,6 +1692,16 @@
                             <div class="comms-subtitle" id="comms-subtitle">"..."</div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Full Screen Pitch Blackout Fade-to-Black Overlay -->
+            <div id="cinematic-blackout-overlay" class="cinematic-blackout-overlay">
+                <div class="blackout-title">SOL SECTOR SEVERED</div>
+                <div class="blackout-subtitle">Kaylen Vance's Void Interceptor has crossed the threshold into the Sovereign Reach...</div>
+                <div id="blackout-actions" style="margin-top: 36px; display: flex; gap: 16px; opacity: 0; transition: opacity 1.2s ease 2.5s;">
+                    <button class="sim-btn" style="border-color: rgba(168, 85, 247, 0.8); color: #c084fc; font-weight: 700; padding: 12px 24px; font-size: 0.95rem;" onclick="startTitanGateCinematic()">🔄 Replay Cinematic</button>
+                    <button class="sim-btn" style="background: linear-gradient(135deg, rgba(0, 240, 255, 0.4), rgba(168, 85, 247, 0.4)); border-color: #00f0ff; color: #fff; font-weight: 800; padding: 12px 28px; font-size: 0.95rem;" onclick="stopTitanGateCinematic()">🚀 Return to Flight Simulator</button>
                 </div>
             </div>
 
@@ -2662,8 +2729,9 @@
         let goldenGlyphRingMesh = null;
         let goldenGatePylons = [];
         let goldenGateVortexGroup = null;
-        let goldenGateVortexDisc = null;
-        let goldenGateSwirlRing = null;
+        let goldenGateSpiralPoints = null;
+        let goldenGateTunnelPoints = null;
+        let goldenGateBorderPoints = null;
         let goldenGateLight = null;
         let goldenGateRipples = [];
 
@@ -4715,44 +4783,181 @@
                 goldenGatePylons.push({ group: pylonGroup, crystal: crystalMesh, angle: angle });
             }
 
-            // D. Swirling Slipspace Cosmic Event Horizon & Accretion Vortex
+            // D. Dense Volumetric Cosmic Particle Wormhole & Event Horizon Vortex (No Primitives)
             goldenGateVortexGroup = new THREE.Group();
 
-            // Outer Accretion Disc (Deep Purple Gravitational Swirl)
-            const vortexDiscGeo = new THREE.CircleGeometry(255, 64);
-            vortexDiscGeo.rotateX(Math.PI / 2);
-            const vortexDiscMat = new THREE.MeshBasicMaterial({
-                color: 0x7e22ce,
-                side: THREE.DoubleSide,
-                transparent: true,
-                opacity: 0.85,
-                blending: THREE.AdditiveBlending
-            });
-            goldenGateVortexDisc = new THREE.Mesh(vortexDiscGeo, vortexDiscMat);
-            goldenGateVortexGroup.add(goldenGateVortexDisc);
+            function createWormholeParticleTexture() {
+                const canvas = document.createElement('canvas');
+                canvas.width = 64;
+                canvas.height = 64;
+                const ctx = canvas.getContext('2d');
+                const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+                grad.addColorStop(0.0, 'rgba(255, 255, 255, 1.0)');
+                grad.addColorStop(0.22, 'rgba(217, 70, 239, 0.95)');
+                grad.addColorStop(0.55, 'rgba(126, 34, 206, 0.45)');
+                grad.addColorStop(1.0, 'rgba(0, 0, 0, 0.0)');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 64, 64);
+                const tex = new THREE.CanvasTexture(canvas);
+                tex.generateMipmaps = true;
+                return tex;
+            }
 
-            // Middle Electric Cyan / Violet Hyperspace Vortex Swirl
-            const swirlGeo = new THREE.RingGeometry(35, 240, 64);
-            swirlGeo.rotateX(Math.PI / 2);
-            const swirlMat = new THREE.MeshBasicMaterial({
-                color: 0x00f0ff,
-                side: THREE.DoubleSide,
-                transparent: true,
-                opacity: 0.70,
-                blending: THREE.AdditiveBlending
-            });
-            goldenGateSwirlRing = new THREE.Mesh(swirlGeo, swirlMat);
-            goldenGateVortexGroup.add(goldenGateSwirlRing);
+            const pTex = createWormholeParticleTexture();
 
-            // Central Slipspace Dark Singularity
-            const singGeo = new THREE.CircleGeometry(38, 32);
-            singGeo.rotateX(Math.PI / 2);
-            const singMat = new THREE.MeshBasicMaterial({
-                color: 0x020617,
-                side: THREE.DoubleSide
+            // 1. Multi-Spectral Accretion Spiral Arms & Inflow Swarm (6,500 Dense Particles)
+            const spiralCount = 6500;
+            const spiralGeo = new THREE.BufferGeometry();
+            const spiralPositions = new Float32Array(spiralCount * 3);
+            const spiralColors = new Float32Array(spiralCount * 3);
+            const spiralData = [];
+
+            const spiralColorPalette = [
+                new THREE.Color(0xa855f7), // Radiant Violet
+                new THREE.Color(0x00f0ff), // Electric Cyan
+                new THREE.Color(0xfbbf24), // Precursor Gold
+                new THREE.Color(0xd946ef), // Intense Magenta
+                new THREE.Color(0xffffff), // White Tachyon Core
+                new THREE.Color(0x38bdf8)  // Subspace Sky Blue
+            ];
+
+            for (let p = 0; p < spiralCount; p++) {
+                const arm = p % 4; // 4 logarithmic spiral arms
+                const rNorm = Math.pow(Math.random(), 0.70); // Strong density bias toward core
+                const r = 10 + rNorm * 270; // Radius from 10 to 280 units
+                const baseTheta = (arm * (Math.PI / 2)) + (r * 0.030) + (Math.random() - 0.5) * 0.50;
+                const depthCurve = -Math.sin((1.0 - rNorm) * Math.PI * 0.5) * 70; // Funnel inward depth
+                const y = depthCurve + (Math.random() - 0.5) * 16;
+                
+                spiralPositions[p * 3] = Math.cos(baseTheta) * r;
+                spiralPositions[p * 3 + 1] = y;
+                spiralPositions[p * 3 + 2] = Math.sin(baseTheta) * r;
+
+                const col = spiralColorPalette[p % spiralColorPalette.length];
+                const finalCol = col.clone().lerp(new THREE.Color(0xffffff), Math.max(0, 1.0 - r / 110));
+                spiralColors[p * 3] = finalCol.r;
+                spiralColors[p * 3 + 1] = finalCol.g;
+                spiralColors[p * 3 + 2] = finalCol.b;
+
+                spiralData.push({
+                    r: r,
+                    rMin: 8,
+                    rMax: 280,
+                    theta: baseTheta,
+                    speed: (0.45 + (1.0 - rNorm) * 1.9) * (Math.random() > 0.06 ? 1 : -0.5),
+                    arm: arm,
+                    rSpeed: (0.7 + Math.random() * 1.6) * 14
+                });
+            }
+
+            spiralGeo.setAttribute('position', new THREE.BufferAttribute(spiralPositions, 3));
+            spiralGeo.setAttribute('color', new THREE.BufferAttribute(spiralColors, 3));
+
+            const spiralMat = new THREE.PointsMaterial({
+                size: 16,
+                map: pTex,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.95,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
             });
-            const singMesh = new THREE.Mesh(singGeo, singMat);
-            goldenGateVortexGroup.add(singMesh);
+
+            goldenGateSpiralPoints = new THREE.Points(spiralGeo, spiralMat);
+            goldenGateSpiralPoints.userData = { pData: spiralData };
+            goldenGateVortexGroup.add(goldenGateSpiralPoints);
+
+            // 2. Gravitational Singularity Throat & Tunnel Flow (3,500 Dense Particles)
+            const tunnelCount = 3500;
+            const tunnelGeo = new THREE.BufferGeometry();
+            const tunnelPositions = new Float32Array(tunnelCount * 3);
+            const tunnelColors = new Float32Array(tunnelCount * 3);
+            const tunnelData = [];
+
+            for (let t = 0; t < tunnelCount; t++) {
+                const tNorm = Math.random(); // 0 (front horizon) to 1 (deep wormhole tunnel)
+                const y = 30 - tNorm * 220;
+                const rThroat = 8 + (1.0 - tNorm * 0.78) * 85;
+                const theta = Math.random() * Math.PI * 2;
+
+                tunnelPositions[t * 3] = Math.cos(theta) * rThroat;
+                tunnelPositions[t * 3 + 1] = y;
+                tunnelPositions[t * 3 + 2] = Math.sin(theta) * rThroat;
+
+                const tCol = (tNorm < 0.45) ? new THREE.Color(0x00f0ff) : (Math.random() > 0.5 ? new THREE.Color(0xa855f7) : new THREE.Color(0xfbbf24));
+                tunnelColors[t * 3] = tCol.r;
+                tunnelColors[t * 3 + 1] = tCol.g;
+                tunnelColors[t * 3 + 2] = tCol.b;
+
+                tunnelData.push({
+                    y: y,
+                    ySpeed: 55 + Math.random() * 95,
+                    theta: theta,
+                    rotSpeed: 1.4 + Math.random() * 2.2
+                });
+            }
+
+            tunnelGeo.setAttribute('position', new THREE.BufferAttribute(tunnelPositions, 3));
+            tunnelGeo.setAttribute('color', new THREE.BufferAttribute(tunnelColors, 3));
+
+            const tunnelMat = new THREE.PointsMaterial({
+                size: 12,
+                map: pTex,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.88,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+
+            goldenGateTunnelPoints = new THREE.Points(tunnelGeo, tunnelMat);
+            goldenGateTunnelPoints.userData = { pData: tunnelData };
+            goldenGateVortexGroup.add(goldenGateTunnelPoints);
+
+            // 3. Peripheral Precursor Boundary Sparks & Energy Corona (1,500 Dense Particles)
+            const borderCount = 1500;
+            const borderGeo = new THREE.BufferGeometry();
+            const borderPositions = new Float32Array(borderCount * 3);
+            const borderColors = new Float32Array(borderCount * 3);
+            const borderData = [];
+
+            for (let b = 0; b < borderCount; b++) {
+                const theta = Math.random() * Math.PI * 2;
+                const r = 260 + Math.random() * 50;
+                const y = (Math.random() - 0.5) * 22;
+
+                borderPositions[b * 3] = Math.cos(theta) * r;
+                borderPositions[b * 3 + 1] = y;
+                borderPositions[b * 3 + 2] = Math.sin(theta) * r;
+
+                const bCol = Math.random() > 0.45 ? new THREE.Color(0xfbbf24) : new THREE.Color(0xd946ef);
+                borderColors[b * 3] = bCol.r;
+                borderColors[b * 3 + 1] = bCol.g;
+                borderColors[b * 3 + 2] = bCol.b;
+
+                borderData.push({
+                    theta: theta,
+                    rotSpeed: (Math.random() - 0.5) * 0.9,
+                    r: r
+                });
+            }
+
+            borderGeo.setAttribute('position', new THREE.BufferAttribute(borderPositions, 3));
+            borderGeo.setAttribute('color', new THREE.BufferAttribute(borderColors, 3));
+
+            const borderMat = new THREE.PointsMaterial({
+                size: 14,
+                map: pTex,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.82,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+
+            goldenGateBorderPoints = new THREE.Points(borderGeo, borderMat);
+            goldenGateBorderPoints.userData = { pData: borderData };
+            goldenGateVortexGroup.add(goldenGateBorderPoints);
 
             ancientGoldenGate.add(goldenGateVortexGroup);
 
@@ -6143,12 +6348,22 @@ function createEpicPlayerDeathExplosion(pos) {
             }
         ];
 
+        let isTitanCinematicActive = false;
+        let isTitanCinematicEnteringGate = false;
+        let titanCinematicAudio = null;
+        let titanCinematicIndex = 0;
+        let titanCinematicTimeout = null;
+
         function startTitanGateCinematic() {
             if (!ancientGoldenGate) return;
             isTitanCinematicActive = true;
+            isTitanCinematicEnteringGate = false;
             isWormholeActive = false;
             titanCinematicIndex = 0;
             document.body.classList.add('in-cinematic-mode');
+
+            const blackout = document.getElementById('cinematic-blackout-overlay');
+            if (blackout) blackout.classList.remove('active');
 
             const endModal = document.getElementById('cinematic-end-modal');
             if (endModal) {
@@ -6161,6 +6376,7 @@ function createEpicPlayerDeathExplosion(pos) {
             const startOffset = new THREE.Vector3(0, 160, 1750);
             playerShip.position.copy(gateWorldPos).add(startOffset);
             playerShip.lookAt(gateWorldPos);
+            playerShip.visible = true;
             targetSpeed = titanCinematicScript[0].speed;
             currentSpeed = titanCinematicScript[0].speed;
 
@@ -6247,36 +6463,23 @@ function createEpicPlayerDeathExplosion(pos) {
         function finishTitanGateCinematic() {
             if (!isTitanCinematicActive) return;
 
-            // Trigger full screen blinding flash
-            const flash = document.getElementById('cinematic-flash-overlay');
-            if (flash) {
-                flash.classList.add('active');
-                setTimeout(() => {
-                    flash.classList.remove('active');
-                }, 1400);
-            }
+            // Lock camera behind the Void Interceptor in dramatic third-person view so player sees their ship enter the gate
+            cameraMode = 1;
+            playerShip.visible = true;
 
-            // Engage warp hyperspace tunnel
-            isWormholeActive = true;
-            targetSpeed = 450;
-            currentSpeed = 450;
-
-            // Hide comms overlay
+            // Hide comms overlay to leave the view completely cinematic and clean
             const overlay = document.getElementById('cinematic-comms-overlay');
             if (overlay) overlay.style.display = 'none';
 
-            // Open End Modal after flash
-            setTimeout(() => {
-                const endModal = document.getElementById('cinematic-end-modal');
-                if (endModal) {
-                    endModal.style.display = 'flex';
-                    setTimeout(() => endModal.classList.add('active'), 50);
-                }
-            }, 1000);
+            // Accelerate ship at full overdrive thrust straight into the gate
+            isTitanCinematicEnteringGate = true;
+            targetSpeed = 550;
+            currentSpeed = 550;
         }
 
         function stopTitanGateCinematic() {
             isTitanCinematicActive = false;
+            isTitanCinematicEnteringGate = false;
             document.body.classList.remove('in-cinematic-mode');
 
             if (titanCinematicAudio) {
@@ -6293,6 +6496,9 @@ function createEpicPlayerDeathExplosion(pos) {
 
             const flash = document.getElementById('cinematic-flash-overlay');
             if (flash) flash.classList.remove('active');
+
+            const blackout = document.getElementById('cinematic-blackout-overlay');
+            if (blackout) blackout.classList.remove('active');
 
             showToast("Cinematic ended. Flight control restored.");
         }
@@ -6405,6 +6611,24 @@ function createEpicPlayerDeathExplosion(pos) {
                 // In cinematic mode, autonomously steer directly toward the Ancient Precursor Gate center
                 const gateCenter = ancientGoldenGate.position.clone();
                 playerShip.lookAt(gateCenter);
+
+                const distToGate = playerShip.position.distanceTo(gateCenter);
+                if (isTitanCinematicEnteringGate && distToGate < 75) {
+                    isTitanCinematicEnteringGate = false;
+                    
+                    // Trigger cinematic fade to black as Void Interceptor penetrates the gate vortex
+                    const blackout = document.getElementById('cinematic-blackout-overlay');
+                    if (blackout) {
+                        blackout.classList.add('active');
+                    }
+                    
+                    // Quick flash pulse before darkness
+                    const flash = document.getElementById('cinematic-flash-overlay');
+                    if (flash) {
+                        flash.classList.add('active');
+                        setTimeout(() => flash.classList.remove('active'), 500);
+                    }
+                }
             } else {
                 // Apply local pitch (X) and yaw (Y) quaternion rotations directly
                 // Allows full 360° loop-de-loops over the top without any view snapping or gimbal flips!
