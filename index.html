@@ -2412,6 +2412,7 @@
             createTitanMoon();
             createTheCrestStation();
             loadVoidInterceptorModel();
+            loadDominionFighterModel();
             createPlayerShip();
             createCapitalShip();
             createWormholeGate();
@@ -3062,30 +3063,76 @@
             });
         }
 
-        function attachVoidInterceptorModel(shipGroup, isEvil) {
+        function attachVoidInterceptorModel(shipGroup) {
             if (!voidInterceptorTemplate || !shipGroup.userData || !shipGroup.userData.meshContainer) return;
             // Remove any fallback mesh
             while (shipGroup.userData.meshContainer.children.length > 0) {
                 shipGroup.userData.meshContainer.remove(shipGroup.userData.meshContainer.children[0]);
             }
             const cloned = voidInterceptorTemplate.clone(true);
-            if (isEvil) {
-                cloned.traverse(child => {
-                    if (child.isMesh && child.material) {
-                        child.material = child.material.clone();
-                        child.material.color.setHex(0xff8899);
-                        child.material.transparent = false;
-                        child.material.opacity = 1.0;
-                        child.material.depthWrite = true;
-                        child.material.depthTest = true;
-                        child.material.side = THREE.DoubleSide;
-                    }
-                });
-            }
             shipGroup.userData.meshContainer.add(cloned);
         }
 
-        function buildDetailedShipMesh(isEvil) {
+        // --- DOMINION FIGHTER GLB MODEL & MATERIAL MANAGEMENT ---
+        let dominionFighterTemplate = null;
+        const pendingDominionFighterShips = [];
+
+        function loadDominionFighterModel() {
+            const gltfLoader = new THREE.GLTFLoader();
+            gltfLoader.load('fbx/dominion_fighter.glb?v=' + Date.now(), function(gltf) {
+                const model = gltf.scene;
+
+                // Enforce solid double-sided opaque materials
+                model.traverse(function(child) {
+                    if (child.isMesh && child.material) {
+                        const mats = Array.isArray(child.material) ? child.material : [child.material];
+                        mats.forEach(mat => {
+                            mat.transparent = false;
+                            mat.opacity = 1.0;
+                            mat.depthWrite = true;
+                            mat.depthTest = true;
+                            mat.side = THREE.DoubleSide;
+                            mat.needsUpdate = true;
+                        });
+                    }
+                });
+
+                const box = new THREE.Box3().setFromObject(model);
+                const size = new THREE.Vector3();
+                box.getSize(size);
+                const center = new THREE.Vector3();
+                box.getCenter(center);
+
+                // Raw model: -X is nose, +X is rear, +Y is up, +/-Z are wingtips
+                // Rotate Y by -Math.PI / 2 so -Z is forward, +Z is rear, +/-X are wings, +Y is up
+                const targetScale = 12.0 / (size.x || 1);
+                model.scale.set(targetScale, targetScale, targetScale);
+                model.rotation.set(0, -Math.PI / 2, 0);
+                model.position.set(center.z * targetScale, -center.y * targetScale, -center.x * targetScale);
+
+                dominionFighterTemplate = model;
+
+                pendingDominionFighterShips.forEach(shipGroup => {
+                    attachDominionFighterModel(shipGroup);
+                });
+                pendingDominionFighterShips.length = 0;
+
+                console.log("[DOMINION FIGHTER] GLB Model & Textures Loaded Successfully for Enemy Interceptor Swarms!");
+            }, undefined, function(err) {
+                console.error("[DOMINION FIGHTER GLB ERROR]", err);
+            });
+        }
+
+        function attachDominionFighterModel(shipGroup) {
+            if (!dominionFighterTemplate || !shipGroup.userData || !shipGroup.userData.meshContainer) return;
+            while (shipGroup.userData.meshContainer.children.length > 0) {
+                shipGroup.userData.meshContainer.remove(shipGroup.userData.meshContainer.children[0]);
+            }
+            const cloned = dominionFighterTemplate.clone(true);
+            shipGroup.userData.meshContainer.add(cloned);
+        }
+
+        function buildDetailedShipMesh() {
             const shipGroup = new THREE.Group();
             const meshContainer = new THREE.Group();
             shipGroup.add(meshContainer);
@@ -3094,7 +3141,7 @@
             const fallbackGeo = new THREE.ConeGeometry(1.2, 4.2, 5);
             fallbackGeo.rotateX(Math.PI / 2);
             const fallbackMat = new THREE.MeshStandardMaterial({
-                color: isEvil ? 0xff2244 : 0x1e293b,
+                color: 0x1e293b,
                 roughness: 0.5,
                 metalness: 0.8
             });
@@ -3103,12 +3150,12 @@
             meshContainer.add(fallbackMesh);
 
             shipGroup.userData = {
-                isEvil: !!isEvil,
+                isEvil: false,
                 engineLights: [],
                 meshContainer: meshContainer
             };
 
-            const glowColor = isEvil ? 0xff0044 : 0x00f0ff;
+            const glowColor = 0x00f0ff;
 
             // --- TWIN REAR ENGINE GLOW & THRUSTER ARRAYS ---
             const engineGlowMat = new THREE.MeshBasicMaterial({
@@ -3122,7 +3169,7 @@
                 opacity: 0.98
             });
             const engineHaloMat = new THREE.MeshBasicMaterial({
-                color: isEvil ? 0xff0055 : 0x38bdf8,
+                color: 0x38bdf8,
                 transparent: true,
                 opacity: 0.35,
                 blending: THREE.AdditiveBlending,
@@ -3142,7 +3189,7 @@
                 // 1. Deep Engine Interior Cavity Glow
                 const cavityGeo = new THREE.CylinderGeometry(eng.r * 0.85, eng.r * 0.95, 0.45, 16, 1, true);
                 const cavityMat = new THREE.MeshBasicMaterial({
-                    color: isEvil ? 0x990022 : 0x0284c7,
+                    color: 0x0284c7,
                     side: THREE.BackSide,
                     transparent: true,
                     opacity: 0.8
@@ -3181,9 +3228,9 @@
 
             // If GLB is ready, attach immediately, else queue
             if (voidInterceptorTemplate) {
-                attachVoidInterceptorModel(shipGroup, isEvil);
+                attachVoidInterceptorModel(shipGroup);
             } else {
-                pendingVoidInterceptorShips.push({ group: shipGroup, isEvil: !!isEvil });
+                pendingVoidInterceptorShips.push({ group: shipGroup });
             }
 
             return shipGroup;
@@ -3804,16 +3851,104 @@
 
         
         function createEnemyInterceptorMesh() {
-            const enemyGroup = buildDetailedShipMesh(true);
+            const enemyGroup = new THREE.Group();
+            const meshContainer = new THREE.Group();
+            enemyGroup.add(meshContainer);
 
-            // Metadata for HP & Hit Flash
+            // Procedural Fallback Hull (while GLB is loading)
+            const fallbackGeo = new THREE.ConeGeometry(2.0, 5.0, 4);
+            fallbackGeo.rotateX(Math.PI / 2);
+            const fallbackMat = new THREE.MeshStandardMaterial({
+                color: 0x1c1917,
+                roughness: 0.4,
+                metalness: 0.9
+            });
+            const fallbackMesh = new THREE.Mesh(fallbackGeo, fallbackMat);
+            fallbackMesh.name = "dominionFallbackHull";
+            meshContainer.add(fallbackMesh);
+
+            const engineLights = [];
             enemyGroup.userData = {
                 hp: 100,
                 maxHp: 100,
-                name: "Void Interceptor Mk-II",
+                name: "Dominion Strike Fighter",
                 flashTimer: 0,
-                engineLights: enemyGroup.userData.engineLights
+                engineLights: engineLights,
+                isEvil: true,
+                meshContainer: meshContainer
             };
+
+            const glowColor = 0xff0044;
+            const engineGlowMat = new THREE.MeshBasicMaterial({
+                color: glowColor,
+                transparent: true,
+                opacity: 0.95
+            });
+            const engineCoreMat = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.98
+            });
+            const engineHaloMat = new THREE.MeshBasicMaterial({
+                color: 0xff0055,
+                transparent: true,
+                opacity: 0.4,
+                blending: THREE.AdditiveBlending,
+                side: THREE.DoubleSide
+            });
+
+            // 4 Rear Crimson Plasma Thrusters (Twin Main Engines + Twin Wingtip Thrusters)
+            const enginePositions = [
+                { x: -1.05, y: 0.45, z: 5.65, r: 0.55 },
+                { x:  1.05, y: 0.45, z: 5.65, r: 0.55 },
+                { x: -5.40, y: 0.42, z: 5.35, r: 0.32 },
+                { x:  5.40, y: 0.42, z: 5.35, r: 0.32 }
+            ];
+
+            enginePositions.forEach(eng => {
+                const engGroup = new THREE.Group();
+                engGroup.position.set(eng.x, eng.y, eng.z);
+
+                const cavityGeo = new THREE.CylinderGeometry(eng.r * 0.85, eng.r * 0.95, 0.45, 16, 1, true);
+                const cavityMat = new THREE.MeshBasicMaterial({
+                    color: 0x880018,
+                    side: THREE.BackSide,
+                    transparent: true,
+                    opacity: 0.85
+                });
+                const cavity = new THREE.Mesh(cavityGeo, cavityMat);
+                cavity.rotation.x = Math.PI / 2;
+                cavity.position.z = -0.22;
+                engGroup.add(cavity);
+
+                const diskGeo = new THREE.CircleGeometry(eng.r * 0.90, 24);
+                const disk = new THREE.Mesh(diskGeo, engineGlowMat);
+                disk.position.z = 0.02;
+                engGroup.add(disk);
+
+                const coreGeo = new THREE.CircleGeometry(eng.r * 0.45, 24);
+                const core = new THREE.Mesh(coreGeo, engineCoreMat);
+                core.position.z = 0.03;
+                engGroup.add(core);
+
+                const haloGeo = new THREE.RingGeometry(eng.r * 0.85, eng.r * 1.25, 24);
+                const halo = new THREE.Mesh(haloGeo, engineHaloMat);
+                halo.position.z = 0.04;
+                engGroup.add(halo);
+
+                const engineLight = new THREE.PointLight(glowColor, 2.5, 20);
+                engineLight.position.set(0, 0, 0.3);
+                engGroup.add(engineLight);
+                engineLights.push(engineLight);
+
+                enemyGroup.add(engGroup);
+            });
+
+            if (dominionFighterTemplate) {
+                attachDominionFighterModel(enemyGroup);
+            } else {
+                pendingDominionFighterShips.push(enemyGroup);
+            }
 
             return enemyGroup;
         }
@@ -4112,7 +4247,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 scene.add(enemy);
                 enemyShips.push(enemy);
             }
-            showToast("⚠️ 6 ENEMY VOID INTERCEPTORS ENGAGED! TARGET LOCK ACTIVE");
+            showToast("⚠️ 6 DOMINION FIGHTERS ENGAGED! TARGET LOCK ACTIVE");
         }
 
         function approachTheCrest() {
@@ -6207,7 +6342,7 @@ function createEpicPlayerDeathExplosion(pos) {
                     const enemyIconGeo = new THREE.TetrahedronGeometry(1.2);
                     const enemyIconMat = new THREE.MeshBasicMaterial({ color: 0xff3b5c });
                     const mapEnemy = new THREE.Mesh(enemyIconGeo, enemyIconMat);
-                    mapEnemy.userData = { label: "Enemy Interceptor" };
+                    mapEnemy.userData = { label: "Dominion Fighter" };
                     mapEnemyGroup.add(mapEnemy);
                 }
                 while (mapEnemyGroup.children.length > activeEnemies.length) {
