@@ -4607,8 +4607,8 @@
             capitalShips = DOMINION_FLEET_CONFIG.map(cfg => buildSingleCapitalShip(cfg));
             capitalShip = capitalShips[2]; // Lead Flagship 'Iron Sovereign' (center)
 
-            // Arm initial fleet hyperspace emergence sequence with 7-second loading delay
-            triggerDominionFleetHyperspaceEmergence();
+            // Automatic fleet emergence is disabled here (triggered manually after Mission 1)
+            // triggerDominionFleetHyperspaceEmergence();
         }
 
         function launchFightersFromCapitalShip(ship, count = 3) {
