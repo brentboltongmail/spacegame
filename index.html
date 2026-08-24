@@ -9459,6 +9459,9 @@ function createEpicPlayerDeathExplosion(pos) {
             initEngineAudio();
             if (audioCtx) updateEngineAudio(currentSpeed / maxSpeedCap, cameraMode === 0);
 
+            // Auto-start Mission 1 instead of Free Roam / Mission 3
+            startMission1();
+
             let isFullscreenRequested = false;
             // Transparently unlock AudioContext and auto-fullscreen on first user interaction
             ['keydown', 'mousedown', 'touchstart'].forEach(evt => {
