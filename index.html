@@ -2331,6 +2331,7 @@
         // --- TITAN EXCAVATION, HUGE GOLDEN RING & PURPLE TRACTOR EXTRACTION GLOBALS ---
         let titanExcavationSite = null;
         let titanExcavationCraterMesh = null;
+        let titanIceCrustMesh = null;
         let titanExcavationLight = null;
         let titanVaporPool = [];
         let titanActiveVapor = [];
@@ -2354,6 +2355,16 @@
         const titanExtractionOrbitWorldPos = new THREE.Vector3(75200, -750, -45200);
         const titanBombardmentWorldFocus = new THREE.Vector3(76314, -1408, -48233);
         let capitalSpinalBeams = [];
+
+        // --- THE CREST DESTRUCTION & BREAKUP GLOBALS ---
+        let theCrestModelOriginal = null;
+        let theCrestExplosionGroup = null;
+        let theCrestDebrisChunks = [];
+        let theCrestFireballs = [];
+        let theCrestShockwaves = [];
+        let theCrestExplosionLight = null;
+        let theCrestState = 'INTACT'; // 'INTACT', 'STRUCK', 'EXPLODING', 'DESTROYED'
+        let theCrestExplosionStartTime = 0;
 
         let cameraMode = 2; // 0: Cockpit View with Canopy Frame Bars, 1: Close, 2: Far (Default), 3: Cinematic Showcase (Invincible)
         let isShipInvincible = false;
@@ -3049,11 +3060,191 @@
                 // Default rotation (0, 0, 0) is already right side up!
                 model.position.set(-center.x * targetScale, -center.y * targetScale, -center.z * targetScale);
 
+                theCrestModelOriginal = model;
                 theCrestStation.add(model);
                 console.log("[THE CREST] GLB Model Loaded & Oriented Successfully in Titan Orbit!");
+                createTheCrestDebrisAndExplosions();
             }, undefined, function(err) {
                 console.error("[THE CREST GLB ERROR]", err);
             });
+        }
+
+        function createTheCrestDebrisAndExplosions() {
+            if (theCrestExplosionGroup) return;
+            theCrestExplosionGroup = new THREE.Group();
+            theCrestStation.add(theCrestExplosionGroup);
+
+            // 1. Blinding Flash Light
+            theCrestExplosionLight = new THREE.PointLight(0xff7700, 0, 18000);
+            theCrestExplosionLight.position.set(0, 0, 0);
+            theCrestExplosionGroup.add(theCrestExplosionLight);
+
+            // 2. Multi-Stage Fireball Meshes
+            theCrestFireballs = [];
+            const fireballColors = [0xff4400, 0xff7700, 0xffbb00, 0xffffff, 0xe11d48, 0xf97316];
+            for (let f = 0; f < 8; f++) {
+                const fbGeo = new THREE.SphereGeometry(70, 16, 16);
+                const fbMat = new THREE.MeshBasicMaterial({
+                    color: fireballColors[f % fireballColors.length],
+                    transparent: true,
+                    opacity: 0.85,
+                    blending: THREE.AdditiveBlending
+                });
+                const fbMesh = new THREE.Mesh(fbGeo, fbMat);
+                fbMesh.visible = false;
+                fbMesh.userData = {
+                    delay: f * 0.35,
+                    offset: new THREE.Vector3(
+                        (Math.random() - 0.5) * 550,
+                        (Math.random() - 0.5) * 220,
+                        (Math.random() - 0.5) * 550
+                    ),
+                    maxScale: 3.5 + Math.random() * 2.5
+                };
+                theCrestExplosionGroup.add(fbMesh);
+                theCrestFireballs.push(fbMesh);
+            }
+
+            // 3. Expanding Planetary Shockwave Rings
+            theCrestShockwaves = [];
+            for (let s = 0; s < 3; s++) {
+                const swGeo = new THREE.RingGeometry(100, 140, 48);
+                swGeo.rotateX(Math.PI / 2);
+                const swMat = new THREE.MeshBasicMaterial({
+                    color: 0xf97316,
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.85,
+                    blending: THREE.AdditiveBlending
+                });
+                const swMesh = new THREE.Mesh(swGeo, swMat);
+                swMesh.visible = false;
+                swMesh.userData = {
+                    delay: 0.2 + s * 0.5,
+                    radius: 100,
+                    maxRadius: 1800,
+                    speed: 550 + s * 120
+                };
+                theCrestExplosionGroup.add(swMesh);
+                theCrestShockwaves.push(swMesh);
+            }
+
+            // 4. Shattered Station Debris Chunks (Detached Habitation Rings, Reactor Core, Command Spire, Truss Sections)
+            theCrestDebrisChunks = [];
+            const debrisMats = [
+                new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.9, roughness: 0.35, side: THREE.DoubleSide }),
+                new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.85, roughness: 0.4, side: THREE.DoubleSide }),
+                new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.92, roughness: 0.25, side: THREE.DoubleSide })
+            ];
+
+            // 4A. Detached Shattered Habitation Ring Arcs (4 quadrants)
+            for (let q = 0; q < 4; q++) {
+                const arcGeo = new THREE.TorusGeometry(720, 36, 12, 24, Math.PI / 2);
+                arcGeo.rotateX(Math.PI / 2);
+                const arcMesh = new THREE.Mesh(arcGeo, debrisMats[q % debrisMats.length]);
+                arcMesh.rotation.y = (q * Math.PI) / 2;
+                arcMesh.visible = false;
+                arcMesh.userData = {
+                    basePos: new THREE.Vector3(0, 0, 0),
+                    vel: new THREE.Vector3(Math.cos(q * Math.PI / 2 + 0.3) * 65, (Math.random() - 0.5) * 35, Math.sin(q * Math.PI / 2 + 0.3) * 65),
+                    rotVel: new THREE.Vector3((Math.random() - 0.5) * 0.015, (Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.015)
+                };
+                theCrestExplosionGroup.add(arcMesh);
+                theCrestDebrisChunks.push(arcMesh);
+            }
+
+            // 4B. Shattered Command Tower Spire
+            const spireGeo = new THREE.CylinderGeometry(25, 60, 320, 8);
+            const spireMesh = new THREE.Mesh(spireGeo, debrisMats[0]);
+            spireMesh.visible = false;
+            spireMesh.userData = {
+                basePos: new THREE.Vector3(0, 180, 0),
+                vel: new THREE.Vector3((Math.random() - 0.5) * 40, 75, (Math.random() - 0.5) * 40),
+                rotVel: new THREE.Vector3(0.018, 0.012, -0.015)
+            };
+            theCrestExplosionGroup.add(spireMesh);
+            theCrestDebrisChunks.push(spireMesh);
+
+            // 4C. Ruptured Reactor Core Hub
+            const hubGeo = new THREE.CylinderGeometry(140, 160, 180, 12);
+            const hubMesh = new THREE.Mesh(hubGeo, debrisMats[1]);
+            hubMesh.visible = false;
+            hubMesh.userData = {
+                basePos: new THREE.Vector3(0, -50, 0),
+                vel: new THREE.Vector3((Math.random() - 0.5) * 30, -45, (Math.random() - 0.5) * 30),
+                rotVel: new THREE.Vector3(-0.01, 0.008, 0.014)
+            };
+            theCrestExplosionGroup.add(hubMesh);
+            theCrestDebrisChunks.push(hubMesh);
+
+            // 4D. Shattered Solar Truss Girders (6 sections)
+            for (let g = 0; g < 6; g++) {
+                const angle = (g / 6) * Math.PI * 2;
+                const girderGeo = new THREE.BoxGeometry(35, 20, 240);
+                const girderMesh = new THREE.Mesh(girderGeo, debrisMats[2]);
+                girderMesh.visible = false;
+                girderMesh.userData = {
+                    basePos: new THREE.Vector3(Math.cos(angle) * 380, 0, Math.sin(angle) * 380),
+                    vel: new THREE.Vector3(Math.cos(angle) * (50 + Math.random() * 30), (Math.random() - 0.5) * 40, Math.sin(angle) * (50 + Math.random() * 30)),
+                    rotVel: new THREE.Vector3(Math.random() * 0.03, Math.random() * 0.03, Math.random() * 0.03)
+                };
+                theCrestExplosionGroup.add(girderMesh);
+                theCrestDebrisChunks.push(girderMesh);
+            }
+        }
+
+        function playTheCrestExplosionAudio(distToPlayer) {
+            if (!audioCtx || audioCtx.state !== 'running' || isAudioMuted) return;
+            const masterVol = (typeof gameVolumeConfig !== 'undefined') ? (gameVolumeConfig.master * gameVolumeConfig.firing) : 0.60;
+            const distFactor = Math.max(0.2, 1.0 - (distToPlayer / 65000));
+            const vol = masterVol * distFactor * 2.8;
+            const now = audioCtx.currentTime;
+
+            try {
+                // Layer 1: Severe Hull Fracture / Armor Rupture Crack
+                const crackOsc = audioCtx.createOscillator();
+                const crackGain = audioCtx.createGain();
+                crackOsc.type = 'sawtooth';
+                crackOsc.frequency.setValueAtTime(650, now);
+                crackOsc.frequency.exponentialRampToValueAtTime(45, now + 0.6);
+                crackGain.gain.setValueAtTime(0.95 * vol, now);
+                crackGain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+                crackOsc.connect(crackGain);
+                crackGain.connect(audioCtx.destination);
+                crackOsc.start(now);
+                crackOsc.stop(now + 0.6);
+
+                // Layer 2: Massive Cataclysmic Fusion Reactor Infrasound Boom
+                const subOsc = audioCtx.createOscillator();
+                const subGain = audioCtx.createGain();
+                subOsc.type = 'sine';
+                subOsc.frequency.setValueAtTime(140, now);
+                subOsc.frequency.exponentialRampToValueAtTime(24, now + 5.5);
+                subGain.gain.setValueAtTime(2.2 * vol, now);
+                subGain.gain.linearRampToValueAtTime(0.001, now + 5.5);
+                subOsc.connect(subGain);
+                subGain.connect(audioCtx.destination);
+                subOsc.start(now);
+                subOsc.stop(now + 5.5);
+
+                // Layer 3: Roaring Plasma Fireball & Atmosphere Decompression Roar
+                if (cachedExplosionNoiseBuffer) {
+                    const nSource = audioCtx.createBufferSource();
+                    nSource.buffer = cachedExplosionNoiseBuffer;
+                    const nFilter = audioCtx.createBiquadFilter();
+                    nFilter.type = 'lowpass';
+                    nFilter.frequency.setValueAtTime(1800, now);
+                    nFilter.frequency.exponentialRampToValueAtTime(80, now + 4.5);
+                    const nGain = audioCtx.createGain();
+                    nGain.gain.setValueAtTime(1.8 * vol, now);
+                    nGain.gain.linearRampToValueAtTime(0.001, now + 4.5);
+                    nSource.connect(nFilter);
+                    nFilter.connect(nGain);
+                    nGain.connect(audioCtx.destination);
+                    nSource.start(now);
+                    nSource.stop(now + 4.5);
+                }
+            } catch (e) {}
         }
 
         // --- VOID INTERCEPTOR GLB MODEL & MATERIAL MANAGEMENT ---
@@ -4051,6 +4242,21 @@
             rimMesh.position.y = 1;
             titanExcavationSite.add(rimMesh);
 
+            // B2. Solid Methane-Ice Crust Sheet (Covers and conceals the Ancient Gate until melted)
+            const iceGeo = new THREE.CircleGeometry(265, 48);
+            iceGeo.rotateX(-Math.PI / 2);
+            const iceMat = new THREE.MeshStandardMaterial({
+                color: 0x93c5fd,
+                roughness: 0.35,
+                metalness: 0.15,
+                transparent: true,
+                opacity: 0.95,
+                side: THREE.DoubleSide
+            });
+            titanIceCrustMesh = new THREE.Mesh(iceGeo, iceMat);
+            titanIceCrustMesh.position.y = 8;
+            titanExcavationSite.add(titanIceCrustMesh);
+
             // C. Excavation Thermal Point Light
             titanExcavationLight = new THREE.PointLight(0xa855f7, 14.0, 7500);
             titanExcavationLight.position.set(0, 50, 0);
@@ -4254,7 +4460,8 @@
                 goldenGateRipples.push(ripMesh);
             }
 
-            // Initial Placement: In World Space at the Titan Crater
+            // Initial Placement: In World Space at the Titan Crater (Hidden under ice initially)
+            ancientGoldenGate.visible = false;
             scene.add(ancientGoldenGate);
             wormholeGate = ancientGoldenGate; // Point all radar & map references to Golden Gate
 
@@ -4263,7 +4470,7 @@
             ancientGoldenGate.position.copy(craterWorld);
             ancientGoldenGate.quaternion.copy(titanExcavationSite.getWorldQuaternion(new THREE.Quaternion()));
 
-            console.log("[TITAN EXCAVATION] Huge Golden Precursor Gate & Excavation Crater Initialized on Titan!");
+            console.log("[TITAN EXCAVATION] Huge Golden Precursor Gate (Buried Under Ice) & Excavation Crater Initialized on Titan!");
             initCapitalShipSpinalBeams();
         }
 
@@ -4359,12 +4566,25 @@
                 showToast("🧲 DOMINION TRACTOR BEAMS LOCKED — HAULING HUGE GOLDEN RING INTO SPACE!");
             } else if (titanExcavationPhase === 'TRACTOR_EXTRACTION') {
                 titanExcavationPhase = 'GATE_ACTIVE';
+                titanExcavationStartTime = performance.now() - 35000; // Jump to gate in space
                 goldenRingLiftProgress = 1.0;
-                showToast("🌀 GOLDEN PRECURSOR GATE STABILIZED IN ORBIT — SLIPSPACE VORTEX OPEN!");
+                showToast("🌀 GOLDEN PRECURSOR GATE IN SPACE — TRACTOR BEAMS DISENGAGED — SLIPSPACE VORTEX OPEN!");
             } else {
                 titanExcavationPhase = 'BOMBARDMENT';
                 titanExcavationStartTime = performance.now();
                 goldenRingLiftProgress = 0.0;
+                theCrestState = 'INTACT';
+                if (theCrestModelOriginal) theCrestModelOriginal.visible = true;
+                if (theCrestDebrisChunks) theCrestDebrisChunks.forEach(c => c.visible = false);
+                if (theCrestFireballs) theCrestFireballs.forEach(f => f.visible = false);
+                if (theCrestShockwaves) theCrestShockwaves.forEach(s => s.visible = false);
+                if (theCrestExplosionLight) theCrestExplosionLight.intensity = 0;
+                if (ancientGoldenGate) ancientGoldenGate.visible = false;
+                if (titanIceCrustMesh) {
+                    titanIceCrustMesh.visible = true;
+                    titanIceCrustMesh.scale.set(1, 1, 1);
+                    titanIceCrustMesh.material.opacity = 0.95;
+                }
                 showToast("⚡ INITIATING TITAN DARK-ENERGY BOMBARDMENT & METHANE CRUST MELT!");
             }
         }
@@ -4375,16 +4595,53 @@
             const nowMs = performance.now();
             const elapsedExcavation = (nowMs - titanExcavationStartTime) / 1000.0;
 
-            // Phase progression:
-            // 0 - 12s: BOMBARDMENT (Dark energy beams melt methane ice crust)
-            // 12 - 38s: TRACTOR_EXTRACTION (Purple tractor beams pull the huge golden ring up into space)
-            // 38s+: GATE_ACTIVE (Golden ring stabilized in orbit with active slipspace vortex receiving fleet)
-            if (titanExcavationPhase === 'BOMBARDMENT' && elapsedExcavation >= 12.0) {
-                titanExcavationPhase = 'TRACTOR_EXTRACTION';
-                showToast("🧲 METHANE CRUST VAPORIZED! DOMINION DREADNOUGHTS ENGAGING PURPLE TRACTOR BEAMS!");
-            } else if (titanExcavationPhase === 'TRACTOR_EXTRACTION' && elapsedExcavation >= 38.0) {
-                titanExcavationPhase = 'GATE_ACTIVE';
-                showToast("🌀 PRECURSOR GOLDEN RING IN ORBIT — SLIPSPACE HORIZON ONLINE — PREPARING ARMADA ARRIVAL!");
+            // --- PHASE TIMELINE ---
+            // 0 - 10s: BOMBARDMENT (Dark-energy beams melt Titan methane ice crust; gate is hidden)
+            // 10 - 12s: GATE_REVEALED (Ice melted away, huge golden gate exposed, bombardment STOPS)
+            // 12 - 34s: TRACTOR_EXTRACTION (Purple tractor beams pull gate off Titan into space; The Crest hit & explodes)
+            // 34s+: GATE_ACTIVE (Gate in space, tractor beams STOP, slipspace event horizon vortex active)
+
+            let isBombardmentFiring = false;
+            let isTractorFiring = false;
+
+            if (elapsedExcavation < 10.0) {
+                titanExcavationPhase = 'BOMBARDMENT';
+                isBombardmentFiring = true;
+                isTractorFiring = false;
+                if (ancientGoldenGate) ancientGoldenGate.visible = false;
+                if (titanIceCrustMesh) {
+                    titanIceCrustMesh.visible = true;
+                    const meltT = Math.min(1.0, elapsedExcavation / 10.0);
+                    titanIceCrustMesh.scale.set(1.0 - meltT * 0.9, 1.0, 1.0 - meltT * 0.9);
+                    titanIceCrustMesh.material.opacity = Math.max(0.05, 0.95 * (1.0 - meltT * 0.85));
+                }
+            } else if (elapsedExcavation >= 10.0 && elapsedExcavation < 12.0) {
+                if (titanExcavationPhase !== 'GATE_REVEALED') {
+                    titanExcavationPhase = 'GATE_REVEALED';
+                    showToast("❄️ ICE CRUST MELTED! BOMBARDMENT CEASED — HUGE GOLDEN PRECURSOR GATE REVEALED!");
+                }
+                isBombardmentFiring = false; // STOP BOMBARDMENT
+                isTractorFiring = false;
+                if (ancientGoldenGate) ancientGoldenGate.visible = true;
+                if (titanIceCrustMesh) titanIceCrustMesh.visible = false;
+            } else if (elapsedExcavation >= 12.0 && elapsedExcavation < 34.0) {
+                if (titanExcavationPhase !== 'TRACTOR_EXTRACTION') {
+                    titanExcavationPhase = 'TRACTOR_EXTRACTION';
+                    showToast("🧲 DOMINION TRACTOR BEAMS ENGAGED — PULLING GOLDEN GATE OFF TITAN INTO SPACE!");
+                }
+                isBombardmentFiring = false;
+                isTractorFiring = true; // TRACTOR BEAMS ACTIVE
+                if (ancientGoldenGate) ancientGoldenGate.visible = true;
+                if (titanIceCrustMesh) titanIceCrustMesh.visible = false;
+            } else {
+                if (titanExcavationPhase !== 'GATE_ACTIVE') {
+                    titanExcavationPhase = 'GATE_ACTIVE';
+                    showToast("🌀 GOLDEN GATE IN SPACE — TRACTOR BEAMS DISENGAGED — SLIPSPACE VORTEX OPEN!");
+                }
+                isBombardmentFiring = false;
+                isTractorFiring = false; // STOP TRACTOR BEAM ONCE GATE IS IN SPACE!
+                if (ancientGoldenGate) ancientGoldenGate.visible = true;
+                if (titanIceCrustMesh) titanIceCrustMesh.visible = false;
             }
 
             // Calculate current Golden Ring World Position and Orientation
@@ -4392,14 +4649,14 @@
             const craterWorldQuat = titanExcavationSite.getWorldQuaternion(new THREE.Quaternion());
             const orbitTargetQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.2, 0.1, 0));
 
-            if (titanExcavationPhase === 'BOMBARDMENT') {
+            if (elapsedExcavation < 12.0) {
                 goldenRingLiftProgress = 0.0;
                 ancientGoldenGate.position.copy(craterWorldPos);
                 ancientGoldenGate.quaternion.copy(craterWorldQuat);
-            } else if (titanExcavationPhase === 'TRACTOR_EXTRACTION') {
-                const progress = Math.min(1.0, (elapsedExcavation - 12.0) / 26.0);
+            } else if (elapsedExcavation >= 12.0 && elapsedExcavation < 34.0) {
+                const progress = Math.min(1.0, (elapsedExcavation - 12.0) / 22.0);
                 goldenRingLiftProgress = progress;
-                // Smooth sinusoidal ease-in-out for colossal moon-scale artifact ascent
+                // Smooth sinusoidal ease-in-out for colossal artifact ascent
                 const ease = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
                 ancientGoldenGate.position.lerpVectors(craterWorldPos, titanExtractionOrbitWorldPos, ease);
                 ancientGoldenGate.quaternion.slerpQuaternions(craterWorldQuat, orbitTargetQuat, ease);
@@ -4409,9 +4666,93 @@
                 ancientGoldenGate.quaternion.copy(orbitTargetQuat);
             }
 
+            // --- THE CREST DESTRUCTION & MULTI-STEP BREAKUP LOGIC ---
+            // Triggered during the extraction sequence:
+            // At 14.5s: Struck by Dominion barrage
+            // At 16.5s: Catastrophic multi-step fireball explosions
+            // At 19.5s: Station breaks apart into tumbling debris
+            if (elapsedExcavation < 14.5) {
+                theCrestState = 'INTACT';
+                if (theCrestModelOriginal) theCrestModelOriginal.visible = true;
+                if (theCrestExplosionLight) theCrestExplosionLight.intensity = 0;
+                if (theCrestDebrisChunks) theCrestDebrisChunks.forEach(c => c.visible = false);
+                if (theCrestFireballs) theCrestFireballs.forEach(f => f.visible = false);
+                if (theCrestShockwaves) theCrestShockwaves.forEach(s => s.visible = false);
+            } else if (elapsedExcavation >= 14.5 && elapsedExcavation < 16.5) {
+                if (theCrestState !== 'STRUCK') {
+                    theCrestState = 'STRUCK';
+                    showToast("⚠️ WARNING: DOMINION DREADNOUGHTS FIRING GRAVITY-SHEARS AT THE CREST!");
+                }
+                if (theCrestExplosionLight) theCrestExplosionLight.intensity = 8.0 + Math.sin(timeSec * 20.0) * 6.0;
+            } else if (elapsedExcavation >= 16.5 && elapsedExcavation < 19.5) {
+                if (theCrestState !== 'EXPLODING') {
+                    theCrestState = 'EXPLODING';
+                    theCrestExplosionStartTime = nowMs;
+                    playTheCrestExplosionAudio(playerShip.position.distanceTo(theCrestStation.position));
+                    showToast("🚨 MAYDAY! THE CREST REACTOR BREACH — MULTI-STEP EXPLOSION DETECTED!");
+                }
+                // Animate Multi-Step Expanding Fireballs
+                const expElapsed = (nowMs - theCrestExplosionStartTime) / 1000.0;
+                if (theCrestExplosionLight) {
+                    theCrestExplosionLight.intensity = Math.max(0, 35.0 * (1.0 - expElapsed / 3.0));
+                }
+                if (theCrestFireballs) {
+                    theCrestFireballs.forEach(fb => {
+                        const ud = fb.userData;
+                        if (expElapsed >= ud.delay) {
+                            fb.visible = true;
+                            const fbAge = (expElapsed - ud.delay) / 1.8;
+                            if (fbAge < 1.0) {
+                                const s = Math.sin(fbAge * Math.PI * 0.5) * ud.maxScale;
+                                fb.scale.set(s, s, s);
+                                fb.position.copy(ud.offset).addScaledVector(ud.offset.clone().normalize(), fbAge * 120);
+                                if (fb.material) fb.material.opacity = Math.max(0, (1.0 - fbAge) * 0.9);
+                            } else {
+                                fb.visible = false;
+                            }
+                        }
+                    });
+                }
+                if (theCrestShockwaves) {
+                    theCrestShockwaves.forEach(sw => {
+                        const ud = sw.userData;
+                        if (expElapsed >= ud.delay) {
+                            sw.visible = true;
+                            ud.radius += ud.speed * timeDelta;
+                            const s = ud.radius / 100;
+                            sw.scale.set(s, s, s);
+                            if (sw.material) {
+                                sw.material.opacity = Math.max(0, 0.85 * (1.0 - (ud.radius / ud.maxRadius)));
+                            }
+                        }
+                    });
+                }
+            } else {
+                // DESTROYED & BROKEN APART
+                if (theCrestState !== 'DESTROYED') {
+                    theCrestState = 'DESTROYED';
+                    showToast("💥 THE CREST HAS BROKEN APART INTO BURNING ORBITAL DEBRIS!");
+                }
+                if (theCrestModelOriginal) theCrestModelOriginal.visible = false; // Hide intact model
+                if (theCrestExplosionLight) theCrestExplosionLight.intensity = Math.sin(timeSec * 3.0) * 2.0;
+
+                // Animate Tumbling Shattered Debris Chunks
+                const debrisAge = (elapsedExcavation - 19.5);
+                if (theCrestDebrisChunks) {
+                    theCrestDebrisChunks.forEach(chunk => {
+                        chunk.visible = true;
+                        const ud = chunk.userData;
+                        chunk.position.copy(ud.basePos).addScaledVector(ud.vel, debrisAge);
+                        chunk.rotation.x += ud.rotVel.x;
+                        chunk.rotation.y += ud.rotVel.y;
+                        chunk.rotation.z += ud.rotVel.z;
+                    });
+                }
+            }
+
             // 1. Animate Boiling Methane Vapor Geysers (Zero-Allocation Pool)
             if (titanVaporPool && titanVaporPool.length > 0) {
-                const isBoiling = (titanExcavationPhase === 'BOMBARDMENT' || titanExcavationPhase === 'TRACTOR_EXTRACTION');
+                const isBoiling = isBombardmentFiring || (elapsedExcavation < 16.0);
                 titanVaporPool.forEach((vapor) => {
                     const ud = vapor.userData;
                     if (isBoiling) {
@@ -4434,7 +4775,6 @@
                         vapor.scale.setScalar(s);
                         if (vapor.material) {
                             vapor.material.opacity = ud.life * 0.45;
-                            // Color shift from bright cyan methane steam to ionized violet
                             if (ud.life > 0.5) {
                                 vapor.material.color.setHex(0x67e8f9);
                             } else {
@@ -4450,81 +4790,104 @@
             // 2. Animate Planetary Shockwave Waves
             if (titanShockwaves) {
                 titanShockwaves.forEach(sw => {
-                    sw.userData.radius += sw.userData.speed * timeDelta * 1.5;
-                    if (sw.userData.radius > sw.userData.maxRadius) {
-                        sw.userData.radius = 50;
-                    }
-                    const s = sw.userData.radius / 60;
-                    sw.scale.set(s, s, s);
-                    if (sw.material) {
-                        sw.material.opacity = Math.max(0, 0.75 * (1.0 - (sw.userData.radius / sw.userData.maxRadius)));
+                    if (isBombardmentFiring) {
+                        sw.visible = true;
+                        sw.userData.radius += sw.userData.speed * timeDelta * 1.5;
+                        if (sw.userData.radius > sw.userData.maxRadius) {
+                            sw.userData.radius = 50;
+                        }
+                        const s = sw.userData.radius / 60;
+                        sw.scale.set(s, s, s);
+                        if (sw.material) {
+                            sw.material.opacity = Math.max(0, 0.75 * (1.0 - (sw.userData.radius / sw.userData.maxRadius)));
+                        }
+                    } else {
+                        sw.visible = false;
                     }
                 });
             }
 
             // 3. Animate Ionization Dark-Energy Lightning Arcs
-            if (titanLightningBolts && Math.random() < 0.4) {
-                titanLightningBolts.forEach(lLine => {
-                    const posAttr = lLine.geometry.attributes.position;
-                    const endAngle = Math.random() * Math.PI * 2;
-                    const endRadius = 150 + Math.random() * 160;
-                    for (let pt = 0; pt < 10; pt++) {
-                        const t = pt / 9;
-                        const rx = (Math.random() - 0.5) * 35;
-                        const rz = (Math.random() - 0.5) * 35;
-                        const ry = Math.sin(t * Math.PI) * (15 + Math.random() * 20);
-                        posAttr.setXYZ(
-                            pt,
-                            Math.cos(endAngle) * endRadius * t + rx,
-                            4 + ry,
-                            Math.sin(endAngle) * endRadius * t + rz
-                        );
-                    }
-                    posAttr.needsUpdate = true;
-                });
+            if (titanLightningBolts) {
+                if (isBombardmentFiring && Math.random() < 0.4) {
+                    titanLightningBolts.forEach(lLine => {
+                        lLine.visible = true;
+                        const posAttr = lLine.geometry.attributes.position;
+                        const endAngle = Math.random() * Math.PI * 2;
+                        const endRadius = 150 + Math.random() * 160;
+                        for (let pt = 0; pt < 10; pt++) {
+                            const t = pt / 9;
+                            const rx = (Math.random() - 0.5) * 35;
+                            const rz = (Math.random() - 0.5) * 35;
+                            const ry = Math.sin(t * Math.PI) * (15 + Math.random() * 20);
+                            posAttr.setXYZ(
+                                pt,
+                                Math.cos(endAngle) * endRadius * t + rx,
+                                4 + ry,
+                                Math.sin(endAngle) * endRadius * t + rz
+                            );
+                        }
+                        posAttr.needsUpdate = true;
+                    });
+                } else if (!isBombardmentFiring) {
+                    titanLightningBolts.forEach(lLine => lLine.visible = false);
+                }
             }
 
             // 4. Animate Excavation Light & Molten Crater Heat Pulse
             if (titanExcavationLight) {
-                const heatPulse = Math.sin(timeSec * 6.0) * 3.0;
-                titanExcavationLight.intensity = (titanExcavationPhase === 'BOMBARDMENT' ? 15.0 : 7.0) + heatPulse;
+                if (isBombardmentFiring) {
+                    const heatPulse = Math.sin(timeSec * 6.0) * 3.0;
+                    titanExcavationLight.intensity = 15.0 + heatPulse;
+                } else {
+                    titanExcavationLight.intensity = Math.max(0, 7.0 * (1.0 - (elapsedExcavation - 10.0) / 10.0));
+                }
             }
 
             // 5. Animate Ancient Golden Precursor Gate Components
-            if (goldenGlyphRingMesh) {
-                goldenGlyphRingMesh.rotation.z += 0.0035; // Runic glyph rotation
-            }
-            if (goldenGateVortexDisc) {
-                goldenGateVortexDisc.rotation.z -= 0.006;
-                const vortexPulse = 0.85 + Math.sin(timeSec * 4.0) * 0.12;
-                goldenGateVortexDisc.material.opacity = (titanExcavationPhase === 'GATE_ACTIVE' ? 0.92 : 0.65) * vortexPulse;
-            }
-            if (goldenGateSwirlRing) {
-                goldenGateSwirlRing.rotation.z += 0.009;
-            }
-            if (goldenGateLight) {
-                const goldPulse = Math.sin(timeSec * 5.0) * 2.5;
-                goldenGateLight.intensity = 12.0 + goldPulse;
-            }
-            if (goldenGateRipples) {
-                goldenGateRipples.forEach(rip => {
-                    rip.userData.radius += rip.userData.speed * timeDelta;
-                    if (rip.userData.radius > rip.userData.maxRadius) {
-                        rip.userData.radius = 260;
-                    }
-                    const s = rip.userData.radius / 260;
-                    rip.scale.set(s, s, s);
-                    if (rip.material) {
-                        rip.material.opacity = Math.max(0, 0.65 * (1.0 - (rip.userData.radius / rip.userData.maxRadius)));
-                    }
-                });
+            if (ancientGoldenGate.visible) {
+                if (goldenGlyphRingMesh) {
+                    goldenGlyphRingMesh.rotation.z += 0.0035; // Runic glyph rotation
+                }
+                if (goldenGateVortexDisc) {
+                    goldenGateVortexDisc.rotation.z -= (elapsedExcavation >= 34.0 ? 0.012 : 0.006);
+                    const vortexPulse = 0.85 + Math.sin(timeSec * 4.0) * 0.12;
+                    goldenGateVortexDisc.material.opacity = (elapsedExcavation >= 34.0 ? 0.95 : 0.65) * vortexPulse;
+                }
+                if (goldenGateSwirlRing) {
+                    goldenGateSwirlRing.rotation.z += 0.009;
+                }
+                if (goldenGateLight) {
+                    const goldPulse = Math.sin(timeSec * 5.0) * 2.5;
+                    goldenGateLight.intensity = (elapsedExcavation >= 34.0 ? 16.0 : 10.0) + goldPulse;
+                }
+                if (goldenGateRipples) {
+                    goldenGateRipples.forEach(rip => {
+                        rip.userData.radius += rip.userData.speed * timeDelta;
+                        if (rip.userData.radius > rip.userData.maxRadius) {
+                            rip.userData.radius = 260;
+                        }
+                        const s = rip.userData.radius / 260;
+                        rip.scale.set(s, s, s);
+                        if (rip.material) {
+                            rip.material.opacity = Math.max(0, 0.65 * (1.0 - (rip.userData.radius / rip.userData.maxRadius)));
+                        }
+                    });
+                }
             }
 
-            // 6. Animate Dreadnought Spinal Dark-Energy & Purple Tractor Beams
+            // 6. Animate Dreadnought Spinal Beams (Bombardment -> Tractor -> Off)
             if (capitalSpinalBeams && capitalSpinalBeams.length > 0) {
                 capitalSpinalBeams.forEach(bData => {
                     const ship = bData.ship;
                     if (!ship || !ship.visible) {
+                        bData.group.visible = false;
+                        bData.flare.visible = false;
+                        return;
+                    }
+
+                    // If neither bombardment nor tractor is firing (e.g. gate revealed ceasefire OR gate in space), beams are OFF!
+                    if (!isBombardmentFiring && !isTractorFiring) {
                         bData.group.visible = false;
                         bData.flare.visible = false;
                         return;
@@ -4540,9 +4903,9 @@
 
                     // Target point:
                     // In Bombardment: Target is crater floor
-                    // In Tractor/Gate: Target is the crystal node of one of the 12 golden pylons
+                    // In Tractor: Target is crystal node on one of the 12 golden pylons
                     let targetWorld = new THREE.Vector3();
-                    if (titanExcavationPhase === 'BOMBARDMENT') {
+                    if (isBombardmentFiring) {
                         targetWorld.copy(craterWorldPos);
                     } else {
                         const pylon = goldenGatePylons[bData.pylonTargetIndex];
@@ -4575,21 +4938,28 @@
                     // Animate Tractor Rings sliding UPWARD along the shaft toward the dreadnoughts
                     if (bData.rings) {
                         bData.rings.forEach(ring => {
-                            ring.userData.offset -= timeDelta * 0.65; // Move toward -Y / ship prow
-                            if (ring.userData.offset < -0.5) ring.userData.offset += 1.0;
-                            ring.position.y = ring.userData.offset;
-                            const ringScale = 1.0 + Math.sin(timeSec * 6.0 + ring.userData.offset * Math.PI) * 0.25;
-                            ring.scale.set(ringScale, 1, ringScale);
+                            if (isTractorFiring) {
+                                ring.visible = true;
+                                ring.userData.offset -= timeDelta * 0.65; // Move toward -Y / ship prow
+                                if (ring.userData.offset < -0.5) ring.userData.offset += 1.0;
+                                ring.position.y = ring.userData.offset;
+                                const ringScale = 1.0 + Math.sin(timeSec * 6.0 + ring.userData.offset * Math.PI) * 0.25;
+                                ring.scale.set(ringScale, 1, ringScale);
+                            } else {
+                                ring.visible = false;
+                            }
                         });
                     }
 
                     // Color shift between Bombardment (Dark-Energy Violent Purple) and Tractor (Radiant Graviton Purple/Gold)
-                    if (titanExcavationPhase === 'BOMBARDMENT') {
+                    if (isBombardmentFiring) {
                         bData.plasma.material.color.setHex(0x9333ea);
                         bData.cage.material.color.setHex(0xd946ef);
+                        bData.flare.material.color.setHex(0xd946ef);
                     } else {
                         bData.plasma.material.color.setHex(0xa855f7);
                         bData.cage.material.color.setHex(0xfbbf24);
+                        bData.flare.material.color.setHex(0xa855f7);
                     }
                 });
             }
@@ -6571,9 +6941,15 @@ function createEpicPlayerDeathExplosion(pos) {
                 drawBlip(spaceTitan.position, '#f59e0b', 5.5, false, 'TITAN');
             }
 
-            // Draw The Crest Station Blip (Cyan Torus/Station)
+            // Draw The Crest Station Blip (Cyan Torus/Station or Red/Orange Burning Debris)
             if (theCrestStation && theCrestStation.position) {
-                drawBlip(theCrestStation.position, '#38bdf8', 6, false, 'THE CREST');
+                if (theCrestState === 'DESTROYED') {
+                    drawBlip(theCrestStation.position, '#ea580c', 5.5, false, 'THE CREST (DEBRIS)');
+                } else if (theCrestState === 'EXPLODING' || theCrestState === 'STRUCK') {
+                    drawBlip(theCrestStation.position, '#ef4444', 7, false, 'THE CREST (BREACH)');
+                } else {
+                    drawBlip(theCrestStation.position, '#38bdf8', 6, false, 'THE CREST');
+                }
             }
 
             // Draw Ancient Precursor Golden Gate Blip (Radiant Gold)
@@ -7402,6 +7778,16 @@ function createEpicPlayerDeathExplosion(pos) {
             setRelativeMapPos(mapCrestMesh, theCrestStation);
             if (theCrestStation && mapCrestMesh) {
                 mapCrestMesh.quaternion.copy(theCrestStation.quaternion);
+                if (theCrestState === 'DESTROYED') {
+                    mapCrestMesh.material.color.setHex(0xea580c);
+                    mapCrestMesh.userData.label = "The Crest (Destroyed / Burning Debris)";
+                } else if (theCrestState === 'EXPLODING' || theCrestState === 'STRUCK') {
+                    mapCrestMesh.material.color.setHex(0xef4444);
+                    mapCrestMesh.userData.label = "The Crest (Catastrophic Explosion)";
+                } else {
+                    mapCrestMesh.material.color.setHex(0x38bdf8);
+                    mapCrestMesh.userData.label = "The Crest (Orbital Platform)";
+                }
             }
             setRelativeMapPos(mapSunMesh, spaceSun);
             setRelativeMapPos(mapGateMesh, wormholeGate);
