@@ -7,7 +7,7 @@
     "audio": "audio/cinematics/titan_gate/titan_gate_01_elias.mp3",
     "voice_id": "pqHfZKP75CvOlQylNhV4",
     "voice_name": "Bill",
-    "size_bytes": 158450
+    "size_bytes": 148837
   },
   {
     "id": "titan_gate_02_kaylen",
@@ -17,7 +17,7 @@
     "audio": "audio/cinematics/titan_gate/titan_gate_02_kaylen.mp3",
     "voice_id": "TX3LPaxmHKxFdv7VOQHJ",
     "voice_name": "Liam",
-    "size_bytes": 131701
+    "size_bytes": 137134
   },
   {
     "id": "titan_gate_03_elias",
@@ -27,7 +27,7 @@
     "audio": "audio/cinematics/titan_gate/titan_gate_03_elias.mp3",
     "voice_id": "pqHfZKP75CvOlQylNhV4",
     "voice_name": "Bill",
-    "size_bytes": 169735
+    "size_bytes": 186035
   },
   {
     "id": "titan_gate_04_kaylen",
@@ -47,7 +47,7 @@
     "audio": "audio/cinematics/titan_gate/titan_gate_05_elias.mp3",
     "voice_id": "pqHfZKP75CvOlQylNhV4",
     "voice_name": "Bill",
-    "size_bytes": 205262
+    "size_bytes": 219472
   },
   {
     "id": "titan_gate_06_kaylen",
@@ -57,7 +57,7 @@
     "audio": "audio/cinematics/titan_gate/titan_gate_06_kaylen.mp3",
     "voice_id": "TX3LPaxmHKxFdv7VOQHJ",
     "voice_name": "Liam",
-    "size_bytes": 110385
+    "size_bytes": 107877
   },
   {
     "id": "titan_gate_07_elias",
@@ -67,7 +67,7 @@
     "audio": "audio/cinematics/titan_gate/titan_gate_07_elias.mp3",
     "voice_id": "pqHfZKP75CvOlQylNhV4",
     "voice_name": "Bill",
-    "size_bytes": 213621
+    "size_bytes": 220308
   },
   {
     "id": "titan_gate_08_kaylen",
@@ -77,7 +77,7 @@
     "audio": "audio/cinematics/titan_gate/titan_gate_08_kaylen.mp3",
     "voice_id": "TX3LPaxmHKxFdv7VOQHJ",
     "voice_name": "Liam",
-    "size_bytes": 124595
+    "size_bytes": 138388
   },
   {
     "id": "titan_gate_09_elias",
@@ -87,16 +87,16 @@
     "audio": "audio/cinematics/titan_gate/titan_gate_09_elias.mp3",
     "voice_id": "pqHfZKP75CvOlQylNhV4",
     "voice_name": "Bill",
-    "size_bytes": 58140
+    "size_bytes": 56050
   },
   {
     "id": "titan_gate_10_kaylen",
     "speaker": "Kaylen Vance",
     "role": "Void Interceptor Cockpit",
-    "text": "Someone has to shut the door, old man. ...I love you. Goodbye.",
+    "text": "Someone has to shut the door, old man. ... See you on the other side, Dad....",
     "audio": "audio/cinematics/titan_gate/titan_gate_10_kaylen.mp3",
     "voice_id": "TX3LPaxmHKxFdv7VOQHJ",
     "voice_name": "Liam",
-    "size_bytes": 68589
+    "size_bytes": 73186
   }
 ]

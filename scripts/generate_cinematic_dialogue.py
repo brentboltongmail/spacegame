@@ -83,7 +83,7 @@ TITAN_GATE_DIALOGUE = [
         "char_key": "kaylen_vance",
         "speaker": "Kaylen Vance",
         "role": "Void Interceptor Cockpit",
-        "text": "Someone has to shut the door, old man. ...I love you. Goodbye."
+        "text": "Someone has to shut the door, old man. ... See you on the other side, Dad...."
     }
 ]
 
