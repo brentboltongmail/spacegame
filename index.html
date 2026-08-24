@@ -4112,7 +4112,7 @@ function createEpicPlayerDeathExplosion(pos) {
                             (Math.random() - 0.5) * 1.0,
                             -1.0
                         ).normalize();
-                        e.userData.flightSpeed = 0.65 + Math.random() * 0.20;
+                        e.userData.flightSpeed = 0.325 + Math.random() * 0.10;
                         e.userData.currentRoll = 0;
                     }
 
@@ -4158,7 +4158,7 @@ function createEpicPlayerDeathExplosion(pos) {
 
                         // Determine target steering direction based on tactical state
                         let desiredDir = toPlayerDir.clone();
-                        let targetSpeed = 0.65;
+                        let targetSpeed = 0.325;
                         let turnSlerp = 0.022;
 
                         if (e.userData.aiState === 'CHASE') {
@@ -4166,22 +4166,22 @@ function createEpicPlayerDeathExplosion(pos) {
                             const flankOffset = new THREE.Vector3(e.userData.flankSign * 120, Math.sin(now * 0.001 + e.id) * 40, 0);
                             const leadTarget = playerShip.position.clone().add(flankOffset);
                             desiredDir = leadTarget.sub(e.position).normalize();
-                            targetSpeed = 0.72;
+                            targetSpeed = 0.36;
                             turnSlerp = 0.024;
                         } else if (e.userData.aiState === 'ATTACK_RUN') {
                             // Zero in on player with smooth steady gun run
                             desiredDir = toPlayerDir;
-                            targetSpeed = 0.60;
+                            targetSpeed = 0.30;
                             turnSlerp = 0.032;
                         } else if (e.userData.aiState === 'BREAKAWAY') {
                             // Peel away along evasion vector at high speed to open separation
                             desiredDir = e.userData.evadeDir;
-                            targetSpeed = 0.82;
+                            targetSpeed = 0.41;
                             turnSlerp = 0.028;
                         } else if (e.userData.aiState === 'RE_ENGAGE') {
                             // Wide sweeping banking turn back toward the combat area
                             desiredDir = toPlayerDir;
-                            targetSpeed = 0.68;
+                            targetSpeed = 0.34;
                             turnSlerp = 0.016; // Wide sweeping turn arc
                         }
 
