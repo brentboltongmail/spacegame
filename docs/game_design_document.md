@@ -14,7 +14,7 @@
 | 1 | **Solaris Horizon: Emergence** *(Selected)* | Sci-Fi Narrative + Action | *"An Earth cadet. An ancient crown. A galaxy at war."* |
 | 2 | **Starbound Scion: Void Vanguard** | High-Octane Space Fleet Warfare | *"Burn through the wormhole. Claim your birthright."* |
 | 3 | **Wormhole Genesis: Royal Blood** | Precursor Exploration & Combat | *"Beyond the rift lies a forgotten empire."* |
-| 4 | **Chronicles of Aethelgard: The Lost Sovereign** | Epic Space Opera RPG | *"Adopted on Earth. Destined for the Stars."* |
+| 4 | **Chronicles of Aythelgard: The Lost Sovereign** | Epic Space Opera RPG | *"Adopted on Earth. Destined for the Stars."* |
 | 5 | **Solaris Drift: Sovereign Lineage** | Space Simulator & Dogfighting | *"Command small fighters. Strike Titan dreadnoughts."* |
 | 6 | **Event Horizon: Reclaim** | Pure Action & Tactical Fleet War | *"Fight through the rift. Destroy the usurpers."* |
 
@@ -27,9 +27,9 @@
 ```
 
 ### The Protagonist's Origins
-- **Name**: Lieutenant Kaelen / Jax Vance (Callsign: *"Apex"*)
+- **Name**: Lieutenant Kaylen / Jax Vance (Callsign: *"Apex"*)
 - **Background**: Raised on Earth’s orbital colonies by an adoptive parent, Marcus Vance (a retired Earth Defense mechanic). Your only heirloom is an unidentified titanium-crystal artifact left in your pod as a baby.
-- **The Twist**: You are not human. You are the last bloodline heir to **House Aethelgard**, the ruling sovereign house of the distant *Sovereign Reach* star system, which was overthrown 20 years ago by an aggressive military junta known as **The Iron Dominion**.
+- **The Twist**: You are not human. You are the last bloodline heir to **House Aythelgard**, the ruling sovereign house of the distant *Sovereign Reach* star system, which was overthrown 20 years ago by an aggressive military junta known as **The Iron Dominion**.
 
 ![Precursor Civilization & Royal Lineage Concept Artwork](file:///d:/github/spacegame/docs/images/precursor_ruins_concept.jpg)
 

@@ -11,11 +11,11 @@ This document breaks down the story outline into 20 playable missions, detailing
 **Ship:** Standard EDF Interceptor
 
 **Scene / Cinematic:** 
-The game opens with a sweeping view of "The Crest," a massive, industrial orbital station near Jupiter. Kaelen is in the cockpit, running diagnostics. The radio crackles with Elias’s gruff voice. 
+The game opens with a sweeping view of "The Crest," a massive, industrial orbital station near Jupiter. Kaylen is in the cockpit, running diagnostics. The radio crackles with Elias’s gruff voice. 
 
 **Dialogue:**
 *   **Elias:** "Alright, kid. Let's see if those stabilizer tweaks I made hold up. Cycle the thrusters, and keep an eye on the plasma intake—she runs hot."
-*   **Kaelen:** "Copy that, old man. Controls are stiff, but responsive."
+*   **Kaylen:** "Copy that, old man. Controls are stiff, but responsive."
 
 **Gameplay Mechanics:**
 *   **Challenge:** Basic flight controls (6-DOF), targeting, and managing power distribution. 
@@ -30,7 +30,7 @@ A routine scan of an ore freighter turns deadly when starvation-crazed miners la
 
 **Dialogue:**
 *   **EDF Command:** "Vance, you have unauthorized contacts in sector 4. Run 'em off."
-*   **Kaelen:** "They've got jury-rigged weapons. It's a trap!"
+*   **Kaylen:** "They've got jury-rigged weapons. It's a trap!"
 
 **Gameplay Mechanics:**
 *   **Challenge:** Engaging multiple unshielded, fast-moving targets in a dense asteroid field.
@@ -44,8 +44,8 @@ A routine scan of an ore freighter turns deadly when starvation-crazed miners la
 A massive spatial distortion rips open above Titan. The Iron Dominion fleet drops out of slipspace, uncovering an ancient wormhole gate.
 
 **Dialogue:**
-*   **Kaelen:** "They're tearing our cruisers apart! Their shields are ignoring our kinetic rounds!"
-*   **Elias (Static-filled):** "Kaelen, get out of there! You can't win this!"
+*   **Kaylen:** "They're tearing our cruisers apart! Their shields are ignoring our kinetic rounds!"
+*   **Elias (Static-filled):** "Kaylen, get out of there! You can't win this!"
 
 **Gameplay Mechanics:**
 *   **Challenge:** Survive. The player must dodge massive dark-energy beams and weave through the debris of destroyed EDF cruisers.
@@ -60,11 +60,11 @@ A massive spatial distortion rips open above Titan. The Iron Dominion fleet drop
 **Ship:** Heavily modified, radar-absorbent Void Interceptor
 
 **Scene / Cinematic:** 
-Kaelen awakens in a scavenger ship. He meets Jax and Kael, repaints his ship, and accepts a mercenary contract.
+Kaylen awakens in a scavenger ship. He meets Jax and Kayl, repaints his ship, and accepts a mercenary contract.
 
 **Dialogue:**
 *   **Jax:** "You fell out of a collapsing cosmic rift in a dead ship. You're either incredibly lucky, or the universe has a sick sense of humor."
-*   **Kael:** "Convoy escort. High risk. You fly, I shoot. We split the credits."
+*   **Kayl:** "Convoy escort. High risk. You fly, I shoot. We split the credits."
 
 **Gameplay Mechanics:**
 *   **Challenge:** Escort mission. The player must defend 3 slow-moving freighters.
@@ -86,11 +86,11 @@ The crew takes a high-paying job to smuggle restricted plasma coolant past a loc
 **Ship:** Void Interceptor
 
 **Scene / Cinematic:** 
-Kaelen needs upgraded thrusters to survive the Reach. Kael suggests raiding a rival mercenary gang's hidden chop shop.
+Kaylen needs upgraded thrusters to survive the Reach. Kayl suggests raiding a rival mercenary gang's hidden chop shop.
 
 **Gameplay Mechanics:**
 *   **Challenge:** Ground installation assault. Destroying anti-air turrets while performing low-altitude bombing runs.
-*   **Completion:** Destroy the hangar doors and provide cover fire while Kael extracts the thruster tech.
+*   **Completion:** Destroy the hangar doors and provide cover fire while Kayl extracts the thruster tech.
 
 ### Mission 7: Nebula Ambush
 **Location:** The Weeping Nebula
@@ -108,11 +108,11 @@ A distress signal lures the crew into a dense, sensor-jamming nebula. It’s a t
 **Ship:** Void Interceptor (Unlocking Precursor Tech)
 
 **Scene / Cinematic:** 
-The pendant pulses violently, leading the crew into a gas giant where they find a dormant precursor ring. Kaelen's ship is upgraded with the "Blink" drive.
+The pendant pulses violently, leading the crew into a gas giant where they find a dormant precursor ring. Kaylen's ship is upgraded with the "Blink" drive.
 
 **Dialogue:**
 *   **Lyra:** "That architecture... it's Precursor. How did you find it?"
-*   **Kaelen:** "It didn't hide from me. It called to me."
+*   **Kaylen:** "It didn't hide from me. It called to me."
 
 **Gameplay Mechanics:**
 *   **Challenge:** Environmental hazard. The gas giant's atmosphere drains shields. 
@@ -127,7 +127,7 @@ The pendant pulses violently, leading the crew into a gas giant where they find 
 **Ship:** Void Interceptor 
 
 **Scene / Cinematic:** 
-The crew arrives at a dead star. A hologram of the Vanguard Queen reveals Kaelen's true lineage as the royal heir.
+The crew arrives at a dead star. A hologram of the Vanguard Queen reveals Kaylen's true lineage as the royal heir.
 
 **Dialogue:**
 *   **Vanguard Queen:** "My child. The Dominion usurped our throne, but they could not extinguish our light. Reclaim your birthright."
@@ -153,7 +153,7 @@ A relentless, overpowered Dominion Shadow Assassin tracks the crew. Direct comba
 **Ship:** Void Interceptor
 
 **Scene / Cinematic:** 
-Kaelen makes first contact with a desperate Vanguard Remnant cell just as a Dominion probing force attacks.
+Kaylen makes first contact with a desperate Vanguard Remnant cell just as a Dominion probing force attacks.
 
 **Gameplay Mechanics:**
 *   **Challenge:** Defend a stationary target. Manage aggro to keep bombers away from the fragile moon base domes.
@@ -164,22 +164,22 @@ Kaelen makes first contact with a desperate Vanguard Remnant cell just as a Domi
 **Ship:** Void Interceptor
 
 **Scene / Cinematic:** 
-To earn the Remnant's trust, Kaelen must punch a hole in a Dominion blockade to allow supply ships to land.
+To earn the Remnant's trust, Kaylen must punch a hole in a Dominion blockade to allow supply ships to land.
 
 **Gameplay Mechanics:**
 *   **Challenge:** Focus fire on capital ship shield generators while dodging interceptors. 
 *   **Completion:** Destroy the shield generators on two Dominion cruisers to create a safe corridor for the transports.
 
-### Mission 13: The Kaelen-Tor Prison Break
-**Location:** Kaelen-Tor Hyper-dense Planetoid
+### Mission 13: The Kaylen-Tor Prison Break
+**Location:** Kaylen-Tor Hyper-dense Planetoid
 **Ship:** Void Interceptor & On-Foot/Boarding Action
 
 **Scene / Cinematic:** 
-Kaelen leads a suicide run on a high-gravity prison to save the top loyalist generals from execution.
+Kaylen leads a suicide run on a high-gravity prison to save the top loyalist generals from execution.
 
 **Dialogue:**
 *   **Remnant General (Skeptical):** "Show us you have the teeth of a Sovereign."
-*   **Kaelen:** "Watch me."
+*   **Kaylen:** "Watch me."
 
 **Gameplay Mechanics:**
 *   **Challenge:** The planetoid's gravity pulls the ship down; manage upward thrust while dodging flak.
@@ -194,11 +194,11 @@ Kaelen leads a suicide run on a high-gravity prison to save the top loyalist gen
 **Ship:** The Crown of Vanguard (Flagship) & Royal Fighter
 
 **Scene / Cinematic:** 
-Kaelen takes command of the massive dreadnought. The holographic war room is revealed.
+Kaylen takes command of the massive dreadnought. The holographic war room is revealed.
 
 **Dialogue:**
 *   **Lyra:** "Commander. The Remnant fleet awaits your orders. The Dominion has deployed a Planet-Cracker."
-*   **Kaelen:** "Spool up the slipspace drive. We're taking the fight to them."
+*   **Kaylen:** "Spool up the slipspace drive. We're taking the fight to them."
 
 **Gameplay Mechanics:**
 *   **Challenge:** RTS-lite Tactical Command mixed with Dogfighting. Direct fleet movements on a tactical map while flying your fighter.
@@ -256,8 +256,8 @@ A desperate stalling tactic. The fleet must intercept the escorts of the final P
 A desperate assault on the primary dark-energy foundry. Lyra makes her heroic sacrifice.
 
 **Dialogue:**
-*   **Lyra:** "Kaelen, their cruiser has a lock on the transports! I'm out of torpedoes. For the Sovereign!"
-*   **Kaelen:** "Lyra, no!" 
+*   **Lyra:** "Kaylen, their cruiser has a lock on the transports! I'm out of torpedoes. For the Sovereign!"
+*   **Kaylen:** "Lyra, no!" 
 
 **Gameplay Mechanics:**
 *   **Challenge:** Sensory deprivation. Radar disabled, lightning strikes damage shields. 
@@ -272,15 +272,15 @@ A desperate assault on the primary dark-energy foundry. Lyra makes her heroic sa
 **Ship:** Royal Fighter & The Crown of Vanguard
 
 **Scene / Cinematic:** 
-The unified fleet arrives at the occupied homeworld. Regent Vaelen’s dark-energy fortress dreadnought blocks the way. 
+The unified fleet arrives at the occupied homeworld. Regent Vaylen’s dark-energy fortress dreadnought blocks the way. 
 
 **Dialogue:**
-*   **Regent Vaelen:** "You are a relic, Kaelen. I forged this Dominion in fire!"
-*   **Kaelen:** "And I will break it in the void. All ships, fire at will!"
+*   **Regent Vaylen:** "You are a relic, Kaylen. I forged this Dominion in fire!"
+*   **Kaylen:** "And I will break it in the void. All ships, fire at will!"
 
 **Gameplay Mechanics:**
 *   **Challenge:** Multi-stage boss fight. 
     1.  **Fleet Battle:** Command armada to strip the dreadnought's outer shields.
     2.  **Subsystem Assault:** Destroy its 4 shield generators.
-    3.  **The Duel:** Brutal 1-on-1 dogfight against Vaelen's teleporting fighter.
-*   **Completion:** Destroy Vaelen's ship, liberating Vanguard Prime and rolling the credits.
+    3.  **The Duel:** Brutal 1-on-1 dogfight against Vaylen's teleporting fighter.
+*   **Completion:** Destroy Vaylen's ship, liberating Vanguard Prime and rolling the credits.
