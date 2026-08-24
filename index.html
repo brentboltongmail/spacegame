@@ -5331,12 +5331,12 @@
                 ancientGoldenGate.quaternion.copy(orbitTargetQuat);
                 ancientGoldenGate.scale.set(2.0, 2.0, 2.0); // 2X BIGGER IN SPACE!
             }
+            ancientGoldenGate.updateMatrixWorld(true);
 
             // --- THE CREST DESTRUCTION & MULTI-STEP BREAKUP LOGIC ---
             // Triggered during the extraction sequence:
             // At 14.5s: Struck by Dominion barrage
             // At 16.5s: Catastrophic multi-step fireball explosions (Lasts strictly 2.0s!)
-            // At 18.5s+: Explosion vanishes completely; shattered debris scatters outward into space
             if (elapsedExcavation < 14.5) {
                 theCrestState = 'INTACT';
                 if (theCrestModelOriginal) theCrestModelOriginal.visible = true;
@@ -5378,116 +5378,96 @@
                     if (theCrestFireballs) {
                         theCrestFireballs.forEach(fb => {
                             const ud = fb.userData;
-                            if (expElapsed >= ud.delay) {
-                                fb.visible = true;
-                                const fbAge = (expElapsed - ud.delay) / 1.35;
-                                if (fbAge >= 0 && fbAge < 1.0) {
-                                    const s = Math.sin(fbAge * Math.PI) * ud.maxScale;
-                                    fb.scale.set(s, s, s);
-                                    fb.position.copy(ud.offset).addScaledVector(ud.offset.clone().normalize(), fbAge * 450);
-                                    if (fb.material) fb.material.opacity = Math.max(0, (1.0 - fbAge) * 0.95);
-                                } else {
-                                    fb.visible = false;
-                                }
+                            const t = expElapsed / 2.0;
+                            fb.visible = true;
+                            fb.position.copy(ud.initPos).addScaledVector(ud.vel, expElapsed);
+                            const scale = ud.scale * (1.0 + t * 4.2);
+                            fb.scale.set(scale, scale, scale);
+                            if (fb.material) {
+                                fb.material.opacity = Math.max(0, 0.95 * Math.pow(1.0 - t, 1.4));
                             }
                         });
                     }
                     if (theCrestShockwaves) {
                         theCrestShockwaves.forEach(sw => {
-                            const ud = sw.userData;
-                            if (expElapsed >= ud.delay) {
-                                sw.visible = true;
-                                ud.radius += ud.speed * timeDelta * 1.8;
-                                const s = ud.radius / 250;
-                                sw.scale.set(s, s, s);
-                                if (sw.material) {
-                                    sw.material.opacity = Math.max(0, 0.90 * (1.0 - (expElapsed / 2.0)));
-                                }
+                            sw.visible = true;
+                            const t = expElapsed / 2.0;
+                            const r = 120 + t * 2400;
+                            sw.scale.set(r / 100, r / 100, r / 100);
+                            if (sw.material) {
+                                sw.material.opacity = Math.max(0, 0.90 * (1.0 - t));
                             }
                         });
                     }
                 } else {
-                    // Explosion ended at 2.0s mark
+                    if (theCrestExplosionLight) theCrestExplosionLight.intensity = 0;
                     if (theCrestFireballs) theCrestFireballs.forEach(fb => fb.visible = false);
                     if (theCrestShockwaves) theCrestShockwaves.forEach(sw => sw.visible = false);
-                    if (theCrestExplosionLight) theCrestExplosionLight.intensity = 0;
                 }
+                if (theCrestModelOriginal) theCrestModelOriginal.visible = false;
             } else {
-                // DESTROYED: Explosion is 100% GONE, station broken apart, debris scatters outward
+                // 18.5s+: EXPLOSION TOTALLY GONE — STATION SHATTERED AND DESTROYED
                 if (theCrestState !== 'DESTROYED') {
                     theCrestState = 'DESTROYED';
-                    showToast("💥 THE CREST HAS EXPLODED — DEBRIS SCATTERING OUTWARD IN TITAN ORBIT!");
+                    showToast("💥 THE CREST DESTROYED — PRECURSOR GATE EXTRACTION REACHING CRITICAL SLIPSPACE VELOCITY!");
                 }
-                if (theCrestModelOriginal) theCrestModelOriginal.visible = false; // Hide intact model
-                if (theCrestFireballs) theCrestFireballs.forEach(fb => fb.visible = false); // Explosion gone
-                if (theCrestShockwaves) theCrestShockwaves.forEach(sw => sw.visible = false);
+                if (theCrestModelOriginal) theCrestModelOriginal.visible = false;
                 if (theCrestExplosionLight) theCrestExplosionLight.intensity = 0;
+                if (theCrestFireballs) theCrestFireballs.forEach(fb => fb.visible = false);
+                if (theCrestShockwaves) theCrestShockwaves.forEach(sw => sw.visible = false);
 
-                // Animate Tumbling Shattered Debris Chunks Scattering Outward
-                const debrisAge = (elapsedExcavation - 18.5);
+                // Scatter shattered station wreckage slowly through vacuum
+                const scatterElapsed = (nowMs - (theCrestExplosionStartTime + 2000)) / 1000.0;
                 if (theCrestDebrisChunks) {
-                    theCrestDebrisChunks.forEach(chunk => {
-                        chunk.visible = true;
-                        const ud = chunk.userData;
-                        chunk.position.copy(ud.basePos).addScaledVector(ud.vel, debrisAge);
-                        chunk.rotation.x += ud.rotVel.x;
-                        chunk.rotation.y += ud.rotVel.y;
-                        chunk.rotation.z += ud.rotVel.z;
+                    theCrestDebrisChunks.forEach(c => {
+                        c.visible = true;
+                        c.position.copy(c.userData.initPos).addScaledVector(c.userData.vel, scatterElapsed);
+                        c.rotation.x += c.userData.rotSpeed.x;
+                        c.rotation.y += c.userData.rotSpeed.y;
+                        c.rotation.z += c.userData.rotSpeed.z;
                     });
-                }
-
-                // Auto-trigger Titan Gate Wormhole Cinematic ~15s after The Crest is destroyed
-                if (elapsedExcavation >= 33.5 && !isTitanCinematicActive && !hasTitanCinematicPlayed) {
-                    hasTitanCinematicPlayed = true;
-                    startTitanGateCinematic();
                 }
             }
 
-            // 1. Animate Boiling Methane Vapor Geysers (Zero-Allocation Pool)
+            // Trigger Titan Precursor Wormhole Gate Cinematic at 33.5s (when gate reaches space)
+            if (elapsedExcavation >= 33.5 && !isTitanCinematicActive && !hasTitanCinematicPlayed) {
+                hasTitanCinematicPlayed = true;
+                startTitanGateCinematic();
+            }
+
+            // 1. Animate Boiling Methane Geysers (Vapor Plumes from Superheated Crater)
             if (titanVaporPool && titanVaporPool.length > 0) {
-                const isBoiling = isBombardmentFiring || (elapsedExcavation < 16.0);
-                titanVaporPool.forEach((vapor) => {
-                    const ud = vapor.userData;
-                    if (isBoiling) {
-                        vapor.visible = true;
-                        ud.y += ud.vy * timeDelta * 4.0;
-                        ud.life -= timeDelta * 0.45;
-                        if (ud.life <= 0) {
-                            ud.life = 1.0;
-                            ud.y = 0;
-                            ud.r = Math.random() * 220;
-                            ud.theta = Math.random() * Math.PI * 2;
-                        }
-                        const currentRadius = ud.r + (1.0 - ud.life) * 80;
-                        vapor.position.set(
-                            Math.cos(ud.theta) * currentRadius,
-                            ud.y,
-                            Math.sin(ud.theta) * currentRadius
-                        );
-                        const s = ud.scale * (1.0 + (1.0 - ud.life) * 4.5);
-                        vapor.scale.setScalar(s);
-                        if (vapor.material) {
-                            vapor.material.opacity = ud.life * 0.45;
-                            if (ud.life > 0.5) {
-                                vapor.material.color.setHex(0x67e8f9);
-                            } else {
-                                vapor.material.color.setHex(0xc084fc);
-                            }
-                        }
-                    } else {
-                        vapor.visible = false;
+                titanVaporPool.forEach(vp => {
+                    const ud = vp.userData;
+                    ud.life += timeDelta * 0.45;
+                    if (ud.life >= ud.maxLife) {
+                        ud.life = 0;
+                        ud.r = Math.random() * 210;
+                        ud.theta = Math.random() * Math.PI * 2;
+                        ud.y = Math.random() * 40;
+                        ud.vy = 25 + Math.random() * 50;
+                        ud.scale = 1.0 + Math.random() * 2.0;
                     }
+                    vp.position.x = Math.cos(ud.theta) * ud.r;
+                    vp.position.z = Math.sin(ud.theta) * ud.r;
+                    vp.position.y = ud.y + ud.life * ud.vy;
+                    const s = ud.scale * (1.0 + ud.life * 3.5);
+                    vp.scale.set(s, s, s);
+                    if (vp.material) {
+                        vp.material.opacity = Math.max(0, 0.45 * Math.sin(ud.life * Math.PI));
+                    }
+                    vp.visible = isBombardmentFiring;
                 });
             }
 
-            // 2. Animate Planetary Shockwave Waves
-            if (titanShockwaves) {
+            // 2. Animate Planetary Magma Floor Shockwaves
+            if (titanShockwaves && titanShockwaves.length > 0) {
                 titanShockwaves.forEach(sw => {
                     if (isBombardmentFiring) {
                         sw.visible = true;
-                        sw.userData.radius += sw.userData.speed * timeDelta * 1.5;
+                        sw.userData.radius += sw.userData.speed * timeDelta;
                         if (sw.userData.radius > sw.userData.maxRadius) {
-                            sw.userData.radius = 50;
+                            sw.userData.radius = 60;
                         }
                         const s = sw.userData.radius / 60;
                         sw.scale.set(s, s, s);
@@ -5500,101 +5480,102 @@
                 });
             }
 
-            // 3. Animate Ionization Dark-Energy Lightning Arcs
-            if (titanLightningBolts) {
-                if (isBombardmentFiring && Math.random() < 0.4) {
-                    titanLightningBolts.forEach(lLine => {
-                        lLine.visible = true;
-                        const posAttr = lLine.geometry.attributes.position;
-                        const endAngle = Math.random() * Math.PI * 2;
-                        const endRadius = 150 + Math.random() * 160;
-                        for (let pt = 0; pt < 10; pt++) {
-                            const t = pt / 9;
-                            const rx = (Math.random() - 0.5) * 35;
-                            const rz = (Math.random() - 0.5) * 35;
-                            const ry = Math.sin(t * Math.PI) * (15 + Math.random() * 20);
-                            posAttr.setXYZ(
-                                pt,
-                                Math.cos(endAngle) * endRadius * t + rx,
-                                4 + ry,
-                                Math.sin(endAngle) * endRadius * t + rz
-                            );
+            // 3. Animate Dark-Energy Lightning Arcs Striking Titan Crust
+            if (titanLightningBolts && titanLightningBolts.length > 0) {
+                titanLightningBolts.forEach(l => {
+                    if (isBombardmentFiring) {
+                        l.visible = Math.random() > 0.35;
+                        if (l.visible) {
+                            const posAttr = l.geometry.attributes.position;
+                            const startAngle = Math.random() * Math.PI * 2;
+                            const startR = 40 + Math.random() * 180;
+                            const startPt = new THREE.Vector3(Math.cos(startAngle) * startR, 10 + Math.random() * 20, Math.sin(startAngle) * startR);
+                            for (let p = 0; p < 10; p++) {
+                                const frac = p / 9.0;
+                                const jitter = (p === 0 || p === 9) ? 0 : (Math.random() - 0.5) * 35;
+                                posAttr.setXYZ(p, startPt.x + jitter, startPt.y + frac * 220 + jitter, startPt.z + jitter);
+                            }
+                            posAttr.needsUpdate = true;
                         }
-                        posAttr.needsUpdate = true;
-                    });
-                } else if (!isBombardmentFiring) {
-                    titanLightningBolts.forEach(lLine => lLine.visible = false);
-                }
+                    } else {
+                        l.visible = false;
+                    }
+                });
             }
 
-            // 4. Animate Excavation Light & Molten Crater Heat Pulse
-            if (titanExcavationLight) {
-                if (isBombardmentFiring) {
-                    const heatPulse = Math.sin(timeSec * 6.0) * 3.0;
-                    titanExcavationLight.intensity = 15.0 + heatPulse;
-                } else {
-                    titanExcavationLight.intensity = Math.max(0, 7.0 * (1.0 - (elapsedExcavation - 10.0) / 10.0));
-                }
+            // 4. Animate Golden Ring Inscription Bands and Pylons
+            if (goldenGlyphRingMesh) {
+                goldenGlyphRingMesh.rotation.y += 0.008; // Runic glyph ring counter-rotation
+            }
+            if (goldenRingMesh) {
+                goldenRingMesh.rotation.y -= 0.003;
+            }
+            if (goldenGatePylons && goldenGatePylons.length > 0) {
+                goldenGatePylons.forEach((p, idx) => {
+                    if (p.crystal) {
+                        const pulse = Math.sin(timeSec * 6.0 + idx * 0.5);
+                        p.crystal.scale.setScalar(1.0 + pulse * 0.25);
+                    }
+                });
             }
 
-            // 5. Animate Dense Volumetric Cosmic Particle Wormhole & Runic Artifact
-            if (ancientGoldenGate.visible) {
-                const pMult = (elapsedExcavation >= 34.0 ? 2.0 : 1.0);
+            // 5. Animate Slipspace Wormhole Event Horizon Particles & Accretion Vortex
+            if (goldenGateVortexGroup) {
+                // Vortex is visible during gate reveal and tractor/active phases
+                goldenGateVortexGroup.visible = (titanExcavationPhase !== 'WAITING_FOR_FLEET');
 
-                if (goldenGlyphRingMesh) {
-                    goldenGlyphRingMesh.rotation.z += 0.0035 * pMult; // Runic glyph rotation
-                }
-
-                // 5A. Animate 6,500 Dense Accretion Spiral Particles (Inflow suction + spiral rotation)
                 if (goldenGateSpiralPoints && goldenGateSpiralPoints.geometry) {
                     const posAttr = goldenGateSpiralPoints.geometry.attributes.position;
-                    const sData = goldenGateSpiralPoints.userData.pData;
-                    if (sData) {
-                        for (let p = 0; p < sData.length; p++) {
-                            const pd = sData[p];
-                            pd.theta += pd.speed * timeDelta * pMult;
-                            pd.r -= pd.rSpeed * timeDelta * pMult;
-                            if (pd.r < pd.rMin) pd.r = pd.rMax;
-                            const rNorm = (pd.r - pd.rMin) / (pd.rMax - pd.rMin);
-                            const depth = -Math.sin((1.0 - rNorm) * Math.PI * 0.5) * 70;
-                            posAttr.setXYZ(p, Math.cos(pd.theta) * pd.r, depth, Math.sin(pd.theta) * pd.r);
+                    const pData = goldenGateSpiralPoints.userData.pData;
+                    if (pData) {
+                        for (let i = 0; i < pData.length; i++) {
+                            const d = pData[i];
+                            d.theta += d.speed * timeDelta;
+                            d.r -= d.rSpeed * timeDelta;
+                            if (d.r < d.rMin) {
+                                d.r = d.rMax;
+                            }
+                            const rNorm = (d.r - d.rMin) / (d.rMax - d.rMin);
+                            const depth = -Math.sin((1.0 - rNorm) * Math.PI * 0.5) * 75;
+                            posAttr.setXYZ(i, Math.cos(d.theta) * d.r, depth, Math.sin(d.theta) * d.r);
                         }
                         posAttr.needsUpdate = true;
                     }
-                    goldenGateSpiralPoints.rotation.y += 0.004 * pMult;
                 }
 
-                // 5B. Animate 3,500 Dense Tunnel Particles (Fast inward streaming through wormhole throat)
                 if (goldenGateTunnelPoints && goldenGateTunnelPoints.geometry) {
-                    const tPosAttr = goldenGateTunnelPoints.geometry.attributes.position;
-                    const tData = goldenGateTunnelPoints.userData.pData;
-                    if (tData) {
-                        for (let t = 0; t < tData.length; t++) {
-                            const td = tData[t];
-                            td.y -= td.ySpeed * timeDelta * pMult;
-                            td.theta += td.rotSpeed * timeDelta * pMult;
-                            if (td.y < -190) td.y = 30;
-                            const tNorm = (30 - td.y) / 220;
-                            const rThroat = 8 + (1.0 - tNorm * 0.78) * 85;
-                            tPosAttr.setXYZ(t, Math.cos(td.theta) * rThroat, td.y, Math.sin(td.theta) * rThroat);
+                    const posAttr = goldenGateTunnelPoints.geometry.attributes.position;
+                    const pData = goldenGateTunnelPoints.userData.pData;
+                    if (pData) {
+                        for (let i = 0; i < pData.length; i++) {
+                            const d = pData[i];
+                            d.y -= d.ySpeed * timeDelta;
+                            d.theta += d.rotSpeed * timeDelta;
+                            if (d.y < -205) d.y = 35;
+                            const tNorm = (35 - d.y) / 240.0;
+                            const rThroat = 6 + (1.0 - tNorm * 0.80) * 90;
+                            posAttr.setXYZ(i, Math.cos(d.theta) * rThroat, d.y, Math.sin(d.theta) * rThroat);
                         }
-                        tPosAttr.needsUpdate = true;
+                        posAttr.needsUpdate = true;
                     }
                 }
 
-                // 5C. Animate 1,500 Dense Boundary Energy Spark Particles
-                if (goldenGateBorderPoints) {
-                    goldenGateBorderPoints.rotation.y -= 0.006 * pMult;
+                if (goldenGateBorderPoints && goldenGateBorderPoints.geometry) {
+                    const posAttr = goldenGateBorderPoints.geometry.attributes.position;
+                    const pData = goldenGateBorderPoints.userData.pData;
+                    if (pData) {
+                        for (let i = 0; i < pData.length; i++) {
+                            const d = pData[i];
+                            d.theta += d.rotSpeed * timeDelta;
+                            posAttr.setXYZ(i, Math.cos(d.theta) * d.r, (Math.random() - 0.5) * 26, Math.sin(d.theta) * d.r);
+                        }
+                        posAttr.needsUpdate = true;
+                    }
                 }
 
-                if (goldenGateLight) {
-                    const goldPulse = Math.sin(timeSec * 5.0) * 2.5;
-                    goldenGateLight.intensity = (elapsedExcavation >= 34.0 ? 18.0 : 10.0) + goldPulse;
-                }
-
-                if (goldenGateRipples) {
+                if (goldenGateRipples && goldenGateRipples.length > 0) {
                     goldenGateRipples.forEach(rip => {
-                        rip.userData.radius += rip.userData.speed * timeDelta * pMult;
+                        rip.userData.radius += rip.userData.speed * timeDelta;
                         if (rip.userData.radius > rip.userData.maxRadius) {
                             rip.userData.radius = 260;
                         }
@@ -5627,25 +5608,23 @@
                     bData.group.visible = true;
                     bData.flare.visible = true;
 
-                    // Origin: Middle / ventral center of each capital ship
-                    const shipCenterWorld = ship.localToWorld(new THREE.Vector3(0, -10, 0));
+                    // Origin: Exact center of each capital ship
+                    const shipCenterWorld = ship.getWorldPosition(new THREE.Vector3());
                     bData.flare.position.copy(shipCenterWorld);
                     bData.flare.scale.setScalar(1.0 + Math.sin(timeSec * 8.0 + bData.shipIndex) * 0.2);
 
                     // Target point:
-                    // In Bombardment: Target is strictly the gate excavation crater on Titan (following Titan rotation)
-                    // In Tractor: Target is crystal node on one of the 12 golden pylons on the rising gate
+                    // Both Bombardment & Tractor Beams connect directly from ship center to the ring on Titan (pylons / crystals)
                     let targetWorld = new THREE.Vector3();
-                    if (isBombardmentFiring) {
-                        targetWorld.copy(craterWorldPos);
+                    const pylon = (goldenGatePylons && goldenGatePylons.length > 0) ? goldenGatePylons[bData.pylonTargetIndex] : null;
+                    if (pylon && pylon.crystal) {
+                        pylon.crystal.getWorldPosition(targetWorld);
+                    } else if (pylon && pylon.group) {
+                        pylon.group.getWorldPosition(targetWorld);
+                    } else if (ancientGoldenGate) {
+                        ancientGoldenGate.getWorldPosition(targetWorld);
                     } else {
-                        const pylon = goldenGatePylons[bData.pylonTargetIndex];
-                        if (pylon && pylon.group) {
-                            pylon.group.getWorldPosition(targetWorld);
-                            targetWorld.add(new THREE.Vector3(0, 40, 0)); // Crystal height
-                        } else {
-                            targetWorld.copy(ancientGoldenGate.position);
-                        }
+                        targetWorld.copy(craterWorldPos);
                     }
 
                     // Vector from middle of capital ship to target on Titan
@@ -6438,7 +6417,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 subspeaker: "MARS COMMS / HYPERWAVE OVERRIDE",
                 theme: "speaker-elias",
                 icon: "📻",
-                camMode: 2, // Far Third Person (Game Start Panoramic Vista)
+                camMode: 2, // Far Third Person (Panoramic Vista)
                 speed: 120,
                 text: "Kaylen! Kaylen, do you read me?! The long-range sensors on Mars just went red—The Crest is gone from the grid! Report in, kid!",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_01_elias.mp3"
@@ -6449,7 +6428,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 subspeaker: "VOID INTERCEPTOR COCKPIT",
                 theme: "speaker-kaylen",
                 icon: "🚀",
-                camMode: 0, // Cockpit View
+                camMode: 1, // Rear Third-Person Close (Ship clearly visible)
                 speed: 160,
                 text: "Elias... they wiped out the fleet. The kinetic rounds bounced right off their hulls. They're lining up their dreadnoughts on the rift right now.",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_02_kaylen.mp3"
@@ -6460,7 +6439,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 subspeaker: "MARS COMMS / HYPERWAVE OVERRIDE",
                 theme: "speaker-elias",
                 icon: "📻",
-                camMode: 1, // Rear Third-Person Close
+                camMode: 2, // Far Third Person
                 speed: 200,
                 text: "Then break off and burn hard for the outer moons! Divert everything to afterburners! I'm spooling the freighter down in the slums—I will come get you, son!",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_03_elias.mp3"
@@ -6471,7 +6450,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 subspeaker: "VOID INTERCEPTOR COCKPIT",
                 theme: "speaker-kaylen",
                 icon: "🚀",
-                camMode: 1,
+                camMode: 1, // Rear Third-Person Close (Ship clearly visible)
                 speed: 240,
                 text: "You know my fuel reserves, Elias. I can't outrun them. If those dreadnoughts cross this threshold, Sol doesn't have a defense left. Earth won't last twenty minutes.",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_04_kaylen.mp3"
@@ -6493,7 +6472,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 subspeaker: "VOID INTERCEPTOR COCKPIT / PENDANT RESONANCE",
                 theme: "speaker-kaylen",
                 icon: "💎",
-                camMode: 0, // Cockpit View
+                camMode: 1, // Rear Third-Person Close (Ship clearly visible)
                 speed: 320,
                 text: "It's vibrating, Elias. The pendant you found me with... it's singing with the gate. It's the same frequency. It knows what to do.",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_06_kaylen.mp3"
@@ -6515,7 +6494,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 subspeaker: "VOID INTERCEPTOR COCKPIT",
                 theme: "speaker-kaylen",
                 icon: "🚀",
-                camMode: 0, // Cockpit View
+                camMode: 1, // Rear Third-Person Close (Ship clearly visible)
                 speed: 420,
                 text: "You gave me twenty years, old man. You taught me how to fly, how to fight, and how to fix broken things. Earth is my home because you're on it.",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_08_kaylen.mp3"
@@ -6526,7 +6505,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 subspeaker: "MARS COMMS / HYPERWAVE OVERRIDE",
                 theme: "speaker-elias",
                 icon: "📻",
-                camMode: 1, // Rear Third-Person Close
+                camMode: 2, // Far Third Person
                 speed: 500,
                 text: "Kaylen, NO! Turn the ship around! KAYLEN—",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_09_elias.mp3"
@@ -6576,7 +6555,7 @@ function createEpicPlayerDeathExplosion(pos) {
             playerShip.rotateY(Math.PI);
             
             cameraMode = titanCinematicScript[0].camMode !== undefined ? titanCinematicScript[0].camMode : 2;
-            playerShip.visible = (cameraMode !== 0);
+            playerShip.visible = true;
             targetSpeed = titanCinematicScript[0].speed;
             currentSpeed = titanCinematicScript[0].speed;
 
@@ -6618,7 +6597,7 @@ function createEpicPlayerDeathExplosion(pos) {
             if (lineData.camMode !== undefined) {
                 cameraMode = lineData.camMode;
             }
-            playerShip.visible = (cameraMode !== 0);
+            playerShip.visible = true;
             targetSpeed = lineData.speed;
             currentSpeed = Math.max(currentSpeed, lineData.speed * 0.85);
 
@@ -7031,10 +7010,11 @@ function createEpicPlayerDeathExplosion(pos) {
             let targetLookAtPos = playerShip.position.clone().add(new THREE.Vector3(0, 0, -10).applyQuaternion(playerShip.quaternion));
 
             if (cameraMode === 0) {
-                // Mode 0: Cockpit View (First-Person) - Hide exterior ship model & engine lights so they do not block cockpit view
-                playerShip.visible = false;
+                // Mode 0: Cockpit View (First-Person) - Hide exterior ship model & engine lights so they do not block cockpit view (unless cinematic is active)
+                const isCinematic = (typeof isTitanCinematicActive !== 'undefined' && isTitanCinematicActive);
+                playerShip.visible = isCinematic;
                 if (playerShip.userData && playerShip.userData.engineLights) {
-                    playerShip.userData.engineLights.forEach(l => l.visible = false);
+                    playerShip.userData.engineLights.forEach(l => l.visible = isCinematic);
                 }
                 targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 0.45, -0.1).applyQuaternion(playerShip.quaternion));
                 targetLookAtPos = playerShip.position.clone().add(new THREE.Vector3(0, 0.45, -25).applyQuaternion(playerShip.quaternion));
