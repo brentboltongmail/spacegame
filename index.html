@@ -2876,28 +2876,18 @@
             gltfLoader.load('fbx/void_interceptor.glb', function(gltf) {
                 const model = gltf.scene;
 
-                // Weld split vertices, smooth normals, and enforce solid double-sided opaque materials
+                // Enforce solid double-sided opaque materials
                 model.traverse(function(child) {
-                    if (child.isMesh) {
-                        if (child.geometry && THREE.BufferGeometryUtils && THREE.BufferGeometryUtils.mergeVertices) {
-                            try {
-                                child.geometry = THREE.BufferGeometryUtils.mergeVertices(child.geometry);
-                                child.geometry.computeVertexNormals();
-                            } catch(e) {
-                                console.warn("[VOID INTERCEPTOR VERTEX MERGE ERROR]", e);
-                            }
-                        }
-                        if (child.material) {
-                            const mats = Array.isArray(child.material) ? child.material : [child.material];
-                            mats.forEach(mat => {
-                                mat.transparent = false;
-                                mat.opacity = 1.0;
-                                mat.depthWrite = true;
-                                mat.depthTest = true;
-                                mat.side = THREE.DoubleSide;
-                                mat.needsUpdate = true;
-                            });
-                        }
+                    if (child.isMesh && child.material) {
+                        const mats = Array.isArray(child.material) ? child.material : [child.material];
+                        mats.forEach(mat => {
+                            mat.transparent = false;
+                            mat.opacity = 1.0;
+                            mat.depthWrite = true;
+                            mat.depthTest = true;
+                            mat.side = THREE.DoubleSide;
+                            mat.needsUpdate = true;
+                        });
                     }
                 });
 
@@ -3202,28 +3192,18 @@
             gltfLoader.load('fbx/battlecruiser.glb', function(gltf) {
                 const model = gltf.scene;
 
-                // Weld split vertices, smooth normals, and enforce solid double-sided opaque materials
+                // Enforce solid double-sided opaque materials
                 model.traverse(function(child) {
-                    if (child.isMesh) {
-                        if (child.geometry && THREE.BufferGeometryUtils && THREE.BufferGeometryUtils.mergeVertices) {
-                            try {
-                                child.geometry = THREE.BufferGeometryUtils.mergeVertices(child.geometry);
-                                child.geometry.computeVertexNormals();
-                            } catch(e) {
-                                console.warn("[BATTLECRUISER VERTEX MERGE ERROR]", e);
-                            }
-                        }
-                        if (child.material) {
-                            const mats = Array.isArray(child.material) ? child.material : [child.material];
-                            mats.forEach(mat => {
-                                mat.transparent = false;
-                                mat.opacity = 1.0;
-                                mat.depthWrite = true;
-                                mat.depthTest = true;
-                                mat.side = THREE.DoubleSide;
-                                mat.needsUpdate = true;
-                            });
-                        }
+                    if (child.isMesh && child.material) {
+                        const mats = Array.isArray(child.material) ? child.material : [child.material];
+                        mats.forEach(mat => {
+                            mat.transparent = false;
+                            mat.opacity = 1.0;
+                            mat.depthWrite = true;
+                            mat.depthTest = true;
+                            mat.side = THREE.DoubleSide;
+                            mat.needsUpdate = true;
+                        });
                     }
                 });
 
