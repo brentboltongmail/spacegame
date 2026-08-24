@@ -2373,7 +2373,7 @@
         let currentSpeed = 0;
         let isWormholeActive = false;
 
-        let cameraMode = 0; // 0: Cockpit View with Canopy Frame Bars, 1: Close, 2: Far, 3: Cinematic Showcase (Invincible)
+        let cameraMode = 2; // 0: Cockpit View with Canopy Frame Bars, 1: Close, 2: Far (Default), 3: Cinematic Showcase (Invincible)
         let isShipInvincible = false;
         let cinematicAngle = 0;
 
@@ -2434,7 +2434,7 @@
             scene.fog = new THREE.FogExp2(0x070913, 0.00003); // 16x lighter fog for crystal clear space visibility!
 
             camera = new THREE.PerspectiveCamera(65, container.clientWidth / container.clientHeight, 0.1, 2000000);
-            camera.position.set(0, 3, 12);
+            camera.position.set(0, 6.0, 22.0);
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
@@ -2473,6 +2473,10 @@
             targetBox3D = new THREE.LineSegments(targetBoxGeo, targetBoxMat);
             targetBox3D.visible = false;
             scene.add(targetBox3D);
+            const crosshair = document.querySelector('.hud-center-crosshair');
+            if (crosshair) crosshair.style.opacity = (cameraMode === 0) ? '1' : '0';
+            const lockZone = document.getElementById('target-lock-zone');
+            if (lockZone) lockZone.style.opacity = (cameraMode === 0) ? '1' : '0';
 
             initTacticalMap3D();
 
