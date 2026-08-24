@@ -5136,7 +5136,7 @@
                 titanExcavationPhase = 'BOMBARDMENT';
                 isBombardmentFiring = true;
                 isTractorFiring = false;
-                if (ancientGoldenGate) ancientGoldenGate.visible = false;
+                if (ancientGoldenGate) ancientGoldenGate.visible = false; // GATE IS NOT INITIALLY VISIBLE ON TITAN
                 if (titanIceCrustMesh) {
                     titanIceCrustMesh.visible = true;
                     const meltT = Math.min(1.0, elapsedExcavation / 10.0);
@@ -5172,15 +5172,17 @@
                 if (titanIceCrustMesh) titanIceCrustMesh.visible = false;
             }
 
-            // Calculate current Golden Ring World Position and Orientation
+            // Calculate current Golden Ring World Position, Orientation (Turned on side in space), and Scale (2x in space)
             const craterWorldPos = titanExcavationSite.getWorldPosition(new THREE.Vector3());
             const craterWorldQuat = titanExcavationSite.getWorldQuaternion(new THREE.Quaternion());
-            const orbitTargetQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.2, 0.1, 0));
+            // In space: Turned 90 degrees on its side (standing upright as a vertical gate portal) facing the fleet corridor
+            const orbitTargetQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI * 0.5, 0.15, 0));
 
             if (elapsedExcavation < 12.0) {
                 goldenRingLiftProgress = 0.0;
                 ancientGoldenGate.position.copy(craterWorldPos);
                 ancientGoldenGate.quaternion.copy(craterWorldQuat);
+                ancientGoldenGate.scale.set(1.0, 1.0, 1.0);
             } else if (elapsedExcavation >= 12.0 && elapsedExcavation < 34.0) {
                 const progress = Math.min(1.0, (elapsedExcavation - 12.0) / 22.0);
                 goldenRingLiftProgress = progress;
@@ -5188,10 +5190,14 @@
                 const ease = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
                 ancientGoldenGate.position.lerpVectors(craterWorldPos, titanExtractionOrbitWorldPos, ease);
                 ancientGoldenGate.quaternion.slerpQuaternions(craterWorldQuat, orbitTargetQuat, ease);
+                // Expand scale smoothly from 1.0x to 2.0x as it is pulled into space!
+                const curScale = 1.0 + ease * 1.0;
+                ancientGoldenGate.scale.set(curScale, curScale, curScale);
             } else {
                 goldenRingLiftProgress = 1.0;
                 ancientGoldenGate.position.copy(titanExtractionOrbitWorldPos);
                 ancientGoldenGate.quaternion.copy(orbitTargetQuat);
+                ancientGoldenGate.scale.set(2.0, 2.0, 2.0); // 2X BIGGER IN SPACE!
             }
 
             // --- THE CREST DESTRUCTION & MULTI-STEP BREAKUP LOGIC ---
@@ -5381,26 +5387,64 @@
                 }
             }
 
-            // 5. Animate Ancient Golden Precursor Gate Components
+            // 5. Animate Dense Volumetric Cosmic Particle Wormhole & Runic Artifact
             if (ancientGoldenGate.visible) {
+                const pMult = (elapsedExcavation >= 34.0 ? 2.0 : 1.0);
+
                 if (goldenGlyphRingMesh) {
-                    goldenGlyphRingMesh.rotation.z += 0.0035; // Runic glyph rotation
+                    goldenGlyphRingMesh.rotation.z += 0.0035 * pMult; // Runic glyph rotation
                 }
-                if (goldenGateVortexDisc) {
-                    goldenGateVortexDisc.rotation.z -= (elapsedExcavation >= 34.0 ? 0.012 : 0.006);
-                    const vortexPulse = 0.85 + Math.sin(timeSec * 4.0) * 0.12;
-                    goldenGateVortexDisc.material.opacity = (elapsedExcavation >= 34.0 ? 0.95 : 0.65) * vortexPulse;
+
+                // 5A. Animate 6,500 Dense Accretion Spiral Particles (Inflow suction + spiral rotation)
+                if (goldenGateSpiralPoints && goldenGateSpiralPoints.geometry) {
+                    const posAttr = goldenGateSpiralPoints.geometry.attributes.position;
+                    const sData = goldenGateSpiralPoints.userData.pData;
+                    if (sData) {
+                        for (let p = 0; p < sData.length; p++) {
+                            const pd = sData[p];
+                            pd.theta += pd.speed * timeDelta * pMult;
+                            pd.r -= pd.rSpeed * timeDelta * pMult;
+                            if (pd.r < pd.rMin) pd.r = pd.rMax;
+                            const rNorm = (pd.r - pd.rMin) / (pd.rMax - pd.rMin);
+                            const depth = -Math.sin((1.0 - rNorm) * Math.PI * 0.5) * 70;
+                            posAttr.setXYZ(p, Math.cos(pd.theta) * pd.r, depth, Math.sin(pd.theta) * pd.r);
+                        }
+                        posAttr.needsUpdate = true;
+                    }
+                    goldenGateSpiralPoints.rotation.y += 0.004 * pMult;
                 }
-                if (goldenGateSwirlRing) {
-                    goldenGateSwirlRing.rotation.z += 0.009;
+
+                // 5B. Animate 3,500 Dense Tunnel Particles (Fast inward streaming through wormhole throat)
+                if (goldenGateTunnelPoints && goldenGateTunnelPoints.geometry) {
+                    const tPosAttr = goldenGateTunnelPoints.geometry.attributes.position;
+                    const tData = goldenGateTunnelPoints.userData.pData;
+                    if (tData) {
+                        for (let t = 0; t < tData.length; t++) {
+                            const td = tData[t];
+                            td.y -= td.ySpeed * timeDelta * pMult;
+                            td.theta += td.rotSpeed * timeDelta * pMult;
+                            if (td.y < -190) td.y = 30;
+                            const tNorm = (30 - td.y) / 220;
+                            const rThroat = 8 + (1.0 - tNorm * 0.78) * 85;
+                            tPosAttr.setXYZ(t, Math.cos(td.theta) * rThroat, td.y, Math.sin(td.theta) * rThroat);
+                        }
+                        tPosAttr.needsUpdate = true;
+                    }
                 }
+
+                // 5C. Animate 1,500 Dense Boundary Energy Spark Particles
+                if (goldenGateBorderPoints) {
+                    goldenGateBorderPoints.rotation.y -= 0.006 * pMult;
+                }
+
                 if (goldenGateLight) {
                     const goldPulse = Math.sin(timeSec * 5.0) * 2.5;
-                    goldenGateLight.intensity = (elapsedExcavation >= 34.0 ? 16.0 : 10.0) + goldPulse;
+                    goldenGateLight.intensity = (elapsedExcavation >= 34.0 ? 18.0 : 10.0) + goldPulse;
                 }
+
                 if (goldenGateRipples) {
                     goldenGateRipples.forEach(rip => {
-                        rip.userData.radius += rip.userData.speed * timeDelta;
+                        rip.userData.radius += rip.userData.speed * timeDelta * pMult;
                         if (rip.userData.radius > rip.userData.maxRadius) {
                             rip.userData.radius = 260;
                         }
@@ -7805,11 +7849,9 @@ function createEpicPlayerDeathExplosion(pos) {
                 }
             }
 
-            // Draw Ancient Precursor Golden Gate Blip (Radiant Gold)
-            if (ancientGoldenGate && ancientGoldenGate.position) {
+            // Draw Ancient Precursor Golden Gate Blip (Radiant Gold - only when revealed)
+            if (ancientGoldenGate && ancientGoldenGate.visible && ancientGoldenGate.position) {
                 drawBlip(ancientGoldenGate.position, '#fbbf24', 6, false, 'GOLDEN GATE');
-            } else if (wormholeGate && wormholeGate.position) {
-                drawBlip(wormholeGate.position, '#fbbf24', 6, false, 'GATE');
             }
 
             // Draw Titan Excavation Site Blip (Violet Crater)
@@ -8643,7 +8685,10 @@ function createEpicPlayerDeathExplosion(pos) {
                 }
             }
             setRelativeMapPos(mapSunMesh, spaceSun);
-            setRelativeMapPos(mapGateMesh, wormholeGate);
+            if (mapGateMesh) {
+                mapGateMesh.visible = !!(ancientGoldenGate && ancientGoldenGate.visible);
+                if (mapGateMesh.visible) setRelativeMapPos(mapGateMesh, ancientGoldenGate);
+            }
             
             if (mapDreadGroup && capitalShips.length > 0) {
                 while (mapDreadGroup.children.length < capitalShips.length) {
