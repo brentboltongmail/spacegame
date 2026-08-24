@@ -1327,7 +1327,8 @@
                         <button class="sim-btn" style="border-color: rgba(56, 189, 248, 0.6); color: #38bdf8; font-weight: 700;" onclick="approachTheCrest()">🛰️ Target The Crest Station</button>
                         <button class="sim-btn" onclick="triggerWormholeJump()">🌀 Wormhole Jump Gate</button>
                         <button class="sim-btn" onclick="spawnEnemySwarm()">🎯 Spawn Enemy Fighters</button>
-                        <button class="sim-btn" style="border-color: rgba(255, 59, 92, 0.6); color: #ff3b5c; font-weight: 700;" onclick="approachCapitalShip()">⚔️ Target Dominion Dreadnought</button>
+                        <button class="sim-btn" style="border-color: rgba(168, 85, 247, 0.6); color: #c084fc; font-weight: 700;" onclick="triggerDominionFleetHyperspaceEmergence()">⚡ Fleet Hyperspace Jump</button>
+                        <button class="sim-btn" style="border-color: rgba(255, 59, 92, 0.6); color: #ff3b5c; font-weight: 700;" onclick="approachCapitalShip()">⚔️ Target Dominion Flagship</button>
                         <button class="sim-btn danger" onclick="resetSimView()">🔄 Reset Spaceflight</button>
                     </div>
                 </div>
@@ -2304,8 +2305,12 @@
         let scene, camera, renderer;
         let playerShip;
         let playerShieldBubble, capitalShip, theCrestStation, wormholeGate, starfield, spacePlanet, spacePlanetSphere, spacePlanetRing, spacePlanetRingMesh, spaceTitan, spaceTitanSphere, spaceTitanAtmosphere, spaceSun, targetBox3D;
+        let capitalShips = [];
+        let activeHyperspaceRifts = [];
+        let fleetEmergenceActive = false;
+        let fleetEmergenceStartTime = 0;
         let dreadOrbitAngle = 0.5; // Orbit angle around spacePlanet
-        let mapCrestMesh;
+        let mapCrestMesh, mapDreadGroup;
         let enemyShips = [];
         let laserProjectiles = [];
         let enemyLaserProjectiles = [];
@@ -3385,194 +3390,389 @@
             }
         }
 
-        function createCapitalShip() {
-            capitalShip = new THREE.Group();
-            capitalShip.userData = {
+        // --- DOMINION CAPITAL FLEET & HYPERSPACE EMERGENCE SYSTEM ---
+        let dominionCapitalShipTemplate = null;
+
+        const DOMINION_FLEET_CONFIG = [
+            {
+                id: "flagship",
+                name: "Dominion Flagship 'Iron Sovereign'",
+                targetPos: new THREE.Vector3(77200, -650, -43800),
+                jumpDelay: 0.6,
+                scale: 1320
+            },
+            {
+                id: "dread_1",
+                name: "Dominion Dreadnought 'Titan's Bane'",
+                targetPos: new THREE.Vector3(75400, -350, -42600),
+                jumpDelay: 1.8,
+                scale: 1180
+            },
+            {
+                id: "dread_2",
+                name: "Dominion Dreadnought 'Void Reaver'",
+                targetPos: new THREE.Vector3(79000, -950, -45000),
+                jumpDelay: 2.9,
+                scale: 1180
+            },
+            {
+                id: "dread_3",
+                name: "Dominion Siege Cruiser 'Shadow of Aythelgard'",
+                targetPos: new THREE.Vector3(73800, -100, -41400),
+                jumpDelay: 4.1,
+                scale: 1120
+            },
+            {
+                id: "dread_4",
+                name: "Dominion Siege Cruiser 'Blood Eclipse'",
+                targetPos: new THREE.Vector3(80800, -1250, -46200),
+                jumpDelay: 5.3,
+                scale: 1120
+            }
+        ];
+
+        function playHyperspaceCrackAudio(distToPlayer) {
+            if (!audioCtx || audioCtx.state !== 'running' || isAudioMuted) return;
+            const masterVol = (typeof gameVolumeConfig !== 'undefined') ? (gameVolumeConfig.master * gameVolumeConfig.firing) : 0.60;
+            const distFactor = Math.max(0.20, 1.0 - (distToPlayer / 48000));
+            const vol = masterVol * distFactor * 2.4;
+            const now = audioCtx.currentTime;
+
+            try {
+                // Layer 1: Spacetime Tear (High-Frequency Resonance Whine & Shred)
+                const tearOsc = audioCtx.createOscillator();
+                const tearGain = audioCtx.createGain();
+                const tearFilter = audioCtx.createBiquadFilter();
+                tearOsc.type = 'sawtooth';
+                tearOsc.frequency.setValueAtTime(3400, now);
+                tearOsc.frequency.exponentialRampToValueAtTime(140, now + 0.35);
+                tearFilter.type = 'bandpass';
+                tearFilter.frequency.setValueAtTime(4500, now);
+                tearFilter.frequency.exponentialRampToValueAtTime(300, now + 0.35);
+                tearFilter.Q.setValueAtTime(4.2, now);
+                tearGain.gain.setValueAtTime(0.95 * vol, now);
+                tearGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                tearOsc.connect(tearFilter);
+                tearFilter.connect(tearGain);
+                tearGain.connect(audioCtx.destination);
+                tearOsc.start(now);
+                tearOsc.stop(now + 0.35);
+
+                // Layer 2: Gravitational Thunder Infrasound Boom
+                const subOsc = audioCtx.createOscillator();
+                const subGain = audioCtx.createGain();
+                subOsc.type = 'sine';
+                subOsc.frequency.setValueAtTime(200, now);
+                subOsc.frequency.exponentialRampToValueAtTime(22, now + 4.2);
+                subGain.gain.setValueAtTime(1.9 * vol, now);
+                subGain.gain.linearRampToValueAtTime(0.001, now + 4.2);
+                subOsc.connect(subGain);
+                subGain.connect(audioCtx.destination);
+                subOsc.start(now);
+                subOsc.stop(now + 4.2);
+
+                // Layer 3: Shockwave Plasma Noise Detonation
+                const nBuf = getExplosionNoiseBuffer();
+                if (nBuf) {
+                    const nNode = audioCtx.createBufferSource();
+                    nNode.buffer = nBuf;
+                    const nFilter = audioCtx.createBiquadFilter();
+                    nFilter.type = 'lowpass';
+                    nFilter.frequency.setValueAtTime(2000, now);
+                    nFilter.frequency.exponentialRampToValueAtTime(60, now + 3.0);
+                    const nGain = audioCtx.createGain();
+                    nGain.gain.setValueAtTime(1.5 * vol, now);
+                    nGain.gain.linearRampToValueAtTime(0.001, now + 3.0);
+                    nNode.connect(nFilter);
+                    nFilter.connect(nGain);
+                    nGain.connect(audioCtx.destination);
+                    nNode.start(now);
+                    nNode.stop(now + 3.0);
+                }
+
+                // Layer 4: Relativistic Deceleration Harmonic Whine
+                const deaccelOsc = audioCtx.createOscillator();
+                const deaccelGain = audioCtx.createGain();
+                deaccelOsc.type = 'triangle';
+                deaccelOsc.frequency.setValueAtTime(880, now + 0.1);
+                deaccelOsc.frequency.exponentialRampToValueAtTime(45, now + 1.8);
+                deaccelGain.gain.setValueAtTime(0.7 * vol, now + 0.1);
+                deaccelGain.gain.linearRampToValueAtTime(0.001, now + 1.8);
+                deaccelOsc.connect(deaccelGain);
+                deaccelGain.connect(audioCtx.destination);
+                deaccelOsc.start(now + 0.1);
+                deaccelOsc.stop(now + 1.8);
+            } catch (e) {}
+        }
+
+        function createHyperspaceRiftMesh(pos, fwdDir) {
+            const riftGroup = new THREE.Group();
+            riftGroup.position.copy(pos);
+            riftGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), fwdDir);
+
+            // 1. Jagged Vertical Spacetime Tear Mesh
+            const tearHeight = 700;
+            const numNodes = 14;
+            const posArr = [];
+            const colArr = [];
+
+            const nodes = [];
+            for (let i = 0; i < numNodes; i++) {
+                const t = i / (numNodes - 1);
+                const y = (t - 0.5) * tearHeight;
+                const width = Math.sin(t * Math.PI) * 110;
+                const xJitter = (Math.random() - 0.5) * 45;
+                const zJitter = (Math.random() - 0.5) * 45;
+                nodes.push({ y, width, xJitter, zJitter });
+            }
+
+            for (let i = 0; i < numNodes - 1; i++) {
+                const n0 = nodes[i];
+                const n1 = nodes[i + 1];
+
+                posArr.push(
+                    n0.xJitter - n0.width, n0.y, n0.zJitter,
+                    0, (n0.y + n1.y) * 0.5, 10,
+                    n0.xJitter + n0.width, n0.y, n0.zJitter
+                );
+                colArr.push(0.66, 0.33, 0.97,  1.0, 1.0, 1.0,  0.66, 0.33, 0.97);
+
+                posArr.push(
+                    n0.xJitter - n0.width, n0.y, n0.zJitter,
+                    n1.xJitter + n1.width, n1.y, n1.zJitter,
+                    n1.xJitter - n1.width, n1.y, n1.zJitter
+                );
+                colArr.push(0.66, 0.33, 0.97,  0.0, 0.94, 1.0,  0.66, 0.33, 0.97);
+            }
+
+            const geom = new THREE.BufferGeometry();
+            geom.setAttribute('position', new THREE.Float32BufferAttribute(posArr, 3));
+            geom.setAttribute('color', new THREE.Float32BufferAttribute(colArr, 3));
+            geom.computeVertexNormals();
+
+            const tearMat = new THREE.MeshBasicMaterial({
+                vertexColors: true,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.95,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+            const tearMesh = new THREE.Mesh(geom, tearMat);
+            riftGroup.add(tearMesh);
+
+            // 2. Gravitational Distortion Shockwave Ring
+            const ringGeo = new THREE.RingGeometry(10, 45, 64);
+            ringGeo.rotateX(Math.PI / 2);
+            const ringMat = new THREE.MeshBasicMaterial({
+                color: 0xa855f7,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.0,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+            const shockwaveMesh = new THREE.Mesh(ringGeo, ringMat);
+            riftGroup.add(shockwaveMesh);
+
+            // 3. Dynamic Blinding Hyperspace Point Light
+            const flashLight = new THREE.PointLight(0xa855f7, 0, 5500);
+            riftGroup.add(flashLight);
+
+            // 4. Relativistic Tachyon Spark Particles
+            const sparkParticles = [];
+            const sparkGeo = new THREE.SphereGeometry(2.4, 6, 6);
+            const sparkMat = new THREE.MeshBasicMaterial({
+                color: 0x00f0ff,
+                transparent: true,
+                opacity: 0.95,
+                blending: THREE.AdditiveBlending
+            });
+
+            for (let s = 0; s < 50; s++) {
+                const spark = new THREE.Mesh(sparkGeo, sparkMat.clone());
+                spark.visible = false;
+                spark.userData.vel = new THREE.Vector3(
+                    (Math.random() - 0.5) * 160,
+                    (Math.random() - 0.5) * 160,
+                    (Math.random() - 0.5) * 160
+                );
+                riftGroup.add(spark);
+                sparkParticles.push(spark);
+            }
+
+            scene.add(riftGroup);
+
+            const riftObj = {
+                group: riftGroup,
+                tearMesh: tearMesh,
+                shockwaveMesh: shockwaveMesh,
+                flashLight: flashLight,
+                sparks: sparkParticles,
+                startTime: performance.now(),
+                pos: pos
+            };
+            activeHyperspaceRifts.push(riftObj);
+            return riftObj;
+        }
+
+        function buildSingleCapitalShip(cfg) {
+            const shipGroup = new THREE.Group();
+            const meshContainer = new THREE.Group();
+            shipGroup.add(meshContainer);
+
+            shipGroup.userData = {
+                id: cfg.id,
+                name: cfg.name,
+                targetPos: cfg.targetPos.clone(),
+                entryPos: cfg.targetPos.clone(),
+                jumpDelay: cfg.jumpDelay,
+                scale: cfg.scale || 1200,
+                jumpPhase: 'WAITING',
                 beacons: [],
                 engineEmitters: [],
                 particles: [],
                 weaponLights: [],
-                weaponGlows: []
+                weaponGlows: [],
+                meshContainer: meshContainer,
+                lastFighterLaunchTime: Date.now() + 5000 + Math.random() * 8000,
+                fighterLaunchInterval: 11000 + Math.random() * 6000 // launches every 11-17 seconds
             };
 
-            const setupDominionFeatures = () => {
-                // --- 1. RED NAVIGATION BEACONS & WARNING LIGHTS ---
-                const portBeacon = new THREE.PointLight(0xff0033, 4.0, 500);
-                portBeacon.position.set(-180, 25, 50);
-                portBeacon.userData = { baseIntensity: 4.0 };
-                capitalShip.add(portBeacon);
-                capitalShip.userData.beacons.push(portBeacon);
+            // Set up Dominion Features (Navigation Beacons, Rear Thrusters, Spinal Weapon Core)
+            // 1. Red Navigation Beacons & Warning Lights
+            const portBeacon = new THREE.PointLight(0xff0033, 4.0, 500);
+            portBeacon.position.set(-180, 25, 50);
+            portBeacon.userData = { baseIntensity: 4.0 };
+            shipGroup.add(portBeacon);
+            shipGroup.userData.beacons.push(portBeacon);
 
-                const stbdBeacon = new THREE.PointLight(0xff0033, 4.0, 500);
-                stbdBeacon.position.set(180, 25, 50);
-                stbdBeacon.userData = { baseIntensity: 4.0 };
-                capitalShip.add(stbdBeacon);
-                capitalShip.userData.beacons.push(stbdBeacon);
+            const stbdBeacon = new THREE.PointLight(0xff0033, 4.0, 500);
+            stbdBeacon.position.set(180, 25, 50);
+            stbdBeacon.userData = { baseIntensity: 4.0 };
+            shipGroup.add(stbdBeacon);
+            shipGroup.userData.beacons.push(stbdBeacon);
 
-                const dorsalBridgeBeacon = new THREE.PointLight(0xff2244, 5.0, 600);
-                dorsalBridgeBeacon.position.set(0, 180, 200);
-                dorsalBridgeBeacon.userData = { baseIntensity: 5.0 };
-                capitalShip.add(dorsalBridgeBeacon);
-                capitalShip.userData.beacons.push(dorsalBridgeBeacon);
+            const dorsalBridgeBeacon = new THREE.PointLight(0xff2244, 5.0, 600);
+            dorsalBridgeBeacon.position.set(0, 180, 200);
+            dorsalBridgeBeacon.userData = { baseIntensity: 5.0 };
+            shipGroup.add(dorsalBridgeBeacon);
+            shipGroup.userData.beacons.push(dorsalBridgeBeacon);
 
-                // --- 2. RED GLOWING REAR ENGINE THRUSTER ARRAYS ---
-                const redEngineGlowMat = new THREE.MeshBasicMaterial({
-                    color: 0xff0033,
-                    transparent: true,
-                    opacity: 0.96
+            // 2. Red Glowing Rear Engine Thruster Arrays
+            const redEngineGlowMat = new THREE.MeshBasicMaterial({ color: 0xff0033, transparent: true, opacity: 0.96 });
+            const redEngineCoreMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.98 });
+            const redEngineHaloMat = new THREE.MeshBasicMaterial({ color: 0xff1e40, transparent: true, opacity: 0.45, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
+
+            const engineClusters = [
+                { x: 0, y: -12, z: 580, r: 36.0 },
+                { x: -52, y: 15, z: 570, r: 24.0 },
+                { x: 52, y: 15, z: 570, r: 24.0 },
+                { x: -44, y: -38, z: 570, r: 20.0 },
+                { x: 44, y: -38, z: 570, r: 20.0 }
+            ];
+
+            engineClusters.forEach(eng => {
+                const engGroup = new THREE.Group();
+                engGroup.position.set(eng.x, eng.y, eng.z);
+
+                const cavityGeo = new THREE.CylinderGeometry(eng.r * 0.85, eng.r * 0.95, 28, 24, 1, true);
+                const cavityMat = new THREE.MeshBasicMaterial({ color: 0x990022, side: THREE.BackSide, transparent: true, opacity: 0.85 });
+                const cavity = new THREE.Mesh(cavityGeo, cavityMat);
+                cavity.rotation.x = Math.PI / 2;
+                cavity.position.z = -14;
+                engGroup.add(cavity);
+
+                const diskGeo = new THREE.CircleGeometry(eng.r * 0.92, 24);
+                const disk = new THREE.Mesh(diskGeo, redEngineGlowMat);
+                disk.position.z = 1.0;
+                engGroup.add(disk);
+
+                const coreGeo = new THREE.CircleGeometry(eng.r * 0.42, 24);
+                const core = new THREE.Mesh(coreGeo, redEngineCoreMat);
+                core.position.z = 1.6;
+                engGroup.add(core);
+
+                const haloGeo = new THREE.RingGeometry(eng.r * 0.8, eng.r * 1.35, 24);
+                const halo = new THREE.Mesh(haloGeo, redEngineHaloMat);
+                halo.position.z = 2.2;
+                engGroup.add(halo);
+
+                const engLight = new THREE.PointLight(0xff0022, 4.0, 400);
+                engLight.position.set(0, 0, 18);
+                engGroup.add(engLight);
+
+                shipGroup.add(engGroup);
+
+                shipGroup.userData.engineEmitters.push({
+                    x: eng.x / 3,
+                    y: eng.y / 3,
+                    z: eng.z / 3,
+                    r: eng.r / 3
                 });
-                const redEngineCoreMat = new THREE.MeshBasicMaterial({
-                    color: 0xffffff,
-                    transparent: true,
-                    opacity: 0.98
-                });
-                const redEngineHaloMat = new THREE.MeshBasicMaterial({
-                    color: 0xff1e40,
-                    transparent: true,
-                    opacity: 0.45,
-                    blending: THREE.AdditiveBlending,
-                    side: THREE.DoubleSide
-                });
+            });
 
-                // Engine Thruster Nozzle Clusters at Aft (Z: 570 to 585)
-                const engineClusters = [
-                    { x: 0, y: -12, z: 580, r: 36.0 },     // Main Heavy Core Thruster
-                    { x: -52, y: 15, z: 570, r: 24.0 },   // Port Upper Thruster
-                    { x: 52, y: 15, z: 570, r: 24.0 },    // Starboard Upper Thruster
-                    { x: -44, y: -38, z: 570, r: 20.0 },  // Port Lower Thruster
-                    { x: 44, y: -38, z: 570, r: 20.0 }    // Starboard Lower Thruster
-                ];
+            // 3. Red Glow Inside Front Spinal Weapon Area
+            const weaponAreaGroup = new THREE.Group();
+            weaponAreaGroup.position.set(0, 18, -520);
 
-                capitalShip.userData.engineEmitters = [];
+            const weaponCoreGeo = new THREE.SphereGeometry(22, 32, 32);
+            const weaponCoreMat = new THREE.MeshBasicMaterial({ color: 0xff0033, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending });
+            const weaponCoreMesh = new THREE.Mesh(weaponCoreGeo, weaponCoreMat);
+            weaponAreaGroup.add(weaponCoreMesh);
+            shipGroup.userData.weaponGlows.push(weaponCoreMesh);
 
-                engineClusters.forEach(eng => {
-                    const engGroup = new THREE.Group();
-                    engGroup.position.set(eng.x, eng.y, eng.z);
+            const weaponInnerCoreGeo = new THREE.SphereGeometry(10, 24, 24);
+            const weaponInnerCoreMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.98 });
+            const weaponInnerMesh = new THREE.Mesh(weaponInnerCoreGeo, weaponInnerCoreMat);
+            weaponAreaGroup.add(weaponInnerMesh);
 
-                    // Deep Engine Interior Cavity Glow
-                    const cavityGeo = new THREE.CylinderGeometry(eng.r * 0.85, eng.r * 0.95, 28, 24, 1, true);
-                    const cavityMat = new THREE.MeshBasicMaterial({
-                        color: 0x990022,
-                        side: THREE.BackSide,
-                        transparent: true,
-                        opacity: 0.85
-                    });
-                    const cavity = new THREE.Mesh(cavityGeo, cavityMat);
-                    cavity.rotation.x = Math.PI / 2;
-                    cavity.position.z = -14;
-                    engGroup.add(cavity);
+            [ -35, 0, 35 ].forEach((zOff, idx) => {
+                const ringR = 26 - idx * 4;
+                const ringGeo = new THREE.TorusGeometry(ringR, 2.2, 16, 32);
+                const ringMat = new THREE.MeshBasicMaterial({ color: 0xff1e38, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending });
+                const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+                ringMesh.position.z = zOff;
+                weaponAreaGroup.add(ringMesh);
+                shipGroup.userData.weaponGlows.push(ringMesh);
+            });
 
-                    // Main Radiant Red Plasma Thruster Disc
-                    const diskGeo = new THREE.CircleGeometry(eng.r * 0.92, 24);
-                    const disk = new THREE.Mesh(diskGeo, redEngineGlowMat);
-                    disk.position.z = 1.0;
-                    engGroup.add(disk);
+            const beamGeo = new THREE.CylinderGeometry(8, 16, 95, 16, 1, true);
+            beamGeo.rotateX(Math.PI / 2);
+            const beamMat = new THREE.MeshBasicMaterial({ color: 0xff0044, transparent: true, opacity: 0.65, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
+            const beamMesh = new THREE.Mesh(beamGeo, beamMat);
+            beamMesh.position.z = -25;
+            weaponAreaGroup.add(beamMesh);
+            shipGroup.userData.weaponGlows.push(beamMesh);
 
-                    // Superheated White Core Disc
-                    const coreGeo = new THREE.CircleGeometry(eng.r * 0.42, 24);
-                    const core = new THREE.Mesh(coreGeo, redEngineCoreMat);
-                    core.position.z = 1.6;
-                    engGroup.add(core);
+            const weaponLight = new THREE.PointLight(0xff0033, 6.0, 550);
+            weaponLight.position.set(0, 0, 0);
+            weaponAreaGroup.add(weaponLight);
+            shipGroup.userData.weaponLights.push(weaponLight);
 
-                    // Outer Additive Red Plasma Halo Ring
-                    const haloGeo = new THREE.RingGeometry(eng.r * 0.8, eng.r * 1.35, 24);
-                    const halo = new THREE.Mesh(haloGeo, redEngineHaloMat);
-                    halo.position.z = 2.2;
-                    engGroup.add(halo);
+            const weaponMuzzleLight = new THREE.PointLight(0xff2244, 4.5, 400);
+            weaponMuzzleLight.position.set(0, 0, -60);
+            weaponAreaGroup.add(weaponMuzzleLight);
+            shipGroup.userData.weaponLights.push(weaponMuzzleLight);
 
-                    // Dynamic Red Engine Point Light
-                    const engLight = new THREE.PointLight(0xff0022, 4.0, 400);
-                    engLight.position.set(0, 0, 18);
-                    engGroup.add(engLight);
+            shipGroup.add(weaponAreaGroup);
 
-                    capitalShip.add(engGroup);
+            // Attach cloned GLB template if available
+            if (dominionCapitalShipTemplate) {
+                const cloned = dominionCapitalShipTemplate.clone(true);
+                meshContainer.add(cloned);
+            }
 
-                    // Register Engine Emitter for particle trails
-                    capitalShip.userData.engineEmitters.push({
-                        x: eng.x / 3,
-                        y: eng.y / 3,
-                        z: eng.z / 3,
-                        r: eng.r / 3
-                    });
-                });
+            scene.add(shipGroup);
+            return shipGroup;
+        }
 
-                // --- 3. RED GLOW INSIDE FRONT WEAPON AREA (SPINAL CHARGING CHANNEL) ---
-                const weaponAreaGroup = new THREE.Group();
-                weaponAreaGroup.position.set(0, 18, -520); // Central front weapon trench between bow prongs
-
-                // Central Pulsating Ruby Plasma Core Sphere
-                const weaponCoreGeo = new THREE.SphereGeometry(22, 32, 32);
-                const weaponCoreMat = new THREE.MeshBasicMaterial({
-                    color: 0xff0033,
-                    transparent: true,
-                    opacity: 0.95,
-                    blending: THREE.AdditiveBlending
-                });
-                const weaponCoreMesh = new THREE.Mesh(weaponCoreGeo, weaponCoreMat);
-                weaponAreaGroup.add(weaponCoreMesh);
-                capitalShip.userData.weaponGlows.push(weaponCoreMesh);
-
-                // Inner Superheated White/Yellow Core Spark
-                const weaponInnerCoreGeo = new THREE.SphereGeometry(10, 24, 24);
-                const weaponInnerCoreMat = new THREE.MeshBasicMaterial({
-                    color: 0xffffff,
-                    transparent: true,
-                    opacity: 0.98
-                });
-                const weaponInnerMesh = new THREE.Mesh(weaponInnerCoreGeo, weaponInnerCoreMat);
-                weaponAreaGroup.add(weaponInnerMesh);
-
-                // Forward Spinal Focus Rings (Concentric Energy Magnetic Choke Rings)
-                [ -35, 0, 35 ].forEach((zOff, idx) => {
-                    const ringR = 26 - idx * 4;
-                    const ringGeo = new THREE.TorusGeometry(ringR, 2.2, 16, 32);
-                    const ringMat = new THREE.MeshBasicMaterial({
-                        color: 0xff1e38,
-                        transparent: true,
-                        opacity: 0.85,
-                        blending: THREE.AdditiveBlending
-                    });
-                    const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-                    ringMesh.position.z = zOff;
-                    weaponAreaGroup.add(ringMesh);
-                    capitalShip.userData.weaponGlows.push(ringMesh);
-                });
-
-                // Collimated Longitudinal Plasma Charge Beam
-                const beamGeo = new THREE.CylinderGeometry(8, 16, 95, 16, 1, true);
-                beamGeo.rotateX(Math.PI / 2);
-                const beamMat = new THREE.MeshBasicMaterial({
-                    color: 0xff0044,
-                    transparent: true,
-                    opacity: 0.65,
-                    blending: THREE.AdditiveBlending,
-                    side: THREE.DoubleSide
-                });
-                const beamMesh = new THREE.Mesh(beamGeo, beamMat);
-                beamMesh.position.z = -25;
-                weaponAreaGroup.add(beamMesh);
-                capitalShip.userData.weaponGlows.push(beamMesh);
-
-                // High-Intensity Front Weapon Interior Lighting
-                const weaponLight = new THREE.PointLight(0xff0033, 6.0, 550);
-                weaponLight.position.set(0, 0, 0);
-                weaponAreaGroup.add(weaponLight);
-                capitalShip.userData.weaponLights.push(weaponLight);
-
-                const weaponMuzzleLight = new THREE.PointLight(0xff2244, 4.5, 400);
-                weaponMuzzleLight.position.set(0, 0, -60);
-                weaponAreaGroup.add(weaponMuzzleLight);
-                capitalShip.userData.weaponLights.push(weaponMuzzleLight);
-
-                capitalShip.add(weaponAreaGroup);
-            };
-
-            // Load Dominion Capital Ship GLB Model
+        function createCapitalShip() {
+            // Load Dominion Capital Ship GLB Model template once, then instantiate all 5 fleet capital ships
             const gltfLoader = new THREE.GLTFLoader();
             gltfLoader.load('fbx/dominion_capital_ship.glb?v=' + Date.now(), function(gltf) {
                 const model = gltf.scene;
 
-                // Enforce solid double-sided opaque materials
                 model.traverse(function(child) {
                     if (child.isMesh && child.material) {
                         const mats = Array.isArray(child.material) ? child.material : [child.material];
@@ -3587,7 +3787,6 @@
                     }
                 });
 
-                // Compute Bounding Box & Scale to ~1,200 units length
                 const box = new THREE.Box3().setFromObject(model);
                 const size = new THREE.Vector3();
                 box.getSize(size);
@@ -3597,33 +3796,54 @@
                 const maxDim = Math.max(size.x, size.y, size.z);
                 const targetScale = 1200 / (maxDim || 1);
                 model.scale.set(targetScale, targetScale, targetScale);
-
-                // Center and rotate model horizontally in local group (nose/weapon to -Z, engines to +Z, bridge to +Y)
                 model.rotation.set(0, Math.PI / 2, 0);
                 model.position.set(-center.z * targetScale, -center.y * targetScale, center.x * targetScale);
 
-                capitalShip.add(model);
-                setupDominionFeatures();
-                console.log("[DOMINION CAPITAL SHIP] GLB Loaded with Red Engines & Front Weapon Glow!");
+                dominionCapitalShipTemplate = model;
+
+                // Populate template for all 5 fleet capital ships
+                capitalShips.forEach(ship => {
+                    if (ship.userData && ship.userData.meshContainer && ship.userData.meshContainer.children.length === 0) {
+                        const cloned = dominionCapitalShipTemplate.clone(true);
+                        const s = (ship.userData.scale || 1200) / 1200;
+                        cloned.scale.multiplyScalar(s);
+                        ship.userData.meshContainer.add(cloned);
+                    }
+                });
+
+                console.log("[DOMINION FLEET] 5 Capital Dreadnoughts Initialized & Templated with GLB!");
             }, undefined, function(err) {
                 console.error("[DOMINION CAPITAL SHIP GLB ERROR]", err);
             });
 
-            // Initial Placement in Orbit around Saturn
-            if (spacePlanet) {
-                const orbitRadius = 11200;
-                const orbitInclination = 0.26;
-                const cosA = Math.cos(dreadOrbitAngle);
-                const sinA = Math.sin(dreadOrbitAngle);
-                capitalShip.position.set(
-                    spacePlanet.position.x + orbitRadius * cosA,
-                    spacePlanet.position.y + orbitRadius * sinA * Math.sin(orbitInclination),
-                    spacePlanet.position.z + orbitRadius * sinA * Math.cos(orbitInclination)
-                );
-            } else {
-                capitalShip.position.set(250, 40, -400);
-            }
-            scene.add(capitalShip);
+            // Instantiate the 5 Dominion Capital Ships in formation near Titan and The Crest
+            capitalShips = DOMINION_FLEET_CONFIG.map(cfg => buildSingleCapitalShip(cfg));
+            capitalShip = capitalShips[0]; // Lead Flagship backward compatibility
+
+            // Trigger the initial cinematic hyperspace emergence sequence after 1.2s
+            setTimeout(() => {
+                triggerDominionFleetHyperspaceEmergence();
+            }, 1200);
+        }
+
+        function triggerDominionFleetHyperspaceEmergence() {
+            fleetEmergenceStartTime = performance.now();
+            fleetEmergenceActive = true;
+
+            const targetCorridor = theCrestStation ? theCrestStation.position.clone() : new THREE.Vector3(80160, -886, -46080);
+
+            capitalShips.forEach(ship => {
+                ship.visible = false;
+                ship.userData.jumpPhase = 'WAITING';
+
+                const fwd = targetCorridor.clone().sub(ship.userData.targetPos).normalize();
+                ship.userData.fwdDir = fwd;
+                ship.userData.entryPos = ship.userData.targetPos.clone().sub(fwd.clone().multiplyScalar(4200));
+                ship.position.copy(ship.userData.entryPos);
+                ship.lookAt(targetCorridor);
+            });
+
+            showToast("⚠️ MULTIPLE HYPERSPACE SIGNATURES DETECTED NEAR TITAN!");
         }
 
         function createWormholeGate() {
@@ -4265,17 +4485,18 @@ function createEpicPlayerDeathExplosion(pos) {
         }
 
         function approachCapitalShip() {
-            if (!capitalShip) return;
-            const backwardOffset = new THREE.Vector3(0, 140, 750).applyQuaternion(capitalShip.quaternion);
-            playerShip.position.copy(capitalShip.position).add(backwardOffset);
-            playerShip.quaternion.copy(capitalShip.quaternion);
+            const targetShip = capitalShip || (capitalShips.length > 0 ? capitalShips[0] : null);
+            if (!targetShip) return;
+            const backwardOffset = new THREE.Vector3(0, 140, 750).applyQuaternion(targetShip.quaternion);
+            playerShip.position.copy(targetShip.position).add(backwardOffset);
+            playerShip.quaternion.copy(targetShip.quaternion);
             targetSpeed = 80;
             currentSpeed = 80;
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
-            if (sec) sec.innerText = "DOMINION INVASION VECTOR — SATURN PERIMETER";
-            if (obj) obj.innerText = "Intercept Dominion Capital Flagship in Saturn Orbit";
-            showToast("Approaching Dominion Capital Dreadnought in Planetary Orbit!");
+            if (sec) sec.innerText = "DOMINION SIEGE VECTOR — TITAN / THE CREST";
+            if (obj) obj.innerText = "Intercept Dominion Flagship 'Iron Sovereign' in Formation";
+            showToast("Approaching Dominion Capital Flagship near Titan!");
         }
 
         function resetSimView() {
@@ -4526,120 +4747,193 @@ function createEpicPlayerDeathExplosion(pos) {
             camera.lookAt(targetLookAtPos);
             camera.updateMatrixWorld(); // Force matrix update so 2D UI projections have zero frame lag
 
-            if (capitalShip) {
-                const timeSec = Date.now() * 0.001;
+            // --- ANIMATE ACTIVE HYPERSPACE RIFTS ---
+            const nowPerf = performance.now();
+            for (let i = activeHyperspaceRifts.length - 1; i >= 0; i--) {
+                const rift = activeHyperspaceRifts[i];
+                const age = (nowPerf - rift.startTime) / 1000;
 
-                // --- DREADNOUGHT PLANETARY ORBITAL FLIGHT PHYSICS ---
-                if (spacePlanet) {
-                    dreadOrbitAngle += 0.00007; // Slowed by 50% again for smoother cinematic orbital cruise
-                    const orbitRadius = 11200; // Low-to-mid orbit above atmospheric rim (9,160) & within ring system
-                    const orbitInclination = 0.26; // ~15° orbital plane inclination
-
-                    const cosA = Math.cos(dreadOrbitAngle);
-                    const sinA = Math.sin(dreadOrbitAngle);
-
-                    const relX = orbitRadius * cosA;
-                    const relY = orbitRadius * sinA * Math.sin(orbitInclination);
-                    const relZ = orbitRadius * sinA * Math.cos(orbitInclination);
-
-                    capitalShip.position.set(
-                        spacePlanet.position.x + relX,
-                        spacePlanet.position.y + relY,
-                        spacePlanet.position.z + relZ
-                    );
-
-                    // Direction of forward orbital velocity (tangent vector along the orbit)
-                    const tangentDir = new THREE.Vector3(
-                        -sinA,
-                        cosA * Math.sin(orbitInclination),
-                        cosA * Math.cos(orbitInclination)
-                    ).normalize();
-
-                    // Point forward prow along direction of orbital travel
-                    const lookTarget = capitalShip.position.clone().sub(tangentDir);
-                    const upVector = new THREE.Vector3(relX, relY + 2000, relZ).normalize();
-                    capitalShip.up.copy(upVector);
-                    capitalShip.lookAt(lookTarget);
+                if (age > 2.6) {
+                    scene.remove(rift.group);
+                    if (rift.tearMesh.geometry) rift.tearMesh.geometry.dispose();
+                    if (rift.tearMesh.material) rift.tearMesh.material.dispose();
+                    if (rift.shockwaveMesh.geometry) rift.shockwaveMesh.geometry.dispose();
+                    if (rift.shockwaveMesh.material) rift.shockwaveMesh.material.dispose();
+                    activeHyperspaceRifts.splice(i, 1);
+                    continue;
                 }
 
-                if (capitalShip.userData) {
-                    // Animate Front Weapon Area Pulsing Ruby Core & Energy Rings
-                    if (capitalShip.userData.weaponLights) {
-                        const pulse = Math.sin(timeSec * 3.5);
-                        capitalShip.userData.weaponLights.forEach(wl => {
-                            wl.intensity = 5.5 + pulse * 2.0;
-                        });
-                    }
-                    if (capitalShip.userData.weaponGlows) {
-                        const pulseScale = 1.0 + Math.sin(timeSec * 4.0) * 0.08;
-                        capitalShip.userData.weaponGlows.forEach(wg => {
-                            wg.scale.set(pulseScale, pulseScale, pulseScale);
-                        });
-                    }
+                // Phase 1: Rift Opening (0 -> 0.5s)
+                if (age < 0.5) {
+                    const progress = age / 0.5;
+                    rift.tearMesh.scale.set(progress * 1.2, progress, 1.0);
+                    rift.tearMesh.material.opacity = progress * 0.95;
+                    rift.flashLight.intensity = progress * 8.0;
+                }
+                // Phase 2: Maximum Flash & Shockwave Expansion (0.5s -> 1.8s)
+                else if (age < 1.8) {
+                    const progress = (age - 0.5) / 1.3;
+                    rift.tearMesh.scale.set(1.2 + Math.sin(age * 30) * 0.1, 1.0 + Math.cos(age * 25) * 0.08, 1.0);
+                    
+                    // Flash spike and exponential decay
+                    const flashT = Math.max(0, 1.0 - (age - 0.5) / 0.8);
+                    rift.flashLight.intensity = flashT * 26.0;
 
-                    // Animate Blinking Navigation Beacons
-                    if (capitalShip.userData.beacons) {
-                        const blink = (Math.sin(timeSec * 5) > 0 ? 1.0 : 0.15);
-                        capitalShip.userData.beacons.forEach(b => {
-                            b.intensity = b.userData.baseIntensity * blink;
-                        });
-                    }
+                    // Gravitational Shockwave Expansion
+                    const shockScale = 1.0 + Math.pow(progress, 0.7) * 32.0;
+                    rift.shockwaveMesh.scale.set(shockScale, shockScale, shockScale);
+                    rift.shockwaveMesh.material.opacity = Math.max(0, (1.0 - progress) * 0.90);
 
-                    // Animate Dreadnought 5% Cruise Red Engine Exhaust Plumes
-                    if (capitalShip.userData.engineEmitters) {
-                        if (!capitalShip.userData.particles) capitalShip.userData.particles = [];
-                        
-                        const shipQuat = capitalShip.quaternion;
-                        
-                        // Spawn 5% cruise particles
-                        if (cameraMode !== 0) {
-                            capitalShip.userData.engineEmitters.forEach(em => {
-                                const pGeo = new THREE.SphereGeometry(Math.random() * 1.5 + 1.0, 6, 6);
-                                const pMat = new THREE.MeshBasicMaterial({
-                                    color: 0xff2244,
-                                    transparent: true,
-                                    opacity: 0.42
-                                });
-                                const p = new THREE.Mesh(pGeo, pMat);
-                                
-                                // Scale local emitter position by 3x capital ship size
-                                const localPos = new THREE.Vector3(
-                                    (em.x + (Math.random()-0.5) * em.r * 0.6) * 3,
-                                    (em.y + (Math.random()-0.5) * em.r * 0.6) * 3,
-                                    em.z * 3
-                                );
-                                
-                                p.position.copy(localPos).applyQuaternion(shipQuat).add(capitalShip.position);
-                                p.userData.life = 1.0;
-                                
-                                // 5% gentle cruise engine drift backwards
-                                const backwardDir = new THREE.Vector3(0, 0, 1).applyQuaternion(shipQuat);
-                                p.userData.vel = backwardDir.multiplyScalar(Math.random() * 1.8 + 0.8);
-                                
-                                scene.add(p);
-                                capitalShip.userData.particles.push(p);
-                            });
-                        }
-                        
-                        // Update existing particles
-                        for (let i = capitalShip.userData.particles.length - 1; i >= 0; i--) {
-                            const p = capitalShip.userData.particles[i];
-                            p.userData.life -= 0.022;
-                            if (p.userData.life <= 0 || cameraMode === 0) {
-                                scene.remove(p);
-                                p.geometry.dispose();
-                                p.material.dispose();
-                                capitalShip.userData.particles.splice(i, 1);
-                            } else {
-                                p.position.add(p.userData.vel);
-                                p.scale.setScalar(p.userData.life * 2.0);
-                                p.material.opacity = p.userData.life * 0.38;
-                                p.material.color.lerp(new THREE.Color(0x7f1d1d), 0.04);
-                            }
-                        }
-                    }
+                    // Animate Tachyon Spark Bursts
+                    rift.sparks.forEach(s => {
+                        if (!s.visible) s.visible = true;
+                        s.position.add(s.userData.vel.clone().multiplyScalar(0.016));
+                        s.scale.setScalar(Math.max(0.1, 1.0 - progress));
+                    });
+                }
+                // Phase 3: Spatial Collapse (1.8s -> 2.6s)
+                else {
+                    const progress = (age - 1.8) / 0.8;
+                    const collapseScale = Math.max(0.001, 1.0 - progress);
+                    rift.tearMesh.scale.set(collapseScale * 1.2, collapseScale, collapseScale);
+                    rift.tearMesh.material.opacity = (1.0 - progress) * 0.9;
+                    rift.flashLight.intensity = 0;
+                    rift.shockwaveMesh.material.opacity = 0;
                 }
             }
+
+            // --- ANIMATE DOMINION CAPITAL FLEET (HYPERSPACE JUMP & BATTLE CRUISE) ---
+            const timeSec = Date.now() * 0.001;
+            const elapsedFleetEmergence = fleetEmergenceActive ? (nowPerf - fleetEmergenceStartTime) / 1000 : 999;
+
+            capitalShips.forEach(ship => {
+                if (!ship || !ship.userData) return;
+
+                // 1. Hyperspace Jump Emergence Sequence
+                if (fleetEmergenceActive && ship.userData.jumpPhase !== 'COMPLETED') {
+                    const delay = ship.userData.jumpDelay || 0;
+
+                    if (ship.userData.jumpPhase === 'WAITING' && elapsedFleetEmergence >= delay) {
+                        ship.userData.jumpPhase = 'RIFT_OPENING';
+                        const fwd = ship.userData.fwdDir || new THREE.Vector3(0, 0, -1);
+                        const riftPos = ship.userData.targetPos.clone().sub(fwd.clone().multiplyScalar(600));
+                        createHyperspaceRiftMesh(riftPos, fwd);
+                        playHyperspaceCrackAudio(playerShip.position.distanceTo(riftPos));
+                    }
+                    else if (ship.userData.jumpPhase === 'RIFT_OPENING' && elapsedFleetEmergence >= delay + 0.45) {
+                        ship.userData.jumpPhase = 'EMERGING';
+                        ship.visible = true;
+                    }
+                    else if (ship.userData.jumpPhase === 'EMERGING') {
+                        const progress = Math.min(1.0, (elapsedFleetEmergence - (delay + 0.45)) / 1.4);
+                        const ease = 1 - Math.pow(1 - progress, 3); // Smooth cubic ease-out deceleration
+                        ship.position.lerpVectors(ship.userData.entryPos, ship.userData.targetPos, ease);
+
+                        if (progress >= 1.0) {
+                            ship.userData.jumpPhase = 'COMPLETED';
+                            ship.position.copy(ship.userData.targetPos);
+                            ship.userData.lastFighterLaunchTime = Date.now() + 4000 + Math.random() * 6000;
+                        }
+                    }
+                }
+
+                // 2. Periodic Carrier Fighter Squadron Launches (Continuous Reinforcements)
+                if (ship.userData.jumpPhase === 'COMPLETED' && ship.visible) {
+                    const nowMs = Date.now();
+                    if (nowMs - ship.userData.lastFighterLaunchTime > ship.userData.fighterLaunchInterval) {
+                        ship.userData.lastFighterLaunchTime = nowMs;
+                        ship.userData.fighterLaunchInterval = 10000 + Math.random() * 6000; // Launch every 10-16s
+
+                        // Maintain active swarm cap of up to 18 living fighters
+                        const livingEnemies = enemyShips.filter(e => e && e.userData && e.userData.hp > 0);
+                        if (livingEnemies.length < 18) {
+                            const newFighter = createEnemyInterceptorMesh();
+                            const ventralOffset = new THREE.Vector3(
+                                (Math.random() - 0.5) * 60,
+                                -36,
+                                -130
+                            ).applyQuaternion(ship.quaternion);
+
+                            newFighter.position.copy(ship.position).add(ventralOffset);
+                            newFighter.quaternion.copy(ship.quaternion);
+                            newFighter.userData.aiState = 'ATTACK_RUN';
+                            newFighter.userData.flightSpeed = 0.45;
+
+                            scene.add(newFighter);
+                            enemyShips.push(newFighter);
+                            spawnLaserImpactSparks(newFighter.position);
+                        }
+                    }
+                }
+
+                // 3. Animate Front Weapon Area Pulsing Ruby Core & Energy Choke Rings
+                if (ship.userData.weaponLights) {
+                    const pulse = Math.sin(timeSec * 3.5 + (ship.userData.jumpDelay || 0));
+                    ship.userData.weaponLights.forEach(wl => {
+                        wl.intensity = 5.5 + pulse * 2.0;
+                    });
+                }
+                if (ship.userData.weaponGlows) {
+                    const pulseScale = 1.0 + Math.sin(timeSec * 4.0 + (ship.userData.jumpDelay || 0)) * 0.08;
+                    ship.userData.weaponGlows.forEach(wg => {
+                        wg.scale.set(pulseScale, pulseScale, pulseScale);
+                    });
+                }
+
+                // 4. Animate Blinking Navigation Beacons
+                if (ship.userData.beacons) {
+                    const blink = (Math.sin(timeSec * 5 + (ship.userData.jumpDelay || 0)) > 0 ? 1.0 : 0.15);
+                    ship.userData.beacons.forEach(b => {
+                        b.intensity = b.userData.baseIntensity * blink;
+                    });
+                }
+
+                // 5. Animate Dreadnought Red Engine Exhaust Plumes
+                if (ship.userData.engineEmitters && ship.visible) {
+                    if (!ship.userData.particles) ship.userData.particles = [];
+                    const shipQuat = ship.quaternion;
+
+                    if (cameraMode !== 0) {
+                        ship.userData.engineEmitters.forEach(em => {
+                            const pGeo = new THREE.SphereGeometry(Math.random() * 1.5 + 1.0, 6, 6);
+                            const pMat = new THREE.MeshBasicMaterial({
+                                color: 0xff2244,
+                                transparent: true,
+                                opacity: 0.42
+                            });
+                            const p = new THREE.Mesh(pGeo, pMat);
+                            const localPos = new THREE.Vector3(
+                                (em.x + (Math.random() - 0.5) * em.r * 0.6) * 3,
+                                (em.y + (Math.random() - 0.5) * em.r * 0.6) * 3,
+                                em.z * 3
+                            );
+                            p.position.copy(localPos).applyQuaternion(shipQuat).add(ship.position);
+                            p.userData.life = 1.0;
+                            const backwardDir = new THREE.Vector3(0, 0, 1).applyQuaternion(shipQuat);
+                            p.userData.vel = backwardDir.multiplyScalar(Math.random() * 1.8 + 0.8);
+
+                            scene.add(p);
+                            ship.userData.particles.push(p);
+                        });
+                    }
+
+                    for (let pIdx = ship.userData.particles.length - 1; pIdx >= 0; pIdx--) {
+                        const p = ship.userData.particles[pIdx];
+                        p.userData.life -= 0.022;
+                        if (p.userData.life <= 0 || cameraMode === 0) {
+                            scene.remove(p);
+                            p.geometry.dispose();
+                            p.material.dispose();
+                            ship.userData.particles.splice(pIdx, 1);
+                        } else {
+                            p.position.add(p.userData.vel);
+                            p.scale.setScalar(p.userData.life * 2.0);
+                            p.material.opacity = p.userData.life * 0.38;
+                            p.material.color.lerp(new THREE.Color(0x7f1d1d), 0.04);
+                        }
+                    }
+                }
+            });
 
             // Rotate Saturn cloud bands, textured ring disc, asteroid ring particles, Titan moon, and The Crest station
             if (spacePlanetSphere) spacePlanetSphere.rotation.y += 0.00015;
@@ -5511,10 +5805,12 @@ function createEpicPlayerDeathExplosion(pos) {
                 drawBlip(wormholeGate.position, '#8b5cf6', 5, false, 'GATE');
             }
 
-            // Draw Crimson Square Blip for Dominion Capital Dreadnought
-            if (capitalShip && capitalShip.position) {
-                drawBlip(capitalShip.position, '#ff1e38', 8, true, 'DOMINION DREADNOUGHT');
-            }
+            // Draw Crimson Square Blips for Dominion Capital Dreadnought Fleet
+            capitalShips.forEach(cs => {
+                if (cs && cs.visible && cs.position) {
+                    drawBlip(cs.position, '#ff1e38', 8, true, cs.userData.name ? cs.userData.name.toUpperCase() : 'DOMINION DREADNOUGHT');
+                }
+            });
 
             // Draw Red Blips for Active Living Enemy Ships
             enemyShips.forEach(enemy => {
@@ -6065,7 +6361,7 @@ function createEpicPlayerDeathExplosion(pos) {
         // --- 3D TACTICAL SYSTEM STAR MAP RENDERER & INTERACTIVITY ---
         let isTacticalMapOpen = false;
         let mapScene, mapCamera, mapRenderer, mapGroup, mapGridGroup;
-        let mapPlayerMesh, mapSunMesh, mapPlanetMesh, mapTitanMesh, mapGateMesh, mapDreadMesh, mapEnemyGroup;
+        let mapPlayerMesh, mapSunMesh, mapPlanetMesh, mapTitanMesh, mapGateMesh, mapDreadGroup, mapEnemyGroup;
         let mapRaycaster = new THREE.Raycaster();
         let mapMouse = new THREE.Vector2();
         let mapHoveredObject = null;
@@ -6203,13 +6499,9 @@ function createEpicPlayerDeathExplosion(pos) {
             mapGateMesh.position.set(-0.6, 0.1, -1.4);
             mapGroup.add(mapGateMesh);
 
-            // 5. Dominion Capital Dreadnought Flagship
-            const dreadIconGeo = new THREE.BoxGeometry(9.5, 4.2, 22);
-            const dreadIconMat = new THREE.MeshBasicMaterial({ color: 0xff1e38 });
-            mapDreadMesh = new THREE.Mesh(dreadIconGeo, dreadIconMat);
-            mapDreadMesh.userData = { label: "Dominion Capital Dreadnought" };
-            mapDreadMesh.position.set(-34, -12, -56);
-            mapGroup.add(mapDreadMesh);
+            // 5. Dominion Capital Fleet Group
+            mapDreadGroup = new THREE.Group();
+            mapGroup.add(mapDreadGroup);
 
             // 6. Enemy Interceptors Swarm Group
             mapEnemyGroup = new THREE.Group();
@@ -6330,9 +6622,30 @@ function createEpicPlayerDeathExplosion(pos) {
             setRelativeMapPos(mapSunMesh, spaceSun);
             setRelativeMapPos(mapGateMesh, wormholeGate);
             
-            if (capitalShip && mapDreadMesh) {
-                setRelativeMapPos(mapDreadMesh, capitalShip);
-                mapDreadMesh.quaternion.copy(capitalShip.quaternion);
+            if (mapDreadGroup && capitalShips.length > 0) {
+                while (mapDreadGroup.children.length < capitalShips.length) {
+                    const dreadIconGeo = new THREE.BoxGeometry(9.5, 4.2, 22);
+                    const dreadIconMat = new THREE.MeshBasicMaterial({ color: 0xff1e38 });
+                    const mapDread = new THREE.Mesh(dreadIconGeo, dreadIconMat);
+                    mapDread.userData = { label: "Dominion Dreadnought" };
+                    mapDreadGroup.add(mapDread);
+                }
+                while (mapDreadGroup.children.length > capitalShips.length) {
+                    const child = mapDreadGroup.children[mapDreadGroup.children.length - 1];
+                    mapDreadGroup.remove(child);
+                    if (child.geometry) child.geometry.dispose();
+                    if (child.material) child.material.dispose();
+                }
+                for (let i = 0; i < capitalShips.length; i++) {
+                    const cs = capitalShips[i];
+                    const md = mapDreadGroup.children[i];
+                    if (cs && md) {
+                        md.visible = cs.visible;
+                        md.userData.label = cs.userData.name || "Dominion Dreadnought";
+                        setRelativeMapPos(md, cs);
+                        md.quaternion.copy(cs.quaternion);
+                    }
+                }
             }
             
             if (mapEnemyGroup && playerShip) {
@@ -6379,7 +6692,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 if (mapTitanMesh) interactables.push(mapTitanMesh);
                 if (mapSunMesh) interactables.push(mapSunMesh);
                 if (mapGateMesh) interactables.push(mapGateMesh);
-                if (mapDreadMesh) interactables.push(mapDreadMesh);
+                if (mapDreadGroup) interactables.push(...mapDreadGroup.children);
                 if (mapEnemyGroup) interactables.push(...mapEnemyGroup.children);
                 
                 const intersects = mapRaycaster.intersectObjects(interactables, false);

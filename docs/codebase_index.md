@@ -30,24 +30,29 @@ This document serves as a high-level map of index.html (the primary 6000+ line a
 ## 4. Ship Models & Construction
 *   loadVoidInterceptorModel() / buildDetailedShipMesh() - Loads the ultra-fast binary glTF model (`fbx/void_interceptor.glb`) via `THREE.GLTFLoader`, centering, scaling, and twin engine exhaust glow assemblies (cavities, thruster discs, core discs, halos, point lights).
 *   createPlayerShip() - Constructs the player's primary Void Interceptor group spawned in Titan perimeter orbit facing The Crest station, form-fitting aerodynamic hexagonal deflector shield mesh (`createHexagonalShieldMesh()` with procedural honeycomb lattice `createHexagonalShieldTexture()`, 5-second hit persistence timer, and glowing pulse animation), and engine lights.
-*   createCapitalShip() - Loads the binary glTF Dominion Capital Ship model (`fbx/dominion_capital_ship.glb`) via `THREE.GLTFLoader`, scaled to 1,200 units length, multi-cluster crimson red engine glow arrays (interior cavity glow, plasma thruster discs, white cores, outer halos, red point lights), red glowing front weapon area (pulsating ruby plasma core, concentric magnetic choke rings, collimated plasma charge beam, dual crimson muzzle point lights), and fiery red exhaust particle plume emitter.
+*   createCapitalShip() / buildSingleCapitalShip() / DOMINION_FLEET_CONFIG - Loads the binary glTF Dominion Capital Ship model (`fbx/dominion_capital_ship.glb`) via `THREE.GLTFLoader` and instantiates the 5-ship Dominion Siege Fleet (*Iron Sovereign*, *Titan's Bane*, *Void Reaver*, *Shadow of Aythelgard*, *Blood Eclipse*) in aggressive battle formation overlooking Titan and The Crest. Each dreadnought features multi-cluster crimson red engine glow arrays, ruby front weapon channels (pulsating ruby plasma core, concentric magnetic choke rings, collimated plasma charge beam, dual crimson muzzle point lights), navigation beacons, and carrier launch bays.
+*   createHyperspaceRiftMesh() / triggerDominionFleetHyperspaceEmergence() / playHyperspaceCrackAudio() - Multi-phase staggered hyperspace emergence sequence with procedural 3D jagged spacetime tear geometry, blinding point light flash (26.0 intensity, 5,500 radius), expanding gravitational distortion shockwave ring, relativistic tachyon particle bursts, multi-layered WebAudio spatial crack/infrasonic thunder synthesizer, and cubic ease-out deceleration into battle stations.
+*   Carrier Fighter Deployment Loop (in `animate()`) - Each capital dreadnought autonomously launches Dominion Fighters (`fbx/dominion_fighter.glb`) on staggered 10-16s cooldowns from its ventral hangar bay to maintain active hostile dogfighting swarms.
 *   loadDominionFighterModel() / createEnemyInterceptorMesh() - Loads the binary glTF Dominion Fighter model (`fbx/dominion_fighter.glb`) via `THREE.GLTFLoader`, centered and scaled to ~12 units, with 4 rear crimson plasma thrusters (interior ruby cavity glows, plasma thruster discs, superheated white cores, outer halos, red point lights) for high-threat hostile AI swarms.
 
 ## 5. Main Game Loop & Physics
-*   nimate() - The core rendering loop (requestAnimationFrame).
+*   animate() - The core rendering loop (requestAnimationFrame).
     *   *Ship Movement:* Flight controls, delta calculations, and quaternion rotations for the player ship are inside animate().
     *   *Camera Modes:* cameraMode switch (0=Cockpit, 1=Close, 2=Far, 3=Cinematic) is applied here.
+    *   *Hyperspace Rifts & Fleet Emergence:* Updates active spacetime cracks, shockwave scaling, flash decay, ship deceleration trajectories, and carrier fighter launch cycles.
     *   *AI Logic:* Iterates through enemySwarm to handle NPC flight paths and evasion behavior.
     *   *Laser Physics:* Iterates through active laserBolts and checks for intersection distances against enemies.
 *   updateEngineParticleTrails() - Renders thruster exhaust trails.
 
 ## 6. Combat & Interactions
-*   irePlasmaLaser() - Grabs from laser pool, sets positions, and assigns homing targets if closestEnemy is locked.
-*   	riggerWormholeJump() - Initiates the jump sequence animation.
+*   firePlasmaLaser() - Grabs from laser pool, sets positions, and assigns homing targets if closestEnemy is locked.
+*   triggerWormholeJump() - Initiates the jump sequence animation.
+*   triggerDominionFleetHyperspaceEmergence() - Triggers the full 5-ship fleet warp jump arrival sequence near Titan.
 *   spawnEnemySwarm() - Spawns AI enemies into the scene dynamically.
 *   spawnLaserImpactSparks() / createFieryExplosionFX() - Particle FX generation.
 
 ## 7. HUD Rendering & Canvas Updates
 *   drawShieldGauge() - Updates the 2D canvas shield status UI.
 *   drawThrottleGauge() - Updates the 2D canvas speed and throttle UI.
-*   drawTacticalRadar() - Renders the 2D radar blips based on relative 3D object positions mapped to a 2D plane.
+*   drawTacticalRadar() - Renders 2D radar blips for celestial bodies, The Crest station, Ancient Gate, active Dominion fighters, and all 5 Dominion Capital Dreadnoughts.
+*   renderTacticalMap3D() - Synchronizes real-time 3D holographic icons and interactive tooltips for Sol, Saturn, Titan, The Crest, Ancient Gate, all 5 Dominion Capital Dreadnoughts (`mapDreadGroup`), and hostile fighter swarms.
