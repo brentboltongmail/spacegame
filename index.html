@@ -6319,7 +6319,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-elias",
                 icon: "📻",
                 camMode: 0, // Cockpit View
-                speed: 95,
+                speed: 20,
                 text: "Kaylen! Kaylen, do you read me?! The long-range sensors on Mars just went red—The Crest is gone from the grid! Report in, kid!",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_01_elias.mp3"
             },
@@ -6330,7 +6330,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-kaylen",
                 icon: "🚀",
                 camMode: 0, // Cockpit View
-                speed: 130,
+                speed: 24,
                 text: "Elias... they wiped out the fleet. The kinetic rounds bounced right off their hulls. They're lining up their dreadnoughts on the rift right now.",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_02_kaylen.mp3"
             },
@@ -6341,7 +6341,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-elias",
                 icon: "📻",
                 camMode: 1, // Rear Third-Person Close
-                speed: 170,
+                speed: 28,
                 text: "Then break off and burn hard for the outer moons! Divert everything to afterburners! I'm spooling the freighter down in the slums—I will come get you, son!",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_03_elias.mp3"
             },
@@ -6352,7 +6352,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-kaylen",
                 icon: "🚀",
                 camMode: 1,
-                speed: 210,
+                speed: 32,
                 text: "You know my fuel reserves, Elias. I can't outrun them. If those dreadnoughts cross this threshold, Sol doesn't have a defense left. Earth won't last twenty minutes.",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_04_kaylen.mp3"
             },
@@ -6363,7 +6363,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-elias",
                 icon: "📻",
                 camMode: 3, // Cinematic Showcase Orbit
-                speed: 260,
+                speed: 36,
                 text: "No... No, look at the telemetry! The gravitational shear inside that ring is tearing atoms apart! You take that interceptor in there, you'll be vaporized!",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_05_elias.mp3"
             },
@@ -6374,7 +6374,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-kaylen",
                 icon: "💎",
                 camMode: 0, // Cockpit View
-                speed: 300,
+                speed: 40,
                 text: "It's vibrating, Elias. The pendant you found me with... it's singing with the gate. It's the same frequency. It knows what to do.",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_06_kaylen.mp3"
             },
@@ -6385,7 +6385,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-elias",
                 icon: "📻",
                 camMode: 2, // Far Third Person
-                speed: 340,
+                speed: 44,
                 text: "Kaylen, listen to me! You don't know what that thing is—what you are! I promised myself I'd keep you safe from all this... Don't you throw your life away for a war that isn't yours!",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_07_elias.mp3"
             },
@@ -6396,7 +6396,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-kaylen",
                 icon: "🚀",
                 camMode: 0, // Cockpit View
-                speed: 390,
+                speed: 48,
                 text: "You gave me twenty years, old man. You taught me how to fly, how to fight, and how to fix broken things. Earth is my home because you're on it.",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_08_kaylen.mp3"
             },
@@ -6407,7 +6407,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-elias",
                 icon: "📻",
                 camMode: 3, // Cinematic Showcase Orbit
-                speed: 440,
+                speed: 65,
                 text: "Kaylen, NO! Turn the ship around! KAYLEN—",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_09_elias.mp3"
             },
@@ -6418,7 +6418,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-kaylen",
                 icon: "✨",
                 camMode: 1, // Rear Close diving in
-                speed: 520,
+                speed: 550,
                 text: "Someone has to shut the door, old man. ... See you on the other side, Dad....",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_10_kaylen.mp3"
             }
@@ -6442,14 +6442,27 @@ function createEpicPlayerDeathExplosion(pos) {
                 endModal.classList.remove('active');
             }
 
-            // Position ship at initial vantage point facing the Titan Gate with Dominion dreadnoughts in frame
+            // Position ship in clear open orbital space ahead of Dominion battle line, aligned directly with Ancient Golden Gate
+            // Gate is at (75200, -750, -45200). Flagship is at (75200, -600, -43500).
+            // Position player at z = -44300 (900 units in front of gate, 800 units in front of flagship in open space with ZERO ship clipping)
             const gateWorldPos = ancientGoldenGate.position.clone();
-            const startOffset = new THREE.Vector3(0, 160, 1750);
-            playerShip.position.copy(gateWorldPos).add(startOffset);
+            const startPos = new THREE.Vector3(75200, -710, -44300);
+            playerShip.position.copy(startPos);
             playerShip.lookAt(gateWorldPos);
-            playerShip.visible = true;
+            
+            cameraMode = titanCinematicScript[0].camMode || 0;
+            playerShip.visible = (cameraMode !== 0);
             targetSpeed = titanCinematicScript[0].speed;
             currentSpeed = titanCinematicScript[0].speed;
+
+            // Instantly snap camera to player position to prevent camera drag through capital ships
+            if (camera) {
+                const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
+                camera.up.copy(localUp);
+                camera.position.copy(playerShip.position).add(new THREE.Vector3(0, 0.45, -0.1).applyQuaternion(playerShip.quaternion));
+                camera.lookAt(playerShip.position.clone().add(new THREE.Vector3(0, 0.45, -25).applyQuaternion(playerShip.quaternion)));
+                camera.updateMatrixWorld();
+            }
 
             // Make sure overlay is visible
             const overlay = document.getElementById('cinematic-comms-overlay');
@@ -6479,6 +6492,13 @@ function createEpicPlayerDeathExplosion(pos) {
                 cameraMode = lineData.camMode;
             }
             targetSpeed = lineData.speed;
+
+            // Trigger overdrive dive flag on final dialogue line
+            if (titanCinematicIndex === 9) {
+                isTitanCinematicEnteringGate = true;
+                cameraMode = 1;
+                currentSpeed = 550;
+            }
 
             // Update UI elements
             const commsBox = document.getElementById('cinematic-comms-box');
@@ -6545,15 +6565,15 @@ function createEpicPlayerDeathExplosion(pos) {
 
             // Accelerate ship at full overdrive thrust straight through the ring
             isTitanCinematicEnteringGate = true;
-            targetSpeed = 550;
-            currentSpeed = 550;
+            targetSpeed = 600;
+            currentSpeed = 600;
 
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
             if (sec) sec.innerText = "OVERDRIVE ENGAGED — SLIPSPACE THRESHOLD";
-            if (obj) obj.innerText = "⚡ FLY STRAIGHT THROUGH THE ANCIENT PRECURSOR RING GATE!";
+            if (obj) obj.innerText = "⚡ PENETRATING THE ANCIENT PRECURSOR SINGULARITY...";
 
-            showToast("⚡ OVERDRIVE ENGAGED — FLY THROUGH THE GOLDEN RING GATE!");
+            showToast("⚡ OVERDRIVE ENGAGED — ENTERING SLIPSPACE SINGULARITY!");
         }
 
         function stopTitanGateCinematic() {
@@ -6690,39 +6710,49 @@ function createEpicPlayerDeathExplosion(pos) {
             if (isTitanCinematicActive && ancientGoldenGate) {
                 // In cinematic mode, steer directly toward and through the Ancient Precursor Gate center
                 const gateCenter = ancientGoldenGate.position.clone();
-                playerShip.lookAt(gateCenter);
+                const targetAim = gateCenter.clone();
+                if (playerShip.position.z <= gateCenter.z) {
+                    targetAim.z -= 2000; // Continue hurtling forward through back of singularity without reversing
+                }
+                playerShip.lookAt(targetAim);
 
                 const distToGate = playerShip.position.distanceTo(gateCenter);
-                if (isTitanCinematicEnteringGate && distToGate < 140) {
-                    isTitanCinematicEnteringGate = false;
-                    isWormholeActive = true;
-                    
-                    // Quick blinding relativistic flash pulse
-                    const flash = document.getElementById('cinematic-flash-overlay');
-                    if (flash) {
-                        flash.classList.add('active');
-                        setTimeout(() => flash.classList.remove('active'), 600);
+                const hasCrossedRingPlane = (playerShip.position.z <= gateCenter.z + 30);
+
+                if ((isTitanCinematicEnteringGate || titanCinematicIndex >= 9) && (distToGate < 120 || hasCrossedRingPlane)) {
+                    if (!isWormholeActive) {
+                        isWormholeActive = true;
+                        isTitanCinematicEnteringGate = false;
+                        targetSpeed = 0;
+                        currentSpeed = 0;
+                        
+                        // Quick blinding relativistic flash pulse
+                        const flash = document.getElementById('cinematic-flash-overlay');
+                        if (flash) {
+                            flash.classList.add('active');
+                            setTimeout(() => flash.classList.remove('active'), 600);
+                        }
+                        
+                        // Play space-time tear hyperspace crack sound
+                        playHyperspaceCrackAudio(playerShip.position);
+
+                        // Fade to black as Void Interceptor penetrates the deep wormhole singularity
+                        setTimeout(() => {
+                            const blackout = document.getElementById('cinematic-blackout-overlay');
+                            if (blackout) {
+                                blackout.classList.add('active');
+                            }
+                        }, 250);
+
+                        // Reveal Act 1 Transition modal after penetrating the singularity
+                        setTimeout(() => {
+                            const endModal = document.getElementById('cinematic-end-modal');
+                            if (endModal) {
+                                endModal.style.display = 'flex';
+                                setTimeout(() => endModal.classList.add('active'), 50);
+                            }
+                        }, 1400);
                     }
-                    
-                    // Play space-time tear hyperspace crack sound
-                    playHyperspaceCrackAudio(playerShip.position);
-
-                    // Fade to black as Void Interceptor penetrates the deep wormhole singularity
-                    setTimeout(() => {
-                        const blackout = document.getElementById('cinematic-blackout-overlay');
-                        if (blackout) {
-                            blackout.classList.add('active');
-                        }
-                    }, 250);
-
-                    // Reveal Act 1 Transition modal after penetrating the singularity
-                    setTimeout(() => {
-                        const endModal = document.getElementById('cinematic-end-modal');
-                        if (endModal) {
-                            endModal.style.display = 'flex';
-                            setTimeout(() => endModal.classList.add('active'), 50);
-                        }
-                    }, 1400);
                 }
             } else {
                 // Apply local pitch (X) and yaw (Y) quaternion rotations directly
