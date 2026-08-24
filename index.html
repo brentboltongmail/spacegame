@@ -45,9 +45,7 @@
 
         /* Header Bar */
         header {
-            position: fixed;
-            top: 0;
-            left: 0;
+            display: none;
             width: 100%;
             height: 64px;
             z-index: 100;
@@ -129,8 +127,8 @@
 
         /* Container Sections */
         main {
-            margin-top: 64px;
-            height: calc(100vh - 64px);
+            margin-top: 0;
+            height: 100vh;
             position: relative;
         }
 
@@ -1511,7 +1509,6 @@
             <button class="btn-reset-layout" onclick="window.open('debug_ship.html', '_blank')">🛠️ Debug Ship</button>
             <button class="btn-reset-layout" style="background: rgba(0, 240, 255, 0.2); border-color: #00f0ff; color: #00f0ff; font-weight: 700; box-shadow: 0 0 10px rgba(0, 240, 255, 0.35);" onclick="window.open('audiobook.html', '_blank')">🎧 Audiobook</button>
             <nav class="nav-tabs">
-                <button class="tab-btn active" onclick="switchTab('sim')">🚀 3D Flight Demo</button>
                 <button class="tab-btn" onclick="switchTab('titles')">🏷️ Game Titles</button>
                 <button class="tab-btn" onclick="switchTab('story')">📖 Narrative & Campaign</button>
                 <button class="tab-btn" onclick="switchTab('ships')">🛸 Ship Classes & War</button>
