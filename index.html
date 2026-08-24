@@ -3044,7 +3044,7 @@
 
                 const targetScale = 7.2 / (size.x || 1);
                 model.scale.set(targetScale, targetScale, targetScale);
-                model.rotation.set(-Math.PI / 2, -Math.PI / 2, 0);
+                model.rotation.set(-Math.PI / 2, 0, -Math.PI / 2);
                 model.position.set(-center.y * targetScale, -center.z * targetScale, -center.x * targetScale);
 
                 voidInterceptorTemplate = model;
@@ -3147,7 +3147,7 @@
 
             // Procedural Placeholder Hull (Immediate Zero-Latency Rendering while GLB loads)
             const fallbackGeo = new THREE.ConeGeometry(1.2, 4.2, 5);
-            fallbackGeo.rotateX(-Math.PI / 2);
+            fallbackGeo.rotateX(Math.PI / 2);
             const fallbackMat = new THREE.MeshStandardMaterial({
                 color: 0x1e293b,
                 roughness: 0.5,
@@ -3387,6 +3387,7 @@
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
             playerShip.lookAt(new THREE.Vector3(75200, -600, -43500));
+            playerShip.rotateY(Math.PI); // 180-degree rotation
             scene.add(playerShip);
 
             if (camera) {
@@ -4533,6 +4534,7 @@ function createEpicPlayerDeathExplosion(pos) {
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
             playerShip.lookAt(new THREE.Vector3(75200, -600, -43500));
+            playerShip.rotateY(Math.PI); // 180-degree rotation
             if (camera) {
                 const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
                 camera.up.copy(localUp);
