@@ -3913,22 +3913,18 @@
             if (!ship || !ship.userData) return;
             for (let f = 0; f < count; f++) {
                 const newFighter = createEnemyInterceptorMesh();
-                const tubeX = (f === 0) ? 0 : (f % 2 === 1 ? -65 : 65);
-                const tubeZ = -80 - f * 45;
+                const tubeX = (f === 0) ? 0 : (f % 2 === 1 ? -48 : 48);
+                const tubeZ = -80 - f * 35;
                 const ventralOffset = new THREE.Vector3(
                     tubeX,
-                    -45,
+                    -40,
                     tubeZ
                 ).applyQuaternion(ship.quaternion);
 
                 newFighter.position.copy(ship.position).add(ventralOffset);
                 newFighter.quaternion.copy(ship.quaternion);
-                newFighter.userData.aiState = 'CHASE';
-                newFighter.userData.flightSpeed = 24.0;
                 newFighter.userData.hp = 100;
                 newFighter.userData.maxHp = 100;
-                newFighter.userData.flankSign = (f % 2 === 0) ? 1 : -1;
-                newFighter.userData.stateTimer = Date.now() + 4000;
 
                 scene.add(newFighter);
                 enemyShips.push(newFighter);
@@ -5084,128 +5080,47 @@ function createEpicPlayerDeathExplosion(pos) {
             if (spaceTitanSphere) spaceTitanSphere.rotation.y += 0.00018;
             if (theCrestStation) theCrestStation.rotation.y += 0.00025;
 
-            // --- ANIMATE ENEMY INTERCEPTORS (NATURAL 6-DOF DOGFIGHTING FLIGHT AI) ---
+            // --- ANIMATE ENEMY INTERCEPTORS & TARGET LOCK SELECTION ---
             let closestEnemy = null;
             let closestDist = 10500; // TRIPLED TARGET RANGE: 10,500 Units / 10.5 KM!
             const fwdDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
 
             enemyShips.forEach(e => {
                 if (e.userData && e.userData.hp > 0 && playerShip) {
-                    // Initialize individual tactical properties if missing
-                    if (!e.userData.aiState) {
-                        e.userData.aiState = 'CHASE';
-                        e.userData.stateTimer = Date.now() + Math.random() * 3000;
-                        e.userData.flankSign = Math.random() > 0.5 ? 1 : -1;
-                        e.userData.evadeDir = new THREE.Vector3(
-                            (Math.random() - 0.5) * 1.5,
-                            (Math.random() - 0.5) * 1.0,
-                            -1.0
-                        ).normalize();
-                        e.userData.flightSpeed = 16.0 + Math.random() * 4.0;
-                        e.userData.currentRoll = 0;
-                    }
-
                     const toPlayer = playerShip.position.clone().sub(e.position);
                     const dist = toPlayer.length();
-                    const now = Date.now();
-
+                    
                     if (dist > 0) {
-                        const toPlayerDir = toPlayer.clone().normalize();
-                        const enemyFwd = new THREE.Vector3(0, 0, -1).applyQuaternion(e.quaternion);
-                        const facingDot = enemyFwd.dot(toPlayerDir);
+                        const dir = toPlayer.clone().normalize();
+                        // Turn towards player smoothly
+                        const targetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), dir);
+                        e.quaternion.slerp(targetQuat, 0.05);
 
-                        // State Machine Transitions
-                        if (e.userData.aiState === 'CHASE') {
-                            if (dist < 4500 && facingDot > 0.65) {
-                                e.userData.aiState = 'ATTACK_RUN';
-                                e.userData.stateTimer = now + 4000 + Math.random() * 2500;
-                            }
-                        } else if (e.userData.aiState === 'ATTACK_RUN') {
-                            // Break away if too close to avoid ramming or buzzing in place
-                            if (dist < 350 || now > e.userData.stateTimer) {
-                                e.userData.aiState = 'BREAKAWAY';
-                                e.userData.stateTimer = now + 2500 + Math.random() * 1500;
-                                const rightVec = new THREE.Vector3(1, 0, 0).applyQuaternion(e.quaternion);
-                                const upVec = new THREE.Vector3(0, 1, 0).applyQuaternion(e.quaternion);
-                                e.userData.evadeDir = rightVec.multiplyScalar(e.userData.flankSign * 1.2)
-                                    .add(upVec.multiplyScalar((Math.random() - 0.3) * 1.0))
-                                    .add(enemyFwd.multiplyScalar(0.8))
-                                    .normalize();
-                            }
-                        } else if (e.userData.aiState === 'BREAKAWAY') {
-                            if (dist > 1800 || now > e.userData.stateTimer) {
-                                e.userData.aiState = 'RE_ENGAGE';
-                                e.userData.stateTimer = now + 3000 + Math.random() * 2000;
-                                e.userData.flankSign = -e.userData.flankSign;
-                            }
-                        } else if (e.userData.aiState === 'RE_ENGAGE') {
-                            if (facingDot > 0.6 || now > e.userData.stateTimer) {
-                                e.userData.aiState = 'CHASE';
-                            }
+                        // Move based on distance (75% slower normal flight speed)
+                        if (dist > 400) {
+                            e.translateZ(-1.5);
+                        } else if (dist < 150) {
+                            e.translateZ(0.75); // Back away to avoid ramming or clipping
+                        } else {
+                            // Strafe around player
+                            e.translateX(Math.sin(Date.now() * 0.001 + e.id) * 0.75);
+                            e.translateY(Math.cos(Date.now() * 0.001 + e.id) * 0.375);
                         }
 
-                        // Determine target steering direction based on tactical state
-                        let desiredDir = toPlayerDir.clone();
-                        let targetSpeed = 16.0;
-                        let turnSlerp = 0.038;
-
-                        if (dist > 3500) {
-                            // High-speed intercept scramble across sector
-                            desiredDir = toPlayerDir;
-                            targetSpeed = 26.0;
-                            turnSlerp = 0.045;
-                        } else if (e.userData.aiState === 'CHASE') {
-                            // Lead the target slightly with individual flanking offset
-                            const flankOffset = new THREE.Vector3(e.userData.flankSign * 160, Math.sin(now * 0.001 + e.id) * 50, 0);
-                            const leadTarget = playerShip.position.clone().add(flankOffset);
-                            desiredDir = leadTarget.sub(e.position).normalize();
-                            targetSpeed = 18.0;
-                            turnSlerp = 0.040;
-                        } else if (e.userData.aiState === 'ATTACK_RUN') {
-                            // Zero in on player with smooth steady gun run
-                            desiredDir = toPlayerDir;
-                            targetSpeed = 14.5;
-                            turnSlerp = 0.048;
-                        } else if (e.userData.aiState === 'BREAKAWAY') {
-                            // Peel away along evasion vector at high speed to open separation
-                            desiredDir = e.userData.evadeDir;
-                            targetSpeed = 22.0;
-                            turnSlerp = 0.040;
-                        } else if (e.userData.aiState === 'RE_ENGAGE') {
-                            // Wide sweeping banking turn back toward the combat area
-                            desiredDir = toPlayerDir;
-                            targetSpeed = 16.0;
-                            turnSlerp = 0.028;
-                        }
-
-                        // Smoothly orient fighter towards desired steering direction
-                        const targetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), desiredDir);
-                        e.quaternion.slerp(targetQuat, turnSlerp);
-
-                        // Continuous Natural Forward Flight Momentum
-                        e.translateZ(-targetSpeed);
-
-                        // Natural Banking into Turns (Roll angle applied ONLY to child meshContainer to preserve 6-DOF quaternion steering)
-                        const crossTurn = new THREE.Vector3().crossVectors(enemyFwd, desiredDir);
-                        const rollTarget = THREE.MathUtils.clamp(-crossTurn.y * 3.5, -0.65, 0.65);
-                        e.userData.currentRoll = THREE.MathUtils.lerp(e.userData.currentRoll, rollTarget, 0.05);
-                        if (e.userData.meshContainer) {
-                            e.userData.meshContainer.rotation.z = e.userData.currentRoll;
-                        }
-
-                        // Shoot at player during attack runs or when cleanly aligned
+                        // Shoot at player
                         e.userData.lastFireTime = e.userData.lastFireTime || 0;
-                        if (dist < 4000 && facingDot > 0.80 && now - e.userData.lastFireTime > (e.userData.aiState === 'ATTACK_RUN' ? 700 : 1200) + Math.random() * 600) {
-                            e.userData.lastFireTime = now;
+                        if (dist < 3000 && Date.now() - e.userData.lastFireTime > 800 + Math.random() * 1000) {
+                            e.userData.lastFireTime = Date.now();
                             const eLaser = getPooledEnemyLaserBolt();
                             if (eLaser) {
                                 eLaser.visible = true;
                                 eLaser.quaternion.copy(e.quaternion);
+                                // Random left or right wing offset
                                 const side = Math.random() > 0.5 ? -2.4 : 2.4;
                                 const offset = new THREE.Vector3(side, -0.1, -2.4).applyQuaternion(e.quaternion);
                                 eLaser.position.copy(e.position).add(offset);
                                 eLaser.userData.prevPos.copy(eLaser.position);
-                                eLaser.userData.velocity.copy(enemyFwd).multiplyScalar(45);
+                                eLaser.userData.velocity.copy(dir).multiplyScalar(12); // Speed 12
                                 if (!enemyLaserProjectiles.includes(eLaser)) enemyLaserProjectiles.push(eLaser);
                             }
                         }
@@ -5321,16 +5236,13 @@ function createEpicPlayerDeathExplosion(pos) {
                             showToast("💥 TARGET DESTROYED! +500 SC AWARDED!");
 
                             setTimeout(() => {
-                                if (enemyShips.length < 8 && playerShip) {
-                                    const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
-                                    const newEnemy = createEnemyInterceptorMesh();
-                                    newEnemy.position.copy(playerShip.position).add(fwd.clone().multiplyScalar(1500)).add(new THREE.Vector3(
-                                        (Math.random() - 0.5) * 800,
-                                        (Math.random() - 0.5) * 400,
-                                        (Math.random() - 0.5) * 600
-                                    ));
-                                    scene.add(newEnemy);
-                                    enemyShips.push(newEnemy);
+                                const livingEnemies = enemyShips.filter(e => e && e.userData && e.userData.hp > 0);
+                                if (livingEnemies.length < 12 && playerShip && capitalShips && capitalShips.length > 0) {
+                                    const activeCapitals = capitalShips.filter(s => s && s.visible);
+                                    const chosenCap = activeCapitals.length > 0 ? activeCapitals[Math.floor(Math.random() * activeCapitals.length)] : capitalShips[0];
+                                    if (chosenCap) {
+                                        launchFightersFromCapitalShip(chosenCap, 1);
+                                    }
                                 }
                             }, 4000);
                         }
