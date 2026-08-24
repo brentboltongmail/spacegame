@@ -4376,19 +4376,19 @@ function createEpicPlayerDeathExplosion(pos) {
                     
                     if (dist > 0) {
                         const dir = toPlayer.clone().normalize();
-                        // Turn towards player smoothly
+                        // Turn towards player smoothly (50% slower tracking rate)
                         const targetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), dir);
-                        e.quaternion.slerp(targetQuat, 0.05);
+                        e.quaternion.slerp(targetQuat, 0.025);
 
-                        // Move based on distance (75% slower)
+                        // Move based on distance (Slowed by 50%)
                         if (dist > 400) {
-                            e.translateZ(-1.5);
+                            e.translateZ(-0.75);
                         } else if (dist < 150) {
-                            e.translateZ(0.75); // Back away
+                            e.translateZ(0.375); // Back away
                         } else {
-                            // Strafe
-                            e.translateX(Math.sin(Date.now() * 0.001 + e.id) * 0.75);
-                            e.translateY(Math.cos(Date.now() * 0.001 + e.id) * 0.375);
+                            // Strafe (50% slower)
+                            e.translateX(Math.sin(Date.now() * 0.0005 + e.id) * 0.375);
+                            e.translateY(Math.cos(Date.now() * 0.0005 + e.id) * 0.1875);
                         }
 
                         // Shoot at player
