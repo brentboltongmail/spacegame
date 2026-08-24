@@ -3379,13 +3379,14 @@
             playerShieldBubble.visible = false;
             playerShip.add(playerShieldBubble);
 
-            // Start Void Interceptor in perimeter orbit of Titan overlooking The Crest and Saturn
-            playerShip.position.set(80400, -830, -45580);
-            playerShip.lookAt(new THREE.Vector3(79900, -850, -46600));
+            // Start Void Interceptor out away from The Crest looking back at The Crest, Titan, and Saturn
+            playerShip.position.set(82800, 420, -36200);
+            playerShip.lookAt(new THREE.Vector3(76800, -750, -47500));
             scene.add(playerShip);
 
             if (camera) {
-                camera.position.set(80400, -824, -45558);
+                const initCamOffset = new THREE.Vector3(0, 7.5, 26).applyQuaternion(playerShip.quaternion);
+                camera.position.copy(playerShip.position).add(initCamOffset);
                 camera.lookAt(playerShip.position);
             }
         }
@@ -4500,18 +4501,23 @@ function createEpicPlayerDeathExplosion(pos) {
         }
 
         function resetSimView() {
-            playerShip.position.set(80400, -830, -45580);
+            playerShip.position.set(82800, 420, -36200);
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
-            playerShip.lookAt(new THREE.Vector3(79900, -850, -46600));
+            playerShip.lookAt(new THREE.Vector3(76800, -750, -47500));
+            if (camera) {
+                const initCamOffset = new THREE.Vector3(0, 7.5, 26).applyQuaternion(playerShip.quaternion);
+                camera.position.copy(playerShip.position).add(initCamOffset);
+                camera.lookAt(playerShip.position);
+            }
             targetSpeed = 0;
             currentSpeed = 0;
             isWormholeActive = false;
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
-            if (sec) sec.innerText = "TITAN ORBIT — THE CREST";
-            if (obj) obj.innerText = "Patrol perimeter orbit around The Crest Orbital Platform";
-            showToast("Flight position reset to The Crest station near Titan.");
+            if (sec) sec.innerText = "TITAN VISTA — SATURN / THE CREST SECTOR";
+            if (obj) obj.innerText = "Monitor Titan perimeter as Dominion Siege Fleet drops out of hyperspace";
+            showToast("Flight position reset to panoramic vista facing The Crest, Titan, and Saturn!");
         }
 
         let lastTime = performance.now();
