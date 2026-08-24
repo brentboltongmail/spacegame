@@ -5072,9 +5072,9 @@
                 beamGroup.visible = false;
                 scene.add(beamGroup);
 
-                // 1. Inner Intense Core Cylinder (Height 1, translated from y=0 to y=1)
+                // Standard untranslated CylinderGeometry (height = 1, natively centered from y = -0.5 to y = +0.5)
+                // 1. Inner Intense Core Cylinder (Tapering from ship radius 16 to ring radius 10)
                 const coreGeo = new THREE.CylinderGeometry(10, 16, 1, 16);
-                coreGeo.translate(0, 0.5, 0);
                 const coreMat = new THREE.MeshBasicMaterial({
                     color: 0xfdf4ff,
                     blending: THREE.AdditiveBlending
@@ -5082,9 +5082,8 @@
                 const coreMesh = new THREE.Mesh(coreGeo, coreMat);
                 beamGroup.add(coreMesh);
 
-                // 2. Graviton Plasma Sheath Column
+                // 2. Graviton Plasma Sheath Column (Tapering from ship radius 52 to ring radius 28)
                 const plasmaGeo = new THREE.CylinderGeometry(28, 52, 1, 16);
-                plasmaGeo.translate(0, 0.5, 0);
                 const plasmaMat = new THREE.MeshBasicMaterial({
                     color: 0x9333ea,
                     transparent: true,
@@ -5094,9 +5093,8 @@
                 const plasmaMesh = new THREE.Mesh(plasmaGeo, plasmaMat);
                 beamGroup.add(plasmaMesh);
 
-                // 3. Helical Magnetic Confinement Cage
+                // 3. Helical Magnetic Confinement Cage (Tapering from ship radius 92 to ring radius 52)
                 const cageGeo = new THREE.CylinderGeometry(52, 92, 1, 16);
-                cageGeo.translate(0, 0.5, 0);
                 const cageMat = new THREE.MeshBasicMaterial({
                     color: 0xd946ef,
                     wireframe: true,
@@ -5107,7 +5105,7 @@
                 const cageMesh = new THREE.Mesh(cageGeo, cageMat);
                 beamGroup.add(cageMesh);
 
-                // 4. Traveling Tractor Rings (Stream Upward along Shaft from Gate to Ship)
+                // 4. Traveling Tractor Rings (Stream along Shaft between Gate and Ship)
                 const tractorRings = [];
                 for (let r = 0; r < 5; r++) {
                     const tRingGeo = new THREE.TorusGeometry(36, 4.5, 8, 24);
@@ -5125,7 +5123,7 @@
                     tractorRings.push(tRingMesh);
                 }
 
-                // 5. Ventral Core Flare
+                // 5. Ventral Core Flare at Ship Center
                 const flareGeo = new THREE.SphereGeometry(38, 16, 16);
                 const flareMat = new THREE.MeshBasicMaterial({
                     color: 0xd946ef,
@@ -5146,7 +5144,7 @@
                     cage: cageMesh,
                     rings: tractorRings,
                     flare: flareMesh,
-                    pylonTargetIndex: (idx * 2 + 1) % 12
+                    pylonTargetIndex: [7, 5, 3, 1, 11][idx % 5]
                 };
                 capitalSpinalBeams.push(beamData);
                 ship.userData.spinalBeam = beamData;
@@ -5632,11 +5630,14 @@
                     const beamDist = beamVec.length();
                     const beamDir = beamVec.clone().normalize();
 
-                    // Position beam group EXACTLY at the middle of the capital ship
-                    bData.group.position.copy(shipCenterWorld);
-                    // Direct +Y axis towards target
+                    // Midpoint between ship center and ring on Titan
+                    const midPoint = new THREE.Vector3().addVectors(shipCenterWorld, targetWorld).multiplyScalar(0.5);
+
+                    // Position beam group EXACTLY at the midpoint
+                    bData.group.position.copy(midPoint);
+                    // Direct +Y axis along the beam vector towards target
                     bData.group.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), beamDir);
-                    // Scale along Y to reach target distance (y=0 is ship center, y=1 is target on Titan)
+                    // Scale along Y to reach target distance (local y = -0.5 is ship center, local y = +0.5 is ring on Titan)
                     bData.group.scale.set(1, beamDist, 1);
 
                     // Pulse core & plasma thickness
@@ -5645,21 +5646,21 @@
                     bData.plasma.scale.set(pulse * 1.1, 1, pulse * 1.1);
                     bData.cage.rotation.y += 0.02;
 
-                    // Animate Traveling Energy Rings along the beam shaft
+                    // Animate Traveling Energy Rings strictly along the shaft between ship center (y = -0.5) and ring on Titan (y = +0.5)
                     if (bData.rings) {
                         bData.rings.forEach(ring => {
                             ring.visible = true;
                             if (isBombardmentFiring) {
-                                // Purple bombardment energy streaming downward toward Titan
+                                // Purple bombardment energy streaming downward from ship to Titan
                                 ring.userData.offset += timeDelta * 0.35;
                                 if (ring.userData.offset > 1.0) ring.userData.offset -= 1.0;
-                                ring.position.y = ring.userData.offset;
+                                ring.position.y = -0.5 + ring.userData.offset;
                                 ring.material.color.setHex(0xd946ef); // Radiant Purple-Magenta Rings
                             } else if (isTractorFiring) {
-                                // Gold tractor graviton rings streaming upward toward the ship hauling the gate
+                                // Gold tractor graviton rings streaming upward from Titan ring to ship
                                 ring.userData.offset -= timeDelta * 0.35;
                                 if (ring.userData.offset < 0.0) ring.userData.offset += 1.0;
-                                ring.position.y = ring.userData.offset;
+                                ring.position.y = -0.5 + ring.userData.offset;
                                 ring.material.color.setHex(0xfbbf24); // Radiant Gold Tractor Rings
                             }
                             const ringScale = 1.0 + Math.sin(timeSec * 6.0 + ring.userData.offset * Math.PI) * 0.25;
