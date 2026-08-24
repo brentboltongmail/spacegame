@@ -2974,6 +2974,7 @@
             const gltfLoader = new THREE.GLTFLoader();
             gltfLoader.load('fbx/the_crest.glb?v=' + Date.now(), function(gltf) {
                 const model = gltf.scene;
+                const maxAniso = (typeof renderer !== 'undefined' && renderer.capabilities) ? renderer.capabilities.getMaxAnisotropy() : 16;
 
                 // Enforce solid double-sided opaque materials
                 model.traverse(function(child) {
@@ -2985,6 +2986,16 @@
                             mat.depthWrite = true;
                             mat.depthTest = true;
                             mat.side = THREE.DoubleSide;
+                            mat.metalness = THREE.MathUtils.clamp(mat.metalness || 0.6, 0.4, 0.85);
+                            mat.roughness = THREE.MathUtils.clamp(mat.roughness || 0.4, 0.25, 0.55);
+                            mat.envMapIntensity = 1.6;
+                            if (mat.map) {
+                                mat.map.anisotropy = maxAniso;
+                                mat.map.generateMipmaps = true;
+                                mat.map.minFilter = THREE.LinearMipmapLinearFilter;
+                                mat.map.magFilter = THREE.LinearFilter;
+                                mat.map.needsUpdate = true;
+                            }
                             mat.needsUpdate = true;
                         });
                     }
@@ -3020,8 +3031,9 @@
             const gltfLoader = new THREE.GLTFLoader();
             gltfLoader.load('fbx/void_interceptor.glb?v=' + Date.now(), function(gltf) {
                 const model = gltf.scene;
+                const maxAniso = (typeof renderer !== 'undefined' && renderer.capabilities) ? renderer.capabilities.getMaxAnisotropy() : 16;
 
-                // Enforce solid double-sided opaque materials
+                // Enforce solid double-sided opaque materials with sleek PBR metallic sheen & anisotropic filtering
                 model.traverse(function(child) {
                     if (child.isMesh && child.material) {
                         const mats = Array.isArray(child.material) ? child.material : [child.material];
@@ -3031,6 +3043,20 @@
                             mat.depthWrite = true;
                             mat.depthTest = true;
                             mat.side = THREE.DoubleSide;
+
+                            // Sleek titanium-alloy specular reflections & vibrant contrast
+                            mat.metalness = 0.72;
+                            mat.roughness = 0.32;
+                            mat.envMapIntensity = 1.8;
+                            mat.color.setHex(0xffffff);
+
+                            if (mat.map) {
+                                mat.map.anisotropy = maxAniso;
+                                mat.map.generateMipmaps = true;
+                                mat.map.minFilter = THREE.LinearMipmapLinearFilter;
+                                mat.map.magFilter = THREE.LinearFilter;
+                                mat.map.needsUpdate = true;
+                            }
                             mat.needsUpdate = true;
                         });
                     }
@@ -3091,6 +3117,7 @@
                 const model = gltf.scene;
 
                 // Enforce solid double-sided opaque materials
+                const maxAniso = (typeof renderer !== 'undefined' && renderer.capabilities) ? renderer.capabilities.getMaxAnisotropy() : 16;
                 model.traverse(function(child) {
                     if (child.isMesh && child.material) {
                         const mats = Array.isArray(child.material) ? child.material : [child.material];
@@ -3100,6 +3127,16 @@
                             mat.depthWrite = true;
                             mat.depthTest = true;
                             mat.side = THREE.DoubleSide;
+                            mat.metalness = THREE.MathUtils.clamp(mat.metalness || 0.7, 0.5, 0.9);
+                            mat.roughness = THREE.MathUtils.clamp(mat.roughness || 0.35, 0.25, 0.55);
+                            mat.envMapIntensity = 1.6;
+                            if (mat.map) {
+                                mat.map.anisotropy = maxAniso;
+                                mat.map.generateMipmaps = true;
+                                mat.map.minFilter = THREE.LinearMipmapLinearFilter;
+                                mat.map.magFilter = THREE.LinearFilter;
+                                mat.map.needsUpdate = true;
+                            }
                             mat.needsUpdate = true;
                         });
                     }
@@ -3810,6 +3847,7 @@
             gltfLoader.load('fbx/dominion_capital_ship.glb?v=' + Date.now(), function(gltf) {
                 const model = gltf.scene;
 
+                const maxAniso = (typeof renderer !== 'undefined' && renderer.capabilities) ? renderer.capabilities.getMaxAnisotropy() : 16;
                 model.traverse(function(child) {
                     if (child.isMesh && child.material) {
                         const mats = Array.isArray(child.material) ? child.material : [child.material];
@@ -3819,6 +3857,16 @@
                             mat.depthWrite = true;
                             mat.depthTest = true;
                             mat.side = THREE.DoubleSide;
+                            mat.metalness = THREE.MathUtils.clamp(mat.metalness || 0.75, 0.5, 0.95);
+                            mat.roughness = THREE.MathUtils.clamp(mat.roughness || 0.35, 0.25, 0.55);
+                            mat.envMapIntensity = 1.6;
+                            if (mat.map) {
+                                mat.map.anisotropy = maxAniso;
+                                mat.map.generateMipmaps = true;
+                                mat.map.minFilter = THREE.LinearMipmapLinearFilter;
+                                mat.map.magFilter = THREE.LinearFilter;
+                                mat.map.needsUpdate = true;
+                            }
                             mat.needsUpdate = true;
                         });
                     }
