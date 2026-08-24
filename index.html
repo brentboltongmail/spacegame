@@ -3864,7 +3864,7 @@
             fleetEmergenceStartTime = performance.now();
             fleetEmergenceActive = true;
 
-            const fleetForward = new THREE.Vector3(0, 0, -1); // All ships locked facing the exact same direction
+            const fleetForward = new THREE.Vector3(0, 0, 1); // Ships jump in facing forward towards the player and The Crest
 
             capitalShips.forEach(ship => {
                 ship.visible = false;
@@ -4876,7 +4876,7 @@ function createEpicPlayerDeathExplosion(pos) {
 
                     if (ship.userData.jumpPhase === 'WAITING' && elapsedFleetEmergence >= delay) {
                         ship.userData.jumpPhase = 'RIFT_OPENING';
-                        const fwd = ship.userData.fwdDir || new THREE.Vector3(0, 0, -1);
+                        const fwd = ship.userData.fwdDir || new THREE.Vector3(0, 0, 1);
                         const riftPos = ship.userData.targetPos.clone().sub(fwd.clone().multiplyScalar(600));
                         createHyperspaceRiftMesh(riftPos, fwd);
                         playHyperspaceCrackAudio(playerShip.position.distanceTo(riftPos));
