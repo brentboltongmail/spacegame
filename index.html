@@ -1560,7 +1560,7 @@
                     <div class="hud-card">
                         <div class="hud-title">SECTOR / OBJECTIVE</div>
                         <div class="hud-stat" id="hud-sector" style="color: var(--accent-gold);">MISSION 1: ROUTINE PATROL</div>
-                        <div id="hud-objective" style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Fly around Saturn and clear 3 training rings on the dark side (0/3).</div>
+                        <div id="hud-objective" style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Fly around Saturn, clear 3 training rings, and destroy 3 drones (0/3 Rings, 0/3 Enemies).</div>
                     </div>
                 </div>
 
@@ -9562,6 +9562,8 @@ function createEpicPlayerDeathExplosion(pos) {
         // MISSION 1: ROUTINE PATROL
         // ==========================================
         let mission1Rings = [];
+        let mission1Enemies = [];
+        let mission1EnemiesDestroyed = 0;
         let mission1Active = false;
         let mission1Stage = 0;
 
@@ -9622,12 +9624,25 @@ function createEpicPlayerDeathExplosion(pos) {
                 mission1Rings.push(ring);
             });
             
-            showCommsTransmission("ELIAS VANCE", "Alright, kid. Let's see if those stabilizer tweaks I made hold up. Cycle the thrusters, fly around Saturn and clear those 3 training rings on the opposite side.", 8000);
+            // Spawn 3 enemy drones on the far side of Saturn
+            mission1Enemies = [];
+            for (let i = 0; i < 3; i++) {
+                const enemy = createEnemyInterceptorMesh();
+                enemy.position.set(72060 + (i-1)*600, 214 + (Math.random()-0.5)*400, -96000 + (Math.random()-0.5)*400);
+                enemy.lookAt(playerShip.position);
+                enemy.userData.hp = 100;
+                enemy.userData.maxHp = 100;
+                scene.add(enemy);
+                enemyShips.push(enemy);
+                mission1Enemies.push(enemy);
+            }
+            
+            showCommsTransmission("ELIAS VANCE", "Alright, kid. Let's see if those stabilizer tweaks I made hold up. Fly around Saturn, clear those 3 training rings, and shoot down the 3 target drones I set up on the dark side.", 9000);
             
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
             if (sec) sec.innerText = "MISSION 1: ROUTINE PATROL";
-            if (obj) obj.innerText = "Fly around Saturn and clear 3 training rings on the dark side (0/3).";
+            if (obj) obj.innerText = "Fly around Saturn, clear 3 training rings, and destroy 3 drones (0/3 Rings, 0/3 Enemies).";
             showToast("🎯 NEW OBJECTIVE: Clear Saturn Training Rings");
             
             // Check ring distances in the animate loop
@@ -9638,6 +9653,12 @@ function createEpicPlayerDeathExplosion(pos) {
         
         function checkMission1Progress() {
             if (!mission1Active) return;
+            
+            // If we've already passed the completion stage, do nothing further here
+            if (mission1Stage >= 4) return;
+            
+            let enemiesDestroyed = mission1Enemies.filter(e => e.userData.hp <= 0).length;
+            mission1EnemiesDestroyed = enemiesDestroyed;
             
             if (mission1Stage < 3) {
                 // Check all rings for collision to allow any order
@@ -9652,32 +9673,36 @@ function createEpicPlayerDeathExplosion(pos) {
                         targetRing.material.color.setHex(0x10b981);
                         targetRing.material.opacity = 0.2;
                         mission1Stage++;
-                        
-                        if (mission1Stage < 3) {
-                            showToast(`Ring ${mission1Stage} cleared. Next target locked.`, "var(--accent-cyan)");
-                            const obj = document.getElementById('hud-objective');
-                            if (obj) obj.innerText = `Fly around Saturn and clear 3 training rings on the dark side (${mission1Stage}/3).`;
-                        } else {
-                        showCommsTransmission("KAYLEN VANCE", "Copy that, old man. Controls are stiff, but responsive. Rings cleared.", 5000);
-                        setTimeout(() => {
-                            showCommsTransmission("ELIAS VANCE", "Good. Now dock back at The Crest.", 5000);
-                            const obj = document.getElementById('hud-objective');
-                            if (obj) obj.innerText = "Return and dock back at The Crest.";
-                            showToast("🎯 NEW OBJECTIVE: Dock at The Crest");
-                        }, 6000);
-                        setTimeout(() => {
-                             mission1Active = false;
-                             clearInterval(window.mission1Interval);
-                             window.mission1Interval = null;
-                             
-                             // Immediately trigger the Dominion Fleet invasion (which leads into Mission 3)
-                             triggerDominionFleetHyperspaceEmergence();
-                             const obj = document.getElementById('hud-objective');
-                             if (obj) obj.innerText = "🚨 WARNING: MASSIVE SLIPSPACE RUPTURES DETECTED IN SECTOR";
-                        }, 12000);
+                        showToast(`Ring ${mission1Stage}/3 cleared.`, "var(--accent-cyan)");
                     }
                 }
             }
+            
+            // Update HUD text if not fully complete
+            if (mission1Stage < 3 || enemiesDestroyed < 3) {
+                const obj = document.getElementById('hud-objective');
+                if (obj) obj.innerText = `Fly around Saturn, clear 3 training rings, and destroy 3 drones (${mission1Stage}/3 Rings, ${enemiesDestroyed}/3 Enemies).`;
+            } else if (mission1Stage === 3 && enemiesDestroyed === 3) {
+                // BOTH OBJECTIVES COMPLETE
+                mission1Stage = 4; // Prevent re-triggering this block
+                
+                showCommsTransmission("KAYLEN VANCE", "Copy that, old man. Controls are stiff, but responsive. Rings and drones cleared.", 5000);
+                setTimeout(() => {
+                    showCommsTransmission("ELIAS VANCE", "Good. Now dock back at The Crest.", 5000);
+                    const obj = document.getElementById('hud-objective');
+                    if (obj) obj.innerText = "Return and dock back at The Crest.";
+                    showToast("🎯 NEW OBJECTIVE: Dock at The Crest");
+                }, 6000);
+                setTimeout(() => {
+                     mission1Active = false;
+                     clearInterval(window.mission1Interval);
+                     window.mission1Interval = null;
+                     
+                     // Immediately trigger the Dominion Fleet invasion (which leads into Mission 3)
+                     triggerDominionFleetHyperspaceEmergence();
+                     const obj = document.getElementById('hud-objective');
+                     if (obj) obj.innerText = "🚨 WARNING: MASSIVE SLIPSPACE RUPTURES DETECTED IN SECTOR";
+                }, 12000);
             }
         }
 
