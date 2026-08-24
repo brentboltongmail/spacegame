@@ -6571,7 +6571,7 @@ function createEpicPlayerDeathExplosion(pos) {
             isShipInvincible = true; // 100% Invulnerable during cinematic!
             isWormholeActive = false;
             titanCinematicIndex = 0;
-            document.body.classList.add('in-cinematic-mode');
+            // document.body.classList.add('in-cinematic-mode'); // Removed to avoid reducing window size
 
             const blackout = document.getElementById('cinematic-blackout-overlay');
             if (blackout) blackout.classList.remove('active');
@@ -6737,7 +6737,7 @@ function createEpicPlayerDeathExplosion(pos) {
             isTitanCinematicActive = false;
             isTitanCinematicEnteringGate = false;
             isShipInvincible = (cameraMode === 3);
-            document.body.classList.remove('in-cinematic-mode');
+            // document.body.classList.remove('in-cinematic-mode');
 
             if (titanCinematicAudio) {
                 titanCinematicAudio.pause();
