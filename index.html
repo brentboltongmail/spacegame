@@ -5345,44 +5345,44 @@ function createEpicPlayerDeathExplosion(pos) {
                 hullResonanceFilter.Q.setValueAtTime(2.0, now);
                 hullResonanceFilter.gain.setValueAtTime(2.0, now);
 
-                // --- LAYER 1: Minimal Background Sub-Bass Weight (Sine @ 40 Hz — Tamed to remove hum) ---
+                // --- LAYER 1: Minimal Background Sub-Bass Weight (Sine @ 32 Hz) ---
                 engineSubOsc = audioCtx.createOscillator();
                 engineSubOsc.type = 'sine';
-                engineSubOsc.frequency.setValueAtTime(40, now);
+                engineSubOsc.frequency.setValueAtTime(32, now);
 
                 const subGain = audioCtx.createGain();
                 subGain.gain.setValueAtTime(0.04, now); // Minimal hum
                 engineSubOsc.connect(subGain);
                 subGain.connect(hullResonanceFilter);
 
-                // --- LAYER 2: Minimal Detuned Secondary (Sine @ 42 Hz) ---
+                // --- LAYER 2: Minimal Detuned Secondary (Sine @ 34 Hz) ---
                 engineDetuneOsc = audioCtx.createOscillator();
                 engineDetuneOsc.type = 'sine';
-                engineDetuneOsc.frequency.setValueAtTime(42, now);
+                engineDetuneOsc.frequency.setValueAtTime(34, now);
 
                 const detuneGain = audioCtx.createGain();
                 detuneGain.gain.setValueAtTime(0.02, now);
                 engineDetuneOsc.connect(detuneGain);
                 detuneGain.connect(hullResonanceFilter);
 
-                // --- LAYER 3: Tamed Mid Drive Tone (Triangle @ 85 Hz) ---
+                // --- LAYER 3: Tamed Mid Drive Tone (Triangle @ 68 Hz) ---
                 engineMidOsc = audioCtx.createOscillator();
                 engineMidOsc.type = 'triangle';
-                engineMidOsc.frequency.setValueAtTime(85, now);
+                engineMidOsc.frequency.setValueAtTime(68, now);
 
                 const midGain = audioCtx.createGain();
                 midGain.gain.setValueAtTime(0.02, now);
                 engineMidOsc.connect(midGain);
                 midGain.connect(hullResonanceFilter);
 
-                // --- LAYER 4: Turbine Whine (Tamed) ---
+                // --- LAYER 4: Turbine Whine (Lower Pitch @ 135 Hz) ---
                 engineTurbineOsc = audioCtx.createOscillator();
                 engineTurbineOsc.type = 'sawtooth';
-                engineTurbineOsc.frequency.setValueAtTime(180, now);
+                engineTurbineOsc.frequency.setValueAtTime(135, now);
 
                 engineTurbineFilter = audioCtx.createBiquadFilter();
                 engineTurbineFilter.type = 'bandpass';
-                engineTurbineFilter.frequency.setValueAtTime(260, now);
+                engineTurbineFilter.frequency.setValueAtTime(200, now);
                 engineTurbineFilter.Q.setValueAtTime(2.0, now);
 
                 engineTurbineGain = audioCtx.createGain();
@@ -5392,10 +5392,10 @@ function createEpicPlayerDeathExplosion(pos) {
                 engineTurbineFilter.connect(engineTurbineGain);
                 engineTurbineGain.connect(hullResonanceFilter);
 
-                // --- LAYER 5: Ion Whine (Tamed) ---
+                // --- LAYER 5: Ion Whine (Lower Pitch @ 210 Hz) ---
                 engineWhineOsc = audioCtx.createOscillator();
                 engineWhineOsc.type = 'sine';
-                engineWhineOsc.frequency.setValueAtTime(280, now);
+                engineWhineOsc.frequency.setValueAtTime(210, now);
 
                 engineWhineGain = audioCtx.createGain();
                 engineWhineGain.gain.setValueAtTime(0.01, now);
@@ -5507,19 +5507,19 @@ function createEpicPlayerDeathExplosion(pos) {
             const t = Math.min(Math.max(throttleRatio, 0), 1);
             const now = audioCtx.currentTime;
 
-            // 1. Tamed Low-Frequency Sub (36 Hz -> 68 Hz)
-            const subFreq = 36 + t * 32;
-            const detuneFreq = 38 + t * 34;
-            const midFreq = 85 + t * 65;
+            // 1. Deeper Low-Frequency Sub (28 Hz -> 52 Hz)
+            const subFreq = 28 + t * 24;
+            const detuneFreq = 30 + t * 26;
+            const midFreq = 68 + t * 50;
 
             engineSubOsc.frequency.setTargetAtTime(subFreq, now, 0.08);
             engineDetuneOsc.frequency.setTargetAtTime(detuneFreq, now, 0.08);
             engineMidOsc.frequency.setTargetAtTime(midFreq, now, 0.08);
 
-            // 2. Tamed Turbine & Whine (180 Hz -> 320 Hz & 280 Hz -> 480 Hz)
+            // 2. Deeper Turbine & Whine (135 Hz -> 230 Hz & 210 Hz -> 350 Hz)
             if (engineTurbineOsc && engineTurbineFilter && engineTurbineGain) {
-                const turbinePitch = 180 + t * 140;
-                const turbineCutoff = 260 + t * 200;
+                const turbinePitch = 135 + t * 95;
+                const turbineCutoff = 200 + t * 130;
                 const turbineGainVal = 0.01 + t * 0.02; // Tamed to 0.03 max
 
                 engineTurbineOsc.frequency.setTargetAtTime(turbinePitch, now, 0.08);
@@ -5528,7 +5528,7 @@ function createEpicPlayerDeathExplosion(pos) {
             }
 
             if (engineWhineOsc && engineWhineGain) {
-                const whinePitch = 280 + t * 200;
+                const whinePitch = 210 + t * 140;
                 const whineGainVal = 0.01 + t * 0.02; // Tamed to 0.03 max
                 engineWhineOsc.frequency.setTargetAtTime(whinePitch, now, 0.08);
                 engineWhineGain.gain.setTargetAtTime(whineGainVal, now, 0.08);
@@ -5546,9 +5546,9 @@ function createEpicPlayerDeathExplosion(pos) {
                 engineStaticGain.gain.setTargetAtTime(staticTarget, now, 0.08);
             }
 
-            // 5. Cockpit Muffling Filter (320 Hz -> 1,600 Hz for maximum static sizzle pass-through)
-            const cutoffBase = isCockpitView ? 320 : 650;
-            const cutoffMax = isCockpitView ? 1600 : 3500;
+            // 5. Deeper Cockpit Muffling Filter (250 Hz -> 1,200 Hz)
+            const cutoffBase = isCockpitView ? 250 : 520;
+            const cutoffMax = isCockpitView ? 1200 : 2600;
             const targetCutoff = cutoffBase + t * (cutoffMax - cutoffBase);
 
             engineLowPassFilter.frequency.setTargetAtTime(targetCutoff, now, 0.1);
