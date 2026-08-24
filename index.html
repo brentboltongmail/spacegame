@@ -3463,6 +3463,9 @@
             warmLight.position.set(0, -50, 0);
             theCrestStation.add(warmLight);
 
+            // Initialize explosion and debris group immediately so it's always ready
+            createTheCrestDebrisAndExplosions();
+
             // Load The Crest GLB Model
             const gltfLoader = new THREE.GLTFLoader();
             gltfLoader.load('fbx/the_crest.glb?v=' + Date.now(), function(gltf) {
@@ -3512,14 +3515,13 @@
                 theCrestModelOriginal = model;
                 theCrestStation.add(model);
                 console.log("[THE CREST] GLB Model Loaded & Oriented Successfully in Titan Orbit!");
-                createTheCrestDebrisAndExplosions();
             }, undefined, function(err) {
                 console.error("[THE CREST GLB ERROR]", err);
             });
         }
 
         function createTheCrestDebrisAndExplosions() {
-            if (theCrestExplosionGroup) return;
+            if (theCrestExplosionGroup || !theCrestStation) return;
             theCrestExplosionGroup = new THREE.Group();
             theCrestStation.add(theCrestExplosionGroup);
 
@@ -3541,13 +3543,22 @@
                 });
                 const fbMesh = new THREE.Mesh(fbGeo, fbMat);
                 fbMesh.visible = false;
+                const offset = new THREE.Vector3(
+                    (Math.random() - 0.5) * 850,
+                    (Math.random() - 0.5) * 350,
+                    (Math.random() - 0.5) * 850
+                );
+                const vel = new THREE.Vector3(
+                    (Math.random() - 0.5) * 80,
+                    (Math.random() - 0.5) * 80,
+                    (Math.random() - 0.5) * 80
+                );
                 fbMesh.userData = {
+                    initPos: offset.clone(),
+                    offset: offset.clone(),
+                    vel: vel,
+                    scale: 1.0 + Math.random() * 1.5,
                     delay: f * 0.10,
-                    offset: new THREE.Vector3(
-                        (Math.random() - 0.5) * 850,
-                        (Math.random() - 0.5) * 350,
-                        (Math.random() - 0.5) * 850
-                    ),
                     maxScale: 4.5 + Math.random() * 5.0 // Expands up to 3,500+ units across!
                 };
                 theCrestExplosionGroup.add(fbMesh);
@@ -3593,10 +3604,15 @@
                 const arcMesh = new THREE.Mesh(arcGeo, debrisMats[q % debrisMats.length]);
                 arcMesh.rotation.y = (q * Math.PI) / 2;
                 arcMesh.visible = false;
+                const basePos = new THREE.Vector3(0, 0, 0);
+                const vel = new THREE.Vector3(Math.cos(q * Math.PI / 2 + 0.3) * 65, (Math.random() - 0.5) * 35, Math.sin(q * Math.PI / 2 + 0.3) * 65);
+                const rotVel = new THREE.Vector3((Math.random() - 0.5) * 0.015, (Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.015);
                 arcMesh.userData = {
-                    basePos: new THREE.Vector3(0, 0, 0),
-                    vel: new THREE.Vector3(Math.cos(q * Math.PI / 2 + 0.3) * 65, (Math.random() - 0.5) * 35, Math.sin(q * Math.PI / 2 + 0.3) * 65),
-                    rotVel: new THREE.Vector3((Math.random() - 0.5) * 0.015, (Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.015)
+                    initPos: basePos.clone(),
+                    basePos: basePos.clone(),
+                    vel: vel,
+                    rotSpeed: rotVel.clone(),
+                    rotVel: rotVel.clone()
                 };
                 theCrestExplosionGroup.add(arcMesh);
                 theCrestDebrisChunks.push(arcMesh);
@@ -3606,10 +3622,15 @@
             const spireGeo = new THREE.CylinderGeometry(25, 60, 320, 8);
             const spireMesh = new THREE.Mesh(spireGeo, debrisMats[0]);
             spireMesh.visible = false;
+            const spireBasePos = new THREE.Vector3(0, 180, 0);
+            const spireVel = new THREE.Vector3((Math.random() - 0.5) * 40, 75, (Math.random() - 0.5) * 40);
+            const spireRotVel = new THREE.Vector3(0.018, 0.012, -0.015);
             spireMesh.userData = {
-                basePos: new THREE.Vector3(0, 180, 0),
-                vel: new THREE.Vector3((Math.random() - 0.5) * 40, 75, (Math.random() - 0.5) * 40),
-                rotVel: new THREE.Vector3(0.018, 0.012, -0.015)
+                initPos: spireBasePos.clone(),
+                basePos: spireBasePos.clone(),
+                vel: spireVel,
+                rotSpeed: spireRotVel.clone(),
+                rotVel: spireRotVel.clone()
             };
             theCrestExplosionGroup.add(spireMesh);
             theCrestDebrisChunks.push(spireMesh);
@@ -3618,10 +3639,15 @@
             const hubGeo = new THREE.CylinderGeometry(140, 160, 180, 12);
             const hubMesh = new THREE.Mesh(hubGeo, debrisMats[1]);
             hubMesh.visible = false;
+            const hubBasePos = new THREE.Vector3(0, -50, 0);
+            const hubVel = new THREE.Vector3((Math.random() - 0.5) * 30, -45, (Math.random() - 0.5) * 30);
+            const hubRotVel = new THREE.Vector3(-0.01, 0.008, 0.014);
             hubMesh.userData = {
-                basePos: new THREE.Vector3(0, -50, 0),
-                vel: new THREE.Vector3((Math.random() - 0.5) * 30, -45, (Math.random() - 0.5) * 30),
-                rotVel: new THREE.Vector3(-0.01, 0.008, 0.014)
+                initPos: hubBasePos.clone(),
+                basePos: hubBasePos.clone(),
+                vel: hubVel,
+                rotSpeed: hubRotVel.clone(),
+                rotVel: hubRotVel.clone()
             };
             theCrestExplosionGroup.add(hubMesh);
             theCrestDebrisChunks.push(hubMesh);
@@ -3632,10 +3658,15 @@
                 const girderGeo = new THREE.BoxGeometry(35, 20, 240);
                 const girderMesh = new THREE.Mesh(girderGeo, debrisMats[2]);
                 girderMesh.visible = false;
+                const girderBasePos = new THREE.Vector3(Math.cos(angle) * 380, 0, Math.sin(angle) * 380);
+                const girderVel = new THREE.Vector3(Math.cos(angle) * (50 + Math.random() * 30), (Math.random() - 0.5) * 40, Math.sin(angle) * (50 + Math.random() * 30));
+                const girderRotVel = new THREE.Vector3(Math.random() * 0.03, Math.random() * 0.03, Math.random() * 0.03);
                 girderMesh.userData = {
-                    basePos: new THREE.Vector3(Math.cos(angle) * 380, 0, Math.sin(angle) * 380),
-                    vel: new THREE.Vector3(Math.cos(angle) * (50 + Math.random() * 30), (Math.random() - 0.5) * 40, Math.sin(angle) * (50 + Math.random() * 30)),
-                    rotVel: new THREE.Vector3(Math.random() * 0.03, Math.random() * 0.03, Math.random() * 0.03)
+                    initPos: girderBasePos.clone(),
+                    basePos: girderBasePos.clone(),
+                    vel: girderVel,
+                    rotSpeed: girderRotVel.clone(),
+                    rotVel: girderRotVel.clone()
                 };
                 theCrestExplosionGroup.add(girderMesh);
                 theCrestDebrisChunks.push(girderMesh);
@@ -5353,7 +5384,9 @@
                 if (theCrestState !== 'EXPLODING') {
                     theCrestState = 'EXPLODING';
                     theCrestExplosionStartTime = nowMs;
-                    playTheCrestExplosionAudio(playerShip.position.distanceTo(theCrestStation.position));
+                    if (theCrestStation && playerShip) {
+                        playTheCrestExplosionAudio(playerShip.position.distanceTo(theCrestStation.position));
+                    }
                     showToast("🚨 MAYDAY! THE CREST REACTOR BREACH — MASSIVE FIREBALL EXPLOSION!");
 
                     // Line 4: "Oh no... The Crest!! NOOO!!"
@@ -5375,11 +5408,14 @@
                     }
                     if (theCrestFireballs) {
                         theCrestFireballs.forEach(fb => {
-                            const ud = fb.userData;
+                            const ud = fb.userData || {};
+                            const initPos = ud.initPos || ud.offset || new THREE.Vector3();
+                            const vel = ud.vel || new THREE.Vector3();
+                            const baseScale = ud.scale || 1.0;
                             const t = expElapsed / 2.0;
                             fb.visible = true;
-                            fb.position.copy(ud.initPos).addScaledVector(ud.vel, expElapsed);
-                            const scale = ud.scale * (1.0 + t * 4.2);
+                            fb.position.copy(initPos).addScaledVector(vel, expElapsed);
+                            const scale = baseScale * (1.0 + t * 4.2);
                             fb.scale.set(scale, scale, scale);
                             if (fb.material) {
                                 fb.material.opacity = Math.max(0, 0.95 * Math.pow(1.0 - t, 1.4));
@@ -5415,14 +5451,18 @@
                 if (theCrestShockwaves) theCrestShockwaves.forEach(sw => sw.visible = false);
 
                 // Scatter shattered station wreckage slowly through vacuum
-                const scatterElapsed = (nowMs - (theCrestExplosionStartTime + 2000)) / 1000.0;
+                const scatterElapsed = (theCrestExplosionStartTime > 0) ? ((nowMs - (theCrestExplosionStartTime + 2000)) / 1000.0) : Math.max(0, elapsedExcavation - 18.5);
                 if (theCrestDebrisChunks) {
                     theCrestDebrisChunks.forEach(c => {
+                        if (!c.userData) return;
+                        const initPos = c.userData.initPos || c.userData.basePos || new THREE.Vector3();
+                        const vel = c.userData.vel || new THREE.Vector3();
+                        const rotSpeed = c.userData.rotSpeed || c.userData.rotVel || new THREE.Vector3();
                         c.visible = true;
-                        c.position.copy(c.userData.initPos).addScaledVector(c.userData.vel, scatterElapsed);
-                        c.rotation.x += c.userData.rotSpeed.x;
-                        c.rotation.y += c.userData.rotSpeed.y;
-                        c.rotation.z += c.userData.rotSpeed.z;
+                        c.position.copy(initPos).addScaledVector(vel, Math.max(0, scatterElapsed));
+                        c.rotation.x += rotSpeed.x || 0;
+                        c.rotation.y += rotSpeed.y || 0;
+                        c.rotation.z += rotSpeed.z || 0;
                     });
                 }
             }
