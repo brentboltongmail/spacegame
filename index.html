@@ -2828,7 +2828,11 @@
                 // Random rotation
                 dummy.rotation.set(
                     Math.random() * Math.PI,
-dummy.updateMatrix();
+                    Math.random() * Math.PI,
+                    Math.random() * Math.PI
+                );
+                
+                dummy.updateMatrix();
                 ring.setMatrixAt(i, dummy.matrix);
                 
                 // Apply color variation
