@@ -3843,6 +3843,7 @@ function createEpicPlayerDeathExplosion(pos) {
             const moveDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
             const frameDisplacement = moveDir.clone().multiplyScalar(currentSpeed * 0.0064);
             const oldPos = playerShip.position.clone();
+            const oldQuat = playerShip.quaternion.clone();
             playerShip.position.add(frameDisplacement);
 
             // Prevent clipping into planet (Smooth sliding atmospheric repulsor buffer)
@@ -4540,8 +4541,8 @@ function createEpicPlayerDeathExplosion(pos) {
                 if (topHpText) topHpText.innerText = "NO TARGET";
             }
 
-            // Engine Exhaust Particle Trails (Short Crisp Bluish Glow)
-            updateEngineParticleTrails();
+            // Engine Exhaust Particle Trails (Continuous Smooth Plasma Stream)
+            updateEngineParticleTrails(oldPos, oldQuat);
 
             // Animate Shield Bubble Flash
             if (playerShieldBubble && playerShieldBubble.visible) {
@@ -4576,10 +4577,13 @@ function createEpicPlayerDeathExplosion(pos) {
         }
 
         let engineParticles = [];
-        const particleGeo = new THREE.SphereGeometry(0.14, 8, 8); // Slightly thicker particle spheres
+        const particleGeo = new THREE.SphereGeometry(0.18, 8, 8); // Thicker plasma spheres
         const particleMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.85 });
 
-        function updateEngineParticleTrails() {
+        let prevShipPos = null;
+        let prevShipQuat = null;
+
+        function updateEngineParticleTrails(currentOldPos, currentOldQuat) {
             if (!playerShip) return;
 
             // Completely hide and clear engine particles in Cockpit View (cameraMode === 0)
@@ -4591,6 +4595,8 @@ function createEpicPlayerDeathExplosion(pos) {
                     p.material.dispose();
                 }
                 engineParticles = [];
+                prevShipPos = null;
+                prevShipQuat = null;
                 return;
             }
 
@@ -4602,31 +4608,48 @@ function createEpicPlayerDeathExplosion(pos) {
             const shipQuat = playerShip.quaternion;
             const backwardDir = new THREE.Vector3(0, 0, 1).applyQuaternion(shipQuat);
 
-            // Spawn 3x denser exhaust particle stream per thruster nozzle per frame
-            if (currentSpeed > 2) {
-                const stepLength = currentSpeed * 0.0064; // Distance moved this frame
-                nozzleOffsets.forEach(offset => {
-                    const numParticles = 10; // High density to prevent circle gaps
-                    for (let d = 0; d < numParticles; d++) {
-                        const subJitter = new THREE.Vector3(
-                            (Math.random() - 0.5) * 0.08,
-                            (Math.random() - 0.5) * 0.08,
-                            (Math.random() - 0.5) * 0.08
-                        );
-                        // Interpolate position backward along the movement vector to eliminate gaps
-                        const interpOffset = backwardDir.clone().multiplyScalar(stepLength * (d / numParticles));
-                        const worldPos = offset.clone().add(subJitter).applyQuaternion(shipQuat).add(playerShip.position).add(interpOffset);
-                        const pMesh = new THREE.Mesh(particleGeo, particleMat.clone());
-                        pMesh.position.copy(worldPos);
+            const startPos = currentOldPos || prevShipPos || playerShip.position;
+            const startQuat = currentOldQuat || prevShipQuat || playerShip.quaternion;
+            const endPos = playerShip.position;
+            const endQuat = playerShip.quaternion;
 
-                        const vel = backwardDir.clone().multiplyScalar(0.24 + currentSpeed * 0.0015).add(
-                            new THREE.Vector3((Math.random() - 0.5) * 0.05, (Math.random() - 0.5) * 0.05, (Math.random() - 0.5) * 0.05)
+            // Spawn continuous unbroken plasma ribbon per thruster nozzle
+            if (currentSpeed > 2) {
+                nozzleOffsets.forEach(offset => {
+                    const startNozzle = offset.clone().applyQuaternion(startQuat).add(startPos);
+                    const endNozzle = offset.clone().applyQuaternion(endQuat).add(endPos);
+                    const distMoved = startNozzle.distanceTo(endNozzle);
+
+                    // Dynamically calculate particle count based on physical distance (0.12 units per particle)
+                    const numParticles = Math.max(8, Math.ceil(distMoved / 0.12));
+                    const baseVel = backwardDir.clone().multiplyScalar(0.18 + currentSpeed * 0.0008);
+
+                    for (let d = 0; d < numParticles; d++) {
+                        const t = d / numParticles;
+                        // Continuous linear interpolation between start of frame and end of frame
+                        const interpPos = startNozzle.clone().lerp(endNozzle, t);
+
+                        // Subtle plume radial dispersion
+                        const angle = Math.random() * Math.PI * 2;
+                        const spreadR = Math.random() * 0.06;
+                        const subJitter = new THREE.Vector3(Math.cos(angle) * spreadR, Math.sin(angle) * spreadR, (Math.random() - 0.5) * 0.04).applyQuaternion(shipQuat);
+                        interpPos.add(subJitter);
+
+                        // Account for backward drift elapsed during the fractional frame (1 - t)
+                        const drift = baseVel.clone().multiplyScalar(1.0 - t);
+                        interpPos.add(drift);
+
+                        const pMesh = new THREE.Mesh(particleGeo, particleMat.clone());
+                        pMesh.position.copy(interpPos);
+
+                        const vel = baseVel.clone().add(
+                            new THREE.Vector3((Math.random() - 0.5) * 0.03, (Math.random() - 0.5) * 0.03, (Math.random() - 0.5) * 0.03)
                         );
 
                         pMesh.userData = {
                             velocity: vel,
-                            age: 0,
-                            maxAge: 16 + Math.floor(Math.random() * 8)
+                            age: 1.0 - t,
+                            maxAge: 16 + Math.floor(Math.random() * 6)
                         };
 
                         scene.add(pMesh);
@@ -4635,15 +4658,18 @@ function createEpicPlayerDeathExplosion(pos) {
                 });
             }
 
+            prevShipPos = playerShip.position.clone();
+            prevShipQuat = playerShip.quaternion.clone();
+
             // Update active particles
             for (let i = engineParticles.length - 1; i >= 0; i--) {
                 const p = engineParticles[i];
-                p.userData.age++;
+                p.userData.age += 1.0;
                 p.position.add(p.userData.velocity);
 
                 const lifeRatio = p.userData.age / p.userData.maxAge;
-                p.material.opacity = (1.0 - lifeRatio) * 0.85;
-                p.scale.setScalar(1.0 + lifeRatio * 1.1);
+                p.material.opacity = Math.max(0, (1.0 - lifeRatio) * 0.85);
+                p.scale.setScalar(1.0 + lifeRatio * 1.3);
 
                 // Dynamic RGB color shift: Electric Cyan (0.0) -> Violet -> Fiery Red/Crimson (1.0)
                 const r = lifeRatio * 0.95;
