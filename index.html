@@ -1323,7 +1323,7 @@
                 <div class="hud-card draggable-box" id="hud-action-bar-card" style="position: absolute; bottom: 25px; left: calc(50vw - 440px); width: max-content; max-width: max-content; padding: 6px 14px; z-index: 40; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px; display: inline-flex; flex-direction: column; align-items: center;">
                     <div style="display: flex; flex-direction: column; gap: 10px; align-items: stretch; width: max-content; margin-bottom: 0;">
                         <button class="sim-btn" style="border-color: rgba(0, 240, 255, 0.6); color: #00f0ff; font-weight: 700;" onclick="window.open('audiobook.html', '_blank')">🎧 Open Story Audiobook</button>
-                        <button class="sim-btn" onclick="toggleEngineAudioMute()">🔊 Cockpit Engine Audio</button>
+                        <button class="sim-btn" id="btn-audio-toggle" onclick="toggleEngineAudioMute()">🔊 Cockpit Engine Audio</button>
                         <button class="sim-btn" onclick="triggerWormholeJump()">🌀 Wormhole Jump Gate</button>
                         <button class="sim-btn" onclick="spawnEnemySwarm()">🎯 Spawn Enemy Fighters</button>
                         <button class="sim-btn" onclick="approachCapitalShip()">🛡️ Target Capital Dreadnought</button>
@@ -3335,13 +3335,14 @@
             }
 
             // Play ElevenLabs High-Fidelity Audio Sample (or Fallback Synthesizer)
+            const firingVolMult = (typeof gameVolumeConfig !== 'undefined') ? (gameVolumeConfig.master * gameVolumeConfig.firing) : 0.60;
             if (elevenLabsBuffers.fire && audioCtx && audioCtx.state === 'running' && !isAudioMuted) {
                 try {
                     const src = audioCtx.createBufferSource();
                     src.buffer = elevenLabsBuffers.fire;
                     src.playbackRate.value = 1 / 3; // Tripled the length of the MP3 sound
                     const gain = audioCtx.createGain();
-                    gain.gain.setValueAtTime(0.45, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.45 * firingVolMult, audioCtx.currentTime);
                     src.connect(gain);
                     gain.connect(audioCtx.destination);
                     src.start(0);
@@ -3357,7 +3358,7 @@
                     lOsc.type = 'sawtooth';
                     lOsc.frequency.setValueAtTime(1450, now);
                     lOsc.frequency.exponentialRampToValueAtTime(280, now + duration);
-                    lGain.gain.setValueAtTime(0.14, now);
+                    lGain.gain.setValueAtTime(0.14 * firingVolMult, now);
                     lGain.gain.linearRampToValueAtTime(0.001, now + duration);
                     lOsc.connect(lGain);
                     lGain.connect(audioCtx.destination);
@@ -3374,7 +3375,7 @@
                         filter.frequency.setValueAtTime(3200, now);
                         filter.Q.setValueAtTime(3.0, now);
                         const nGain = audioCtx.createGain();
-                        nGain.gain.setValueAtTime(0.09, now);
+                        nGain.gain.setValueAtTime(0.09 * firingVolMult, now);
                         nGain.gain.linearRampToValueAtTime(0.001, now + 0.24); // Tripled from 0.08
                         nNode.connect(filter);
                         filter.connect(nGain);
@@ -3620,10 +3621,11 @@ function createEpicPlayerDeathExplosion(pos) {
 
         function playExplosionAudio() {
             if (!audioCtx || audioCtx.state !== 'running' || isAudioMuted) return;
+            const firingVolMult = (typeof gameVolumeConfig !== 'undefined') ? (gameVolumeConfig.master * gameVolumeConfig.firing) : 0.60;
             
             // Randomize audio properties for realism (Volume significantly increased per request)
             const pitchVar = 0.8 + Math.random() * 0.4; // 0.8 to 1.2
-            const volVar = (0.8 + Math.random() * 0.4) * 1.75; // Increased volume multiplier
+            const volVar = (0.8 + Math.random() * 0.4) * 1.75 * firingVolMult; // Increased volume multiplier scaled by settings
             const durVar = 0.7 + Math.random() * 0.6; // 0.7 to 1.3
 
             if (elevenLabsBuffers.explosion) {
@@ -5224,7 +5226,8 @@ function createEpicPlayerDeathExplosion(pos) {
 
                 // 1. Master Output Gain
                 engineMasterGain = audioCtx.createGain();
-                engineMasterGain.gain.setValueAtTime(isAudioMuted ? 0 : 0.70, now);
+                const initVolMult = (typeof gameVolumeConfig !== 'undefined') ? (gameVolumeConfig.master * gameVolumeConfig.engine) : 0.56;
+                engineMasterGain.gain.setValueAtTime(isAudioMuted ? 0 : 0.40 * initVolMult, now);
 
                 // 2. Cockpit Muffling Filter (180 Hz -> 1,200 Hz)
                 engineLowPassFilter = audioCtx.createBiquadFilter();
@@ -5393,7 +5396,13 @@ function createEpicPlayerDeathExplosion(pos) {
         }
 
         function updateEngineAudio(throttleRatio, isCockpitView) {
-            if (!isAudioInitialized || !audioCtx || isAudioMuted) return;
+            if (!isAudioInitialized || !audioCtx) return;
+            if (isAudioMuted) {
+                if (engineMasterGain) {
+                    engineMasterGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+                }
+                return;
+            }
             if (audioCtx.state === 'suspended') {
                 audioCtx.resume();
             }
@@ -5406,9 +5415,9 @@ function createEpicPlayerDeathExplosion(pos) {
             const detuneFreq = 30 + t * 26;
             const midFreq = 68 + t * 50;
 
-            engineSubOsc.frequency.setTargetAtTime(subFreq, now, 0.08);
-            engineDetuneOsc.frequency.setTargetAtTime(detuneFreq, now, 0.08);
-            engineMidOsc.frequency.setTargetAtTime(midFreq, now, 0.08);
+            if (engineSubOsc) engineSubOsc.frequency.setTargetAtTime(subFreq, now, 0.08);
+            if (engineDetuneOsc) engineDetuneOsc.frequency.setTargetAtTime(detuneFreq, now, 0.08);
+            if (engineMidOsc) engineMidOsc.frequency.setTargetAtTime(midFreq, now, 0.08);
 
             // 2. Deeper Turbine & Whine (135 Hz -> 230 Hz & 210 Hz -> 350 Hz)
             if (engineTurbineOsc && engineTurbineFilter && engineTurbineGain) {
@@ -5441,15 +5450,19 @@ function createEpicPlayerDeathExplosion(pos) {
             }
 
             // 5. Deeper Cockpit Muffling Filter (250 Hz -> 1,200 Hz)
-            const cutoffBase = isCockpitView ? 250 : 520;
-            const cutoffMax = isCockpitView ? 1200 : 2600;
-            const targetCutoff = cutoffBase + t * (cutoffMax - cutoffBase);
+            if (engineLowPassFilter) {
+                const cutoffBase = isCockpitView ? 250 : 520;
+                const cutoffMax = isCockpitView ? 1200 : 2600;
+                const targetCutoff = cutoffBase + t * (cutoffMax - cutoffBase);
+                engineLowPassFilter.frequency.setTargetAtTime(targetCutoff, now, 0.1);
+            }
 
-            engineLowPassFilter.frequency.setTargetAtTime(targetCutoff, now, 0.1);
-
-            // 6. Master Volume Scaling (0.02 = 2% Idle -> 0.40 = 40% Full Throttle)
-            const targetGain = 0.02 + t * 0.38;
-            engineMasterGain.gain.setTargetAtTime(targetGain, now, 0.1);
+            // 6. Master Volume Scaling (0.02 = 2% Idle -> 0.40 = 40% Full Throttle) scaled by Master & Engine Volume sliders
+            if (engineMasterGain) {
+                const volMult = (typeof gameVolumeConfig !== 'undefined') ? (gameVolumeConfig.master * gameVolumeConfig.engine) : 0.56;
+                const targetGain = (0.02 + t * 0.38) * volMult;
+                engineMasterGain.gain.setTargetAtTime(targetGain, now, 0.08);
+            }
         }
 
         function toggleEngineAudioMute() {
@@ -5459,7 +5472,19 @@ function createEpicPlayerDeathExplosion(pos) {
             }
             isAudioMuted = !isAudioMuted;
             if (engineMasterGain && audioCtx) {
-                engineMasterGain.gain.setValueAtTime(isAudioMuted ? 0 : 0.32, audioCtx.currentTime);
+                const volMult = (typeof gameVolumeConfig !== 'undefined') ? (gameVolumeConfig.master * gameVolumeConfig.engine) : 0.56;
+                const curRatio = (typeof currentSpeed !== 'undefined' && typeof maxSpeedCap !== 'undefined' && maxSpeedCap > 0) ? (currentSpeed / maxSpeedCap) : 0.5;
+                const targetGain = (0.02 + curRatio * 0.38) * volMult;
+                engineMasterGain.gain.setValueAtTime(isAudioMuted ? 0 : targetGain, audioCtx.currentTime);
+            }
+            if (bgMusicGain && audioCtx) {
+                bgMusicGain.gain.setValueAtTime(isAudioMuted ? 0 : gameVolumeConfig.master * gameVolumeConfig.music, audioCtx.currentTime);
+            }
+            const btn = document.getElementById('btn-audio-toggle');
+            if (btn) {
+                btn.innerText = isAudioMuted ? '🔇 COCKPIT AUDIO: MUTED' : '🔊 COCKPIT AUDIO: ACTIVE';
+                btn.style.borderColor = isAudioMuted ? 'rgba(239, 68, 68, 0.6)' : '#00f0ff';
+                btn.style.color = isAudioMuted ? '#ef4444' : '#00f0ff';
             }
             showToast(isAudioMuted ? "🔇 COCKPIT ENGINE AUDIO MUTED" : "🔊 COCKPIT ENGINE AUDIO ACTIVE");
         }
@@ -5963,7 +5988,12 @@ function createEpicPlayerDeathExplosion(pos) {
                 gameVolumeConfig.music = (isNaN(musicVal) ? 60 : musicVal) / 100;
 
                 if (engineMasterGain && audioCtx && audioCtx.state === 'running') {
-                    engineMasterGain.gain.setValueAtTime(isAudioMuted ? 0 : gameVolumeConfig.master * gameVolumeConfig.engine * 0.40, audioCtx.currentTime);
+                    if (typeof currentSpeed !== 'undefined' && typeof maxSpeedCap !== 'undefined' && maxSpeedCap > 0 && typeof cameraMode !== 'undefined') {
+                        updateEngineAudio(currentSpeed / maxSpeedCap, cameraMode === 0);
+                    } else {
+                        const volMult = gameVolumeConfig.master * gameVolumeConfig.engine;
+                        engineMasterGain.gain.setValueAtTime(isAudioMuted ? 0 : 0.20 * volMult, audioCtx.currentTime);
+                    }
                 }
                 
                 if (bgMusicGain && audioCtx && audioCtx.state === 'running') {
