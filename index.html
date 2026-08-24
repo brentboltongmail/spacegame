@@ -7162,9 +7162,14 @@ function createEpicPlayerDeathExplosion(pos) {
                 if (objElem && remaining > 0) {
                     objElem.innerHTML = `<span style="color: #f43f5e; font-weight: bold; text-shadow: 0 0 8px rgba(244,63,94,0.8);">⚠️ DOMINION FLEET WARP IN: ${remaining}s</span>`;
                 }
+            } else if (fleetEmergenceActive && elapsedFleetEmergence >= 7.0 && elapsedFleetEmergence < 12.0) {
+                const objElem = document.getElementById('hud-objective');
+                if (objElem && objElem.innerHTML.includes('WARP IN')) {
+                    objElem.innerHTML = `<span style="color: #f43f5e; font-weight: bold; text-shadow: 0 0 8px rgba(244,63,94,0.8);">⚔️ ENGAGE DOMINION SIEGE FLEET & ESCORT FIGHTERS</span>`;
+                }
 
-                // Line 1: "What is going on?! We are being attacked! By... by... I don't know who!"
-                if (elapsedFleetEmergence >= 3.0 && !playedArrivalStages.stage1) {
+                // Line 1: Triggered ONLY when the first ship emerges from hyperspace (7.2s mark)
+                if (elapsedFleetEmergence >= 7.2 && !playedArrivalStages.stage1) {
                     playedArrivalStages.stage1 = true;
                     playArrivalCommsLine({
                         speaker: "KAYLEN VANCE",
@@ -7173,11 +7178,6 @@ function createEpicPlayerDeathExplosion(pos) {
                         text: "What is going on?! We are being attacked! By... by... I don't know who!",
                         audioSrc: "audio/cinematics/titan_gate/titan_arrival_01_kaylen.mp3"
                     });
-                }
-            } else if (fleetEmergenceActive && elapsedFleetEmergence >= 7.0 && elapsedFleetEmergence < 12.0) {
-                const objElem = document.getElementById('hud-objective');
-                if (objElem && objElem.innerHTML.includes('WARP IN')) {
-                    objElem.innerHTML = `<span style="color: #f43f5e; font-weight: bold; text-shadow: 0 0 8px rgba(244,63,94,0.8);">⚔️ ENGAGE DOMINION SIEGE FLEET & ESCORT FIGHTERS</span>`;
                 }
             }
 
