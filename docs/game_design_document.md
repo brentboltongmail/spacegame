@@ -67,6 +67,7 @@
 | **Heavy Strike Fighter** | Anti-Bomber / Raider | ⭐⭐⭐⭐ | ⭐⭐⭐ | Heavy Auto-cannons & Lock Torpedoes | Subsystem disabling |
 | **Gunship Corvette** | Convoy Escort | ⭐⭐⭐ | ⭐⭐⭐⭐ | Dual Turrets & Flak Missiles | Heavy firepower support |
 | **Royal Battlecruiser** | Fleet Flagship | ⭐ | ⭐⭐⭐⭐⭐ | Precursor Lance Beams & Broadside Batteries | Tactical command & orbital siege |
+| **Dominion Fighter** | Heavy Interceptor / Strike Craft | ⭐⭐⭐⭐ | ⭐⭐⭐ | Twin Crimson Laser Beams & Plasma Lightning | High-threat dogfighting & energy disruption |
 
 ### Ship Class Visual Showcase
 
@@ -81,6 +82,9 @@
 
 #### Royal Battlecruiser (Fleet Flagship)
 ![Royal Battlecruiser Flagship Concept Artwork](file:///d:/github/spacegame/docs/images/royal_battlecruiser.jpg)
+
+#### Dominion Fighter (Heavy Interceptor / Strike Craft)
+![Dominion Fighter Concept Artwork](file:///d:/github/spacegame/docs/images/dominion_fighter.jpg)
 
 ---
 
