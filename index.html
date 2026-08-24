@@ -2910,7 +2910,7 @@
 
         function loadVoidInterceptorModel() {
             const gltfLoader = new THREE.GLTFLoader();
-            gltfLoader.load('fbx/void_interceptor.glb', function(gltf) {
+            gltfLoader.load('fbx/void_interceptor.glb?v=' + Date.now(), function(gltf) {
                 const model = gltf.scene;
 
                 // Enforce solid double-sided opaque materials
@@ -3226,7 +3226,7 @@
 
             // Load Battlecruiser GLB Model
             const gltfLoader = new THREE.GLTFLoader();
-            gltfLoader.load('fbx/battlecruiser.glb', function(gltf) {
+            gltfLoader.load('fbx/battlecruiser.glb?v=' + Date.now(), function(gltf) {
                 const model = gltf.scene;
 
                 // Enforce solid double-sided opaque materials
