@@ -2755,6 +2755,57 @@
         let theCrestExplosionStartTime = 0;
         let hasTitanCinematicPlayed = false;
 
+        // --- FLEET ARRIVAL DIALOGUE COMMS GLOBALS ---
+        let arrivalCommsAudio = null;
+        let arrivalCommsTimeout = null;
+        let playedArrivalStages = { stage1: false, stage2: false, stage3: false, stage4: false };
+
+        function playArrivalCommsLine(lineData) {
+            if (isTitanCinematicActive) return; // Don't overlap with ending cinematic
+            const overlay = document.getElementById('cinematic-comms-overlay');
+            const commsBox = document.getElementById('cinematic-comms-box');
+            const commsSpeaker = document.getElementById('comms-speaker');
+            const commsSubspeaker = document.getElementById('comms-subspeaker');
+            const commsSubtitle = document.getElementById('comms-subtitle');
+            const commsBadge = document.getElementById('comms-step-badge');
+            const commsIcon = document.getElementById('comms-avatar-icon');
+
+            if (overlay) overlay.style.display = 'block';
+            if (commsBox) commsBox.className = 'cinematic-comms-box speaker-kaylen';
+            if (commsSpeaker) commsSpeaker.innerText = lineData.speaker;
+            if (commsSubspeaker) commsSubspeaker.innerText = lineData.subspeaker;
+            if (commsSubtitle) commsSubtitle.innerText = `"${lineData.text}"`;
+            if (commsBadge) commsBadge.innerText = lineData.badge || "COMMS";
+            if (commsIcon) commsIcon.innerText = "🚀";
+
+            if (arrivalCommsAudio) {
+                arrivalCommsAudio.pause();
+                arrivalCommsAudio = null;
+            }
+            if (arrivalCommsTimeout) {
+                clearTimeout(arrivalCommsTimeout);
+                arrivalCommsTimeout = null;
+            }
+
+            arrivalCommsAudio = new Audio(lineData.audioSrc);
+            arrivalCommsAudio.volume = 1.0;
+
+            const hideComms = () => {
+                arrivalCommsTimeout = setTimeout(() => {
+                    if (!isTitanCinematicActive && overlay) {
+                        overlay.style.display = 'none';
+                    }
+                }, 1000);
+            };
+
+            arrivalCommsAudio.onended = hideComms;
+            arrivalCommsAudio.onerror = hideComms;
+            arrivalCommsAudio.play().catch(e => {
+                console.warn("Arrival comms audio play error:", e);
+                hideComms();
+            });
+        }
+
         let cameraMode = 2; // 0: Cockpit View with Canopy Frame Bars, 1: Close, 2: Far (Default), 3: Cinematic Showcase (Invincible)
         let isShipInvincible = false;
         let cinematicAngle = 0;
@@ -5182,6 +5233,18 @@
                     titanIceCrustMesh.scale.set(1.0 - meltT * 0.9, 1.0, 1.0 - meltT * 0.9);
                     titanIceCrustMesh.material.opacity = Math.max(0.05, 0.95 * (1.0 - meltT * 0.85));
                 }
+
+                // Line 2: "They're attacking Titan! Actually... it looks like they're looking for something..."
+                if (elapsedExcavation >= 1.5 && !playedArrivalStages.stage2) {
+                    playedArrivalStages.stage2 = true;
+                    playArrivalCommsLine({
+                        speaker: "KAYLEN VANCE",
+                        subspeaker: "VOID INTERCEPTOR COCKPIT / SENSOR TELEMETRY",
+                        badge: "SCAN",
+                        text: "They're attacking Titan! Actually... it looks like they're looking for something...",
+                        audioSrc: "audio/cinematics/titan_gate/titan_arrival_02_kaylen.mp3"
+                    });
+                }
             } else if (elapsedExcavation >= 10.0 && elapsedExcavation < 12.0) {
                 if (titanExcavationPhase !== 'GATE_REVEALED') {
                     titanExcavationPhase = 'GATE_REVEALED';
@@ -5191,6 +5254,18 @@
                 isTractorFiring = false;     // TRACTOR NOT ACTIVE YET
                 if (ancientGoldenGate) ancientGoldenGate.visible = true; // GATE IS NOW VISIBLE ON TITAN SURFACE
                 if (titanIceCrustMesh) titanIceCrustMesh.visible = false;
+
+                // Line 3: "There is a giant ring... an ancient artifact?! What are they doing?!"
+                if (!playedArrivalStages.stage3) {
+                    playedArrivalStages.stage3 = true;
+                    playArrivalCommsLine({
+                        speaker: "KAYLEN VANCE",
+                        subspeaker: "VOID INTERCEPTOR COCKPIT / OPTICAL SCAN",
+                        badge: "DISCOVERY",
+                        text: "There is a giant ring... an ancient artifact?! What are they doing?!",
+                        audioSrc: "audio/cinematics/titan_gate/titan_arrival_03_kaylen.mp3"
+                    });
+                }
             } else if (elapsedExcavation >= 12.0 && elapsedExcavation < 34.0) {
                 if (titanExcavationPhase !== 'TRACTOR_EXTRACTION') {
                     titanExcavationPhase = 'TRACTOR_EXTRACTION';
@@ -5200,6 +5275,18 @@
                 isTractorFiring = true;      // TRACTOR BEAMS ACTIVE
                 if (ancientGoldenGate) ancientGoldenGate.visible = true;
                 if (titanIceCrustMesh) titanIceCrustMesh.visible = false;
+
+                // Ensure Line 3 plays if arriving during tractor phase
+                if (!playedArrivalStages.stage3) {
+                    playedArrivalStages.stage3 = true;
+                    playArrivalCommsLine({
+                        speaker: "KAYLEN VANCE",
+                        subspeaker: "VOID INTERCEPTOR COCKPIT / OPTICAL SCAN",
+                        badge: "DISCOVERY",
+                        text: "There is a giant ring... an ancient artifact?! What are they doing?!",
+                        audioSrc: "audio/cinematics/titan_gate/titan_arrival_03_kaylen.mp3"
+                    });
+                }
             } else {
                 if (titanExcavationPhase !== 'GATE_ACTIVE') {
                     titanExcavationPhase = 'GATE_ACTIVE';
@@ -5265,11 +5352,23 @@
                     theCrestExplosionStartTime = nowMs;
                     playTheCrestExplosionAudio(playerShip.position.distanceTo(theCrestStation.position));
                     showToast("🚨 MAYDAY! THE CREST REACTOR BREACH — MASSIVE FIREBALL EXPLOSION!");
+
+                    // Line 4: "Oh no... The Crest!! NOOO!!"
+                    if (!playedArrivalStages.stage4) {
+                        playedArrivalStages.stage4 = true;
+                        playArrivalCommsLine({
+                            speaker: "KAYLEN VANCE",
+                            subspeaker: "VOID INTERCEPTOR COCKPIT / EMERGENCY DISTRESS",
+                            badge: "MAYDAY",
+                            text: "Oh no... The Crest!! NOOO!!",
+                            audioSrc: "audio/cinematics/titan_gate/titan_arrival_04_kaylen.mp3"
+                        });
+                    }
                 }
                 const expElapsed = (nowMs - theCrestExplosionStartTime) / 1000.0;
                 if (expElapsed < 2.0) {
                     if (theCrestExplosionLight) {
-                        theCrestExplosionLight.intensity = Math.max(0, 50.0 * (1.0 - expElapsed / 2.0));
+                        theCrestExplosionLight.intensity = Math.max(0, 380.0 * (1.0 - expElapsed / 2.0));
                     }
                     if (theCrestFireballs) {
                         theCrestFireballs.forEach(fb => {
@@ -5280,7 +5379,7 @@
                                 if (fbAge >= 0 && fbAge < 1.0) {
                                     const s = Math.sin(fbAge * Math.PI) * ud.maxScale;
                                     fb.scale.set(s, s, s);
-                                    fb.position.copy(ud.offset).addScaledVector(ud.offset.clone().normalize(), fbAge * 140);
+                                    fb.position.copy(ud.offset).addScaledVector(ud.offset.clone().normalize(), fbAge * 450);
                                     if (fb.material) fb.material.opacity = Math.max(0, (1.0 - fbAge) * 0.95);
                                 } else {
                                     fb.visible = false;
@@ -5294,7 +5393,7 @@
                             if (expElapsed >= ud.delay) {
                                 sw.visible = true;
                                 ud.radius += ud.speed * timeDelta * 1.8;
-                                const s = ud.radius / 100;
+                                const s = ud.radius / 250;
                                 sw.scale.set(s, s, s);
                                 if (sw.material) {
                                     sw.material.opacity = Math.max(0, 0.90 * (1.0 - (expElapsed / 2.0)));
@@ -5303,6 +5402,12 @@
                         });
                     }
                 } else {
+                    // Explosion ended at 2.0s mark
+                    if (theCrestFireballs) theCrestFireballs.forEach(fb => fb.visible = false);
+                    if (theCrestShockwaves) theCrestShockwaves.forEach(sw => sw.visible = false);
+                    if (theCrestExplosionLight) theCrestExplosionLight.intensity = 0;
+                }
+            } else {
                     // Explosion ended at 2.0s mark
                     if (theCrestFireballs) theCrestFireballs.forEach(fb => fb.visible = false);
                     if (theCrestShockwaves) theCrestShockwaves.forEach(sw => sw.visible = false);
@@ -7026,6 +7131,18 @@ function createEpicPlayerDeathExplosion(pos) {
                 const objElem = document.getElementById('hud-objective');
                 if (objElem && remaining > 0) {
                     objElem.innerHTML = `<span style="color: #f43f5e; font-weight: bold; text-shadow: 0 0 8px rgba(244,63,94,0.8);">⚠️ DOMINION FLEET WARP IN: ${remaining}s</span>`;
+                }
+
+                // Line 1: "What is going on?! We are being attacked! By... by... I don't know who!"
+                if (elapsedFleetEmergence >= 3.0 && !playedArrivalStages.stage1) {
+                    playedArrivalStages.stage1 = true;
+                    playArrivalCommsLine({
+                        speaker: "KAYLEN VANCE",
+                        subspeaker: "VOID INTERCEPTOR COCKPIT / TACTICAL COMMS",
+                        badge: "ALERT",
+                        text: "What is going on?! We are being attacked! By... by... I don't know who!",
+                        audioSrc: "audio/cinematics/titan_gate/titan_arrival_01_kaylen.mp3"
+                    });
                 }
             } else if (fleetEmergenceActive && elapsedFleetEmergence >= 7.0 && elapsedFleetEmergence < 12.0) {
                 const objElem = document.getElementById('hud-objective');

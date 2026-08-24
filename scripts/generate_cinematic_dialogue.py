@@ -84,6 +84,34 @@ TITAN_GATE_DIALOGUE = [
         "speaker": "Kaylen Vance",
         "role": "Void Interceptor Cockpit",
         "text": "Someone has to shut the door, old man. ... See you on the other side, Dad...."
+    },
+    {
+        "id": "titan_arrival_01_kaylen",
+        "char_key": "kaylen_vance",
+        "speaker": "Kaylen Vance",
+        "role": "Void Interceptor Cockpit",
+        "text": "What is going on?! We are being attacked! By... by... I don't know who!"
+    },
+    {
+        "id": "titan_arrival_02_kaylen",
+        "char_key": "kaylen_vance",
+        "speaker": "Kaylen Vance",
+        "role": "Void Interceptor Cockpit",
+        "text": "They're attacking Titan! Actually... it looks like they're looking for something..."
+    },
+    {
+        "id": "titan_arrival_03_kaylen",
+        "char_key": "kaylen_vance",
+        "speaker": "Kaylen Vance",
+        "role": "Void Interceptor Cockpit",
+        "text": "There is a giant ring... an ancient artifact?! What are they doing?!"
+    },
+    {
+        "id": "titan_arrival_04_kaylen",
+        "char_key": "kaylen_vance",
+        "speaker": "Kaylen Vance",
+        "role": "Void Interceptor Cockpit",
+        "text": "Oh no... The Crest!! NOOO!!"
     }
 ]
 
