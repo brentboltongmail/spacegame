@@ -1226,8 +1226,8 @@
                                 <canvas id="shield-gauge-canvas" width="170" height="170"></canvas>
                                 <div style="position: absolute; text-align: center; pointer-events: none;">
                                     <div style="font-size: 0.7rem; color: var(--text-muted); font-family: Orbitron; letter-spacing: 1px;">SHIELDS</div>
-                                    <div id="shield-pct-text" style="font-size: 2.1rem; font-weight: 900; font-family: Orbitron; color: var(--accent-cyan); text-shadow: 0 0 12px rgba(0,240,255,0.7); line-height: 1.1;">88%</div>
-                                    <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;">RECHARGE 94%</div>
+                                    <div id="shield-pct-text" style="font-size: 2.1rem; font-weight: 900; font-family: Orbitron; color: var(--accent-cyan); text-shadow: 0 0 12px rgba(0,240,255,0.7); line-height: 1.1;">100%</div>
+                                    <div id="shield-hull-subtext" style="font-size: 0.68rem; color: #ff8899; margin-top: 2px; font-family: Orbitron; letter-spacing: 0.5px;">HULL 100%</div>
                                 </div>
                             </div>
                         </div>
@@ -4692,6 +4692,22 @@ function createEpicPlayerDeathExplosion(pos) {
                 } else {
                     textElem.style.color = 'var(--accent-cyan)';
                     textElem.style.textShadow = '0 0 12px rgba(0,240,255,0.7)';
+                }
+            }
+
+            const hullElem = document.getElementById('shield-hull-subtext');
+            if (hullElem) {
+                const roundedHp = Math.max(0, Math.floor(playerHp));
+                hullElem.innerText = `HULL ${roundedHp}%`;
+                if (playerHp < 25) {
+                    hullElem.style.color = '#ff3b5c';
+                    hullElem.style.textShadow = '0 0 8px rgba(255, 59, 92, 0.8)';
+                } else if (playerHp < 60) {
+                    hullElem.style.color = '#f59e0b';
+                    hullElem.style.textShadow = 'none';
+                } else {
+                    hullElem.style.color = '#ff8899';
+                    hullElem.style.textShadow = 'none';
                 }
             }
 
