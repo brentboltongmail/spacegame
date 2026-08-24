@@ -2855,8 +2855,8 @@
 
                 const targetScale = 7.2 / (size.x || 1);
                 model.scale.set(targetScale, targetScale, targetScale);
-                model.rotation.set(0, -Math.PI / 2, 0);
-                model.position.set(center.z * targetScale, -center.y * targetScale, -center.x * targetScale);
+                model.rotation.set(-Math.PI / 2, -Math.PI / 2, 0);
+                model.position.set(-center.y * targetScale, -center.z * targetScale, -center.x * targetScale);
 
                 voidInterceptorTemplate = model;
 
@@ -2864,6 +2864,17 @@
                     attachVoidInterceptorModel(item.group, item.isEvil);
                 });
                 pendingVoidInterceptorShips.length = 0;
+
+                if (upgradeHangarShip && playerShip) {
+                    upgradeHangarShip.clear();
+                    const clonedShip = playerShip.clone(true);
+                    clonedShip.visible = true;
+                    clonedShip.position.set(0, 0, 0);
+                    clonedShip.rotation.set(0, 0, 0);
+                    clonedShip.quaternion.set(0, 0, 0, 1);
+                    upgradeHangarShip.add(clonedShip);
+                    if (hangarShieldMesh) upgradeHangarShip.add(hangarShieldMesh);
+                }
 
                 console.log("[VOID INTERCEPTOR] GLB Model and Texture Loaded Successfully!");
             }, undefined, function(err) {
@@ -5042,7 +5053,11 @@ function createEpicPlayerDeathExplosion(pos) {
                     upgradeHangarShip.clear();
                     const clonedShip = playerShip.clone(true);
                     clonedShip.visible = true;
+                    clonedShip.position.set(0, 0, 0);
+                    clonedShip.rotation.set(0, 0, 0);
+                    clonedShip.quaternion.set(0, 0, 0, 1);
                     upgradeHangarShip.add(clonedShip);
+                    if (hangarShieldMesh) upgradeHangarShip.add(hangarShieldMesh);
                 }
                 showToast("⏸️ GAME PAUSED — PILOT PROFILE & SHIP UPGRADE HANGAR");
             } else {
