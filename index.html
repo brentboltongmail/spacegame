@@ -5797,7 +5797,7 @@
 
         const laserPool = [];
         const enemyLaserPool = [];
-        const maxPoolSize = 40;
+        const maxPoolSize = 60;
 
         function initLaserPool() {
             if (laserPool.length > 0) return;
@@ -5841,7 +5841,20 @@
                     return laserPool[i];
                 }
             }
-            return null;
+            // Dynamic allocation fallback if rapid zero-cooldown firing exceeds initial pool
+            const boltGroup = new THREE.Group();
+            const coreMesh = new THREE.Mesh(sharedLaserCoreGeo, sharedLaserCoreMat);
+            boltGroup.add(coreMesh);
+            const auraMesh = new THREE.Mesh(sharedLaserAuraGeo, sharedLaserAuraMat);
+            boltGroup.add(auraMesh);
+            const tipMesh = new THREE.Mesh(sharedLaserTipGeo, sharedLaserTipMat);
+            tipMesh.position.set(0, 0, -6.2);
+            boltGroup.add(tipMesh);
+            boltGroup.visible = false;
+            boltGroup.userData = { active: true, velocity: new THREE.Vector3(), prevPos: new THREE.Vector3() };
+            scene.add(boltGroup);
+            laserPool.push(boltGroup);
+            return boltGroup;
         }
 
         function getPooledEnemyLaserBolt() {
@@ -5854,14 +5867,8 @@
             return null;
         }
 
-        let lastFireTime = 0;
-
         function firePlasmaLaser() {
             if (isTacticalMapOpen || isGamePaused || isOptionsOpen) return;
-            const nowTime = performance.now();
-            if (nowTime - lastFireTime < 100) return; // 100ms fire cooldown rate-limit (~10 shots/sec max rate)
-            lastFireTime = nowTime;
-
             if (!playerShip) return;
 
             // Reuse pre-allocated helper vectors - ZERO GC allocations!
