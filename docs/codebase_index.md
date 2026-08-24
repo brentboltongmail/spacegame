@@ -28,7 +28,7 @@ This document serves as a high-level map of index.html (the primary 6000+ line a
 
 ## 4. Ship Models & Construction
 *   loadVoidInterceptorModel() / buildDetailedShipMesh() - Loads the ultra-fast binary glTF model (`fbx/void_interceptor.glb`) via `THREE.GLTFLoader`, centering, scaling, and twin engine exhaust glow assemblies (cavities, thruster discs, core discs, halos, point lights).
-*   createPlayerShip() - Constructs the player's primary Void Interceptor group, shield bubble, and engine lights.
+*   createPlayerShip() - Constructs the player's primary Void Interceptor group, form-fitting aerodynamic hexagonal deflector shield mesh (`createHexagonalShieldMesh()` with procedural honeycomb lattice `createHexagonalShieldTexture()`, 5-second hit persistence timer, and glowing pulse animation), and engine lights.
 *   createCapitalShip() - Loads the ultra-fast binary glTF Battlecruiser model (`fbx/battlecruiser.glb`) via `THREE.GLTFLoader`, navigation beacons, and engine exhaust particle emitters.
 *   createEnemyInterceptorMesh() - Returns a crimson-tinted cloned GLB mesh for generating hostile AI fighters.
 

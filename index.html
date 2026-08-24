@@ -3112,21 +3112,142 @@
             return shipGroup;
         }
 
+        function createHexagonalShieldTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024;
+            canvas.height = 1024;
+            const ctx = canvas.getContext('2d');
+
+            ctx.clearRect(0, 0, 1024, 1024);
+
+            // Draw seamless hexagonal honeycomb lattice
+            const hexRadius = 40;
+            const w = hexRadius * Math.sqrt(3);
+            const h = hexRadius * 1.5;
+
+            ctx.strokeStyle = '#00f0ff';
+            ctx.lineWidth = 3.5;
+            ctx.fillStyle = 'rgba(0, 240, 255, 0.08)';
+
+            function drawHex(cx, cy, r) {
+                ctx.beginPath();
+                for (let i = 0; i < 6; i++) {
+                    const angle = (Math.PI / 3) * i - Math.PI / 6;
+                    const x = cx + r * Math.cos(angle);
+                    const y = cy + r * Math.sin(angle);
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            }
+
+            for (let row = -2; row < (1024 / h) + 2; row++) {
+                for (let col = -2; col < (1024 / w) + 2; col++) {
+                    const x = col * w + ((row % 2 === 0) ? 0 : w / 2);
+                    const y = row * h;
+                    drawHex(x, y, hexRadius - 2.0);
+                }
+            }
+
+            // High-intensity energy nodes at hexagon vertices
+            ctx.fillStyle = '#ffffff';
+            for (let row = -2; row < (1024 / h) + 2; row++) {
+                for (let col = -2; col < (1024 / w) + 2; col++) {
+                    const cx = col * w + ((row % 2 === 0) ? 0 : w / 2);
+                    const cy = row * h;
+                    for (let i = 0; i < 6; i++) {
+                        const angle = (Math.PI / 3) * i - Math.PI / 6;
+                        const vx = cx + (hexRadius - 2.0) * Math.cos(angle);
+                        const vy = cy + (hexRadius - 2.0) * Math.sin(angle);
+                        ctx.beginPath();
+                        ctx.arc(vx, vy, 2.2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(6, 4);
+            return texture;
+        }
+
+        function createHexagonalShieldMesh() {
+            const shieldGroup = new THREE.Group();
+            shieldGroup.userData.isShield = true;
+            shieldGroup.userData.shieldActiveTimer = 0;
+
+            const hexTex = createHexagonalShieldTexture();
+            shieldGroup.userData.hexTex = hexTex;
+
+            // Form-fitting aerodynamic shield ellipsoid geometry
+            const baseGeo = new THREE.SphereGeometry(1, 32, 24);
+
+            // Layer 1: Outer Hexagonal Barrier
+            const outerMat = new THREE.MeshBasicMaterial({
+                map: hexTex,
+                color: 0x00f0ff,
+                transparent: true,
+                opacity: 0.0,
+                blending: THREE.AdditiveBlending,
+                side: THREE.DoubleSide,
+                depthWrite: false
+            });
+            const outerMesh = new THREE.Mesh(baseGeo, outerMat);
+            outerMesh.scale.set(4.55, 1.55, 4.85);
+            outerMesh.userData.isShield = true;
+            shieldGroup.add(outerMesh);
+            shieldGroup.userData.outerMat = outerMat;
+
+            // Layer 2: Inner Translucent Energy Plasma Membrane
+            const innerMat = new THREE.MeshBasicMaterial({
+                color: 0x0284c7,
+                transparent: true,
+                opacity: 0.0,
+                blending: THREE.AdditiveBlending,
+                side: THREE.BackSide,
+                depthWrite: false
+            });
+            const innerMesh = new THREE.Mesh(baseGeo, innerMat);
+            innerMesh.scale.set(4.45, 1.48, 4.75);
+            innerMesh.userData.isShield = true;
+            shieldGroup.add(innerMesh);
+            shieldGroup.userData.innerMat = innerMat;
+
+            // Layer 3: Geodesic Hexagonal Facet Accent Wireframe
+            const wireGeo = new THREE.IcosahedronGeometry(1, 3);
+            const wireMat = new THREE.MeshBasicMaterial({
+                color: 0x38bdf8,
+                transparent: true,
+                opacity: 0.0,
+                wireframe: true,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+            const wireMesh = new THREE.Mesh(wireGeo, wireMat);
+            wireMesh.scale.set(4.58, 1.57, 4.88);
+            wireMesh.userData.isShield = true;
+            shieldGroup.add(wireMesh);
+            shieldGroup.userData.wireMat = wireMat;
+
+            return shieldGroup;
+        }
+
+        function triggerPlayerShieldHit() {
+            if (!playerShieldBubble) return;
+            playerShieldBubble.visible = true;
+            playerShieldBubble.userData.shieldActiveTimer = 5.0; // Stays active for 5 full seconds
+        }
+
         function createPlayerShip() {
             playerShip = buildDetailedShipMesh(false);
 
-            // Add visible energy shield bubble
-            const shieldGeo = new THREE.SphereGeometry(7, 32, 32);
-            const shieldMat = new THREE.MeshBasicMaterial({
-                color: 0x00f0ff,
-                transparent: true,
-                opacity: 0.2,
-                blending: THREE.AdditiveBlending,
-                side: THREE.DoubleSide
-            });
-            playerShieldBubble = new THREE.Mesh(shieldGeo, shieldMat);
+            // Add form-fitting hexagonal deflector shield mesh
+            playerShieldBubble = createHexagonalShieldMesh();
             playerShieldBubble.visible = false;
-            playerShieldBubble.userData.flashTimer = 0;
             playerShip.add(playerShieldBubble);
 
             playerShip.position.set(0, 0, 0);
@@ -3637,7 +3758,7 @@ function createEpicPlayerDeathExplosion(pos) {
 
                 const pieces = [];
                 playerShip.traverse((child) => {
-                    if (child.isMesh && child !== playerShieldBubble) {
+                    if (child.isMesh && !child.userData.isShield && child !== playerShieldBubble) {
                         pieces.push(child);
                     }
                 });
@@ -4551,10 +4672,7 @@ function createEpicPlayerDeathExplosion(pos) {
                     
                     if (shieldPercent > 0) {
                         shieldPercent -= damageAmt;
-                        if (playerShieldBubble) {
-                            playerShieldBubble.visible = true;
-                            playerShieldBubble.userData.flashTimer = 15;
-                        }
+                        triggerPlayerShieldHit();
                         if (shieldPercent < 0) {
                             playerHp = Math.max(0, playerHp + shieldPercent); // Spillover
                             shieldPercent = 0;
@@ -4693,10 +4811,28 @@ function createEpicPlayerDeathExplosion(pos) {
             // Engine Exhaust Particle Trails (Continuous Smooth Plasma Stream)
             updateEngineParticleTrails(oldPos, oldQuat);
 
-            // Animate Shield Bubble Flash
+            // Animate Hexagonal Energy Shield Pulse & Fade
             if (playerShieldBubble && playerShieldBubble.visible) {
-                playerShieldBubble.userData.flashTimer--;
-                if (playerShieldBubble.userData.flashTimer <= 0) {
+                if (playerShieldBubble.userData.shieldActiveTimer > 0) {
+                    playerShieldBubble.userData.shieldActiveTimer -= 0.016;
+                    const timer = playerShieldBubble.userData.shieldActiveTimer;
+                    const pulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.007);
+                    const fade = Math.min(1.0, timer / 0.8);
+                    
+                    if (playerShieldBubble.userData.hexTex) {
+                        playerShieldBubble.userData.hexTex.offset.x += 0.0008;
+                        playerShieldBubble.userData.hexTex.offset.y += 0.0005;
+                    }
+                    if (playerShieldBubble.userData.outerMat) {
+                        playerShieldBubble.userData.outerMat.opacity = (0.50 + 0.35 * pulse) * fade;
+                    }
+                    if (playerShieldBubble.userData.innerMat) {
+                        playerShieldBubble.userData.innerMat.opacity = (0.12 + 0.08 * pulse) * fade;
+                    }
+                    if (playerShieldBubble.userData.wireMat) {
+                        playerShieldBubble.userData.wireMat.opacity = (0.18 + 0.14 * pulse) * fade;
+                    }
+                } else {
                     playerShieldBubble.visible = false;
                 }
             }
@@ -5172,10 +5308,8 @@ function createEpicPlayerDeathExplosion(pos) {
             }
             upgradeHangarScene.add(upgradeHangarShip);
 
-            // Holographic Deflector Shield Mesh
-            const shGeo = new THREE.SphereGeometry(4.2, 32, 32);
-            const shMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.0, wireframe: true });
-            hangarShieldMesh = new THREE.Mesh(shGeo, shMat);
+            // Holographic Form-Fitting Deflector Shield Mesh
+            hangarShieldMesh = createHexagonalShieldMesh();
             upgradeHangarShip.add(hangarShieldMesh);
 
             // Click & Drag to Orbit/Rotate 3D Ship Listeners
@@ -5285,8 +5419,14 @@ function createEpicPlayerDeathExplosion(pos) {
 
             // Visual shield pulse if shield upgraded
             if (modKey === 'shields' && hangarShieldMesh) {
-                hangarShieldMesh.material.opacity = 0.6;
-                setTimeout(() => { hangarShieldMesh.material.opacity = 0.0; }, 1200);
+                if (hangarShieldMesh.userData.outerMat) hangarShieldMesh.userData.outerMat.opacity = 0.8;
+                if (hangarShieldMesh.userData.innerMat) hangarShieldMesh.userData.innerMat.opacity = 0.25;
+                if (hangarShieldMesh.userData.wireMat) hangarShieldMesh.userData.wireMat.opacity = 0.4;
+                setTimeout(() => {
+                    if (hangarShieldMesh.userData.outerMat) hangarShieldMesh.userData.outerMat.opacity = 0.0;
+                    if (hangarShieldMesh.userData.innerMat) hangarShieldMesh.userData.innerMat.opacity = 0.0;
+                    if (hangarShieldMesh.userData.wireMat) hangarShieldMesh.userData.wireMat.opacity = 0.0;
+                }, 1500);
             }
 
             showToast(`✨ UPGRADED ${mod.name.toUpperCase()} TO LEVEL ${mod.level}!`);
