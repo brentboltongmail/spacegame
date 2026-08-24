@@ -5408,12 +5408,6 @@
                     if (theCrestExplosionLight) theCrestExplosionLight.intensity = 0;
                 }
             } else {
-                    // Explosion ended at 2.0s mark
-                    if (theCrestFireballs) theCrestFireballs.forEach(fb => fb.visible = false);
-                    if (theCrestShockwaves) theCrestShockwaves.forEach(sw => sw.visible = false);
-                    if (theCrestExplosionLight) theCrestExplosionLight.intensity = 0;
-                }
-            } else {
                 // DESTROYED: Explosion is 100% GONE, station broken apart, debris scatters outward
                 if (theCrestState !== 'DESTROYED') {
                     theCrestState = 'DESTROYED';
