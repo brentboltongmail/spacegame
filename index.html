@@ -1243,8 +1243,8 @@
 
                     <div class="hud-card">
                         <div class="hud-title">SECTOR / OBJECTIVE</div>
-                        <div class="hud-stat" id="hud-sector" style="color: var(--accent-gold);">SOL OUTER RIM</div>
-                        <div id="hud-objective" style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Investigate Anomaly or Fly through Wormhole</div>
+                        <div class="hud-stat" id="hud-sector" style="color: var(--accent-gold);">TITAN ORBIT — THE CREST</div>
+                        <div id="hud-objective" style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Patrol perimeter orbit around The Crest Orbital Platform</div>
                     </div>
                 </div>
 
@@ -1324,6 +1324,7 @@
                     <div style="display: flex; flex-direction: column; gap: 10px; align-items: stretch; width: max-content; margin-bottom: 0;">
                         <button class="sim-btn" style="border-color: rgba(0, 240, 255, 0.6); color: #00f0ff; font-weight: 700;" onclick="window.open('audiobook.html', '_blank')">🎧 Open Story Audiobook</button>
                         <button class="sim-btn" id="btn-audio-toggle" onclick="toggleEngineAudioMute()">🔊 Cockpit Engine Audio</button>
+                        <button class="sim-btn" style="border-color: rgba(56, 189, 248, 0.6); color: #38bdf8; font-weight: 700;" onclick="approachTheCrest()">🛰️ Target The Crest Station</button>
                         <button class="sim-btn" onclick="triggerWormholeJump()">🌀 Wormhole Jump Gate</button>
                         <button class="sim-btn" onclick="spawnEnemySwarm()">🎯 Spawn Enemy Fighters</button>
                         <button class="sim-btn" onclick="approachCapitalShip()">🛡️ Target Capital Dreadnought</button>
@@ -1690,6 +1691,10 @@
                     <div class="legend-item" onclick="focusMapObject('wormhole')">
                         <span style="color: #8b5cf6; font-weight: 700;">🌀 Ancient Wormhole</span>
                         <span style="color: #94a3b8;">3.5 KM</span>
+                    </div>
+                    <div class="legend-item" onclick="focusMapObject('crest')">
+                        <span style="color: #38bdf8; font-weight: 700;">🛰️ The Crest Station</span>
+                        <span style="color: #94a3b8;">TITAN ORBIT</span>
                     </div>
                     <div class="legend-item" onclick="focusMapObject('dreadnought')">
                         <span style="color: #a855f7; font-weight: 700;">🛡️ Royal Dreadnought</span>
@@ -2298,8 +2303,9 @@
         // --- 3D THREE.JS SPACE FLIGHT SIMULATOR (MOUSE TARGETING & SPEED) ---
         let scene, camera, renderer;
         let playerShip;
-        let playerShieldBubble, capitalShip, wormholeGate, starfield, spacePlanet, spacePlanetSphere, spacePlanetRing, spacePlanetRingMesh, spaceTitan, spaceTitanSphere, spaceTitanAtmosphere, spaceSun, targetBox3D;
+        let playerShieldBubble, capitalShip, theCrestStation, wormholeGate, starfield, spacePlanet, spacePlanetSphere, spacePlanetRing, spacePlanetRingMesh, spaceTitan, spaceTitanSphere, spaceTitanAtmosphere, spaceSun, targetBox3D;
         let dreadOrbitAngle = 0.5; // Orbit angle around spacePlanet
+        let mapCrestMesh;
         let enemyShips = [];
         let laserProjectiles = [];
         let enemyLaserProjectiles = [];
@@ -2376,7 +2382,7 @@
             scene.fog = new THREE.FogExp2(0x070913, 0.00003); // 16x lighter fog for crystal clear space visibility!
 
             camera = new THREE.PerspectiveCamera(65, container.clientWidth / container.clientHeight, 1.0, 2000000);
-            camera.position.set(0, 6.0, 22.0);
+            camera.position.set(78940, -1190, -47278);
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, logarithmicDepthBuffer: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
@@ -2404,6 +2410,7 @@
             createSolarSun();
             createSpacePlanet();
             createTitanMoon();
+            createTheCrestStation();
             loadVoidInterceptorModel();
             createPlayerShip();
             createCapitalShip();
@@ -2938,6 +2945,64 @@
             spaceTitanSphere.add(spaceTitanAtmosphere);
         }
 
+        // --- THE CREST ORBITAL DEFENSE PLATFORM (STATION) GLB LOADER ---
+        function createTheCrestStation() {
+            theCrestStation = new THREE.Group();
+            // Positioned in perimeter orbit around Titan
+            theCrestStation.position.set(78760, -1236, -47680);
+            scene.add(theCrestStation);
+
+            // Local station accent lighting
+            const crestLight = new THREE.PointLight(0x38bdf8, 3.5, 3000);
+            crestLight.position.set(0, 50, 0);
+            theCrestStation.add(crestLight);
+
+            const warmLight = new THREE.PointLight(0xffa200, 2.0, 2500);
+            warmLight.position.set(0, -50, 0);
+            theCrestStation.add(warmLight);
+
+            // Load The Crest GLB Model
+            const gltfLoader = new THREE.GLTFLoader();
+            gltfLoader.load('fbx/the_crest.glb?v=' + Date.now(), function(gltf) {
+                const model = gltf.scene;
+
+                // Enforce solid double-sided opaque materials
+                model.traverse(function(child) {
+                    if (child.isMesh && child.material) {
+                        const mats = Array.isArray(child.material) ? child.material : [child.material];
+                        mats.forEach(mat => {
+                            mat.transparent = false;
+                            mat.opacity = 1.0;
+                            mat.depthWrite = true;
+                            mat.depthTest = true;
+                            mat.side = THREE.DoubleSide;
+                            mat.needsUpdate = true;
+                        });
+                    }
+                });
+
+                // Compute Bounding Box & Scale to ~1,600 units diameter
+                const box = new THREE.Box3().setFromObject(model);
+                const size = new THREE.Vector3();
+                box.getSize(size);
+                const center = new THREE.Vector3();
+                box.getCenter(center);
+
+                const maxDim = Math.max(size.x, size.z);
+                const targetScale = 1600 / (maxDim || 1);
+                model.scale.set(targetScale, targetScale, targetScale);
+
+                // Center model: In the_crest.glb, +Y is UP (communications antennas & command bridge), X-Z is the horizontal ring plane.
+                // Default rotation (0, 0, 0) is already right side up!
+                model.position.set(-center.x * targetScale, -center.y * targetScale, -center.z * targetScale);
+
+                theCrestStation.add(model);
+                console.log("[THE CREST] GLB Model Loaded & Oriented Successfully in Titan Orbit!");
+            }, undefined, function(err) {
+                console.error("[THE CREST GLB ERROR]", err);
+            });
+        }
+
         // --- VOID INTERCEPTOR GLB MODEL & MATERIAL MANAGEMENT ---
         let voidInterceptorTemplate = null;
         const pendingVoidInterceptorShips = [];
@@ -3262,8 +3327,15 @@
             playerShieldBubble.visible = false;
             playerShip.add(playerShieldBubble);
 
-            playerShip.position.set(0, 0, 0);
+            // Start Void Interceptor in perimeter orbit of Titan near The Crest station
+            playerShip.position.set(78940, -1196, -47300);
+            playerShip.lookAt(new THREE.Vector3(78760, -1236, -47680));
             scene.add(playerShip);
+
+            if (camera) {
+                camera.position.set(78940, -1190, -47278);
+                camera.lookAt(playerShip.position);
+            }
         }
 
         function createCapitalShip() {
@@ -3974,6 +4046,20 @@ function createEpicPlayerDeathExplosion(pos) {
             showToast("⚠️ 6 ENEMY VOID INTERCEPTORS ENGAGED! TARGET LOCK ACTIVE");
         }
 
+        function approachTheCrest() {
+            if (!theCrestStation) return;
+            const backwardOffset = new THREE.Vector3(180, 40, 380);
+            playerShip.position.copy(theCrestStation.position).add(backwardOffset);
+            playerShip.lookAt(theCrestStation.position);
+            targetSpeed = 40;
+            currentSpeed = 40;
+            const sec = document.getElementById('hud-sector');
+            const obj = document.getElementById('hud-objective');
+            if (sec) sec.innerText = "TITAN PERIMETER — THE CREST";
+            if (obj) obj.innerText = "Escort EDF Interceptor Patrol around The Crest";
+            showToast("Approaching The Crest Orbital Platform in Titan Orbit!");
+        }
+
         function approachCapitalShip() {
             if (!capitalShip) return;
             const backwardOffset = new THREE.Vector3(0, 120, 600).applyQuaternion(capitalShip.quaternion);
@@ -3989,17 +4075,18 @@ function createEpicPlayerDeathExplosion(pos) {
         }
 
         function resetSimView() {
-            playerShip.position.set(0, 0, 0);
+            playerShip.position.set(78940, -1196, -47300);
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
+            playerShip.lookAt(new THREE.Vector3(78760, -1236, -47680));
             targetSpeed = 0;
             currentSpeed = 0;
             isWormholeActive = false;
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
-            if (sec) sec.innerText = "SOL OUTER RIM";
-            if (obj) obj.innerText = "Investigate Anomaly or Fly through Wormhole";
-            showToast("Flight position reset to Sol Station.");
+            if (sec) sec.innerText = "TITAN ORBIT — THE CREST";
+            if (obj) obj.innerText = "Patrol perimeter orbit around The Crest Orbital Platform";
+            showToast("Flight position reset to The Crest station near Titan.");
         }
 
         let lastTime = performance.now();
@@ -4135,6 +4222,30 @@ function createEpicPlayerDeathExplosion(pos) {
                             statusTag.style.color = '#f59e0b';
                             setTimeout(() => {
                                 if (statusTag.innerText === 'TITAN REPULSE') {
+                                    statusTag.innerText = 'STABLE';
+                                    statusTag.style.color = '#f59e0b';
+                                }
+                            }, 500);
+                        }
+                    }
+                }
+            }
+
+            // Prevent clipping into The Crest station (Smooth sliding atmospheric repulsor buffer)
+            if (theCrestStation) {
+                const crestRadius = 750;
+                const crestBuffer = 60;
+                const distToCrest = playerShip.position.distanceTo(theCrestStation.position);
+                if (distToCrest < crestRadius + crestBuffer) {
+                    const pushOutDir = playerShip.position.clone().sub(theCrestStation.position).normalize();
+                    playerShip.position.copy(theCrestStation.position).add(pushOutDir.multiplyScalar(crestRadius + crestBuffer));
+                    if (currentSpeed > 50) {
+                        const statusTag = document.getElementById('throttle-status-tag');
+                        if (statusTag && Math.random() < 0.1) {
+                            statusTag.innerText = 'STATION REPULSE';
+                            statusTag.style.color = '#38bdf8';
+                            setTimeout(() => {
+                                if (statusTag.innerText === 'STATION REPULSE') {
                                     statusTag.innerText = 'STABLE';
                                     statusTag.style.color = '#f59e0b';
                                 }
@@ -4390,11 +4501,12 @@ function createEpicPlayerDeathExplosion(pos) {
                 }
             }
 
-            // Rotate Saturn cloud bands, textured ring disc, asteroid ring particles, and Titan moon
+            // Rotate Saturn cloud bands, textured ring disc, asteroid ring particles, Titan moon, and The Crest station
             if (spacePlanetSphere) spacePlanetSphere.rotation.y += 0.00015;
             if (spacePlanetRingMesh) spacePlanetRingMesh.rotation.y += 0.00025;
             if (spacePlanetRing) spacePlanetRing.rotation.y += 0.00025;
             if (spaceTitanSphere) spaceTitanSphere.rotation.y += 0.00018;
+            if (theCrestStation) theCrestStation.rotation.y += 0.00025;
 
             // --- ANIMATE ENEMY INTERCEPTORS (NATURAL 6-DOF DOGFIGHTING FLIGHT AI) ---
             let closestEnemy = null;
@@ -5249,6 +5361,11 @@ function createEpicPlayerDeathExplosion(pos) {
                 drawBlip(spaceTitan.position, '#f59e0b', 5.5, false, 'TITAN');
             }
 
+            // Draw The Crest Station Blip (Cyan Torus/Station)
+            if (theCrestStation && theCrestStation.position) {
+                drawBlip(theCrestStation.position, '#38bdf8', 6, false, 'THE CREST');
+            }
+
             // Draw Ancient Wormhole Gate Blip (Purple Ring)
             if (wormholeGate && wormholeGate.position) {
                 drawBlip(wormholeGate.position, '#8b5cf6', 5, false, 'GATE');
@@ -5922,6 +6039,14 @@ function createEpicPlayerDeathExplosion(pos) {
             mapTitanMesh.position.set(306.2, -6.3, -197.1); // 76560, -1586, -49280 * 0.004
             mapGroup.add(mapTitanMesh);
 
+            // 2c. The Crest (Orbital Platform)
+            const crestIconGeo = new THREE.TorusGeometry(3.6, 0.7, 12, 32);
+            crestIconGeo.rotateX(Math.PI / 2);
+            const crestIconMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+            mapCrestMesh = new THREE.Mesh(crestIconGeo, crestIconMat);
+            mapCrestMesh.userData = { label: "The Crest (Orbital Platform)" };
+            mapGroup.add(mapCrestMesh);
+
             // 3. Sol Primary Star
             const sunIconGeo = new THREE.SphereGeometry(120, 32, 32); // 30000 * 0.004
             const sunIconMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
@@ -6058,6 +6183,10 @@ function createEpicPlayerDeathExplosion(pos) {
 
             setRelativeMapPos(mapPlanetMesh, spacePlanet);
             setRelativeMapPos(mapTitanMesh, spaceTitan);
+            setRelativeMapPos(mapCrestMesh, theCrestStation);
+            if (theCrestStation && mapCrestMesh) {
+                mapCrestMesh.quaternion.copy(theCrestStation.quaternion);
+            }
             setRelativeMapPos(mapSunMesh, spaceSun);
             setRelativeMapPos(mapGateMesh, wormholeGate);
             
@@ -6448,6 +6577,10 @@ function createEpicPlayerDeathExplosion(pos) {
                 mapTargetCamDistance = 160;
                 mapTargetRotationX = 0.35;
                 mapTargetRotationY = 1.05;
+            } else if (targetType === 'crest' || targetType === 'station') {
+                mapTargetCamDistance = 45;
+                mapTargetRotationX = 0.50;
+                mapTargetRotationY = 0.0;
             } else if (targetType === 'wormhole') {
                 mapTargetCamDistance = 35;
                 mapTargetRotationX = 0.55;

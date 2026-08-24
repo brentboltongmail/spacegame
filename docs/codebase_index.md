@@ -23,12 +23,13 @@ This document serves as a high-level map of index.html (the primary 6000+ line a
 *   createSolarSun() - Creates the central star and its procedural texture.
 *   createSpacePlanet() - Spawns the colossal photorealistic gas giant Saturn, glowing golden atmospheric halo, continuous high-resolution textured ring disc (`RingGeometry` with `docs/images/saturn_rings.png`), and instanced 3D asteroid particle belt with Cassini division gaps.
 *   createTitanMoon() - Spawns Saturn's largest moon Titan (`docs/images/titan_surface.jpg`) with photochemical smog haze atmosphere and atmospheric repulsor buffer.
+*   createTheCrestStation() - Loads and places the massive binary glTF orbital station model (`fbx/the_crest.glb`) in perimeter orbit around Titan with correct upright orientation (+Y axis command bridge/antennae, X-Z ring plane), 1,600-unit diameter scale, dual-tone lighting, station collision repulsor buffer, and 3D tactical map / radar blips.
 *   createWormholeGate() - Generates the massive ancient wormhole structure.
-*   initTacticalMap3D() / renderTacticalMap3D() - Populates and renders the real-time 3D interactive holographic tactical system map (tracking Player, Sol, Saturn, Titan, Ancient Gate, Capital Dreadnought, and Hostile Swarms).
+*   initTacticalMap3D() / renderTacticalMap3D() - Populates and renders the real-time 3D interactive holographic tactical system map (tracking Player, Sol, Saturn, Titan, The Crest Station, Ancient Gate, Capital Dreadnought, and Hostile Swarms).
 
 ## 4. Ship Models & Construction
 *   loadVoidInterceptorModel() / buildDetailedShipMesh() - Loads the ultra-fast binary glTF model (`fbx/void_interceptor.glb`) via `THREE.GLTFLoader`, centering, scaling, and twin engine exhaust glow assemblies (cavities, thruster discs, core discs, halos, point lights).
-*   createPlayerShip() - Constructs the player's primary Void Interceptor group, form-fitting aerodynamic hexagonal deflector shield mesh (`createHexagonalShieldMesh()` with procedural honeycomb lattice `createHexagonalShieldTexture()`, 5-second hit persistence timer, and glowing pulse animation), and engine lights.
+*   createPlayerShip() - Constructs the player's primary Void Interceptor group spawned in Titan perimeter orbit facing The Crest station, form-fitting aerodynamic hexagonal deflector shield mesh (`createHexagonalShieldMesh()` with procedural honeycomb lattice `createHexagonalShieldTexture()`, 5-second hit persistence timer, and glowing pulse animation), and engine lights.
 *   createCapitalShip() - Loads the ultra-fast binary glTF Battlecruiser model (`fbx/battlecruiser.glb`) via `THREE.GLTFLoader`, navigation beacons, and engine exhaust particle emitters.
 *   createEnemyInterceptorMesh() - Returns a crimson-tinted cloned GLB mesh for generating hostile AI fighters.
 
