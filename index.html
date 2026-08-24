@@ -2855,7 +2855,7 @@
 
                 const targetScale = 7.2 / (size.x || 1);
                 model.scale.set(targetScale, targetScale, targetScale);
-                model.rotation.set(-Math.PI / 2, -Math.PI / 2, 0);
+                model.rotation.set(-Math.PI / 2, 0, -Math.PI / 2);
                 model.position.set(-center.y * targetScale, -center.z * targetScale, -center.x * targetScale);
 
                 voidInterceptorTemplate = model;
@@ -3155,7 +3155,7 @@
                 model.scale.set(targetScale, targetScale, targetScale);
 
                 // Center and rotate model horizontally in local group (nose to -Z, wings to +/-X, bridge to +Y)
-                model.rotation.set(-Math.PI / 2, -Math.PI / 2, 0);
+                model.rotation.set(-Math.PI / 2, 0, -Math.PI / 2);
                 model.position.set(-center.y * targetScale, -center.z * targetScale, -center.x * targetScale);
 
                 capitalShip.add(model);
