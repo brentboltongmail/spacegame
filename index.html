@@ -2870,75 +2870,42 @@
         });
 
         function loadVoidInterceptorFBX() {
-            // Fast direct binary buffer loading (loads in ~0.01s with zero browser lockup)
-            fetch('fbx/void_interceptor_geom.bin')
-                .then(res => {
-                    if (!res.ok) throw new Error("HTTP " + res.status);
-                    return res.arrayBuffer();
-                })
-                .then(buf => {
-                    const count = new Uint32Array(buf, 0, 1)[0];
-                    const posOffset = 4;
-                    const normOffset = posOffset + count * 3 * 4;
-                    const uvOffset = normOffset + count * 3 * 4;
-
-                    const positions = new Float32Array(buf, posOffset, count * 3);
-                    const normals = new Float32Array(buf, normOffset, count * 3);
-                    const uvs = new Float32Array(buf, uvOffset, count * 2);
-
-                    const geo = new THREE.BufferGeometry();
-                    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-                    geo.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
-                    geo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
-
-                    const mesh = new THREE.Mesh(geo, voidInterceptorMat);
-                    mesh.castShadow = true;
-                    mesh.receiveShadow = true;
-
-                    const container = new THREE.Group();
-                    container.add(mesh);
-                    voidInterceptorTemplate = container;
-
-                    pendingVoidInterceptorShips.forEach(item => {
-                        attachVoidInterceptorFBX(item.group, item.isEvil);
-                    });
-                    pendingVoidInterceptorShips.length = 0;
-
-                    console.log("[VOID INTERCEPTOR] Direct Fast-Binary Buffer Loaded in 0.01s!");
-                })
-                .catch(err => {
-                    console.warn("[VOID INTERCEPTOR] Binary fetch fallback to FBXLoader:", err);
-                    const fbxLoader = new THREE.FBXLoader();
-                    fbxLoader.load('fbx/Meshy_AI_VoidInterceptor_Vanguard_0824002458_texture.fbx', function(fbx) {
-                        fbx.traverse(function(child) {
-                            if (child.isMesh) {
-                                child.material = voidInterceptorMat;
-                                child.castShadow = true;
-                                child.receiveShadow = true;
-                            }
-                        });
-
-                        const box = new THREE.Box3().setFromObject(fbx);
-                        const size = new THREE.Vector3();
-                        box.getSize(size);
-                        const center = new THREE.Vector3();
-                        box.getCenter(center);
-
-                        const targetScale = 7.2 / (size.x || 1);
-                        fbx.scale.set(targetScale, targetScale, targetScale);
-                        fbx.rotation.set(-Math.PI, Math.PI / 2, 0);
-                        fbx.position.set(-center.z * targetScale, center.y * targetScale, -center.x * targetScale);
-
-                        voidInterceptorTemplate = fbx;
-
-                        pendingVoidInterceptorShips.forEach(item => {
-                            attachVoidInterceptorFBX(item.group, item.isEvil);
-                        });
-                        pendingVoidInterceptorShips.length = 0;
-
-                        console.log("[VOID INTERCEPTOR] FBX Model Loaded via Fallback!");
-                    });
+            const fbxLoader = new THREE.FBXLoader();
+            fbxLoader.load('fbx/Meshy_AI_VoidInterceptor_Vanguard_0824002458_texture.fbx', function(fbx) {
+                fbx.traverse(function(child) {
+                    if (child.isMesh) {
+                        child.material = voidInterceptorMat;
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
                 });
+
+                const box = new THREE.Box3().setFromObject(fbx);
+                const size = new THREE.Vector3();
+                box.getSize(size);
+                const center = new THREE.Vector3();
+                box.getCenter(center);
+
+                const targetScale = 7.2 / (size.x || 1);
+                fbx.scale.set(targetScale, targetScale, targetScale);
+                fbx.rotation.set(-Math.PI, Math.PI / 2, 0);
+                fbx.position.set(-center.z * targetScale, center.y * targetScale, -center.x * targetScale);
+
+                voidInterceptorTemplate = fbx;
+
+                pendingVoidInterceptorShips.forEach(item => {
+                    attachVoidInterceptorFBX(item.group, item.isEvil);
+                });
+                pendingVoidInterceptorShips.length = 0;
+
+                console.log("[VOID INTERCEPTOR] FBX Model and Texture Loaded & Mapped Successfully!");
+            }, function(xhr) {
+                if (xhr.total) {
+                    console.log("[VOID INTERCEPTOR FBX] Loading: " + Math.round((xhr.loaded / xhr.total) * 100) + "%");
+                }
+            }, function(err) {
+                console.error("[VOID INTERCEPTOR FBX ERROR]", err);
+            });
         }
 
         function attachVoidInterceptorFBX(shipGroup, isEvil) {
@@ -3196,66 +3163,48 @@ function createCapitalShip() {
                 });
             };
 
-            // Fast direct binary buffer loading (loads in ~0.01s with zero browser lockup)
-            fetch('fbx/battlecruiser_geom.bin')
-                .then(res => {
-                    if (!res.ok) throw new Error("HTTP " + res.status);
-                    return res.arrayBuffer();
-                })
-                .then(buf => {
-                    const count = new Uint32Array(buf, 0, 1)[0];
-                    const posOffset = 4;
-                    const normOffset = posOffset + count * 3 * 4;
-                    const uvOffset = normOffset + count * 3 * 4;
-
-                    const positions = new Float32Array(buf, posOffset, count * 3);
-                    const normals = new Float32Array(buf, normOffset, count * 3);
-                    const uvs = new Float32Array(buf, uvOffset, count * 2);
-
-                    const geo = new THREE.BufferGeometry();
-                    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-                    geo.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
-                    geo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
-
-                    const mesh = new THREE.Mesh(geo, battlecruiserMat);
-                    mesh.castShadow = true;
-                    mesh.receiveShadow = true;
-
-                    capitalShip.add(mesh);
-                    setupBattlecruiserFeatures();
-                    console.log("[BATTLECRUISER] Direct Fast-Binary Buffer Loaded in 0.01s!");
-                })
-                .catch(err => {
-                    console.warn("[BATTLECRUISER] Binary fetch fallback to FBXLoader:", err);
-                    const fbxLoader = new THREE.FBXLoader();
-                    fbxLoader.load('fbx/Meshy_AI_Battlecruiser_Ascenda_0823233538_texture.fbx', function(fbx) {
-                        fbx.traverse(function(child) {
-                            if (child.isMesh) {
-                                child.material = battlecruiserMat;
-                                child.castShadow = true;
-                                child.receiveShadow = true;
-                            }
-                        });
-
-                        const box = new THREE.Box3().setFromObject(fbx);
-                        const size = new THREE.Vector3();
-                        box.getSize(size);
-                        const center = new THREE.Vector3();
-                        box.getCenter(center);
-
-                        const maxDim = Math.max(size.x, size.y, size.z);
-                        const targetScale = 950 / (maxDim || 1);
-                        fbx.scale.set(targetScale, targetScale, targetScale);
-                        fbx.position.set(-center.x * targetScale, -center.y * targetScale, -center.z * targetScale);
-
-                        if (size.x > size.z) {
-                            fbx.rotation.y = -Math.PI / 2;
-                        }
-
-                        capitalShip.add(fbx);
-                        setupBattlecruiserFeatures();
-                    });
+            // Load Battlecruiser FBX Model
+            const fbxLoader = new THREE.FBXLoader();
+            fbxLoader.load('fbx/Meshy_AI_Battlecruiser_Ascenda_0823233538_texture.fbx', function(fbx) {
+                fbx.traverse(function(child) {
+                    if (child.isMesh) {
+                        child.material = battlecruiserMat;
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
                 });
+
+                // Compute Bounding Box & Scale to ~950 units length
+                const box = new THREE.Box3().setFromObject(fbx);
+                const size = new THREE.Vector3();
+                box.getSize(size);
+                const center = new THREE.Vector3();
+                box.getCenter(center);
+
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const targetScale = 950 / (maxDim || 1);
+                fbx.scale.set(targetScale, targetScale, targetScale);
+
+                // Center FBX model in local group
+                fbx.position.set(-center.x * targetScale, -center.y * targetScale, -center.z * targetScale);
+
+                // Align nose (-X) with Three.js forward (-Z)
+                if (size.x > size.z) {
+                    fbx.rotation.y = -Math.PI / 2;
+                }
+
+                capitalShip.add(fbx);
+
+                setupBattlecruiserFeatures();
+
+                console.log("[BATTLECRUISER] FBX Model, Texture, and Twin Engine Glow Mapped Successfully!");
+            }, function(xhr) {
+                if (xhr.total) {
+                    console.log("[BATTLECRUISER FBX] Loading: " + Math.round((xhr.loaded / xhr.total) * 100) + "%");
+                }
+            }, function(err) {
+                console.error("[BATTLECRUISER FBX ERROR]", err);
+            });
 
             // Initial Placement in Orbit around Space Planet
             if (spacePlanet) {
