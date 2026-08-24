@@ -3445,35 +3445,35 @@
                 id: "dread_3",
                 name: "Dominion Siege Cruiser 'Shadow of Aythelgard'",
                 targetPos: new THREE.Vector3(70400, -600, -43500),
-                jumpDelay: 15.0,
+                jumpDelay: 7.0,
                 scale: 1180
             },
             {
                 id: "dread_1",
                 name: "Dominion Dreadnought 'Titan's Bane'",
                 targetPos: new THREE.Vector3(72800, -600, -43500),
-                jumpDelay: 16.2,
+                jumpDelay: 8.2,
                 scale: 1220
             },
             {
                 id: "flagship",
                 name: "Dominion Flagship 'Iron Sovereign'",
                 targetPos: new THREE.Vector3(75200, -600, -43500),
-                jumpDelay: 17.4,
+                jumpDelay: 9.4,
                 scale: 1350
             },
             {
                 id: "dread_2",
                 name: "Dominion Dreadnought 'Void Reaver'",
                 targetPos: new THREE.Vector3(77600, -600, -43500),
-                jumpDelay: 18.6,
+                jumpDelay: 10.6,
                 scale: 1220
             },
             {
                 id: "dread_4",
                 name: "Dominion Siege Cruiser 'Blood Eclipse'",
                 targetPos: new THREE.Vector3(80000, -600, -43500),
-                jumpDelay: 19.8,
+                jumpDelay: 11.8,
                 scale: 1180
             }
         ];
@@ -3905,7 +3905,7 @@
             capitalShips = DOMINION_FLEET_CONFIG.map(cfg => buildSingleCapitalShip(cfg));
             capitalShip = capitalShips[2]; // Lead Flagship 'Iron Sovereign' (center)
 
-            // Arm initial fleet hyperspace emergence sequence with 15-second loading delay
+            // Arm initial fleet hyperspace emergence sequence with 7-second loading delay
             triggerDominionFleetHyperspaceEmergence();
         }
 
@@ -3956,7 +3956,7 @@
                 ship.lookAt(lookTarget);
             });
 
-            showToast("⚠️ DOMINION SIEGE FLEET WARP SIGNATURES DETECTED — ARRIVAL IN 15 SECONDS!");
+            showToast("⚠️ DOMINION SIEGE FLEET WARP SIGNATURES DETECTED — ARRIVAL IN 7 SECONDS!");
         }
 
         function createWormholeGate() {
@@ -4951,12 +4951,17 @@ function createEpicPlayerDeathExplosion(pos) {
             const timeSec = Date.now() * 0.001;
             const elapsedFleetEmergence = fleetEmergenceActive ? (nowPerf - fleetEmergenceStartTime) / 1000 : 999;
 
-            // Display HUD arrival countdown during the 15-second startup phase
-            if (fleetEmergenceActive && elapsedFleetEmergence < 15.0) {
-                const remaining = Math.max(0, Math.ceil(15.0 - elapsedFleetEmergence));
+            // Display HUD arrival countdown during the 7-second startup phase
+            if (fleetEmergenceActive && elapsedFleetEmergence < 7.0) {
+                const remaining = Math.max(0, Math.ceil(7.0 - elapsedFleetEmergence));
                 const objElem = document.getElementById('hud-objective');
                 if (objElem && remaining > 0) {
                     objElem.innerHTML = `<span style="color: #f43f5e; font-weight: bold; text-shadow: 0 0 8px rgba(244,63,94,0.8);">⚠️ DOMINION FLEET WARP IN: ${remaining}s</span>`;
+                }
+            } else if (fleetEmergenceActive && elapsedFleetEmergence >= 7.0 && elapsedFleetEmergence < 12.0) {
+                const objElem = document.getElementById('hud-objective');
+                if (objElem && objElem.innerHTML.includes('WARP IN')) {
+                    objElem.innerHTML = `<span style="color: #f43f5e; font-weight: bold; text-shadow: 0 0 8px rgba(244,63,94,0.8);">⚔️ ENGAGE DOMINION SIEGE FLEET & ESCORT FIGHTERS</span>`;
                 }
             }
 
