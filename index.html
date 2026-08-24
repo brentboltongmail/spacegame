@@ -2752,6 +2752,7 @@
         let theCrestExplosionLight = null;
         let theCrestState = 'INTACT'; // 'INTACT', 'STRUCK', 'EXPLODING', 'DESTROYED'
         let theCrestExplosionStartTime = 0;
+        let hasTitanCinematicPlayed = false;
 
         let cameraMode = 2; // 0: Cockpit View with Canopy Frame Bars, 1: Close, 2: Far (Default), 3: Cinematic Showcase (Invincible)
         let isShipInvincible = false;
@@ -5102,6 +5103,7 @@
                 titanExcavationStartTime = performance.now();
                 goldenRingLiftProgress = 0.0;
                 theCrestState = 'INTACT';
+                hasTitanCinematicPlayed = false;
                 if (theCrestModelOriginal) theCrestModelOriginal.visible = true;
                 if (theCrestDebrisChunks) theCrestDebrisChunks.forEach(c => c.visible = false);
                 if (theCrestFireballs) theCrestFireballs.forEach(f => f.visible = false);
@@ -5290,6 +5292,12 @@
                         chunk.rotation.y += ud.rotVel.y;
                         chunk.rotation.z += ud.rotVel.z;
                     });
+                }
+
+                // Auto-trigger Titan Gate Wormhole Cinematic ~15s after The Crest is destroyed
+                if (elapsedExcavation >= 33.5 && !isTitanCinematicActive && !hasTitanCinematicPlayed) {
+                    hasTitanCinematicPlayed = true;
+                    startTitanGateCinematic();
                 }
             }
 

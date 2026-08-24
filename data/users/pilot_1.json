@@ -11,63 +11,63 @@
     },
     "title-card-0": {
       "x": 0,
-      "y": 11356
+      "y": 11492
     },
     "title-card-1": {
       "x": 0,
-      "y": 11356
+      "y": 11492
     },
     "title-card-2": {
       "x": 0,
-      "y": 11356
+      "y": 11492
     },
     "title-card-3": {
       "x": 0,
-      "y": 11356
+      "y": 11492
     },
     "title-card-4": {
       "x": 0,
-      "y": 11356
+      "y": 11492
     },
     "title-card-5": {
       "x": 0,
-      "y": 11356
+      "y": 11492
     },
     "drag-prologue-sol-system-the-crest": {
       "x": 0,
-      "y": 11356
+      "y": 11492
     },
     "drag-the-truth-of-the-vanguard-throne": {
       "x": 0,
-      "y": 11356
+      "y": 11492
     },
     "drag-all-out-multi-system-warfare": {
       "x": 0,
-      "y": 11356
+      "y": 11492
     },
     "drag-the-battle-for-the-homeworld": {
       "x": 0,
-      "y": 11356
+      "y": 11492
     },
     "drag-core-gameplay-mechanics-matrix": {
       "x": 0,
-      "y": 11356
+      "y": 11492
     },
     "drag-key-factions": {
       "x": 0,
-      "y": 11356
+      "y": 11492
     },
     "drag-void-interceptor": {
       "x": 0,
-      "y": 11356
+      "y": 11492
     },
     "drag-heavy-strike-corvette": {
       "x": 0,
-      "y": 11356
+      "y": 11492
     },
     "drag-vanguard-royal-battlecruiser": {
       "x": 0,
-      "y": 11356
+      "y": 11492
     },
     "hud-shield-card": {
       "x": -21,
@@ -83,11 +83,15 @@
     },
     "drag-the-scavenger-frontier": {
       "x": 0,
-      "y": 4624
+      "y": 4760
     },
     "hud-radar-card": {
       "x": 25,
       "y": 75
+    },
+    "cinematic-comms-overlay": {
+      "x": 0,
+      "y": 136
     }
   },
   "settings": {
