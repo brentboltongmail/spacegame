@@ -2927,6 +2927,7 @@
             window.addEventListener('resize', onWindowResize);
             
             container.addEventListener('mousemove', (e) => {
+                if (typeof isTitanCinematicActive !== 'undefined' && isTitanCinematicActive) return; // Controls locked during cinematic
                 const isPointerLocked = document.pointerLockElement === container || document.pointerLockElement === document.body;
                 
                 if (isPointerLocked) {
@@ -2965,6 +2966,7 @@
 
             // Left Click (0) AND Right Click (2) both fire plasma blasters!
             container.addEventListener('mousedown', (e) => {
+                if (typeof isTitanCinematicActive !== 'undefined' && isTitanCinematicActive) return; // Controls locked during cinematic
                 if (e.button === 0 || e.button === 2) {
                     if (!e.target.closest('.hud-card') && !e.target.closest('.hud-action-bar') && !e.target.closest('.nav-item')) {
                         firePlasmaLaser();
@@ -2977,6 +2979,12 @@
 
             window.addEventListener('keydown', (e) => {
                 if (activeRebindAction) return;
+                if (typeof isTitanCinematicActive !== 'undefined' && isTitanCinematicActive) {
+                    if (e.code === 'Escape') {
+                        stopTitanGateCinematic();
+                    }
+                    return; // Controls 100% locked during cinematic!
+                }
                 if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
                     if (!e.target.matches('input, textarea, select')) {
                         e.preventDefault();
@@ -2987,10 +2995,6 @@
                 if (keys.hasOwnProperty(e.code)) keys[e.code] = true;
                 if (action === 'KeyM') toggleTacticalMapModal();
                 if (action === 'Escape') {
-                    if (typeof isTitanCinematicActive !== 'undefined' && isTitanCinematicActive) {
-                        stopTitanGateCinematic();
-                        return;
-                    }
                     if (isTacticalMapOpen) {
                         toggleTacticalMapModal();
                     } else {
@@ -3021,6 +3025,7 @@
                 }
             });
             window.addEventListener('keyup', (e) => {
+                if (typeof isTitanCinematicActive !== 'undefined' && isTitanCinematicActive) return; // Controls locked during cinematic
                 let action = Object.keys(keyBindings).find(k => keyBindings[k] === e.code) || e.code;
                 if (keys.hasOwnProperty(action)) keys[action] = false;
                 if (keys.hasOwnProperty(e.code)) keys[e.code] = false;
@@ -6770,15 +6775,20 @@ function createEpicPlayerDeathExplosion(pos) {
                 return;
             }
 
-            // --- W / S Throttle Speed Controls (W = Accelerate, S = Decelerate) ---
-            let _throttle = gameMechanicsConfig.throttleAccel !== undefined ? gameMechanicsConfig.throttleAccel : 50;
-            if (_throttle > 100) _throttle = 100;
-            const throttleMult = (_throttle / 100) * 2.5;
-            const accelRate = 0.44 * throttleMult; 
+            if (isTitanCinematicActive) {
+                // Automatic cinematic engine throttle management
+                currentSpeed += (targetSpeed - currentSpeed) * 0.05;
+            } else {
+                // --- W / S Throttle Speed Controls (W = Accelerate, S = Decelerate) ---
+                let _throttle = gameMechanicsConfig.throttleAccel !== undefined ? gameMechanicsConfig.throttleAccel : 50;
+                if (_throttle > 100) _throttle = 100;
+                const throttleMult = (_throttle / 100) * 2.5;
+                const accelRate = 0.44 * throttleMult; 
 
-            if (keys.KeyW) targetSpeed = Math.min(targetSpeed + accelRate, maxSpeedCap);
-            if (keys.KeyS) targetSpeed = Math.max(targetSpeed - accelRate, 0);
-            currentSpeed += (targetSpeed - currentSpeed) * (0.0055 * throttleMult);
+                if (keys.KeyW) targetSpeed = Math.min(targetSpeed + accelRate, maxSpeedCap);
+                if (keys.KeyS) targetSpeed = Math.max(targetSpeed - accelRate, 0);
+                currentSpeed += (targetSpeed - currentSpeed) * (0.0055 * throttleMult);
+            }
 
             // Update Cockpit Engine Sound Pitch, Muffling & Volume dynamically (0% -> 100% Throttle)
             updateEngineAudio(currentSpeed / maxSpeedCap, cameraMode === 0);
@@ -6823,6 +6833,15 @@ function createEpicPlayerDeathExplosion(pos) {
             if (isTitanCinematicActive && ancientGoldenGate) {
                 // In cinematic mode, guide ship smoothly toward and through the Ancient Precursor Gate center
                 const gateCenter = ancientGoldenGate.position.clone();
+                const holdingThresholdZ = -44200; // 400 units in front of gate center (-44600)
+                
+                // During lines 1-9, clamp position so the ship holds in front of the gate and never enters early
+                if (titanCinematicIndex < 9 && !isTitanCinematicEnteringGate) {
+                    if (playerShip.position.z < holdingThresholdZ) {
+                        playerShip.position.z = holdingThresholdZ;
+                    }
+                }
+
                 const toGate = gateCenter.clone().sub(playerShip.position);
                 const distToGate = toGate.length();
                 const dirToGate = toGate.clone().normalize();
@@ -6830,9 +6849,10 @@ function createEpicPlayerDeathExplosion(pos) {
                 // Aim ship smoothly along forward vector toward the gate
                 playerShip.lookAt(playerShip.position.clone().sub(dirToGate));
 
-                const hasCrossedRingPlane = (playerShip.position.z <= gateCenter.z + 40);
+                const hasCrossedRingPlane = (playerShip.position.z <= gateCenter.z + 30);
 
-                if ((isTitanCinematicEnteringGate || titanCinematicIndex >= 9) && (distToGate < 140 || hasCrossedRingPlane)) {
+                // ONLY trigger gate penetration and singularity jump on final line / overdrive dive
+                if ((isTitanCinematicEnteringGate || titanCinematicIndex >= 9) && (distToGate < 120 || hasCrossedRingPlane)) {
                     if (!isWormholeActive) {
                         isWormholeActive = true;
                         isTitanCinematicEnteringGate = false;
@@ -6888,9 +6908,14 @@ function createEpicPlayerDeathExplosion(pos) {
             if (isTitanCinematicActive && ancientGoldenGate) {
                 const toGate = ancientGoldenGate.position.clone().sub(playerShip.position);
                 const dirToGate = toGate.clone().normalize();
-                // Smooth multiplier so approach covers distance across the 10 dialogue lines and plunges on line 10
-                const speedMult = (titanCinematicIndex >= 9 || isTitanCinematicEnteringGate) ? 1.0 : 1.35;
-                frameDisplacement = dirToGate.clone().multiplyScalar(currentSpeed * 0.0064 * speedMult);
+                
+                // If approaching before line 10 and reached holding position, maintain position
+                if (titanCinematicIndex < 9 && !isTitanCinematicEnteringGate && playerShip.position.z <= -44180) {
+                    frameDisplacement = new THREE.Vector3(0, 0, 0);
+                } else {
+                    const speedMult = (titanCinematicIndex >= 9 || isTitanCinematicEnteringGate) ? 1.0 : 1.35;
+                    frameDisplacement = dirToGate.clone().multiplyScalar(currentSpeed * 0.0064 * speedMult);
+                }
             } else {
                 const moveDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
                 frameDisplacement = moveDir.clone().multiplyScalar(currentSpeed * 0.0064);
