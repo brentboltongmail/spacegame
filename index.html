@@ -2740,7 +2740,7 @@
         let titanExcavationStartTime = 0;
         let goldenRingLiftProgress = 0.0; // 0.0 (in crater) -> 1.0 (in orbit)
         const titanExtractionCraterLocalPos = new THREE.Vector3(-246, 178, 1047).normalize().multiplyScalar(1100);
-        const titanExtractionOrbitWorldPos = new THREE.Vector3(75200, -750, -45200);
+        const titanExtractionOrbitWorldPos = new THREE.Vector3(75200, 2400, -44600);
         const titanBombardmentWorldFocus = new THREE.Vector3(76314, -1408, -48233);
         let capitalSpinalBeams = [];
 
@@ -3467,56 +3467,56 @@
             theCrestExplosionGroup = new THREE.Group();
             theCrestStation.add(theCrestExplosionGroup);
 
-            // 1. Blinding Flash Light
-            theCrestExplosionLight = new THREE.PointLight(0xff7700, 0, 18000);
+            // 1. Blinding Flash Light (Illuminates entire Saturn/Titan orbital sector)
+            theCrestExplosionLight = new THREE.PointLight(0xff6600, 0, 75000);
             theCrestExplosionLight.position.set(0, 0, 0);
             theCrestExplosionGroup.add(theCrestExplosionLight);
 
-            // 2. Multi-Stage Fireball Meshes
+            // 2. Colossal Multi-Stage Supernova Fireball Meshes (24 Massive Fireballs)
             theCrestFireballs = [];
-            const fireballColors = [0xff4400, 0xff7700, 0xffbb00, 0xffffff, 0xe11d48, 0xf97316];
-            for (let f = 0; f < 8; f++) {
-                const fbGeo = new THREE.SphereGeometry(70, 16, 16);
+            const fireballColors = [0xffffff, 0xffbb00, 0xf97316, 0xff4400, 0xef4444, 0xd946ef, 0x38bdf8];
+            for (let f = 0; f < 24; f++) {
+                const fbGeo = new THREE.SphereGeometry(220, 20, 20);
                 const fbMat = new THREE.MeshBasicMaterial({
                     color: fireballColors[f % fireballColors.length],
                     transparent: true,
-                    opacity: 0.85,
+                    opacity: 0.90,
                     blending: THREE.AdditiveBlending
                 });
                 const fbMesh = new THREE.Mesh(fbGeo, fbMat);
                 fbMesh.visible = false;
                 fbMesh.userData = {
-                    delay: f * 0.35,
+                    delay: f * 0.10,
                     offset: new THREE.Vector3(
-                        (Math.random() - 0.5) * 550,
-                        (Math.random() - 0.5) * 220,
-                        (Math.random() - 0.5) * 550
+                        (Math.random() - 0.5) * 850,
+                        (Math.random() - 0.5) * 350,
+                        (Math.random() - 0.5) * 850
                     ),
-                    maxScale: 3.5 + Math.random() * 2.5
+                    maxScale: 4.5 + Math.random() * 5.0 // Expands up to 3,500+ units across!
                 };
                 theCrestExplosionGroup.add(fbMesh);
                 theCrestFireballs.push(fbMesh);
             }
 
-            // 3. Expanding Planetary Shockwave Rings
+            // 3. Expanding Planetary Supernova Shockwave Rings (6 Massive Rings)
             theCrestShockwaves = [];
-            for (let s = 0; s < 3; s++) {
-                const swGeo = new THREE.RingGeometry(100, 140, 48);
+            for (let s = 0; s < 6; s++) {
+                const swGeo = new THREE.RingGeometry(250, 420, 64);
                 swGeo.rotateX(Math.PI / 2);
                 const swMat = new THREE.MeshBasicMaterial({
-                    color: 0xf97316,
+                    color: s % 2 === 0 ? 0xf97316 : 0xd946ef,
                     side: THREE.DoubleSide,
                     transparent: true,
-                    opacity: 0.85,
+                    opacity: 0.90,
                     blending: THREE.AdditiveBlending
                 });
                 const swMesh = new THREE.Mesh(swGeo, swMat);
                 swMesh.visible = false;
                 swMesh.userData = {
-                    delay: 0.2 + s * 0.5,
-                    radius: 100,
-                    maxRadius: 1800,
-                    speed: 550 + s * 120
+                    delay: 0.05 + s * 0.28,
+                    radius: 250,
+                    maxRadius: 6500, // Expands up to 6,500 units radius!
+                    speed: 1200 + s * 350
                 };
                 theCrestExplosionGroup.add(swMesh);
                 theCrestShockwaves.push(swMesh);
@@ -4807,8 +4807,8 @@
 
             const pTex = createWormholeParticleTexture();
 
-            // 1. Multi-Spectral Accretion Spiral Arms & Inflow Swarm (6,500 Dense Particles)
-            const spiralCount = 6500;
+            // 1. Multi-Spectral Accretion Spiral Arms & Inflow Swarm (18,000 Dense Cosmic Particles)
+            const spiralCount = 18000;
             const spiralGeo = new THREE.BufferGeometry();
             const spiralPositions = new Float32Array(spiralCount * 3);
             const spiralColors = new Float32Array(spiralCount * 3);
@@ -4820,35 +4820,37 @@
                 new THREE.Color(0xfbbf24), // Precursor Gold
                 new THREE.Color(0xd946ef), // Intense Magenta
                 new THREE.Color(0xffffff), // White Tachyon Core
-                new THREE.Color(0x38bdf8)  // Subspace Sky Blue
+                new THREE.Color(0x38bdf8), // Subspace Sky Blue
+                new THREE.Color(0xc084fc), // Slipspace Violet
+                new THREE.Color(0xfde047)  // Hyper Solar Gold
             ];
 
             for (let p = 0; p < spiralCount; p++) {
-                const arm = p % 4; // 4 logarithmic spiral arms
-                const rNorm = Math.pow(Math.random(), 0.70); // Strong density bias toward core
-                const r = 10 + rNorm * 270; // Radius from 10 to 280 units
-                const baseTheta = (arm * (Math.PI / 2)) + (r * 0.030) + (Math.random() - 0.5) * 0.50;
-                const depthCurve = -Math.sin((1.0 - rNorm) * Math.PI * 0.5) * 70; // Funnel inward depth
-                const y = depthCurve + (Math.random() - 0.5) * 16;
+                const arm = p % 6; // 6 dense logarithmic spiral arms
+                const rNorm = Math.pow(Math.random(), 0.65); // Strong density bias toward core
+                const r = 8 + rNorm * 275; // Radius from 8 to 283 units
+                const baseTheta = (arm * (Math.PI / 3)) + (r * 0.032) + (Math.random() - 0.5) * 0.45;
+                const depthCurve = -Math.sin((1.0 - rNorm) * Math.PI * 0.5) * 75; // Funnel inward depth
+                const y = depthCurve + (Math.random() - 0.5) * 20;
                 
                 spiralPositions[p * 3] = Math.cos(baseTheta) * r;
                 spiralPositions[p * 3 + 1] = y;
                 spiralPositions[p * 3 + 2] = Math.sin(baseTheta) * r;
 
                 const col = spiralColorPalette[p % spiralColorPalette.length];
-                const finalCol = col.clone().lerp(new THREE.Color(0xffffff), Math.max(0, 1.0 - r / 110));
+                const finalCol = col.clone().lerp(new THREE.Color(0xffffff), Math.max(0, 1.0 - r / 120));
                 spiralColors[p * 3] = finalCol.r;
                 spiralColors[p * 3 + 1] = finalCol.g;
                 spiralColors[p * 3 + 2] = finalCol.b;
 
                 spiralData.push({
                     r: r,
-                    rMin: 8,
-                    rMax: 280,
+                    rMin: 6,
+                    rMax: 283,
                     theta: baseTheta,
-                    speed: (0.45 + (1.0 - rNorm) * 1.9) * (Math.random() > 0.06 ? 1 : -0.5),
+                    speed: (0.55 + (1.0 - rNorm) * 2.2) * (Math.random() > 0.05 ? 1 : -0.5),
                     arm: arm,
-                    rSpeed: (0.7 + Math.random() * 1.6) * 14
+                    rSpeed: (0.8 + Math.random() * 1.8) * 16
                 });
             }
 
@@ -4856,11 +4858,11 @@
             spiralGeo.setAttribute('color', new THREE.BufferAttribute(spiralColors, 3));
 
             const spiralMat = new THREE.PointsMaterial({
-                size: 16,
+                size: 18,
                 map: pTex,
                 vertexColors: true,
                 transparent: true,
-                opacity: 0.95,
+                opacity: 0.96,
                 blending: THREE.AdditiveBlending,
                 depthWrite: false
             });
@@ -4869,8 +4871,8 @@
             goldenGateSpiralPoints.userData = { pData: spiralData };
             goldenGateVortexGroup.add(goldenGateSpiralPoints);
 
-            // 2. Gravitational Singularity Throat & Tunnel Flow (3,500 Dense Particles)
-            const tunnelCount = 3500;
+            // 2. Gravitational Singularity Throat & Tunnel Flow (12,000 Dense Particles)
+            const tunnelCount = 12000;
             const tunnelGeo = new THREE.BufferGeometry();
             const tunnelPositions = new Float32Array(tunnelCount * 3);
             const tunnelColors = new Float32Array(tunnelCount * 3);
@@ -4878,8 +4880,8 @@
 
             for (let t = 0; t < tunnelCount; t++) {
                 const tNorm = Math.random(); // 0 (front horizon) to 1 (deep wormhole tunnel)
-                const y = 30 - tNorm * 220;
-                const rThroat = 8 + (1.0 - tNorm * 0.78) * 85;
+                const y = 35 - tNorm * 240;
+                const rThroat = 6 + (1.0 - tNorm * 0.80) * 90;
                 const theta = Math.random() * Math.PI * 2;
 
                 tunnelPositions[t * 3] = Math.cos(theta) * rThroat;
@@ -4893,9 +4895,9 @@
 
                 tunnelData.push({
                     y: y,
-                    ySpeed: 55 + Math.random() * 95,
+                    ySpeed: 60 + Math.random() * 110,
                     theta: theta,
-                    rotSpeed: 1.4 + Math.random() * 2.2
+                    rotSpeed: 1.6 + Math.random() * 2.5
                 });
             }
 
@@ -4903,11 +4905,11 @@
             tunnelGeo.setAttribute('color', new THREE.BufferAttribute(tunnelColors, 3));
 
             const tunnelMat = new THREE.PointsMaterial({
-                size: 12,
+                size: 14,
                 map: pTex,
                 vertexColors: true,
                 transparent: true,
-                opacity: 0.88,
+                opacity: 0.90,
                 blending: THREE.AdditiveBlending,
                 depthWrite: false
             });
@@ -4916,8 +4918,8 @@
             goldenGateTunnelPoints.userData = { pData: tunnelData };
             goldenGateVortexGroup.add(goldenGateTunnelPoints);
 
-            // 3. Peripheral Precursor Boundary Sparks & Energy Corona (1,500 Dense Particles)
-            const borderCount = 1500;
+            // 3. Peripheral Precursor Boundary Sparks & Energy Corona (6,000 Dense Particles)
+            const borderCount = 6000;
             const borderGeo = new THREE.BufferGeometry();
             const borderPositions = new Float32Array(borderCount * 3);
             const borderColors = new Float32Array(borderCount * 3);
@@ -4925,8 +4927,8 @@
 
             for (let b = 0; b < borderCount; b++) {
                 const theta = Math.random() * Math.PI * 2;
-                const r = 260 + Math.random() * 50;
-                const y = (Math.random() - 0.5) * 22;
+                const r = 255 + Math.random() * 60;
+                const y = (Math.random() - 0.5) * 26;
 
                 borderPositions[b * 3] = Math.cos(theta) * r;
                 borderPositions[b * 3 + 1] = y;
@@ -4939,7 +4941,7 @@
 
                 borderData.push({
                     theta: theta,
-                    rotSpeed: (Math.random() - 0.5) * 0.9,
+                    rotSpeed: (Math.random() - 0.5) * 1.2,
                     r: r
                 });
             }
@@ -4948,11 +4950,11 @@
             borderGeo.setAttribute('color', new THREE.BufferAttribute(borderColors, 3));
 
             const borderMat = new THREE.PointsMaterial({
-                size: 14,
+                size: 16,
                 map: pTex,
                 vertexColors: true,
                 transparent: true,
-                opacity: 0.82,
+                opacity: 0.88,
                 blending: THREE.AdditiveBlending,
                 depthWrite: false
             });
@@ -4964,11 +4966,11 @@
             ancientGoldenGate.add(goldenGateVortexGroup);
 
             // E. Radiant Golden & Violet Ambient Lights
-            goldenGateLight = new THREE.PointLight(0xfbbf24, 12.0, 5000);
+            goldenGateLight = new THREE.PointLight(0xfbbf24, 16.0, 6500);
             goldenGateLight.position.set(0, 20, 0);
             ancientGoldenGate.add(goldenGateLight);
 
-            const gateVioletLight = new THREE.PointLight(0xa855f7, 10.0, 4500);
+            const gateVioletLight = new THREE.PointLight(0xa855f7, 14.0, 5500);
             gateVioletLight.position.set(0, -20, 0);
             ancientGoldenGate.add(gateVioletLight);
 
@@ -4990,8 +4992,9 @@
                 goldenGateRipples.push(ripMesh);
             }
 
-            // Initial Placement: In World Space at the Titan Crater (Hidden under ice initially)
+            // Initial Placement: In World Space at the Titan Crater (100% Hidden under ice initially)
             ancientGoldenGate.visible = false;
+            titanExcavationSite.visible = false; // Crater and molten floor initially hidden
             scene.add(ancientGoldenGate);
             wormholeGate = ancientGoldenGate; // Point all radar & map references to Golden Gate
 
@@ -6319,7 +6322,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-elias",
                 icon: "📻",
                 camMode: 0, // Cockpit View
-                speed: 20,
+                speed: 0,
                 text: "Kaylen! Kaylen, do you read me?! The long-range sensors on Mars just went red—The Crest is gone from the grid! Report in, kid!",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_01_elias.mp3"
             },
@@ -6330,7 +6333,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-kaylen",
                 icon: "🚀",
                 camMode: 0, // Cockpit View
-                speed: 24,
+                speed: 0,
                 text: "Elias... they wiped out the fleet. The kinetic rounds bounced right off their hulls. They're lining up their dreadnoughts on the rift right now.",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_02_kaylen.mp3"
             },
@@ -6341,7 +6344,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-elias",
                 icon: "📻",
                 camMode: 1, // Rear Third-Person Close
-                speed: 28,
+                speed: 0,
                 text: "Then break off and burn hard for the outer moons! Divert everything to afterburners! I'm spooling the freighter down in the slums—I will come get you, son!",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_03_elias.mp3"
             },
@@ -6352,7 +6355,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-kaylen",
                 icon: "🚀",
                 camMode: 1,
-                speed: 32,
+                speed: 0,
                 text: "You know my fuel reserves, Elias. I can't outrun them. If those dreadnoughts cross this threshold, Sol doesn't have a defense left. Earth won't last twenty minutes.",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_04_kaylen.mp3"
             },
@@ -6362,8 +6365,8 @@ function createEpicPlayerDeathExplosion(pos) {
                 subspeaker: "MARS COMMS / HYPERWAVE OVERRIDE",
                 theme: "speaker-elias",
                 icon: "📻",
-                camMode: 3, // Cinematic Showcase Orbit
-                speed: 36,
+                camMode: 2, // Far Third Person
+                speed: 0,
                 text: "No... No, look at the telemetry! The gravitational shear inside that ring is tearing atoms apart! You take that interceptor in there, you'll be vaporized!",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_05_elias.mp3"
             },
@@ -6374,7 +6377,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-kaylen",
                 icon: "💎",
                 camMode: 0, // Cockpit View
-                speed: 40,
+                speed: 0,
                 text: "It's vibrating, Elias. The pendant you found me with... it's singing with the gate. It's the same frequency. It knows what to do.",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_06_kaylen.mp3"
             },
@@ -6385,7 +6388,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-elias",
                 icon: "📻",
                 camMode: 2, // Far Third Person
-                speed: 44,
+                speed: 0,
                 text: "Kaylen, listen to me! You don't know what that thing is—what you are! I promised myself I'd keep you safe from all this... Don't you throw your life away for a war that isn't yours!",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_07_elias.mp3"
             },
@@ -6396,7 +6399,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-kaylen",
                 icon: "🚀",
                 camMode: 0, // Cockpit View
-                speed: 48,
+                speed: 0,
                 text: "You gave me twenty years, old man. You taught me how to fly, how to fight, and how to fix broken things. Earth is my home because you're on it.",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_08_kaylen.mp3"
             },
@@ -6406,8 +6409,8 @@ function createEpicPlayerDeathExplosion(pos) {
                 subspeaker: "MARS COMMS / HYPERWAVE OVERRIDE",
                 theme: "speaker-elias",
                 icon: "📻",
-                camMode: 3, // Cinematic Showcase Orbit
-                speed: 65,
+                camMode: 1, // Rear Third-Person Close
+                speed: 0,
                 text: "Kaylen, NO! Turn the ship around! KAYLEN—",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_09_elias.mp3"
             },
@@ -6418,7 +6421,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-kaylen",
                 icon: "✨",
                 camMode: 1, // Rear Close diving in
-                speed: 550,
+                speed: 480,
                 text: "Someone has to shut the door, old man. ... See you on the other side, Dad....",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_10_kaylen.mp3"
             }
@@ -6442,20 +6445,23 @@ function createEpicPlayerDeathExplosion(pos) {
                 endModal.classList.remove('active');
             }
 
-            // Position ship in clear open orbital space ahead of Dominion battle line, aligned directly with Ancient Golden Gate
-            // Gate is at (75200, -750, -45200). Flagship is at (75200, -600, -43500).
-            // Position player at z = -44300 (900 units in front of gate, 800 units in front of flagship in open space with ZERO ship clipping)
-            const gateWorldPos = ancientGoldenGate.position.clone();
-            const startPos = new THREE.Vector3(75200, -710, -44300);
+            // Ensure Ancient Golden Gate is placed and standing high above capital ships in orbit
+            ancientGoldenGate.position.copy(titanExtractionOrbitWorldPos);
+            ancientGoldenGate.quaternion.copy(new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI * 0.5, 0.15, 0)));
+            ancientGoldenGate.scale.set(2.0, 2.0, 2.0);
+            ancientGoldenGate.visible = true;
+
+            // Position ship in steady holding vantage point high above capital ships directly facing the gate
+            const startPos = new THREE.Vector3(75200, 2400, -43700);
             playerShip.position.copy(startPos);
-            playerShip.lookAt(gateWorldPos);
+            playerShip.lookAt(titanExtractionOrbitWorldPos);
             
             cameraMode = titanCinematicScript[0].camMode || 0;
             playerShip.visible = (cameraMode !== 0);
-            targetSpeed = titanCinematicScript[0].speed;
-            currentSpeed = titanCinematicScript[0].speed;
+            targetSpeed = 0;
+            currentSpeed = 0;
 
-            // Instantly snap camera to player position to prevent camera drag through capital ships
+            // Instantly snap camera to cockpit view looking straight at the Ancient Golden Gate
             if (camera) {
                 const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
                 camera.up.copy(localUp);
@@ -6491,13 +6497,19 @@ function createEpicPlayerDeathExplosion(pos) {
             if (lineData.camMode !== undefined) {
                 cameraMode = lineData.camMode;
             }
-            targetSpeed = lineData.speed;
+            playerShip.visible = (cameraMode !== 0);
 
-            // Trigger overdrive dive flag on final dialogue line
+            // Hold ship steady during lines 1-9; only dive on Line 10
             if (titanCinematicIndex === 9) {
                 isTitanCinematicEnteringGate = true;
                 cameraMode = 1;
-                currentSpeed = 550;
+                playerShip.visible = true;
+                targetSpeed = 480;
+                currentSpeed = 480;
+            } else {
+                isTitanCinematicEnteringGate = false;
+                targetSpeed = 0;
+                currentSpeed = 0;
             }
 
             // Update UI elements
@@ -6565,8 +6577,8 @@ function createEpicPlayerDeathExplosion(pos) {
 
             // Accelerate ship at full overdrive thrust straight through the ring
             isTitanCinematicEnteringGate = true;
-            targetSpeed = 600;
-            currentSpeed = 600;
+            targetSpeed = 480;
+            currentSpeed = 480;
 
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
