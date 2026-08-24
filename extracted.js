@@ -482,8 +482,16 @@
         }
 
         let normalizedMouse = { x: 0, y: 0 };
-        const keys = { KeyW: false, KeyS: false, KeyA: false, KeyD: false, KeyQ: false, KeyE: false, Space: false };
-        let keyBindings = { KeyW: 'KeyW', KeyS: 'KeyS', KeyA: 'KeyA', KeyD: 'KeyD', Space: 'Space', KeyM: 'KeyM', KeyL: 'KeyL', KeyC: 'KeyC', Escape: 'Escape' };
+        const keys = { 
+            KeyW: false, KeyS: false, KeyA: false, KeyD: false, KeyQ: false, KeyE: false, Space: false,
+            ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false,
+            PitchUp: false, PitchDown: false, YawLeft: false, YawRight: false
+        };
+        let keyBindings = { 
+            KeyW: 'KeyW', KeyS: 'KeyS', KeyA: 'KeyA', KeyD: 'KeyD', 
+            PitchUp: 'ArrowUp', PitchDown: 'ArrowDown', YawLeft: 'ArrowLeft', YawRight: 'ArrowRight',
+            Space: 'Space', KeyM: 'KeyM', KeyL: 'KeyL', KeyC: 'KeyC', Escape: 'Escape' 
+        };
         let activeRebindAction = null;
 
         let isFlightLocked = false;
@@ -565,8 +573,14 @@
 
             window.addEventListener('keydown', (e) => {
                 if (activeRebindAction) return;
+                if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+                    if (!e.target.matches('input, textarea, select')) {
+                        e.preventDefault();
+                    }
+                }
                 let action = Object.keys(keyBindings).find(k => keyBindings[k] === e.code) || e.code;
                 if (keys.hasOwnProperty(action)) keys[action] = true;
+                if (keys.hasOwnProperty(e.code)) keys[e.code] = true;
                 if (action === 'KeyM') toggleTacticalMapModal();
                 if (action === 'Escape') {
                     if (isTacticalMapOpen) {
@@ -591,6 +605,7 @@
             window.addEventListener('keyup', (e) => {
                 let action = Object.keys(keyBindings).find(k => keyBindings[k] === e.code) || e.code;
                 if (keys.hasOwnProperty(action)) keys[action] = false;
+                if (keys.hasOwnProperty(e.code)) keys[e.code] = false;
             });
 
 
@@ -2863,10 +2878,22 @@
             const mouseXEff = Math.sign(normalizedMouse.x) * normX;
             const mouseYEff = Math.sign(normalizedMouse.y) * normY;
 
+            let arrowPitch = 0;
+            let arrowYaw = 0;
+            if (keys.PitchUp || keys.ArrowUp) arrowPitch += 1.0;
+            if (keys.PitchDown || keys.ArrowDown) arrowPitch -= 1.0;
+            if (keys.YawLeft || keys.ArrowLeft) arrowYaw += 1.0;
+            if (keys.YawRight || keys.ArrowRight) arrowYaw -= 1.0;
+
+            const totalPitch = Math.max(-1.0, Math.min(1.0, mouseYEff + arrowPitch));
+            const totalYaw = Math.max(-1.0, Math.min(1.0, -mouseXEff + arrowYaw));
+
             // Apply local pitch (X) and yaw (Y) quaternion rotations directly
             // Allows full 360° loop-de-loops over the top without any view snapping or gimbal flips!
-            playerShip.rotateX(mouseYEff * turnRate);
-            playerShip.rotateY(-mouseXEff * turnRate);
+            if (!isFlightLocked) {
+                playerShip.rotateX(totalPitch * turnRate);
+                playerShip.rotateY(totalYaw * turnRate);
+            }
 
             // A/D Keys for rolling the ship (very slowly)
             const rollRate = turnRate * 0.4 * (gameMechanicsConfig.rollSpeed / 100);

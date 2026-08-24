@@ -1189,7 +1189,7 @@
                             <span>🕹️ CONTROLS</span>
                         </div>
                         <div class="controls-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px 10px; font-size: 0.8rem;">
-                            <div title="Move mouse to aim crosshair targeter and steer ship"><kbd>MOUSE</kbd> Aim</div>
+                            <div title="Move mouse or Arrow keys to aim crosshair and steer ship"><kbd>MOUSE / ARROWS</kbd> Aim/Steer</div>
                             <div title="Hold W to accelerate engine speed"><kbd>W</kbd> Accel</div>
                             <div title="Hold S to decelerate engine speed"><kbd>S</kbd> Decel</div>
                             <div title="Press A to roll ship left"><kbd>A</kbd> Roll Left</div>
@@ -1920,6 +1920,10 @@
                         <div class="keymap-row"><span>Decelerate Speed</span><kbd id="key-KeyS" onclick="startRebindingKey('KeyS')">S</kbd></div>
                         <div class="keymap-row"><span>Roll Left</span><kbd id="key-KeyA" onclick="startRebindingKey('KeyA')">A</kbd></div>
                         <div class="keymap-row"><span>Roll Right</span><kbd id="key-KeyD" onclick="startRebindingKey('KeyD')">D</kbd></div>
+                        <div class="keymap-row"><span>Pitch Up (Nose Up)</span><kbd id="key-PitchUp" onclick="startRebindingKey('PitchUp')">▲ UP</kbd></div>
+                        <div class="keymap-row"><span>Pitch Down (Nose Down)</span><kbd id="key-PitchDown" onclick="startRebindingKey('PitchDown')">▼ DOWN</kbd></div>
+                        <div class="keymap-row"><span>Yaw Left (Turn Left)</span><kbd id="key-YawLeft" onclick="startRebindingKey('YawLeft')">◄ LEFT</kbd></div>
+                        <div class="keymap-row"><span>Yaw Right (Turn Right)</span><kbd id="key-YawRight" onclick="startRebindingKey('YawRight')">► RIGHT</kbd></div>
                         <div class="keymap-row"><span>Fire Plasma Cannons</span><kbd id="key-Space" onclick="startRebindingKey('Space')">Space / Mouse 1</kbd></div>
                         <div class="keymap-row"><span>3D Tactical Map</span><kbd id="key-KeyM" onclick="startRebindingKey('KeyM')">M</kbd></div>
                         <div class="keymap-row"><span>Flight Steering Lock</span><kbd id="key-KeyL" onclick="startRebindingKey('KeyL')">L</kbd></div>
@@ -2042,13 +2046,22 @@
                         updateGameSettings();
                         updateGameSettings();
                     }
+                    const defaultKeyBindings = { 
+                        KeyW: 'KeyW', KeyS: 'KeyS', KeyA: 'KeyA', KeyD: 'KeyD', 
+                        PitchUp: 'ArrowUp', PitchDown: 'ArrowDown', YawLeft: 'ArrowLeft', YawRight: 'ArrowRight',
+                        Space: 'Space', KeyM: 'KeyM', KeyL: 'KeyL', KeyC: 'KeyC', Escape: 'Escape' 
+                    };
                     if (currentProfile.keyBindings) {
-                        keyBindings = currentProfile.keyBindings;
+                        keyBindings = Object.assign({}, defaultKeyBindings, currentProfile.keyBindings);
                         for (const action in keyBindings) {
                             const code = keyBindings[action];
                             let display = code.replace(/^Key/, '').toUpperCase();
                             if (code === 'Space') display = 'SPACE';
                             if (code === 'Escape') display = 'ESC';
+                            if (code === 'ArrowUp') display = '▲ UP';
+                            if (code === 'ArrowDown') display = '▼ DOWN';
+                            if (code === 'ArrowLeft') display = '◄ LEFT';
+                            if (code === 'ArrowRight') display = '► RIGHT';
                             
                             // fallback for defaults if they match
                             if (action === 'Space' && code === 'Space') display = 'Space / Mouse 1';
@@ -2057,7 +2070,7 @@
                             if (el) el.innerText = display;
                         }
                     } else {
-                        keyBindings = { KeyW: 'KeyW', KeyS: 'KeyS', KeyA: 'KeyA', KeyD: 'KeyD', Space: 'Space', KeyM: 'KeyM', KeyL: 'KeyL', KeyC: 'KeyC', Escape: 'Escape' };
+                        keyBindings = { ...defaultKeyBindings };
                         currentProfile.keyBindings = keyBindings;
                     }
                 }
@@ -2413,8 +2426,16 @@
         let normalizedMouse = { x: 0, y: 0 };
         let virtualCursorX = window.innerWidth / 2;
         let virtualCursorY = window.innerHeight / 2;
-        const keys = { KeyW: false, KeyS: false, KeyA: false, KeyD: false, KeyQ: false, KeyE: false, Space: false };
-        let keyBindings = { KeyW: 'KeyW', KeyS: 'KeyS', KeyA: 'KeyA', KeyD: 'KeyD', Space: 'Space', KeyM: 'KeyM', KeyL: 'KeyL', KeyC: 'KeyC', Escape: 'Escape' };
+        const keys = { 
+            KeyW: false, KeyS: false, KeyA: false, KeyD: false, KeyQ: false, KeyE: false, Space: false,
+            ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false,
+            PitchUp: false, PitchDown: false, YawLeft: false, YawRight: false
+        };
+        let keyBindings = { 
+            KeyW: 'KeyW', KeyS: 'KeyS', KeyA: 'KeyA', KeyD: 'KeyD', 
+            PitchUp: 'ArrowUp', PitchDown: 'ArrowDown', YawLeft: 'ArrowLeft', YawRight: 'ArrowRight',
+            Space: 'Space', KeyM: 'KeyM', KeyL: 'KeyL', KeyC: 'KeyC', Escape: 'Escape' 
+        };
 
         let isFlightLocked = false;
 
@@ -2524,8 +2545,14 @@
 
             window.addEventListener('keydown', (e) => {
                 if (activeRebindAction) return;
+                if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+                    if (!e.target.matches('input, textarea, select')) {
+                        e.preventDefault();
+                    }
+                }
                 let action = Object.keys(keyBindings).find(k => keyBindings[k] === e.code) || e.code;
                 if (keys.hasOwnProperty(action)) keys[action] = true;
+                if (keys.hasOwnProperty(e.code)) keys[e.code] = true;
                 if (action === 'KeyM') toggleTacticalMapModal();
                 if (action === 'Escape') {
                     if (isTacticalMapOpen) {
@@ -2560,6 +2587,7 @@
             window.addEventListener('keyup', (e) => {
                 let action = Object.keys(keyBindings).find(k => keyBindings[k] === e.code) || e.code;
                 if (keys.hasOwnProperty(action)) keys[action] = false;
+                if (keys.hasOwnProperty(e.code)) keys[e.code] = false;
             });
 
 
@@ -3858,10 +3886,22 @@ function createEpicPlayerDeathExplosion(pos) {
             const mouseXEff = Math.sign(normalizedMouse.x) * normX;
             const mouseYEff = Math.sign(normalizedMouse.y) * normY;
 
+            let arrowPitch = 0;
+            let arrowYaw = 0;
+            if (keys.PitchUp || keys.ArrowUp) arrowPitch += 1.0;
+            if (keys.PitchDown || keys.ArrowDown) arrowPitch -= 1.0;
+            if (keys.YawLeft || keys.ArrowLeft) arrowYaw += 1.0;
+            if (keys.YawRight || keys.ArrowRight) arrowYaw -= 1.0;
+
+            const totalPitch = Math.max(-1.0, Math.min(1.0, mouseYEff + arrowPitch));
+            const totalYaw = Math.max(-1.0, Math.min(1.0, -mouseXEff + arrowYaw));
+
             // Apply local pitch (X) and yaw (Y) quaternion rotations directly
             // Allows full 360° loop-de-loops over the top without any view snapping or gimbal flips!
-            playerShip.rotateX(mouseYEff * turnRate);
-            playerShip.rotateY(-mouseXEff * turnRate);
+            if (!isFlightLocked) {
+                playerShip.rotateX(totalPitch * turnRate);
+                playerShip.rotateY(totalYaw * turnRate);
+            }
 
             // A/D Keys for rolling the ship (very slowly)
             let _roll = gameMechanicsConfig.rollSpeed !== undefined ? gameMechanicsConfig.rollSpeed : 50;
@@ -6037,7 +6077,11 @@ function createEpicPlayerDeathExplosion(pos) {
             const captureHandler = (e) => {
                 e.preventDefault();
                 const newCode = e.code;
-                const newChar = e.key.toUpperCase() === " " ? "SPACE" : e.key.toUpperCase();
+                let newChar = e.key.toUpperCase() === " " ? "SPACE" : e.key.toUpperCase();
+                if (newCode === 'ArrowUp') newChar = '▲ UP';
+                else if (newCode === 'ArrowDown') newChar = '▼ DOWN';
+                else if (newCode === 'ArrowLeft') newChar = '◄ LEFT';
+                else if (newCode === 'ArrowRight') newChar = '► RIGHT';
                 
                 if (kbdEl) {
                     kbdEl.innerText = newChar;
@@ -6061,9 +6105,14 @@ function createEpicPlayerDeathExplosion(pos) {
         function resetDefaultKeymaps() {
             const defaults = {
                 KeyW: "W", KeyS: "S", KeyA: "A", KeyD: "D",
+                PitchUp: "▲ UP", PitchDown: "▼ DOWN", YawLeft: "◄ LEFT", YawRight: "► RIGHT",
                 Space: "Space / Mouse 1", KeyM: "M", KeyL: "L", KeyC: "C", Escape: "ESC"
             };
-            keyBindings = { KeyW: 'KeyW', KeyS: 'KeyS', KeyA: 'KeyA', KeyD: 'KeyD', Space: 'Space', KeyM: 'KeyM', KeyL: 'KeyL', KeyC: 'KeyC', Escape: 'Escape' };
+            keyBindings = { 
+                KeyW: 'KeyW', KeyS: 'KeyS', KeyA: 'KeyA', KeyD: 'KeyD', 
+                PitchUp: 'ArrowUp', PitchDown: 'ArrowDown', YawLeft: 'ArrowLeft', YawRight: 'ArrowRight',
+                Space: 'Space', KeyM: 'KeyM', KeyL: 'KeyL', KeyC: 'KeyC', Escape: 'Escape' 
+            };
             for (const [key, label] of Object.entries(defaults)) {
                 const el = document.getElementById('key-' + key);
                 if (el) el.innerText = label;
