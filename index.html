@@ -928,7 +928,7 @@
         }
         .modal-body-grid {
             display: grid;
-            grid-template-columns: var(--left-pane-width, 1.2fr) 10px 1fr;
+            grid-template-columns: 60fr 10px 40fr;
             gap: 15px;
             height: calc(100% - 100px);
         }
@@ -5174,6 +5174,9 @@ function createEpicPlayerDeathExplosion(pos) {
                     upgradeHangarShip.add(clonedShip);
                     if (hangarShieldMesh) upgradeHangarShip.add(hangarShieldMesh);
                 }
+                requestAnimationFrame(() => {
+                    resizeHangarViewport();
+                });
                 showToast("⏸️ GAME PAUSED — PILOT PROFILE & SHIP UPGRADE HANGAR");
             } else {
                 if (modal) modal.style.display = 'none';
