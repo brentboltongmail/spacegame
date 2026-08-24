@@ -2873,7 +2873,10 @@
 
         function attachVoidInterceptorModel(shipGroup, isEvil) {
             if (!voidInterceptorTemplate || !shipGroup.userData || !shipGroup.userData.meshContainer) return;
-            shipGroup.userData.meshContainer.clear();
+            // Remove any fallback mesh
+            while (shipGroup.userData.meshContainer.children.length > 0) {
+                shipGroup.userData.meshContainer.remove(shipGroup.userData.meshContainer.children[0]);
+            }
             const cloned = voidInterceptorTemplate.clone(true);
             if (isEvil) {
                 cloned.traverse(child => {
@@ -2890,6 +2893,18 @@
             const shipGroup = new THREE.Group();
             const meshContainer = new THREE.Group();
             shipGroup.add(meshContainer);
+
+            // Procedural Placeholder Hull (Immediate Zero-Latency Rendering while GLB loads)
+            const fallbackGeo = new THREE.ConeGeometry(1.2, 4.2, 5);
+            fallbackGeo.rotateX(Math.PI / 2);
+            const fallbackMat = new THREE.MeshStandardMaterial({
+                color: isEvil ? 0xff2244 : 0x1e293b,
+                roughness: 0.5,
+                metalness: 0.8
+            });
+            const fallbackMesh = new THREE.Mesh(fallbackGeo, fallbackMat);
+            fallbackMesh.name = "fallbackHull";
+            meshContainer.add(fallbackMesh);
 
             shipGroup.userData = {
                 isEvil: !!isEvil,
@@ -3197,6 +3212,8 @@
         const _currentPos = new THREE.Vector3();
         const _toTarget = new THREE.Vector3();
         const _curDir = new THREE.Vector3();
+        const _radarInvQuat = new THREE.Quaternion();
+        const _radarRelPos = new THREE.Vector3();
 
         function pointToSegmentDistance(p, a, b) {
             _v1.subVectors(b, a);
@@ -4518,9 +4535,13 @@ function createEpicPlayerDeathExplosion(pos) {
                 playerHp = Math.min(100, playerHp + (0.02 * hullMult));
             }
 
-            drawTacticalRadar();
-            drawShieldGauge();
-            drawThrottleGauge();
+            try {
+                drawTacticalRadar();
+                drawShieldGauge();
+                drawThrottleGauge();
+            } catch (hudErr) {
+                console.warn("[HUD RENDER ERROR]", hudErr);
+            }
             renderer.render(scene, camera);
         }
 
@@ -4829,10 +4850,6 @@ function createEpicPlayerDeathExplosion(pos) {
             if (!playerShip) return;
 
             // Full 3D Orientation: Transform any world target directly to cockpit local space
-            if (!_radarInvQuat) {
-                window._radarInvQuat = new THREE.Quaternion();
-                window._radarRelPos = new THREE.Vector3();
-            }
             _radarInvQuat.copy(playerShip.quaternion).invert();
 
             function drawBlip(objPos, color, size, isSquare, label = '') {
