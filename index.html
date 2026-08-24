@@ -1327,7 +1327,7 @@
                         <button class="sim-btn" style="border-color: rgba(56, 189, 248, 0.6); color: #38bdf8; font-weight: 700;" onclick="approachTheCrest()">🛰️ Target The Crest Station</button>
                         <button class="sim-btn" onclick="triggerWormholeJump()">🌀 Wormhole Jump Gate</button>
                         <button class="sim-btn" onclick="spawnEnemySwarm()">🎯 Spawn Enemy Fighters</button>
-                        <button class="sim-btn" onclick="approachCapitalShip()">🛡️ Target Capital Dreadnought</button>
+                        <button class="sim-btn" style="border-color: rgba(255, 59, 92, 0.6); color: #ff3b5c; font-weight: 700;" onclick="approachCapitalShip()">⚔️ Target Dominion Dreadnought</button>
                         <button class="sim-btn danger" onclick="resetSimView()">🔄 Reset Spaceflight</button>
                     </div>
                 </div>
@@ -1697,8 +1697,8 @@
                         <span style="color: #94a3b8;">TITAN ORBIT</span>
                     </div>
                     <div class="legend-item" onclick="focusMapObject('dreadnought')">
-                        <span style="color: #a855f7; font-weight: 700;">🛡️ Royal Dreadnought</span>
-                        <span style="color: #94a3b8;">4.8 KM</span>
+                        <span style="color: #ff3b5c; font-weight: 700;">⚔️ Dominion Dreadnought</span>
+                        <span style="color: #94a3b8;">SATURN ORBIT</span>
                     </div>
                     <div class="legend-item" onclick="resetMapTransform()" style="margin-top: 12px; background: rgba(0, 240, 255, 0.15); border-color: #00f0ff; text-align: center;">
                         <span style="color: #00f0ff; font-weight: 700; width: 100%; text-align: center;">🎯 RESET & RE-CENTER MAP</span>
@@ -3341,107 +3341,106 @@
         function createCapitalShip() {
             capitalShip = new THREE.Group();
             capitalShip.userData = {
-                crystalCore: null,
-                crystalRings: [],
-                crystalLight: null,
-                radarDish: null,
-                turrets: [],
-                fighters: [],
                 beacons: [],
                 engineEmitters: [],
-                particles: []
+                particles: [],
+                weaponLights: [],
+                weaponGlows: []
             };
 
-            const setupBattlecruiserFeatures = () => {
-                // Navigation Beacon Lights (Port = Red, Starboard = Green, Dorsal = White Pulse)
-                const portBeacon = new THREE.PointLight(0xff0044, 3.5, 400);
-                portBeacon.position.set(-260, 15, 60);
-                portBeacon.userData = { baseIntensity: 3.5 };
+            const setupDominionFeatures = () => {
+                // --- 1. RED NAVIGATION BEACONS & WARNING LIGHTS ---
+                const portBeacon = new THREE.PointLight(0xff0033, 4.0, 500);
+                portBeacon.position.set(-180, 25, 50);
+                portBeacon.userData = { baseIntensity: 4.0 };
                 capitalShip.add(portBeacon);
                 capitalShip.userData.beacons.push(portBeacon);
 
-                const stbdBeacon = new THREE.PointLight(0x00ff88, 3.5, 400);
-                stbdBeacon.position.set(260, 15, 60);
-                stbdBeacon.userData = { baseIntensity: 3.5 };
+                const stbdBeacon = new THREE.PointLight(0xff0033, 4.0, 500);
+                stbdBeacon.position.set(180, 25, 50);
+                stbdBeacon.userData = { baseIntensity: 4.0 };
                 capitalShip.add(stbdBeacon);
                 capitalShip.userData.beacons.push(stbdBeacon);
 
-                const dorsalBeacon = new THREE.PointLight(0xffffff, 4.5, 500);
-                dorsalBeacon.position.set(0, 140, -40);
-                dorsalBeacon.userData = { baseIntensity: 4.5 };
-                capitalShip.add(dorsalBeacon);
-                capitalShip.userData.beacons.push(dorsalBeacon);
+                const dorsalBridgeBeacon = new THREE.PointLight(0xff2244, 5.0, 600);
+                dorsalBridgeBeacon.position.set(0, 180, 200);
+                dorsalBridgeBeacon.userData = { baseIntensity: 5.0 };
+                capitalShip.add(dorsalBridgeBeacon);
+                capitalShip.userData.beacons.push(dorsalBridgeBeacon);
 
-                // --- TWIN REAR ENGINE GLOW & THRUSTER ARRAYS ---
-                const engineGlowMat = new THREE.MeshBasicMaterial({
-                    color: 0x00f0ff,
+                // --- 2. RED GLOWING REAR ENGINE THRUSTER ARRAYS ---
+                const redEngineGlowMat = new THREE.MeshBasicMaterial({
+                    color: 0xff0033,
                     transparent: true,
-                    opacity: 0.95
+                    opacity: 0.96
                 });
-                const engineCoreMat = new THREE.MeshBasicMaterial({
+                const redEngineCoreMat = new THREE.MeshBasicMaterial({
                     color: 0xffffff,
                     transparent: true,
                     opacity: 0.98
                 });
-                const engineHaloMat = new THREE.MeshBasicMaterial({
-                    color: 0x38bdf8,
+                const redEngineHaloMat = new THREE.MeshBasicMaterial({
+                    color: 0xff1e40,
                     transparent: true,
-                    opacity: 0.35,
+                    opacity: 0.45,
                     blending: THREE.AdditiveBlending,
                     side: THREE.DoubleSide
                 });
 
-                // Twin Engine Nozzles (Port [-111.25, -88.5, 470] & Starboard [+111.25, -88.5, 470], Radius 32)
-                const enginePositions = [
-                    { x: -111.25, y: -88.5, z: 470.0, r: 32.0 },
-                    { x:  111.25, y: -88.5, z: 470.0, r: 32.0 }
+                // Engine Thruster Nozzle Clusters at Aft (Z: 570 to 585)
+                const engineClusters = [
+                    { x: 0, y: -12, z: 580, r: 36.0 },     // Main Heavy Core Thruster
+                    { x: -52, y: 15, z: 570, r: 24.0 },   // Port Upper Thruster
+                    { x: 52, y: 15, z: 570, r: 24.0 },    // Starboard Upper Thruster
+                    { x: -44, y: -38, z: 570, r: 20.0 },  // Port Lower Thruster
+                    { x: 44, y: -38, z: 570, r: 20.0 }    // Starboard Lower Thruster
                 ];
 
                 capitalShip.userData.engineEmitters = [];
 
-                enginePositions.forEach(eng => {
+                engineClusters.forEach(eng => {
                     const engGroup = new THREE.Group();
                     engGroup.position.set(eng.x, eng.y, eng.z);
 
-                    // 1. Deep Engine Interior Cavity Glow
-                    const cavityGeo = new THREE.CylinderGeometry(eng.r * 0.85, eng.r * 0.95, 25, 24, 1, true);
+                    // Deep Engine Interior Cavity Glow
+                    const cavityGeo = new THREE.CylinderGeometry(eng.r * 0.85, eng.r * 0.95, 28, 24, 1, true);
                     const cavityMat = new THREE.MeshBasicMaterial({
-                        color: 0x0284c7,
+                        color: 0x990022,
                         side: THREE.BackSide,
                         transparent: true,
-                        opacity: 0.8
+                        opacity: 0.85
                     });
                     const cavity = new THREE.Mesh(cavityGeo, cavityMat);
                     cavity.rotation.x = Math.PI / 2;
-                    cavity.position.z = -12;
+                    cavity.position.z = -14;
                     engGroup.add(cavity);
 
-                    // 2. Main Cyan Plasma Thruster Disc
-                    const diskGeo = new THREE.CircleGeometry(eng.r * 0.90, 24);
-                    const disk = new THREE.Mesh(diskGeo, engineGlowMat);
+                    // Main Radiant Red Plasma Thruster Disc
+                    const diskGeo = new THREE.CircleGeometry(eng.r * 0.92, 24);
+                    const disk = new THREE.Mesh(diskGeo, redEngineGlowMat);
                     disk.position.z = 1.0;
                     engGroup.add(disk);
 
-                    // 3. Superheated White Core Disc
-                    const coreGeo = new THREE.CircleGeometry(eng.r * 0.45, 24);
-                    const core = new THREE.Mesh(coreGeo, engineCoreMat);
-                    core.position.z = 1.5;
+                    // Superheated White Core Disc
+                    const coreGeo = new THREE.CircleGeometry(eng.r * 0.42, 24);
+                    const core = new THREE.Mesh(coreGeo, redEngineCoreMat);
+                    core.position.z = 1.6;
                     engGroup.add(core);
 
-                    // 4. Subtle Outer Cyan Plasma Halo Ring (Additive Blending)
-                    const haloGeo = new THREE.RingGeometry(eng.r * 0.8, eng.r * 1.25, 24);
-                    const halo = new THREE.Mesh(haloGeo, engineHaloMat);
-                    halo.position.z = 2.0;
+                    // Outer Additive Red Plasma Halo Ring
+                    const haloGeo = new THREE.RingGeometry(eng.r * 0.8, eng.r * 1.35, 24);
+                    const halo = new THREE.Mesh(haloGeo, redEngineHaloMat);
+                    halo.position.z = 2.2;
                     engGroup.add(halo);
 
-                    // 5. Dynamic Engine Exhaust Point Light
-                    const engineLight = new THREE.PointLight(0x00f0ff, 3.5, 350);
-                    engineLight.position.set(0, 0, 15);
-                    engGroup.add(engineLight);
+                    // Dynamic Red Engine Point Light
+                    const engLight = new THREE.PointLight(0xff0022, 4.0, 400);
+                    engLight.position.set(0, 0, 18);
+                    engGroup.add(engLight);
 
                     capitalShip.add(engGroup);
 
-                    // Register Engine Emitters for sub-light particle trails (divided by 3 for 3x particle scale)
+                    // Register Engine Emitter for particle trails
                     capitalShip.userData.engineEmitters.push({
                         x: eng.x / 3,
                         y: eng.y / 3,
@@ -3449,11 +3448,81 @@
                         r: eng.r / 3
                     });
                 });
+
+                // --- 3. RED GLOW INSIDE FRONT WEAPON AREA (SPINAL CHARGING CHANNEL) ---
+                const weaponAreaGroup = new THREE.Group();
+                weaponAreaGroup.position.set(0, 18, -520); // Central front weapon trench between bow prongs
+
+                // Central Pulsating Ruby Plasma Core Sphere
+                const weaponCoreGeo = new THREE.SphereGeometry(22, 32, 32);
+                const weaponCoreMat = new THREE.MeshBasicMaterial({
+                    color: 0xff0033,
+                    transparent: true,
+                    opacity: 0.95,
+                    blending: THREE.AdditiveBlending
+                });
+                const weaponCoreMesh = new THREE.Mesh(weaponCoreGeo, weaponCoreMat);
+                weaponAreaGroup.add(weaponCoreMesh);
+                capitalShip.userData.weaponGlows.push(weaponCoreMesh);
+
+                // Inner Superheated White/Yellow Core Spark
+                const weaponInnerCoreGeo = new THREE.SphereGeometry(10, 24, 24);
+                const weaponInnerCoreMat = new THREE.MeshBasicMaterial({
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.98
+                });
+                const weaponInnerMesh = new THREE.Mesh(weaponInnerCoreGeo, weaponInnerCoreMat);
+                weaponAreaGroup.add(weaponInnerMesh);
+
+                // Forward Spinal Focus Rings (Concentric Energy Magnetic Choke Rings)
+                [ -35, 0, 35 ].forEach((zOff, idx) => {
+                    const ringR = 26 - idx * 4;
+                    const ringGeo = new THREE.TorusGeometry(ringR, 2.2, 16, 32);
+                    const ringMat = new THREE.MeshBasicMaterial({
+                        color: 0xff1e38,
+                        transparent: true,
+                        opacity: 0.85,
+                        blending: THREE.AdditiveBlending
+                    });
+                    const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+                    ringMesh.position.z = zOff;
+                    weaponAreaGroup.add(ringMesh);
+                    capitalShip.userData.weaponGlows.push(ringMesh);
+                });
+
+                // Collimated Longitudinal Plasma Charge Beam
+                const beamGeo = new THREE.CylinderGeometry(8, 16, 95, 16, 1, true);
+                beamGeo.rotateX(Math.PI / 2);
+                const beamMat = new THREE.MeshBasicMaterial({
+                    color: 0xff0044,
+                    transparent: true,
+                    opacity: 0.65,
+                    blending: THREE.AdditiveBlending,
+                    side: THREE.DoubleSide
+                });
+                const beamMesh = new THREE.Mesh(beamGeo, beamMat);
+                beamMesh.position.z = -25;
+                weaponAreaGroup.add(beamMesh);
+                capitalShip.userData.weaponGlows.push(beamMesh);
+
+                // High-Intensity Front Weapon Interior Lighting
+                const weaponLight = new THREE.PointLight(0xff0033, 6.0, 550);
+                weaponLight.position.set(0, 0, 0);
+                weaponAreaGroup.add(weaponLight);
+                capitalShip.userData.weaponLights.push(weaponLight);
+
+                const weaponMuzzleLight = new THREE.PointLight(0xff2244, 4.5, 400);
+                weaponMuzzleLight.position.set(0, 0, -60);
+                weaponAreaGroup.add(weaponMuzzleLight);
+                capitalShip.userData.weaponLights.push(weaponMuzzleLight);
+
+                capitalShip.add(weaponAreaGroup);
             };
 
-            // Load Battlecruiser GLB Model
+            // Load Dominion Capital Ship GLB Model
             const gltfLoader = new THREE.GLTFLoader();
-            gltfLoader.load('fbx/battlecruiser.glb?v=' + Date.now(), function(gltf) {
+            gltfLoader.load('fbx/dominion_capital_ship.glb?v=' + Date.now(), function(gltf) {
                 const model = gltf.scene;
 
                 // Enforce solid double-sided opaque materials
@@ -3471,7 +3540,7 @@
                     }
                 });
 
-                // Compute Bounding Box & Scale to ~950 units length
+                // Compute Bounding Box & Scale to ~1,200 units length
                 const box = new THREE.Box3().setFromObject(model);
                 const size = new THREE.Vector3();
                 box.getSize(size);
@@ -3479,21 +3548,21 @@
                 box.getCenter(center);
 
                 const maxDim = Math.max(size.x, size.y, size.z);
-                const targetScale = 950 / (maxDim || 1);
+                const targetScale = 1200 / (maxDim || 1);
                 model.scale.set(targetScale, targetScale, targetScale);
 
-                // Center and rotate model horizontally in local group (nose to -Z, wings to +/-X, bridge to +Y)
-                model.rotation.set(-Math.PI / 2, 0, -Math.PI / 2);
-                model.position.set(-center.y * targetScale, -center.z * targetScale, -center.x * targetScale);
+                // Center and rotate model horizontally in local group (nose/weapon to -Z, engines to +Z, bridge to +Y)
+                model.rotation.set(0, Math.PI / 2, 0);
+                model.position.set(-center.z * targetScale, -center.y * targetScale, center.x * targetScale);
 
                 capitalShip.add(model);
-                setupBattlecruiserFeatures();
-                console.log("[BATTLECRUISER] GLB Model and Twin Engine Glow Mapped Successfully!");
+                setupDominionFeatures();
+                console.log("[DOMINION CAPITAL SHIP] GLB Loaded with Red Engines & Front Weapon Glow!");
             }, undefined, function(err) {
-                console.error("[BATTLECRUISER GLB ERROR]", err);
+                console.error("[DOMINION CAPITAL SHIP GLB ERROR]", err);
             });
 
-            // Initial Placement in Orbit around Space Planet
+            // Initial Placement in Orbit around Saturn
             if (spacePlanet) {
                 const orbitRadius = 11200;
                 const orbitInclination = 0.26;
@@ -4062,16 +4131,16 @@ function createEpicPlayerDeathExplosion(pos) {
 
         function approachCapitalShip() {
             if (!capitalShip) return;
-            const backwardOffset = new THREE.Vector3(0, 120, 600).applyQuaternion(capitalShip.quaternion);
+            const backwardOffset = new THREE.Vector3(0, 140, 750).applyQuaternion(capitalShip.quaternion);
             playerShip.position.copy(capitalShip.position).add(backwardOffset);
             playerShip.quaternion.copy(capitalShip.quaternion);
-            targetSpeed = 100;
-            currentSpeed = 100;
+            targetSpeed = 80;
+            currentSpeed = 80;
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
-            if (sec) sec.innerText = "AYTHELGARD PLANETARY ORBIT";
-            if (obj) obj.innerText = "Escort Sovereign Dreadnought in Planetary Orbit";
-            showToast("Approaching Sovereign Royal Flagship in Planetary Orbit!");
+            if (sec) sec.innerText = "DOMINION INVASION VECTOR — SATURN PERIMETER";
+            if (obj) obj.innerText = "Intercept Dominion Capital Flagship in Saturn Orbit";
+            showToast("Approaching Dominion Capital Dreadnought in Planetary Orbit!");
         }
 
         function resetSimView() {
@@ -4359,23 +4428,18 @@ function createEpicPlayerDeathExplosion(pos) {
                 }
 
                 if (capitalShip.userData) {
-                    // Animate Crystal Core & Rings
-                    if (capitalShip.userData.crystalCore) {
-                        capitalShip.userData.crystalCore.rotation.y += 0.015;
-                        capitalShip.userData.crystalCore.rotation.z += 0.008;
-                    }
-                    if (capitalShip.userData.crystalRings) {
-                        capitalShip.userData.crystalRings.forEach((r, idx) => {
-                            r.rotation.z += (idx % 2 === 0 ? 0.02 : -0.02);
+                    // Animate Front Weapon Area Pulsing Ruby Core & Energy Rings
+                    if (capitalShip.userData.weaponLights) {
+                        const pulse = Math.sin(timeSec * 3.5);
+                        capitalShip.userData.weaponLights.forEach(wl => {
+                            wl.intensity = 5.5 + pulse * 2.0;
                         });
                     }
-                    if (capitalShip.userData.crystalLight) {
-                        capitalShip.userData.crystalLight.intensity = 4.0 + Math.sin(timeSec * 4) * 1.5;
-                    }
-
-                    // Animate Radar Dish Assembly
-                    if (capitalShip.userData.radarDish) {
-                        capitalShip.userData.radarDish.rotation.y += 0.02;
+                    if (capitalShip.userData.weaponGlows) {
+                        const pulseScale = 1.0 + Math.sin(timeSec * 4.0) * 0.08;
+                        capitalShip.userData.weaponGlows.forEach(wg => {
+                            wg.scale.set(pulseScale, pulseScale, pulseScale);
+                        });
                     }
 
                     // Animate Blinking Navigation Beacons
@@ -4386,66 +4450,7 @@ function createEpicPlayerDeathExplosion(pos) {
                         });
                     }
 
-                    // Animate Heavy Turrets Target Tracking (Aim toward closest enemy, fallback to player)
-                    if (capitalShip.userData.turrets) {
-                        let closestEnemy = null;
-                        let minDist = 8000;
-                        for (const enemy of enemyShips) {
-                            if (!enemy || !enemy.userData || enemy.userData.hp <= 0) continue;
-                            const d = enemy.position.distanceTo(capitalShip.position);
-                            if (d < minDist) {
-                                minDist = d;
-                                closestEnemy = enemy;
-                            }
-                        }
-
-                        let targetObj = closestEnemy ? closestEnemy : playerShip;
-                        if (targetObj) {
-                            capitalShip.userData.turrets.forEach(turret => {
-                                const worldPos = new THREE.Vector3();
-                                turret.getWorldPosition(worldPos);
-                                const dx = targetObj.position.x - worldPos.x;
-                                const dz = targetObj.position.z - worldPos.z;
-                                const targetAngle = Math.atan2(dx, dz) - capitalShip.rotation.y;
-                                turret.rotation.y = THREE.MathUtils.lerp(turret.rotation.y, targetAngle, 0.03);
-
-                                // Fire lasers if tracking an enemy and within range
-                                if (closestEnemy && minDist < 4000) {
-                                    if (!turret.userData.lastFireTime) turret.userData.lastFireTime = 0;
-                                    if (Date.now() - turret.userData.lastFireTime > 400 + Math.random() * 600) {
-                                        turret.userData.lastFireTime = Date.now();
-                                        
-                                        const cLaser = getPooledLaserBolt();
-                                        if (cLaser) {
-                                            cLaser.visible = true;
-                                            
-                                            // Get the exact world orientation of the turret barrel
-                                            const turretWorldQuat = new THREE.Quaternion();
-                                            turret.getWorldQuaternion(turretWorldQuat);
-                                            cLaser.quaternion.copy(turretWorldQuat);
-                                            
-                                            // Position at the barrel tip
-                                            const barrelOffset = new THREE.Vector3(0, 0.5, 4.0).applyQuaternion(turretWorldQuat);
-                                            cLaser.position.copy(worldPos).add(barrelOffset);
-                                            cLaser.userData.prevPos.copy(cLaser.position);
-                                            
-                                            // Fire slightly ahead / towards the enemy
-                                            const dir = new THREE.Vector3();
-                                            dir.subVectors(closestEnemy.position, cLaser.position).normalize();
-                                            cLaser.userData.velocity.copy(dir).multiplyScalar(15);
-                                            
-                                            if (!laserProjectiles.includes(cLaser)) laserProjectiles.push(cLaser);
-                                            
-                                            // Fallback audio
-                                            
-                                        }
-                                    }
-                                }
-                            });
-                        }
-                    }
-
-                    // Animate Dreadnought 5% Cruise Engine Exhaust Plumes
+                    // Animate Dreadnought 5% Cruise Red Engine Exhaust Plumes
                     if (capitalShip.userData.engineEmitters) {
                         if (!capitalShip.userData.particles) capitalShip.userData.particles = [];
                         
@@ -4456,9 +4461,9 @@ function createEpicPlayerDeathExplosion(pos) {
                             capitalShip.userData.engineEmitters.forEach(em => {
                                 const pGeo = new THREE.SphereGeometry(Math.random() * 1.5 + 1.0, 6, 6);
                                 const pMat = new THREE.MeshBasicMaterial({
-                                    color: 0x38bdf8,
+                                    color: 0xff2244,
                                     transparent: true,
-                                    opacity: 0.38
+                                    opacity: 0.42
                                 });
                                 const p = new THREE.Mesh(pGeo, pMat);
                                 
@@ -4494,7 +4499,7 @@ function createEpicPlayerDeathExplosion(pos) {
                                 p.position.add(p.userData.vel);
                                 p.scale.setScalar(p.userData.life * 2.0);
                                 p.material.opacity = p.userData.life * 0.38;
-                                p.material.color.lerp(new THREE.Color(0x0284c7), 0.04);
+                                p.material.color.lerp(new THREE.Color(0x7f1d1d), 0.04);
                             }
                         }
                     }
@@ -5371,9 +5376,9 @@ function createEpicPlayerDeathExplosion(pos) {
                 drawBlip(wormholeGate.position, '#8b5cf6', 5, false, 'GATE');
             }
 
-            // Draw Purple Square Blip for Capital Dreadnought
+            // Draw Crimson Square Blip for Dominion Capital Dreadnought
             if (capitalShip && capitalShip.position) {
-                drawBlip(capitalShip.position, '#a855f7', 7, true, 'DREADNOUGHT');
+                drawBlip(capitalShip.position, '#ff1e38', 8, true, 'DOMINION DREADNOUGHT');
             }
 
             // Draw Red Blips for Active Living Enemy Ships
@@ -6063,11 +6068,11 @@ function createEpicPlayerDeathExplosion(pos) {
             mapGateMesh.position.set(-0.6, 0.1, -1.4);
             mapGroup.add(mapGateMesh);
 
-            // 5. Royal Capital Dreadnought Flagship
-            const dreadIconGeo = new THREE.BoxGeometry(8.5, 3.8, 18);
-            const dreadIconMat = new THREE.MeshBasicMaterial({ color: 0xa855f7 });
+            // 5. Dominion Capital Dreadnought Flagship
+            const dreadIconGeo = new THREE.BoxGeometry(9.5, 4.2, 22);
+            const dreadIconMat = new THREE.MeshBasicMaterial({ color: 0xff1e38 });
             mapDreadMesh = new THREE.Mesh(dreadIconGeo, dreadIconMat);
-            mapDreadMesh.userData = { label: "Royal Dreadnought Flagship" };
+            mapDreadMesh.userData = { label: "Dominion Capital Dreadnought" };
             mapDreadMesh.position.set(-34, -12, -56);
             mapGroup.add(mapDreadMesh);
 
