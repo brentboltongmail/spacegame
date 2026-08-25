@@ -695,7 +695,7 @@
 
             // --- 3D TARGET LOCK BOX UPDATER ---
             if (targetBox3D) {
-                if (closestEnemy && closestEnemy.userData && closestEnemy.userData.hp > 0 && closestDist < 4000 && (cameraMode === 0 || cameraMode === 1)) {
+                if (closestEnemy && closestEnemy.userData && closestEnemy.userData.hp > 0 && closestDist < 4000 && (cameraMode === 0 || cameraMode === 1) && !isTitanCinematicActive) {
                     targetBox3D.visible = true;
                     targetBox3D.position.copy(closestEnemy.position);
                     

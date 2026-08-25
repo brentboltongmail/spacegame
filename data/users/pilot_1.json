@@ -105,7 +105,7 @@
     "shieldRegenMult": 100,
     "hullRegenMult": 100,
     "enemyDamageMult": 26,
-    "playerDamageMult": 100,
+    "playerDamageMult": 34,
     "flashOnHit": false,
     "turnSpeed": 50,
     "platform": "mac"
@@ -128,6 +128,6 @@
     "hud-action-bar-card": true,
     "hud-controls-card": true,
     "hud-shield-card": true,
-    "hud-radar-card": true
+    "hud-radar-card": false
   }
 }
