@@ -2139,6 +2139,21 @@
                         🕹️ FLIGHT FEEL SETTINGS
                     </h3>
 
+                    <div class="volume-slider-group" style="border: 1px solid var(--accent-cyan); padding: 10px; border-radius: 8px; margin-bottom: 15px; background: rgba(0,240,255,0.05);">
+                        <div style="font-family: Orbitron; color: var(--accent-cyan); margin-bottom: 8px; display: flex; justify-content: space-between;">
+                            <span>🖥️ PLATFORM OPTIMIZATION</span>
+                        </div>
+                        <select id="select-platform" onchange="changePlatform()" style="width: 100%; padding: 8px; background: #0f172a; color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; font-family: 'Inter', sans-serif; cursor: pointer; outline: none;">
+                            <option value="windows">Windows / Gaming PC</option>
+                            <option value="mac">Mac / Apple Silicon (Optimized)</option>
+                        </select>
+                        <div id="platform-info" style="font-size: 0.75rem; color: #94a3b8; margin-top: 8px; line-height: 1.4;">
+                            <strong>Windows:</strong> High-res MSAA, Alpha Compositing.<br>
+                            <strong>Mac:</strong> Retina MSAA disabled, No Compositing, High-Performance Mode forced.
+                        </div>
+                    </div>
+
+
                     <div class="volume-slider-group">
                         <div class="slider-header">
                             <span>🔄 Ship Roll Speed</span>
@@ -2353,6 +2368,15 @@
                         updateGameSettings();
                         updateGameSettings();
                     }
+
+                    // Auto-detect and set platform optimization if not set
+                    if (!currentProfile.settings) currentProfile.settings = {};
+                    if (!currentProfile.settings.platform) {
+                        const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0 || navigator.userAgent.toUpperCase().indexOf('MAC') >= 0;
+                        currentProfile.settings.platform = isMac ? 'mac' : 'windows';
+                        saveProfileToServerSilent();
+                    }
+
                     const defaultKeyBindings = { 
                         KeyW: 'KeyW', KeyS: 'KeyS', KeyA: 'KeyA', KeyD: 'KeyD', 
                         PitchUp: 'ArrowUp', PitchDown: 'ArrowDown', YawLeft: 'ArrowLeft', YawRight: 'ArrowRight',
@@ -2848,6 +2872,25 @@
 
         let isFlightLocked = false;
 
+        
+        function getRendererConfig(extraOpts = {}) {
+            let p = "windows";
+            if (typeof currentProfile !== 'undefined' && currentProfile && currentProfile.settings && currentProfile.settings.platform) {
+                p = currentProfile.settings.platform;
+            }
+            let conf = { logarithmicDepthBuffer: true };
+            if (p === "mac") {
+                conf.antialias = (window.devicePixelRatio === 1);
+                conf.alpha = false;
+                conf.powerPreference = "high-performance";
+            } else {
+                conf.antialias = true;
+                conf.alpha = true;
+                conf.powerPreference = "default";
+            }
+            return Object.assign(conf, extraOpts);
+        }
+
         function init3DSimulator() {
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene();
@@ -2856,7 +2899,7 @@
             camera = new THREE.PerspectiveCamera(65, container.clientWidth / container.clientHeight, 1.0, 2000000);
             camera.position.set(78600, -1174, -47158);
 
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, logarithmicDepthBuffer: true });
+            renderer = new THREE.WebGLRenderer(getRendererConfig({ alpha: currentProfile?.settings?.platform !== "mac" }));
             renderer.setSize(container.clientWidth, container.clientHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.shadowMap.enabled = true;
@@ -8248,7 +8291,7 @@ function createEpicPlayerDeathExplosion(pos) {
             upgradeHangarCamera.position.copy(hangarCamTargetPos);
             upgradeHangarCamera.lookAt(hangarCamLookAtPos);
 
-            upgradeHangarRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, logarithmicDepthBuffer: true });
+            upgradeHangarRenderer = new THREE.WebGLRenderer(getRendererConfig({ canvas: canvas, alpha: false }));
             upgradeHangarRenderer.setSize(container.clientWidth, container.clientHeight);
             upgradeHangarRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
@@ -8805,7 +8848,7 @@ function createEpicPlayerDeathExplosion(pos) {
             mapCamera.position.set(0, 0, mapCamDistance);
             mapCamera.lookAt(0, 0, 0);
 
-            mapRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false });
+            mapRenderer = new THREE.WebGLRenderer(getRendererConfig({ canvas: canvas, alpha: false }));
             mapRenderer.setSize(w, h);
             mapRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
@@ -9223,11 +9266,30 @@ function createEpicPlayerDeathExplosion(pos) {
                 
                 const chk = document.getElementById('chk-flash-on-hit');
                 if (chk) chk.checked = !!gameMechanicsConfig.flashOnHit;
+
+                if (gameMechanicsConfig.platform) {
+                    const platSel = document.getElementById('select-platform');
+                    if (platSel) platSel.value = gameMechanicsConfig.platform;
+                }
+
             } catch(e) {
                 console.warn("Error syncing options modal fields:", e);
             }
 
             showToast("🔧 GAME OPTIONS & AUDIO CONTROLS OPEN");
+        }
+
+        
+        function changePlatform() {
+            const val = document.getElementById('select-platform').value;
+            if (currentProfile) {
+                if (!currentProfile.settings) currentProfile.settings = {};
+                currentProfile.settings.platform = val;
+                saveProfileToServerSilent();
+                if (confirm("Changing platform optimizations requires a page reload to rebuild the WebGL context.\n\nReload now?")) {
+                    location.reload();
+                }
+            }
         }
 
         function closeOptionsModal() {
