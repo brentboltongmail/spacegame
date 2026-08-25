@@ -1557,7 +1557,7 @@
                     <div class="hud-card">
                         <div class="hud-title">SECTOR / OBJECTIVE</div>
                         <div class="hud-stat" id="hud-sector" style="color: var(--accent-gold);">MISSION 1: ROUTINE PATROL</div>
-                        <div id="hud-objective" style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Fly around Saturn, clear 3 training rings, and destroy 6 drones (0/3 Rings, 0/6 Enemies).</div>
+                        <div id="hud-objective" style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Fly around Saturn, clear 3 training rings, and destroy 3 drones (0/3 Rings, 0/3 Enemies).</div>
                     </div>
                 </div>
 
@@ -4589,6 +4589,9 @@
                 meshContainer.add(cloned);
             }
 
+            // Hide the ship initially so it doesn't appear until fleet hyperspace emergence
+            shipGroup.visible = false;
+            
             scene.add(shipGroup);
             return shipGroup;
         }
@@ -9710,12 +9713,12 @@ function createEpicPlayerDeathExplosion(pos) {
                 }
             });
             
-            showCommsTransmission("ELIAS VANCE", "Alright, kid. Let's see if those stabilizer tweaks I made hold up. Fly around Saturn, clear those 3 training rings, and shoot down the 6 target drones I set up near the rings.", 9000);
+            showCommsTransmission("ELIAS VANCE", "Alright, kid. Let's see if those stabilizer tweaks I made hold up. Fly around Saturn, clear those 3 training rings, and shoot down 3 target drones I set up near the rings.", 9000);
             
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
             if (sec) sec.innerText = "MISSION 1: ROUTINE PATROL";
-            if (obj) obj.innerText = "Fly around Saturn, clear 3 training rings, and destroy 6 drones (0/3 Rings, 0/6 Enemies).";
+            if (obj) obj.innerText = "Fly around Saturn, clear 3 training rings, and destroy 3 drones (0/3 Rings, 0/3 Enemies).";
             showToast("🎯 NEW OBJECTIVE: Clear Saturn Training Rings");
             
             // (Collision check is now safely handled in the high-framerate animate() loop to prevent skipping)
@@ -9749,10 +9752,11 @@ function createEpicPlayerDeathExplosion(pos) {
             }
             
             // Update HUD text if not fully complete
-            if (mission1Stage < 3 || enemiesDestroyed < 6) {
+            if (mission1Stage < 3 || enemiesDestroyed < 3) {
                 const obj = document.getElementById('hud-objective');
-                if (obj) obj.innerText = `Fly around Saturn, clear 3 training rings, and destroy 6 drones (${mission1Stage}/3 Rings, ${enemiesDestroyed}/6 Enemies).`;
-            } else if (mission1Stage === 3 && enemiesDestroyed === 6) {
+                const displayEnemies = Math.min(enemiesDestroyed, 3);
+                if (obj) obj.innerText = `Fly around Saturn, clear 3 training rings, and destroy 3 drones (${mission1Stage}/3 Rings, ${displayEnemies}/3 Enemies).`;
+            } else if (mission1Stage === 3 && enemiesDestroyed >= 3) {
                 // BOTH OBJECTIVES COMPLETE
                 mission1Stage = 4; // Prevent re-triggering this block
                 
