@@ -1,17 +1,23 @@
 # Spacegame Codebase Architecture Index
 
-This document serves as a high-level map of index.html (the primary 6000+ line application file) to help locate logic blocks, physics, UI, and initialization functions quickly. 
+This document serves as a high-level map of the `spacegame` modular architecture to help locate logic blocks, physics, UI, and initialization functions quickly. The massive `index.html` has been broken down into a standard `css/` and `js/` directory structure.
 
 **Rule:** Keep this document updated whenever major structural changes or entirely new systems are added to the codebase.
 
 ---
 
-## 1. UI & HTML Structure
-*   <section id="sim-section"> - The main 3D flight simulator view.
-*   <section id="story-section"> - The Narrative & Campaign UI tab.
-*   <section id="ships-section"> - The Ships & Fleet UI tab.
-*   <section id="titles-section"> - The Main Titles / Hangar UI.
-*   <div id="hud-overlay"> - The primary HUD wrapper containing the crosshair and draggable cards (radar, throttle, actions).
+## 1. Directory Structure & HTML
+*   **`index.html`** - The entry point containing the core HTML skeleton, layout containers, modals, and script tags linking the modular architecture.
+*   **`css/`** - Modular styles.
+    *   `main.css` - Global resets, fonts, variables, basic layout.
+    *   `ui.css` - Buttons, menus, tabs, cards, tables.
+    *   `hud.css` - The primary HUD wrapper (`#hud-overlay`), crosshairs, target locks, and draggable cards (radar, throttle, actions).
+*   **`js/`** - Modular application logic.
+    *   `config/` - `data.js` (static config), `profile.js` (user data).
+    *   `engine/` - `scene.js` (Three.js init), `models.js` (GLB loaders), `weapons.js` (combat maths), `loop.js` (core animate loop).
+    *   `ui/` - `interactions.js` (DOM menus), `hud.js`, `starmap.js`, `hangar.js`.
+    *   `core/` - `events.js`, `audio.js` (synth), `input.js`.
+    *   `main.js` - Application bootstrap.
 
 ## 2. Initialization & Setup
 *   init3DSimulator() - Sets up the entire Three.js scene, camera, renderer, and triggers world generation.
