@@ -3554,7 +3554,10 @@
                             });
                         }
                     });
-                    hangerModel.scale.set(0.5, 0.5, 0.5);
+                    hangerModel.scale.set(0.25, 0.25, 0.25);
+                    // Move it outward along the X axis so its inner edge attaches to the outer crest ring
+                    // Crest ring is at ~0.82 local radius, Hanger half-size at 0.25 scale is ~0.24
+                    hangerModel.position.set(1.06, 0, 0);
                     model.add(hangerModel);
                     console.log("[THE CREST HANGER] GLB Model Loaded & Attached to The Crest!");
                 }, undefined, function(err) {
