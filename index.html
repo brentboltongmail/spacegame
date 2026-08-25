@@ -7846,6 +7846,8 @@ function createEpicPlayerDeathExplosion(pos) {
             const topDist = document.getElementById('top-target-dist');
             const topBar = document.getElementById('top-target-hp-bar');
             const topHpText = document.getElementById('top-target-hp-text');
+            const topCard = document.getElementById('hud-top-target-card');
+            const topCardLabel = topCard ? topCard.querySelector('.drag-handle-label') : null;
 
             if (closestEnemy) {
                 const distKm = (closestDist / 100).toFixed(1);
@@ -7859,11 +7861,34 @@ function createEpicPlayerDeathExplosion(pos) {
                 if (topDist) topDist.innerText = `Range: ${distKm} KM`;
                 if (topBar) topBar.style.width = `${hpPct}%`;
                 if (topHpText) topHpText.innerText = `${hp} / ${maxHp} HP (${hpPct}%)`;
+
+                if (topCardLabel) {
+                    if (topCard.classList.contains('is-minimized')) {
+                        const targetText = `🎯 ${enemyName.toUpperCase()} - ${hpPct}%`;
+                        const existingBar = topCardLabel.querySelector('.mini-hp-bar');
+                        if (!existingBar) {
+                            topCardLabel.innerHTML = `${targetText} <span style="display:inline-block; width:60px; height:8px; background:rgba(0,0,0,0.8); border:1px solid #ff3b5c; border-radius:2px; margin-left:6px; vertical-align:middle; overflow:hidden;"><div class="mini-hp-bar" style="width:${hpPct}%; height:100%; background:linear-gradient(90deg, #dc2626, #ff3b5c);"></div></span>`;
+                        } else {
+                            if (topCardLabel.childNodes[0].nodeType === 3) {
+                                topCardLabel.childNodes[0].nodeValue = `${targetText} `;
+                            }
+                            existingBar.style.width = `${hpPct}%`;
+                        }
+                    } else {
+                        if (topCardLabel.innerText !== '🎯 TARGET DAMAGE') {
+                            topCardLabel.innerHTML = '🎯 TARGET DAMAGE';
+                        }
+                    }
+                }
             } else {
                 if (topName) topName.innerText = "NO TARGET ACQUIRED";
                 if (topDist) topDist.innerText = "Range: -- KM";
                 if (topBar) topBar.style.width = "0%";
                 if (topHpText) topHpText.innerText = "NO TARGET";
+
+                if (topCardLabel && topCardLabel.innerText !== '🎯 TARGET DAMAGE') {
+                    topCardLabel.innerHTML = '🎯 TARGET DAMAGE';
+                }
             }
 
             // Engine Exhaust Particle Trails (Continuous Smooth Plasma Stream)

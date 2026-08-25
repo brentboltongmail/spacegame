@@ -3,7 +3,7 @@
   "boxPositions": {
     "hud-controls-card": {
       "x": -24,
-      "y": 36
+      "y": -32
     },
     "drag-sector-objective": {
       "x": 24,
@@ -71,7 +71,7 @@
     },
     "hud-shield-card": {
       "x": -25,
-      "y": 81
+      "y": 85
     },
     "hud-action-bar-card": {
       "x": -47,
@@ -86,12 +86,12 @@
       "y": 816
     },
     "hud-top-target-card": {
-      "x": 22,
-      "y": -7
+      "x": 21,
+      "y": -75
     },
     "hud-radar-card": {
       "x": 25,
-      "y": 83
+      "y": 85
     }
   },
   "settings": {
@@ -126,7 +126,7 @@
     "drag-sector-objective": false,
     "hud-top-target-card": false,
     "hud-action-bar-card": true,
-    "hud-controls-card": false,
+    "hud-controls-card": true,
     "hud-shield-card": false
   }
 }
