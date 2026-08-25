@@ -2806,7 +2806,7 @@
 
         let isGamePaused = false;
         let playerCredits = 125000;
-        // Max speed cap fixed at 400 (which equates to 100,000 km/h in HUD)
+        // Max speed cap fixed at 400 (which equates to 150,000 km/h in HUD)
         const maxSpeedCap = 400;
         let upgradeHangarScene, upgradeHangarCamera, upgradeHangarRenderer, upgradeHangarShip, hangarShieldMesh;
         let isHangarDragging = false;
@@ -6885,7 +6885,7 @@ function createEpicPlayerDeathExplosion(pos) {
             // Update Cockpit Engine Sound Pitch, Muffling & Volume dynamically (0% -> 100% Throttle)
             updateEngineAudio(currentSpeed / maxSpeedCap, cameraMode === 0);
 
-            const postedSpeed = Math.round(currentSpeed * 250); // Posted speed scaled to max 100,000 km/h
+            const postedSpeed = Math.round(currentSpeed * 375); // Posted speed scaled to max 150,000 km/h
             const speedElem = document.getElementById('hud-speed');
             if (speedElem) speedElem.innerText = `SPEED: ${postedSpeed.toLocaleString()} km/h ${currentSpeed > 360 ? '[MAX THROTTLE]' : ''}`;
 
@@ -8039,7 +8039,7 @@ function createEpicPlayerDeathExplosion(pos) {
 
             const speedSubtext = document.getElementById('throttle-speed-subtext');
             if (speedSubtext) {
-                const postedSpeed = Math.round(currentSpeed * 250);
+                const postedSpeed = Math.round(currentSpeed * 375);
                 speedSubtext.innerText = `${postedSpeed.toLocaleString()} km/h`;
             }
 
