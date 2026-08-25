@@ -1,0 +1,179 @@
+        /* HUD Overlay */
+        .hud-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 24px;
+            box-sizing: border-box;
+            z-index: 30; /* Higher than cockpit canopy overlay (z-index 5) */
+        }
+
+        .hud-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .hud-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            padding: 14px 20px;
+            backdrop-filter: blur(10px);
+            pointer-events: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .hud-title {
+            font-family: var(--font-head);
+            font-size: 0.85rem;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .hud-stat {
+            font-family: var(--font-sub);
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .hud-controls-card {
+            max-width: 360px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            background: rgba(14, 18, 34, 0.9);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+        }
+
+        .hud-controls-card kbd {
+            background: rgba(0, 240, 255, 0.15);
+            border: 1px solid rgba(0, 240, 255, 0.5);
+            border-radius: 4px;
+            padding: 2px 7px;
+            font-family: var(--font-head);
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #fff;
+            box-shadow: 0 0 6px rgba(0, 240, 255, 0.3);
+        }
+
+        .hud-center-crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 1px dashed rgba(0, 240, 255, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .drag-handle-bar {
+            width: 36px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.7), transparent);
+            border-radius: 2px;
+            box-shadow: 0 0 6px rgba(0, 240, 255, 0.6);
+        }
+        .drag-handle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 4px;
+            cursor: grab;
+        }
+        .btn-minimize {
+            background: rgba(0, 240, 255, 0.15);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            color: var(--accent-cyan);
+            font-size: 0.75rem;
+            font-weight: 700;
+            width: 18px;
+            height: 18px;
+            line-height: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            padding: 0;
+            z-index: 10;
+        }
+        .btn-minimize:hover {
+            background: var(--accent-cyan);
+            color: #000;
+            box-shadow: 0 0 8px rgba(0, 240, 255, 0.8);
+        }
+        .draggable-box {
+            transition: max-height 0.25s ease, padding 0.25s ease;
+        }
+        .draggable-box.is-minimized {
+            height: auto !important;
+            min-height: 0 !important;
+            padding-bottom: 6px !important;
+            overflow: hidden !important;
+        }
+        .draggable-box.is-minimized > *:not(.drag-handle):not(.hud-title) {
+            display: none !important;
+        }
+
+        .hud-action-bar {
+            pointer-events: auto;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .sim-btn {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(139, 92, 246, 0.2));
+            border: 1px solid var(--accent-cyan);
+            color: #fff;
+            font-family: var(--font-sub);
+            font-size: 1.05rem;
+            font-weight: 700;
+            padding: 10px 22px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sim-btn:hover {
+            background: var(--accent-cyan);
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .sim-btn.danger {
+            border-color: var(--accent-red);
+            background: linear-gradient(135deg, rgba(255, 59, 92, 0.2), rgba(139, 92, 246, 0.2));
+        }
+
+        .sim-btn.danger:hover {
+            background: var(--accent-red);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(255, 59, 92, 0.6);
+        }
+
