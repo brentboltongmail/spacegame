@@ -9677,10 +9677,10 @@ function createEpicPlayerDeathExplosion(pos) {
             ];
             
             const ringGeo = new THREE.TorusGeometry(800, 20, 16, 100);
-            const ringMat = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
             
             mission1Enemies = [];
             ringPos.forEach((pos, i) => {
+                const ringMat = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
                 const ring = new THREE.Mesh(ringGeo, ringMat);
                 ring.position.set(pos.x, pos.y, pos.z);
                 // Aim them so they make a path. 
@@ -9692,10 +9692,15 @@ function createEpicPlayerDeathExplosion(pos) {
                 scene.add(ring);
                 mission1Rings.push(ring);
                 
-                // Spawn 2 enemy ships near each ring
+                // Spawn 2 enemy ships visibly adjacent to each ring
+                const offsets = [
+                    { x: -500, y: 150, z: 200 },
+                    { x: 500, y: -150, z: 200 }
+                ];
+                
                 for (let e = 0; e < 2; e++) {
                     const enemy = createEnemyInterceptorMesh();
-                    enemy.position.set(pos.x + (Math.random()-0.5)*2000, pos.y + (Math.random()-0.5)*2000, pos.z + (Math.random()-0.5)*2000);
+                    enemy.position.set(pos.x + offsets[e].x, pos.y + offsets[e].y, pos.z + offsets[e].z);
                     enemy.lookAt(playerShip.position);
                     enemy.userData.hp = 100;
                     enemy.userData.maxHp = 100;
