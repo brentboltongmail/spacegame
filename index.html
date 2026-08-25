@@ -9740,7 +9740,7 @@ function createEpicPlayerDeathExplosion(pos) {
                     if (targetRing.userData.cleared) continue;
                     
                     const dist = playerShip.position.distanceTo(targetRing.position);
-                    if (dist < 3000) { // Expanded collision radius to ensure high-speed hits count
+                    if (dist < 5000) { // Extremely generous collision radius
                         // Passed through
                         targetRing.userData.cleared = true;
                         targetRing.material.color.setHex(0x10b981);
@@ -9766,17 +9766,21 @@ function createEpicPlayerDeathExplosion(pos) {
                     const obj = document.getElementById('hud-objective');
                     if (obj) obj.innerText = "Return and dock back at The Crest.";
                     showToast("🎯 NEW OBJECTIVE: Dock at The Crest");
+                    mission1Stage = 5; // Ready to check distance to Crest
                 }, 6000);
-                setTimeout(() => {
-                     mission1Active = false;
-                     clearInterval(window.mission1Interval);
-                     window.mission1Interval = null;
-                     
-                     // Immediately trigger the Dominion Fleet invasion (which leads into Mission 3)
-                     triggerDominionFleetHyperspaceEmergence();
-                     const obj = document.getElementById('hud-objective');
-                     if (obj) obj.innerText = "🚨 WARNING: MASSIVE SLIPSPACE RUPTURES DETECTED IN SECTOR";
-                }, 12000);
+            } else if (mission1Stage === 5) {
+                // Check distance to The Crest to trigger invasion
+                const crestDist = playerShip.position.distanceTo(theCrestStation.position);
+                if (crestDist < 12000) {
+                    mission1Stage = 6;
+                    mission1Active = false;
+                    clearInterval(window.mission1Interval);
+                    window.mission1Interval = null;
+                    
+                    triggerDominionFleetHyperspaceEmergence();
+                    const obj = document.getElementById('hud-objective');
+                    if (obj) obj.innerText = "🚨 WARNING: MASSIVE SLIPSPACE RUPTURES DETECTED IN SECTOR";
+                }
             }
         }
 
