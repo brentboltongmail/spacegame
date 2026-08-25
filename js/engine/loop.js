@@ -23,11 +23,11 @@
                 let _throttle = gameMechanicsConfig.throttleAccel !== undefined ? gameMechanicsConfig.throttleAccel : 50;
                 if (_throttle > 100) _throttle = 100;
                 const throttleMult = (_throttle / 100) * 2.5;
-                const accelRate = 0.88 * throttleMult; 
+                const accelRate = 1.76 * throttleMult; 
 
                 if (keys.KeyW) targetSpeed = Math.min(targetSpeed + accelRate, maxSpeedCap);
                 if (keys.KeyS) targetSpeed = Math.max(targetSpeed - accelRate, 0);
-                currentSpeed += (targetSpeed - currentSpeed) * (0.011 * throttleMult);
+                currentSpeed += (targetSpeed - currentSpeed) * (0.022 * throttleMult);
             }
 
             // Update Cockpit Engine Sound Pitch, Muffling & Volume dynamically (0% -> 100% Throttle)
