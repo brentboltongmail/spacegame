@@ -9727,8 +9727,8 @@ function createEpicPlayerDeathExplosion(pos) {
         function checkMission1Progress() {
             if (!mission1Active) return;
             
-            // If we've already passed the completion stage, do nothing further here
-            if (mission1Stage >= 4) return;
+            // Only skip checking rings/enemies if we're past stage 3
+            if (mission1Stage >= 6) return;
             
             let enemiesDestroyed = mission1Enemies.filter(e => e.userData.hp <= 0).length;
             mission1EnemiesDestroyed = enemiesDestroyed;
