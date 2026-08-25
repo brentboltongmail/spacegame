@@ -6878,13 +6878,8 @@ function createEpicPlayerDeathExplosion(pos) {
                 const accelRate = 0.44 * throttleMult; 
 
                 if (keys.KeyW) targetSpeed = Math.min(targetSpeed + accelRate, maxSpeedCap);
-                if (keys.KeyS) targetSpeed = Math.max(targetSpeed - (accelRate * 4), 0);
-                
-                let interp = 0.0055 * throttleMult;
-                if (keys.KeyS) interp *= 4.5; // Make the actual ship slow down much faster when braking
-                
-                currentSpeed += (targetSpeed - currentSpeed) * interp;
-                if (keys.KeyS && currentSpeed < 0.5) currentSpeed = 0;
+                if (keys.KeyS) targetSpeed = Math.max(targetSpeed - accelRate, 0);
+                currentSpeed += (targetSpeed - currentSpeed) * (0.0055 * throttleMult);
             }
 
             // Update Cockpit Engine Sound Pitch, Muffling & Volume dynamically (0% -> 100% Throttle)
