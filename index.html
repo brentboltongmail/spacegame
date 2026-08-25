@@ -3554,11 +3554,10 @@
                             });
                         }
                     });
-                    hangerModel.scale.set(0.25, 0.25, 0.25);
-                    // Place it on the inside of the ring: crest ring is ~0.82 radius, hanger half-size is ~0.24
-                    // 0.82 - 0.24 = 0.58 for the outer edge of hanger to attach to inner edge of ring.
-                    // Place it just below the ring (Y = -0.15)
-                    hangerModel.position.set(0.58, -0.15, 0);
+                    // Reduce Y height by 40% (0.25 * 0.6 = 0.15)
+                    hangerModel.scale.set(0.25, 0.15, 0.25);
+                    // Move it closer to center (X=0.52) and raise it up to touch bottom of ring (Y=-0.07)
+                    hangerModel.position.set(0.52, -0.07, 0);
                     // Rotate the hanger so its opening faces outward from the center
                     hangerModel.rotation.y = Math.PI / 2;
                     model.add(hangerModel);
