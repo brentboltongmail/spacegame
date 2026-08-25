@@ -15,7 +15,7 @@ An action-packed 3D space warfare, exploration, and flight simulation game.
 ### 📖 Story Premise
 You start as a fighter pilot for the **United Earth Space Force (UESF)** patrolling outer Sol system mining corridors. Raised on an orbital colony by an adoptive parent with only an unknown titanium-crystal pendant, your life changes when a rogue alien attack triggers a dormant **Precursor Wormhole Gate**.
 
-Pulled thousands of lightyears away into the **Sovereign Reach**, precursor ruins recognize your genetic signature: you are the last surviving bloodline heir to **House Aethelgard**, overthrown 20 years ago by an aggressive military junta known as **The Iron Dominion**.
+Pulled thousands of lightyears away into the **Sovereign Reach**, precursor ruins recognize your genetic signature: you are the last surviving bloodline heir to **House Aythelgard**, overthrown 20 years ago by an aggressive military junta known as **The Iron Dominion**.
 
 ---
 

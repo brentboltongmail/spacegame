@@ -1,0 +1,98 @@
+{
+  "_description": "Official ElevenLabs Voice Casting Registry for Solaris Horizon: Emergence. Use these exact Voice IDs to ensure persistent, consistent character voice acting across all cinematics, missions, and audiobooks.",
+  "characters": {
+    "kaylen_vance": {
+      "name": "Kaylen Vance",
+      "voice_id": "TX3LPaxmHKxFdv7VOQHJ",
+      "voice_name": "Liam",
+      "role": "Protagonist / EDF Void Interceptor Pilot / Vanguard Scion",
+      "description": "Young male pilot, passionate, strained, determined, American accent.",
+      "settings": {
+        "stability": 0.5,
+        "similarity_boost": 0.8,
+        "style": 0.35,
+        "use_speaker_boost": true
+      }
+    },
+    "elias_vance": {
+      "name": "Elias Vance",
+      "voice_id": "pqHfZKP75CvOlQylNhV4",
+      "voice_name": "Bill",
+      "role": "Adoptive Father / Martian Mechanic Veteran",
+      "description": "Wise, gruff older Martian mechanic with scarred lungs and deep fatherly care.",
+      "settings": {
+        "stability": 0.45,
+        "similarity_boost": 0.85,
+        "style": 0.4,
+        "use_speaker_boost": true
+      }
+    },
+    "precursor_ai": {
+      "name": "Precursor AI / Queen Althea",
+      "voice_id": "EXAVITQu4vr4xnSDxMaL",
+      "voice_name": "Sarah",
+      "role": "Ancestral Royal Hologram / Precursor Construct",
+      "description": "Mature, regal, enigmatic female voice of House Vanguard.",
+      "settings": {
+        "stability": 0.6,
+        "similarity_boost": 0.85
+      }
+    },
+    "story_narrator": {
+      "name": "Story Narrator",
+      "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+      "voice_name": "George",
+      "role": "Cinematic Storyteller",
+      "description": "Deep, warm, British narrative storyteller for lore and audiobook segments.",
+      "settings": {
+        "stability": 0.55,
+        "similarity_boost": 0.8
+      }
+    },
+    "jax": {
+      "name": "Jax",
+      "voice_id": "CwhRBWXzGAHq8TQ4Fs17",
+      "voice_name": "Roger",
+      "role": "Cyber-warfare Hacker",
+      "description": "Laid-back, cynical, sarcastic tech specialist.",
+      "settings": {
+        "stability": 0.5,
+        "similarity_boost": 0.75
+      }
+    },
+    "kayl": {
+      "name": "Kayl",
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_name": "Adam",
+      "role": "Alien Heavy Weapons Specialist",
+      "description": "Dominant, deep, honorable alien warrior.",
+      "settings": {
+        "stability": 0.65,
+        "similarity_boost": 0.8
+      }
+    },
+    "lyra": {
+      "name": "Lyra",
+      "voice_id": "pFZP5JQG7iQjIQuC4Bku",
+      "voice_name": "Lily",
+      "role": "Dominion Defector & Tactician",
+      "description": "Velvety, precise, haunted tactician seeking redemption.",
+      "settings": {
+        "stability": 0.55,
+        "similarity_boost": 0.8
+      }
+    },
+    "regent_vaylen": {
+      "name": "Regent Vaylen",
+      "voice_id": "yhf80q1381zd2JJQ4tM7",
+      "voice_name": "Dominic",
+      "role": "Iron Dominion Tyrant Dictator",
+      "description": "Sinister, brooding, ruthless warlord.",
+      "settings": {
+        "stability": 0.4,
+        "similarity_boost": 0.85,
+        "style": 0.5
+      }
+    }
+  }
+}

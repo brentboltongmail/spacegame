@@ -1,0 +1,142 @@
+[
+  {
+    "id": "titan_gate_01_elias",
+    "speaker": "Elias Vance",
+    "role": "Mars Comms",
+    "text": "Kaylen! Kaylen, do you read me?! The long-range sensors on Mars just went red\u2014The Crest is gone from the grid! Report in, kid!",
+    "audio": "audio/cinematics/titan_gate/titan_gate_01_elias.mp3",
+    "voice_id": "pqHfZKP75CvOlQylNhV4",
+    "voice_name": "Bill",
+    "size_bytes": 144657
+  },
+  {
+    "id": "titan_gate_02_kaylen",
+    "speaker": "Kaylen Vance",
+    "role": "Void Interceptor Cockpit",
+    "text": "Elias... they wiped out the fleet. The kinetic rounds bounced right off their hulls. They're lining up their dreadnoughts on the rift right now.",
+    "audio": "audio/cinematics/titan_gate/titan_gate_02_kaylen.mp3",
+    "voice_id": "TX3LPaxmHKxFdv7VOQHJ",
+    "voice_name": "Liam",
+    "size_bytes": 133373
+  },
+  {
+    "id": "titan_gate_03_elias",
+    "speaker": "Elias Vance",
+    "role": "Mars Comms",
+    "text": "Then break off and burn hard for the outer moons! Divert everything to afterburners! I'm spooling the freighter down in the slums\u2014I will come get you, son!",
+    "audio": "audio/cinematics/titan_gate/titan_gate_03_elias.mp3",
+    "voice_id": "pqHfZKP75CvOlQylNhV4",
+    "voice_name": "Bill",
+    "size_bytes": 174333
+  },
+  {
+    "id": "titan_gate_04_kaylen",
+    "speaker": "Kaylen Vance",
+    "role": "Void Interceptor Cockpit",
+    "text": "You know my fuel reserves, Elias. I can't outrun them. If those dreadnoughts cross this threshold, Sol doesn't have a defense left. Earth won't last twenty minutes.",
+    "audio": "audio/cinematics/titan_gate/titan_gate_04_kaylen.mp3",
+    "voice_id": "TX3LPaxmHKxFdv7VOQHJ",
+    "voice_name": "Liam",
+    "size_bytes": 143822
+  },
+  {
+    "id": "titan_gate_05_elias",
+    "speaker": "Elias Vance",
+    "role": "Mars Comms",
+    "text": "No... No, look at the telemetry! The gravitational shear inside that ring is tearing atoms apart! You take that interceptor in there, you'll be vaporized!",
+    "audio": "audio/cinematics/titan_gate/titan_gate_05_elias.mp3",
+    "voice_id": "pqHfZKP75CvOlQylNhV4",
+    "voice_name": "Bill",
+    "size_bytes": 194813
+  },
+  {
+    "id": "titan_gate_06_kaylen",
+    "speaker": "Kaylen Vance",
+    "role": "Void Interceptor Cockpit",
+    "text": "It's vibrating, Elias. The pendant you found me with... it's singing with the gate. It's the same frequency. It knows what to do.",
+    "audio": "audio/cinematics/titan_gate/titan_gate_06_kaylen.mp3",
+    "voice_id": "TX3LPaxmHKxFdv7VOQHJ",
+    "voice_name": "Liam",
+    "size_bytes": 114146
+  },
+  {
+    "id": "titan_gate_07_elias",
+    "speaker": "Elias Vance",
+    "role": "Mars Comms",
+    "text": "Kaylen, listen to me! You don't know what that thing is\u2014what you are! I promised myself I'd keep you safe from all this... Don't you throw your life away for a war that isn't yours!",
+    "audio": "audio/cinematics/titan_gate/titan_gate_07_elias.mp3",
+    "voice_id": "pqHfZKP75CvOlQylNhV4",
+    "voice_name": "Bill",
+    "size_bytes": 200246
+  },
+  {
+    "id": "titan_gate_08_kaylen",
+    "speaker": "Kaylen Vance",
+    "role": "Void Interceptor Cockpit",
+    "text": "You gave me twenty years, old man. You taught me how to fly, how to fight, and how to fix broken things. Earth is my home because you're on it.",
+    "audio": "audio/cinematics/titan_gate/titan_gate_08_kaylen.mp3",
+    "voice_id": "TX3LPaxmHKxFdv7VOQHJ",
+    "voice_name": "Liam",
+    "size_bytes": 142986
+  },
+  {
+    "id": "titan_gate_09_elias",
+    "speaker": "Elias Vance",
+    "role": "Mars Comms",
+    "text": "Kaylen, NO! Turn the ship around! KAYLEN\u2014",
+    "audio": "audio/cinematics/titan_gate/titan_gate_09_elias.mp3",
+    "voice_id": "pqHfZKP75CvOlQylNhV4",
+    "voice_name": "Bill",
+    "size_bytes": 46437
+  },
+  {
+    "id": "titan_gate_10_kaylen",
+    "speaker": "Kaylen Vance",
+    "role": "Void Interceptor Cockpit",
+    "text": "Someone has to shut the door, old man. ... See you on the other side, Dad....",
+    "audio": "audio/cinematics/titan_gate/titan_gate_10_kaylen.mp3",
+    "voice_id": "TX3LPaxmHKxFdv7VOQHJ",
+    "voice_name": "Liam",
+    "size_bytes": 64827
+  },
+  {
+    "id": "titan_arrival_01_kaylen",
+    "speaker": "Kaylen Vance",
+    "role": "Void Interceptor Cockpit",
+    "text": "What is going on?! We are being attacked! By... by... I don't know who!",
+    "audio": "audio/cinematics/titan_gate/titan_arrival_01_kaylen.mp3",
+    "voice_id": "TX3LPaxmHKxFdv7VOQHJ",
+    "voice_name": "Liam",
+    "size_bytes": 70261
+  },
+  {
+    "id": "titan_arrival_02_kaylen",
+    "speaker": "Kaylen Vance",
+    "role": "Void Interceptor Cockpit",
+    "text": "They're attacking Titan! Actually... it looks like they're looking for something...",
+    "audio": "audio/cinematics/titan_gate/titan_arrival_02_kaylen.mp3",
+    "voice_id": "TX3LPaxmHKxFdv7VOQHJ",
+    "voice_name": "Liam",
+    "size_bytes": 69425
+  },
+  {
+    "id": "titan_arrival_03_kaylen",
+    "speaker": "Kaylen Vance",
+    "role": "Void Interceptor Cockpit",
+    "text": "There is some kind of giant circle down on Titan.  They are pulling up out of the ice.  I think they may be creating a wormhole.",
+    "audio": "audio/cinematics/titan_gate/titan_arrival_03_kaylen.mp3",
+    "voice_id": "TX3LPaxmHKxFdv7VOQHJ",
+    "voice_name": "Liam",
+    "size_bytes": 110385
+  },
+  {
+    "id": "titan_arrival_04_kaylen",
+    "speaker": "Kaylen Vance",
+    "role": "Void Interceptor Cockpit",
+    "text": "Oh no... The Crest!! NOOO!!",
+    "audio": "audio/cinematics/titan_gate/titan_arrival_04_kaylen.mp3",
+    "voice_id": "TX3LPaxmHKxFdv7VOQHJ",
+    "voice_name": "Liam",
+    "size_bytes": 46437
+  }
+]

@@ -65,7 +65,7 @@
                 likes: 29
             },
             {
-                title: "Chronicles of Aethelgard: The Lost Sovereign",
+                title: "Chronicles of Aythelgard: The Lost Sovereign",
                 badge: "Epic Sci-Fi RPG",
                 badgeClass: "badge-gold",
                 desc: "Classic space opera title bringing to mind space warfare, mysterious origins, and ancient alien ancient technology.",
@@ -821,7 +821,7 @@
             // Widen the ring significantly
             const innerRadius = 11675; // Increased to center the narrower ring
             const outerRadius = 16025; // Adjusted to center the 50% narrower ring width
-            const ringThickness = 1440; // Reduced thickness by 40% (from 2400)
+            const ringThickness = 200; // Vertical ring particle thickness set to 200
             
             // Planet-like color palette
             const colors = [
@@ -2801,7 +2801,7 @@
             currentSpeed = 100;
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
-            if (sec) sec.innerText = "AETHELGARD PLANETARY ORBIT";
+            if (sec) sec.innerText = "AYTHELGARD PLANETARY ORBIT";
             if (obj) obj.innerText = "Escort Sovereign Dreadnought in Planetary Orbit";
             showToast("Approaching Sovereign Royal Flagship in Planetary Orbit!");
         }

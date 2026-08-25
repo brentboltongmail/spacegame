@@ -14,7 +14,7 @@
 | 1 | **Solaris Horizon: Emergence** *(Selected)* | Sci-Fi Narrative + Action | *"An Earth cadet. An ancient crown. A galaxy at war."* |
 | 2 | **Starbound Scion: Void Vanguard** | High-Octane Space Fleet Warfare | *"Burn through the wormhole. Claim your birthright."* |
 | 3 | **Wormhole Genesis: Royal Blood** | Precursor Exploration & Combat | *"Beyond the rift lies a forgotten empire."* |
-| 4 | **Chronicles of Aethelgard: The Lost Sovereign** | Epic Space Opera RPG | *"Adopted on Earth. Destined for the Stars."* |
+| 4 | **Chronicles of Aythelgard: The Lost Sovereign** | Epic Space Opera RPG | *"Adopted on Earth. Destined for the Stars."* |
 | 5 | **Solaris Drift: Sovereign Lineage** | Space Simulator & Dogfighting | *"Command small fighters. Strike Titan dreadnoughts."* |
 | 6 | **Event Horizon: Reclaim** | Pure Action & Tactical Fleet War | *"Fight through the rift. Destroy the usurpers."* |
 
@@ -27,9 +27,9 @@
 ```
 
 ### The Protagonist's Origins
-- **Name**: Lieutenant Kaelen / Jax Vance (Callsign: *"Apex"*)
-- **Background**: Raised on Earth’s orbital colonies by an adoptive parent, Marcus Vance (a retired Earth Defense mechanic). Your only heirloom is an unidentified titanium-crystal artifact left in your pod as a baby.
-- **The Twist**: You are not human. You are the last bloodline heir to **House Aethelgard**, the ruling sovereign house of the distant *Sovereign Reach* star system, which was overthrown 20 years ago by an aggressive military junta known as **The Iron Dominion**.
+- **Name**: Lieutenant Kaylen Vance (Callsign: *"Apex"*)
+- **Background**: Raised on Mars by an adoptive parent, Elias (a retired Earth Defense Force mechanic). His only heirloom is a glowing precursor artifact (the Royal Star Key) found in his escape pod as an infant.
+- **The Twist**: He is not human. He is the last bloodline heir to **House Vanguard**, the ruling sovereign house of the distant *Sovereign Reach*, which was overthrown 20 years ago by an aggressive military junta known as **The Iron Dominion**.
 
 ![Precursor Civilization & Royal Lineage Concept Artwork](file:///d:/github/spacegame/docs/images/precursor_ruins_concept.jpg)
 
@@ -67,6 +67,7 @@
 | **Heavy Strike Fighter** | Anti-Bomber / Raider | ⭐⭐⭐⭐ | ⭐⭐⭐ | Heavy Auto-cannons & Lock Torpedoes | Subsystem disabling |
 | **Gunship Corvette** | Convoy Escort | ⭐⭐⭐ | ⭐⭐⭐⭐ | Dual Turrets & Flak Missiles | Heavy firepower support |
 | **Royal Battlecruiser** | Fleet Flagship | ⭐ | ⭐⭐⭐⭐⭐ | Precursor Lance Beams & Broadside Batteries | Tactical command & orbital siege |
+| **Dominion Fighter** | Heavy Interceptor / Strike Craft | ⭐⭐⭐⭐ | ⭐⭐⭐ | Twin Crimson Laser Beams & Plasma Lightning | High-threat dogfighting & energy disruption |
 
 ### Ship Class Visual Showcase
 
@@ -81,6 +82,9 @@
 
 #### Royal Battlecruiser (Fleet Flagship)
 ![Royal Battlecruiser Flagship Concept Artwork](file:///d:/github/spacegame/docs/images/royal_battlecruiser.jpg)
+
+#### Dominion Fighter (Heavy Interceptor / Strike Craft)
+![Dominion Fighter Concept Artwork](file:///d:/github/spacegame/docs/images/dominion_fighter.jpg)
 
 ---
 
