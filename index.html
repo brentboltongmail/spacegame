@@ -2474,19 +2474,32 @@
             return firstWords.length > 14 ? firstWords.substring(0, 14) + '..' : firstWords;
         }
 
-        function clampAllWindowPositions() {
-            const headerBoundary = 68; // Bottom border of fixed top menu bar
+                function clampAllWindowPositions() {
+            const headerBoundary = 0; // Top of screen
             let didCorrection = false;
             document.querySelectorAll('.draggable-box').forEach(box => {
                 const rect = box.getBoundingClientRect();
                 let currentY = parseFloat(box.dataset.dragY) || 0;
+                let currentX = parseFloat(box.dataset.dragX) || 0;
+                
                 const initialTop = rect.top - currentY;
+                const initialLeft = rect.left - currentX;
+                
                 const minAllowedY = headerBoundary - initialTop;
+                const maxAllowedY = window.innerHeight - initialTop - rect.height;
+                const minAllowedX = -initialLeft;
+                const maxAllowedX = window.innerWidth - initialLeft - rect.width;
+                
+                let changed = false;
 
-                if (currentY < minAllowedY) {
-                    currentY = minAllowedY;
+                if (currentY < minAllowedY) { currentY = minAllowedY; changed = true; }
+                if (currentY > maxAllowedY) { currentY = maxAllowedY; changed = true; }
+                if (currentX < minAllowedX) { currentX = minAllowedX; changed = true; }
+                if (currentX > maxAllowedX) { currentX = maxAllowedX; changed = true; }
+
+                if (changed) {
                     box.dataset.dragY = currentY;
-                    const currentX = parseFloat(box.dataset.dragX) || 0;
+                    box.dataset.dragX = currentX;
                     box.style.transform = `translate(${currentX}px, ${currentY}px)`;
 
                     const dragId = box.dataset.dragId || box.id;
@@ -2572,7 +2585,7 @@
             let currentY = parseFloat(element.dataset.dragY) || 0;
             let initialTop = 0;
             let initialLeft = 0;
-            const headerBoundary = 68; // Bottom border of fixed top menu bar (64px height + 4px margin)
+            const headerBoundary = 0; // Top of screen
 
             const dragStart = (e) => {
                 if (e.target.closest('button, input, select, a, kbd, .btn-vote, .sim-btn, .btn-minimize')) return;
@@ -2603,10 +2616,13 @@
                     currentX = moveX - startX;
                     currentY = moveY - startY;
 
-                    // Enforce top menu bar boundary restriction: top edge stops at header border (68px)
+                                        // Enforce top and bottom boundaries
                     const minAllowedY = headerBoundary - initialTop;
+                    const maxAllowedY = window.innerHeight - initialTop - rect.height;
                     if (currentY < minAllowedY) {
                         currentY = minAllowedY;
+                    } else if (currentY > maxAllowedY) {
+                        currentY = maxAllowedY;
                     }
 
                     // Enforce left and right screen boundaries
