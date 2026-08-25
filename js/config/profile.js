@@ -19,6 +19,7 @@
                         if (set.turnSpeed !== undefined) document.getElementById('slider-set-turn').value = set.turnSpeed;
                         if (set.cameraLag !== undefined) document.getElementById('slider-set-cam').value = set.cameraLag;
                         if (set.throttleAccel !== undefined) document.getElementById('slider-set-throttle').value = set.throttleAccel;
+                        if (set.toastDuration !== undefined) document.getElementById('slider-set-toast').value = set.toastDuration;
                         if (set.shieldRegenMult !== undefined) document.getElementById('slider-set-shield-regen').value = set.shieldRegenMult;
                         if (set.hullRegenMult !== undefined) document.getElementById('slider-set-hull-regen').value = set.hullRegenMult;
                         if (set.enemyDamageMult !== undefined) document.getElementById('slider-set-enemy-dmg').value = set.enemyDamageMult;
@@ -370,6 +371,7 @@
             const toast = document.getElementById('toast');
             toast.innerText = msg;
             toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
+            const duration = (typeof gameMechanicsConfig !== 'undefined' && gameMechanicsConfig.toastDuration !== undefined) ? gameMechanicsConfig.toastDuration * 1000 : 5000;
+            setTimeout(() => toast.classList.remove('show'), duration);
         }
 

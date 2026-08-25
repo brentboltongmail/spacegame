@@ -14,6 +14,7 @@
             turnSpeed: 50,
             cameraLag: 80,
             throttleAccel: 125,
+            toastDuration: 5,
             shieldRegenMult: 100,
             hullRegenMult: 100,
             enemyDamageMult: 100,
@@ -48,6 +49,8 @@
                 setText('lbl-set-cam', gameMechanicsConfig.cameraLag + '%');
                 setEl('slider-set-throttle', gameMechanicsConfig.throttleAccel);
                 setText('lbl-set-throttle', gameMechanicsConfig.throttleAccel + '%');
+                setEl('slider-set-toast', gameMechanicsConfig.toastDuration !== undefined ? gameMechanicsConfig.toastDuration : 5);
+                setText('lbl-set-toast', (gameMechanicsConfig.toastDuration !== undefined ? gameMechanicsConfig.toastDuration : 5) + 's');
                 setEl('slider-set-shield-regen', gameMechanicsConfig.shieldRegenMult);
                 setText('lbl-set-shield-regen', gameMechanicsConfig.shieldRegenMult + '%');
                 setEl('slider-set-hull-regen', gameMechanicsConfig.hullRegenMult);
@@ -107,6 +110,7 @@
                 const turnVal = getVal('slider-set-turn', 50);
                 const camVal = getVal('slider-set-cam', 80);
                 const throttleVal = getVal('slider-set-throttle', 125);
+                const toastVal = getVal('slider-set-toast', 5);
                 const shieldRegenVal = getVal('slider-set-shield-regen', 100);
                 const hullRegenVal = getVal('slider-set-hull-regen', 100);
                 const enemyDmgVal = getVal('slider-set-enemy-dmg', 100);
@@ -118,6 +122,10 @@
                 setLbl('lbl-set-turn', turnVal);
                 setLbl('lbl-set-cam', camVal);
                 setLbl('lbl-set-throttle', throttleVal);
+                
+                const toastLbl = document.getElementById('lbl-set-toast');
+                if (toastLbl) toastLbl.innerText = toastVal + 's';
+
                 setLbl('lbl-set-shield-regen', shieldRegenVal);
                 setLbl('lbl-set-hull-regen', hullRegenVal);
                 setLbl('lbl-set-enemy-dmg', enemyDmgVal);
@@ -127,6 +135,7 @@
                 gameMechanicsConfig.turnSpeed = turnVal;
                 gameMechanicsConfig.cameraLag = camVal;
                 gameMechanicsConfig.throttleAccel = throttleVal;
+                gameMechanicsConfig.toastDuration = toastVal;
                 gameMechanicsConfig.shieldRegenMult = shieldRegenVal;
                 gameMechanicsConfig.hullRegenMult = hullRegenVal;
                 gameMechanicsConfig.enemyDamageMult = enemyDmgVal;
@@ -139,6 +148,7 @@
                     currentProfile.settings.turnSpeed = turnVal;
                     currentProfile.settings.cameraLag = camVal;
                     currentProfile.settings.throttleAccel = throttleVal;
+                    currentProfile.settings.toastDuration = toastVal;
                     currentProfile.settings.shieldRegenMult = shieldRegenVal;
                     currentProfile.settings.hullRegenMult = hullRegenVal;
                     currentProfile.settings.enemyDamageMult = enemyDmgVal;

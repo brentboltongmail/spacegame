@@ -712,6 +712,15 @@
 
                     <div class="volume-slider-group">
                         <div class="slider-header">
+                            <span>💬 Notification Duration</span>
+                            <span id="lbl-set-toast">5s</span>
+                        </div>
+                        <input type="range" id="slider-set-toast" min="1" max="10" value="5" oninput="updateGameSettings()">
+                        <div style="font-size: 0.7rem; color: #64748b; margin-top: 4px;">Time messages stay on screen (seconds)</div>
+                    </div>
+
+                    <div class="volume-slider-group">
+                        <div class="slider-header">
                             <span>🛡️ Shield Regen Multiplier</span>
                             <span id="lbl-set-shield-regen">33%</span>
                         </div>
