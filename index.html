@@ -2809,7 +2809,8 @@
 
         let isGamePaused = false;
         let playerCredits = 125000;
-        const maxSpeedCap = 400;
+        // Let the player warp fast so they can actually reach Saturn
+        const maxSpeedCap = 2500;
         let upgradeHangarScene, upgradeHangarCamera, upgradeHangarRenderer, upgradeHangarShip, hangarShieldMesh;
         let isHangarDragging = false;
         let previousHangarMousePosition = { x: 0, y: 0 };
@@ -7360,7 +7361,7 @@ function createEpicPlayerDeathExplosion(pos) {
                     const toPlayer = playerShip.position.clone().sub(e.position);
                     const dist = toPlayer.length();
                     
-                    if (dist > 0) {
+                    if (dist > 0 && dist < 12000) { // Only aggro if within 12km (so Saturn drones don't fly to Titan)
                         const dir = toPlayer.clone().normalize();
                         // Turn towards player smoothly
                         const targetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), dir);
