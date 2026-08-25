@@ -2,7 +2,7 @@
   "username": "pilot_1",
   "boxPositions": {
     "hud-controls-card": {
-      "x": -22,
+      "x": -24,
       "y": 36
     },
     "drag-sector-objective": {
@@ -11,63 +11,63 @@
     },
     "title-card-0": {
       "x": 0,
-      "y": 3196
+      "y": 3332
     },
     "title-card-1": {
       "x": 0,
-      "y": 3196
+      "y": 3332
     },
     "title-card-2": {
       "x": 0,
-      "y": 3196
+      "y": 3332
     },
     "title-card-3": {
       "x": 0,
-      "y": 3196
+      "y": 3332
     },
     "title-card-4": {
       "x": 0,
-      "y": 3196
+      "y": 3332
     },
     "title-card-5": {
       "x": 0,
-      "y": 3196
+      "y": 3332
     },
     "drag-prologue-sol-system-the-crest": {
       "x": 0,
-      "y": 3196
+      "y": 3332
     },
     "drag-the-truth-of-the-vanguard-throne": {
       "x": 0,
-      "y": 3196
+      "y": 3332
     },
     "drag-all-out-multi-system-warfare": {
       "x": 0,
-      "y": 3196
+      "y": 3332
     },
     "drag-the-battle-for-the-homeworld": {
       "x": 0,
-      "y": 3196
+      "y": 3332
     },
     "drag-core-gameplay-mechanics-matrix": {
       "x": 0,
-      "y": 3196
+      "y": 3332
     },
     "drag-key-factions": {
       "x": 0,
-      "y": 3196
+      "y": 3332
     },
     "drag-void-interceptor": {
       "x": 0,
-      "y": 3196
+      "y": 3332
     },
     "drag-heavy-strike-corvette": {
       "x": 0,
-      "y": 3196
+      "y": 3332
     },
     "drag-vanguard-royal-battlecruiser": {
       "x": 0,
-      "y": 3196
+      "y": 3332
     },
     "hud-shield-card": {
       "x": -21,
@@ -76,6 +76,18 @@
     "hud-action-bar-card": {
       "x": -47,
       "y": 11
+    },
+    "cinematic-comms-overlay": {
+      "x": 0,
+      "y": 136
+    },
+    "drag-the-scavenger-frontier": {
+      "x": 0,
+      "y": 136
+    },
+    "hud-top-target-card": {
+      "x": -763,
+      "y": 170
     }
   },
   "settings": {
@@ -106,8 +118,8 @@
     "Escape": "Escape"
   },
   "minimizedBoxes": {
-    "drag-sector-objective": true,
-    "hud-top-target-card": true,
+    "drag-sector-objective": false,
+    "hud-top-target-card": false,
     "hud-action-bar-card": true,
     "hud-controls-card": false
   }

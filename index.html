@@ -1539,8 +1539,9 @@
                 <div class="hud-top">
                     <div class="hud-card hud-controls-card draggable-box" id="hud-controls-card">
                         <div class="drag-handle-bar"></div>
-                        <div class="hud-title drag-handle" style="color: var(--accent-cyan); border-bottom: 1px solid rgba(0, 240, 255, 0.2); padding-bottom: 6px; margin-bottom: 8px;">
+                        <div class="hud-title drag-handle" style="display: flex; justify-content: space-between; align-items: center; color: var(--accent-cyan); border-bottom: 1px solid rgba(0, 240, 255, 0.2); padding-bottom: 6px; margin-bottom: 8px;">
                             <span>🕹️ CONTROLS</span>
+                            <button class="btn-minimize" title="Minimize window" onclick="event.stopPropagation(); toggleMinimizeBox(this)">&ndash;</button>
                         </div>
                         <div class="controls-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px 8px; font-size: 0.75rem;">
                             <div title="Move mouse or Arrow keys to aim crosshair and steer ship"><kbd>MOUSE / ARROWS</kbd> Steer</div>
