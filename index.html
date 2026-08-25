@@ -3513,6 +3513,39 @@
                 theCrestModelOriginal = model;
                 theCrestStation.add(model);
                 console.log("[THE CREST] GLB Model Loaded & Oriented Successfully in Titan Orbit!");
+
+                // Load Crest Hanger and attach it to the crest model so it inherits the scale and centering
+                gltfLoader.load('fbx/crest_hanger.glb?v=' + Date.now(), function(hangerGltf) {
+                    const hangerModel = hangerGltf.scene;
+                    hangerModel.traverse(function(child) {
+                        if (child.isMesh && child.material) {
+                            const mats = Array.isArray(child.material) ? child.material : [child.material];
+                            mats.forEach(mat => {
+                                mat.transparent = false;
+                                mat.opacity = 1.0;
+                                mat.depthWrite = true;
+                                mat.depthTest = true;
+                                mat.side = THREE.DoubleSide;
+                                mat.metalness = THREE.MathUtils.clamp(mat.metalness || 0.6, 0.4, 0.85);
+                                mat.roughness = THREE.MathUtils.clamp(mat.roughness || 0.4, 0.25, 0.55);
+                                mat.envMapIntensity = 1.6;
+                                if (mat.map) {
+                                    mat.map.anisotropy = maxAniso;
+                                    mat.map.generateMipmaps = true;
+                                    mat.map.minFilter = THREE.LinearMipmapLinearFilter;
+                                    mat.map.magFilter = THREE.LinearFilter;
+                                    mat.map.needsUpdate = true;
+                                }
+                                mat.needsUpdate = true;
+                            });
+                        }
+                    });
+                    model.add(hangerModel);
+                    console.log("[THE CREST HANGER] GLB Model Loaded & Attached to The Crest!");
+                }, undefined, function(err) {
+                    console.error("[THE CREST HANGER GLB ERROR]", err);
+                });
+
             }, undefined, function(err) {
                 console.error("[THE CREST GLB ERROR]", err);
             });
