@@ -1030,14 +1030,10 @@
 
                 if (topCardLabel) {
                     if (topCard.classList.contains('is-minimized')) {
-                        const targetText = `🎯 ${enemyName.toUpperCase()} - ${hpPct}%`;
                         const existingBar = topCardLabel.querySelector('.mini-hp-bar');
                         if (!existingBar) {
-                            topCardLabel.innerHTML = `${targetText} <span style="display:inline-block; width:60px; height:8px; background:rgba(0,0,0,0.8); border:1px solid #ff3b5c; border-radius:2px; margin-left:6px; vertical-align:middle; overflow:hidden;"><div class="mini-hp-bar" style="width:${hpPct}%; height:100%; background:linear-gradient(90deg, #dc2626, #ff3b5c);"></div></span>`;
+                            topCardLabel.innerHTML = `<span style="display:inline-block; width:120px; height:8px; background:rgba(0,0,0,0.8); border:1px solid #ff3b5c; border-radius:2px; vertical-align:middle; overflow:hidden;"><div class="mini-hp-bar" style="width:${hpPct}%; height:100%; background:linear-gradient(90deg, #dc2626, #ff3b5c);"></div></span>`;
                         } else {
-                            if (topCardLabel.childNodes[0].nodeType === 3) {
-                                topCardLabel.childNodes[0].nodeValue = `${targetText} `;
-                            }
                             existingBar.style.width = `${hpPct}%`;
                         }
                     } else {
@@ -1105,6 +1101,23 @@
                 drawTacticalRadar();
                 drawShieldGauge();
                 drawThrottleGauge();
+
+                const shieldCard = document.getElementById('hud-shield-card');
+                if (shieldCard && shieldCard.classList.contains('is-minimized')) {
+                    const label = shieldCard.querySelector('.drag-handle-label');
+                    if (label) {
+                        const throttleRatio = Math.min(Math.max(currentSpeed / maxSpeedCap, 0), 1);
+                        const throttlePct = Math.round(throttleRatio * 100);
+                        const sPct = Math.floor(shieldPercent);
+                        const hpPct = Math.floor(playerHp);
+                        label.innerText = `SHIELD: ${sPct}%  |  HULL: ${hpPct}%  |  THRUST: ${throttlePct}%`;
+                    }
+                } else if (shieldCard) {
+                    const label = shieldCard.querySelector('.drag-handle-label');
+                    if (label && label.innerText !== '🛡️ SHIELD & THROTTLE') {
+                        label.innerText = '🛡️ SHIELD & THROTTLE';
+                    }
+                }
             } catch (hudErr) {
                 console.warn("[HUD RENDER ERROR]", hudErr);
             }

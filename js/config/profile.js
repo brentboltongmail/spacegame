@@ -125,7 +125,7 @@
         function getBriefCardLabel(id, text) {
             if (id === 'hud-controls-card') return '🕹️ CONTROLS';
             if (id === 'hud-shield-card') return '🛡️ SHIELD & THROTTLE';
-            if (id === 'hud-radar-card') return '📡 RADAR';
+            if (id === 'hud-radar-card') return 'RADAR';
             if (id === 'hud-top-target-card') return '🎯 TARGET DAMAGE';
             if (id === 'hud-target-card') return '🎯 TARGET LOCK';
             if (id === 'cinematic-comms-overlay') return '📻 COMMS';

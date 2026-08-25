@@ -123,7 +123,7 @@
     "Escape": "Escape"
   },
   "minimizedBoxes": {
-    "drag-sector-objective": false,
+    "drag-sector-objective": true,
     "hud-top-target-card": false,
     "hud-action-bar-card": true,
     "hud-controls-card": true,
