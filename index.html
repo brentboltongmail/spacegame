@@ -3015,8 +3015,22 @@
                     e.preventDefault();
                     if (document.pointerLockElement === container || document.pointerLockElement === document.body) {
                         document.exitPointerLock();
+                        if (document.fullscreenElement) {
+                            document.exitFullscreen().catch(() => {});
+                        }
                         showToast("🔓 POINTER UNLOCKED: Follow mouse cursor mode active");
                     } else {
+                        if (!document.fullscreenElement) {
+                            try {
+                                if (document.documentElement.requestFullscreen) {
+                                    document.documentElement.requestFullscreen().catch(() => {});
+                                } else if (document.documentElement.webkitRequestFullscreen) {
+                                    document.documentElement.webkitRequestFullscreen().catch(() => {});
+                                }
+                            } catch(err) {
+                                console.log("Tab fullscreen prevented: " + err);
+                            }
+                        }
                         container.requestPointerLock();
                         showToast("🔒 POINTER LOCKED: FPS steering mode active");
                     }
