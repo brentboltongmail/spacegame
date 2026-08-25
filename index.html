@@ -3555,9 +3555,12 @@
                         }
                     });
                     hangerModel.scale.set(0.25, 0.25, 0.25);
-                    // Move it outward along the X axis so its inner edge attaches to the outer crest ring
-                    // Crest ring is at ~0.82 local radius, Hanger half-size at 0.25 scale is ~0.24
-                    hangerModel.position.set(1.06, 0, 0);
+                    // Place it on the inside of the ring: crest ring is ~0.82 radius, hanger half-size is ~0.24
+                    // 0.82 - 0.24 = 0.58 for the outer edge of hanger to attach to inner edge of ring.
+                    // Place it just below the ring (Y = -0.15)
+                    hangerModel.position.set(0.58, -0.15, 0);
+                    // Rotate the hanger so its opening faces outward from the center
+                    hangerModel.rotation.y = Math.PI / 2;
                     model.add(hangerModel);
                     console.log("[THE CREST HANGER] GLB Model Loaded & Attached to The Crest!");
                 }, undefined, function(err) {
