@@ -1680,7 +1680,7 @@
                 <div class="blackout-subtitle">Kaylen Vance's Void Interceptor has crossed the threshold into the unknown...</div>
                 <div id="blackout-actions" style="margin-top: 36px; display: flex; gap: 16px; opacity: 0; transition: opacity 1.2s ease 2.5s;">
                     <button class="sim-btn" style="border-color: rgba(168, 85, 247, 0.8); color: #c084fc; font-weight: 700; padding: 12px 24px; font-size: 0.95rem;" onclick="startTitanGateCinematic()">🔄 Replay Cinematic</button>
-                    <button class="sim-btn" style="background: linear-gradient(135deg, rgba(0, 240, 255, 0.4), rgba(168, 85, 247, 0.4)); border-color: #00f0ff; color: #fff; font-weight: 800; padding: 12px 28px; font-size: 0.95rem;" onclick="stopTitanGateCinematic()">🚀 Return to Flight Simulator</button>
+                    <button class="sim-btn" style="background: linear-gradient(135deg, rgba(0, 240, 255, 0.4), rgba(168, 85, 247, 0.4)); border-color: #00f0ff; color: #fff; font-weight: 800; padding: 12px 28px; font-size: 0.95rem;" onclick="stopTitanGateCinematic()">🚀 Continue</button>
                 </div>
             </div>
 
@@ -1695,7 +1695,7 @@
                     </p>
                     <div style="display: flex; justify-content: center; gap: 14px;">
                         <button class="sim-btn" style="border-color: rgba(168, 85, 247, 0.7); color: #c084fc; font-weight: 700; padding: 10px 20px;" onclick="startTitanGateCinematic()">🔄 Replay Cinematic</button>
-                        <button class="sim-btn" style="background: linear-gradient(135deg, rgba(0, 240, 255, 0.4), rgba(168, 85, 247, 0.4)); border-color: #00f0ff; color: #fff; font-weight: 800; padding: 10px 24px;" onclick="closeCinematicEndModal()">🚀 Return to Flight Simulator</button>
+                        <button class="sim-btn" style="background: linear-gradient(135deg, rgba(0, 240, 255, 0.4), rgba(168, 85, 247, 0.4)); border-color: #00f0ff; color: #fff; font-weight: 800; padding: 10px 24px;" onclick="closeCinematicEndModal()">🚀 Continue</button>
                     </div>
                 </div>
             </div>
@@ -3084,6 +3084,13 @@
             });
 
 
+
+            // Force Pre-compile hidden heavy cinematic assets so it doesn't freeze the main thread mid-flight!
+            if (typeof ancientGoldenGate !== 'undefined' && ancientGoldenGate) ancientGoldenGate.visible = true;
+            if (typeof titanExcavationSite !== 'undefined' && titanExcavationSite) titanExcavationSite.visible = true;
+            renderer.compile(scene, camera);
+            if (typeof ancientGoldenGate !== 'undefined' && ancientGoldenGate) ancientGoldenGate.visible = false;
+            if (typeof titanExcavationSite !== 'undefined' && titanExcavationSite) titanExcavationSite.visible = false;
 
             animate();
         }

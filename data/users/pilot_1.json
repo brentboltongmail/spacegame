@@ -70,8 +70,8 @@
       "y": 4012
     },
     "hud-shield-card": {
-      "x": -21,
-      "y": 67
+      "x": -25,
+      "y": 81
     },
     "hud-action-bar-card": {
       "x": -47,
@@ -86,8 +86,12 @@
       "y": 816
     },
     "hud-top-target-card": {
-      "x": -763,
-      "y": 170
+      "x": 22,
+      "y": -7
+    },
+    "hud-radar-card": {
+      "x": 25,
+      "y": 83
     }
   },
   "settings": {
