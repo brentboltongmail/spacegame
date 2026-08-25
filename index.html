@@ -9523,13 +9523,29 @@ function createEpicPlayerDeathExplosion(pos) {
             // Auto-start Mission 1 instead of Free Roam / Mission 3
             startMission1();
 
-            // Transparently unlock AudioContext on first user interaction
+            let isFullscreenRequested = false;
+            // Transparently unlock AudioContext and auto-fullscreen on first user interaction
             ['keydown', 'mousedown', 'touchstart'].forEach(evt => {
                 window.addEventListener(evt, (e) => {
                     if (e && e.type === 'keydown' && e.code === 'Escape') return;
                     
                     if (!isAudioInitialized) initEngineAudio();
                     if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                    
+                    if (!isFullscreenRequested && !document.fullscreenElement) {
+                        isFullscreenRequested = true;
+                        try {
+                            if (document.documentElement.requestFullscreen) {
+                                let promise = document.documentElement.requestFullscreen();
+                                if (promise && promise.catch) promise.catch(err => console.log("Auto-fullscreen prevented by browser: " + err));
+                            } else if (document.documentElement.webkitRequestFullscreen) { // Safari/Mac support
+                                let promise = document.documentElement.webkitRequestFullscreen();
+                                if (promise && promise.catch) promise.catch(err => console.log("Auto-fullscreen prevented by browser: " + err));
+                            }
+                        } catch (e) {
+                            console.log("Auto-fullscreen prevented by browser.");
+                        }
+                    }
                 });
             });
             
