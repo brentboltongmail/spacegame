@@ -9760,6 +9760,9 @@ function createEpicPlayerDeathExplosion(pos) {
                 // BOTH OBJECTIVES COMPLETE
                 mission1Stage = 4; // Prevent re-triggering this block
                 
+                const obj = document.getElementById('hud-objective');
+                if (obj) obj.innerText = `Fly around Saturn, clear 3 training rings, and destroy 3 drones (3/3 Rings, 3/3 Enemies).`;
+                
                 showCommsTransmission("KAYLEN VANCE", "Copy that, old man. Controls are stiff, but responsive. Rings and drones cleared.", 5000);
                 setTimeout(() => {
                     showCommsTransmission("ELIAS VANCE", "Good. Now dock back at The Crest.", 5000);
