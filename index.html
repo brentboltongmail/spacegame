@@ -7351,6 +7351,11 @@ function createEpicPlayerDeathExplosion(pos) {
             // Animate Titan Dark-Energy Excavation, Boiling Methane Geysers, Golden Ring Ascent & Tractor Beams
             updateTitanExcavationAndTractorBeams(timeSec, timeDelta);
 
+            // Mission 1 high-speed collision checking
+            if (typeof checkMission1Progress === 'function') {
+                checkMission1Progress();
+            }
+
             // --- ANIMATE ENEMY INTERCEPTORS & TARGET LOCK SELECTION ---
             let closestEnemy = null;
             let closestDist = 10500; // TRIPLED TARGET RANGE: 10,500 Units / 10.5 KM!
@@ -9646,10 +9651,7 @@ function createEpicPlayerDeathExplosion(pos) {
             if (obj) obj.innerText = "Fly around Saturn, clear 3 training rings, and destroy 3 drones (0/3 Rings, 0/3 Enemies).";
             showToast("🎯 NEW OBJECTIVE: Clear Saturn Training Rings");
             
-            // Check ring distances in the animate loop
-            if(!window.mission1Interval) {
-                window.mission1Interval = setInterval(checkMission1Progress, 500);
-            }
+            // (Collision check is now safely handled in the high-framerate animate() loop to prevent skipping)
         }
         
         function checkMission1Progress() {
@@ -9668,7 +9670,7 @@ function createEpicPlayerDeathExplosion(pos) {
                     if (targetRing.userData.cleared) continue;
                     
                     const dist = playerShip.position.distanceTo(targetRing.position);
-                    if (dist < 1500) {
+                    if (dist < 3000) { // Expanded collision radius to ensure high-speed hits count
                         // Passed through
                         targetRing.userData.cleared = true;
                         targetRing.material.color.setHex(0x10b981);
