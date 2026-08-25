@@ -9933,6 +9933,8 @@ function createEpicPlayerDeathExplosion(pos) {
                     window.mission1Interval = null;
                     
                     triggerDominionFleetHyperspaceEmergence();
+                    const sec = document.getElementById('hud-sector');
+                    if (sec) sec.innerText = "Mission 3";
                     const obj = document.getElementById('hud-objective');
                     if (obj) obj.innerText = "🚨 WARNING: MASSIVE SLIPSPACE RUPTURES DETECTED IN SECTOR";
                 }
