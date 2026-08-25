@@ -2809,8 +2809,8 @@
 
         let isGamePaused = false;
         let playerCredits = 125000;
-        // Let the player warp fast so they can actually reach Saturn
-        const maxSpeedCap = 2500;
+        // Max speed cap fixed at 400 (which equates to 100,000 km/h in HUD)
+        const maxSpeedCap = 400;
         let upgradeHangarScene, upgradeHangarCamera, upgradeHangarRenderer, upgradeHangarShip, hangarShieldMesh;
         let isHangarDragging = false;
         let previousHangarMousePosition = { x: 0, y: 0 };
