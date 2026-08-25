@@ -9747,6 +9747,13 @@ function createEpicPlayerDeathExplosion(pos) {
                         targetRing.material.opacity = 0.2;
                         mission1Stage++;
                         showToast(`Ring ${mission1Stage}/3 cleared.`, "var(--accent-cyan)");
+                        
+                        // Remind the player if they still need to kill drones
+                        if (mission1Stage === 3 && enemiesDestroyed < 3) {
+                            setTimeout(() => {
+                                showToast(`⚠️ RINGS CLEARED! You still need to destroy ${3 - enemiesDestroyed} more drones!`, "var(--accent-gold)");
+                            }, 2000);
+                        }
                     }
                 }
             }
