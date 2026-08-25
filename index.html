@@ -7394,7 +7394,7 @@ function createEpicPlayerDeathExplosion(pos) {
 
             // --- ANIMATE ENEMY INTERCEPTORS & TARGET LOCK SELECTION ---
             let closestEnemy = null;
-            let closestDist = 10500; // TRIPLED TARGET RANGE: 10,500 Units / 10.5 KM!
+            let closestDist = 3000; // Weapon max range: 3000 Units / 3.0 KM
             const fwdDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
 
             enemyShips.forEach(e => {
@@ -7562,7 +7562,7 @@ function createEpicPlayerDeathExplosion(pos) {
                     }
                 }
 
-                if (hitEnemy || laser.position.distanceTo(playerShip.position) > 10500) {
+                if (hitEnemy || laser.position.distanceTo(playerShip.position) > 3000) {
                     laser.visible = false;
                     laser.userData.active = false;
                     laserProjectiles.splice(i, 1);
@@ -7640,7 +7640,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 }
 
                 // Remove laser if hit or went too far
-                if (hitPlayer || laser.position.distanceTo(playerShip.position) > 10500) {
+                if (hitPlayer || laser.position.distanceTo(playerShip.position) > 3000) {
                     laser.visible = false;
                     laser.userData.active = false;
                     enemyLaserProjectiles.splice(i, 1);
