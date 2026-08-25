@@ -9523,24 +9523,36 @@ function createEpicPlayerDeathExplosion(pos) {
             // Auto-start Mission 1 instead of Free Roam / Mission 3
             startMission1();
 
-            let isFullscreenRequested = false;
+            let hasEnteredFullscreen = false;
+            let userExitedFullscreen = false;
+            
+            document.addEventListener('fullscreenchange', () => {
+                if (!document.fullscreenElement && hasEnteredFullscreen) {
+                    userExitedFullscreen = true;
+                }
+            });
+
             // Transparently unlock AudioContext and auto-fullscreen on first user interaction
-            ['keydown', 'mousedown', 'touchstart'].forEach(evt => {
+            ['click', 'keydown', 'mousedown', 'touchstart', 'touchend'].forEach(evt => {
                 window.addEventListener(evt, (e) => {
                     if (e && e.type === 'keydown' && e.code === 'Escape') return;
                     
                     if (!isAudioInitialized) initEngineAudio();
                     if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
                     
-                    if (!isFullscreenRequested && !document.fullscreenElement) {
-                        isFullscreenRequested = true;
+                    if (!hasEnteredFullscreen && !userExitedFullscreen && !document.fullscreenElement) {
                         try {
+                            let promise;
                             if (document.documentElement.requestFullscreen) {
-                                let promise = document.documentElement.requestFullscreen();
-                                if (promise && promise.catch) promise.catch(err => console.log("Auto-fullscreen prevented by browser: " + err));
+                                promise = document.documentElement.requestFullscreen();
                             } else if (document.documentElement.webkitRequestFullscreen) { // Safari/Mac support
-                                let promise = document.documentElement.webkitRequestFullscreen();
-                                if (promise && promise.catch) promise.catch(err => console.log("Auto-fullscreen prevented by browser: " + err));
+                                promise = document.documentElement.webkitRequestFullscreen();
+                            }
+                            
+                            if (promise && promise.catch) {
+                                promise.then(() => { hasEnteredFullscreen = true; }).catch(err => console.log("Auto-fullscreen prevented by browser: " + err));
+                            } else {
+                                hasEnteredFullscreen = true;
                             }
                         } catch (e) {
                             console.log("Auto-fullscreen prevented by browser.");
