@@ -126,6 +126,7 @@
     "drag-sector-objective": false,
     "hud-top-target-card": false,
     "hud-action-bar-card": true,
-    "hud-controls-card": false
+    "hud-controls-card": false,
+    "hud-shield-card": false
   }
 }
