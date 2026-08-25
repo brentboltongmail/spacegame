@@ -124,9 +124,10 @@
   },
   "minimizedBoxes": {
     "drag-sector-objective": true,
-    "hud-top-target-card": false,
+    "hud-top-target-card": true,
     "hud-action-bar-card": true,
     "hud-controls-card": true,
-    "hud-shield-card": false
+    "hud-shield-card": true,
+    "hud-radar-card": true
   }
 }
