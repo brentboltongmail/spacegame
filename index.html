@@ -1538,29 +1538,26 @@
             <div class="hud-overlay">
                 <div class="hud-top">
                     <div class="hud-card hud-controls-card draggable-box" id="hud-controls-card">
-                        <div class="hud-title" style="color: var(--accent-cyan); border-bottom: 1px solid rgba(0, 240, 255, 0.2); padding-bottom: 6px; margin-bottom: 8px;">
+                        <div class="drag-handle-bar"></div>
+                        <div class="hud-title drag-handle" style="color: var(--accent-cyan); border-bottom: 1px solid rgba(0, 240, 255, 0.2); padding-bottom: 6px; margin-bottom: 8px;">
                             <span>🕹️ CONTROLS</span>
                         </div>
-                        <div class="controls-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px 10px; font-size: 0.8rem;">
-                            <div title="Move mouse or Arrow keys to aim crosshair and steer ship"><kbd>MOUSE / ARROWS</kbd> Aim/Steer</div>
-                            <div title="Hold W to accelerate engine speed"><kbd>W</kbd> Accel</div>
-                            <div title="Hold S to decelerate engine speed"><kbd>S</kbd> Decel</div>
-                            <div title="Press A to roll ship left"><kbd>A</kbd> Roll Left</div>
-                            <div title="Press D to roll ship right"><kbd>D</kbd> Roll Right</div>
-                            <div title="Toggle camera view: Cockpit / Rear Close / Rear Far / Cinematic"><kbd>C</kbd> Camera</div>
-                            <div title="Left Click to fire twin plasma blasters"><kbd>L-CLICK</kbd> Fire</div>
-                            <div title="Right Click to fire twin plasma blasters"><kbd>R-CLICK</kbd> Fire</div>
-                            <div title="Spacebar to fire twin plasma blasters"><kbd>SPACE</kbd> Fire</div>
-                            <div title="Auto-Pilot: lock flight straight to free mouse cursor for UI windows"><kbd>L</kbd> Auto-Pilot</div>
+                        <div class="controls-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px 8px; font-size: 0.75rem;">
+                            <div title="Move mouse or Arrow keys to aim crosshair and steer ship"><kbd>MOUSE / ARROWS</kbd> Steer</div>
+                            <div title="Hold W or S to adjust engine speed"><kbd>W / S</kbd> Throttle</div>
+                            <div title="Press A or D to roll ship"><kbd>A / D</kbd> Roll</div>
+                            <div title="Click or Spacebar to fire twin plasma blasters"><kbd>CLICK / SPACE</kbd> Fire</div>
+                            <div title="Toggle camera view"><kbd>C</kbd> Camera</div>
+                            <div title="Auto-Pilot: lock flight straight to free mouse cursor"><kbd>L</kbd> Auto-Pilot</div>
                             <div title="Open 3D Tactical System Star Map"><kbd>M</kbd> 3D Map</div>
-                            <div title="Pause flight & open Pilot Profile & 3D Ship Upgrade Hangar"><kbd>ESC</kbd> Hangar</div>
+                            <div title="Pause flight & open Pilot Profile"><kbd>ESC</kbd> Hangar</div>
                         </div>
                     </div>
 
                     <div class="hud-card">
                         <div class="hud-title">SECTOR / OBJECTIVE</div>
                         <div class="hud-stat" id="hud-sector" style="color: var(--accent-gold);">MISSION 1: ROUTINE PATROL</div>
-                        <div id="hud-objective" style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Fly around Saturn, clear 3 training rings, and destroy 3 drones (0/3 Rings, 0/3 Enemies).</div>
+                        <div id="hud-objective" style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Fly around Saturn, clear 3 training rings, and destroy 6 drones (0/3 Rings, 0/6 Enemies).</div>
                     </div>
                 </div>
 
@@ -9682,6 +9679,7 @@ function createEpicPlayerDeathExplosion(pos) {
             const ringGeo = new THREE.TorusGeometry(800, 20, 16, 100);
             const ringMat = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
             
+            mission1Enemies = [];
             ringPos.forEach((pos, i) => {
                 const ring = new THREE.Mesh(ringGeo, ringMat);
                 ring.position.set(pos.x, pos.y, pos.z);
@@ -9693,27 +9691,26 @@ function createEpicPlayerDeathExplosion(pos) {
                 ring.userData = { cleared: false };
                 scene.add(ring);
                 mission1Rings.push(ring);
+                
+                // Spawn 2 enemy ships near each ring
+                for (let e = 0; e < 2; e++) {
+                    const enemy = createEnemyInterceptorMesh();
+                    enemy.position.set(pos.x + (Math.random()-0.5)*2000, pos.y + (Math.random()-0.5)*2000, pos.z + (Math.random()-0.5)*2000);
+                    enemy.lookAt(playerShip.position);
+                    enemy.userData.hp = 100;
+                    enemy.userData.maxHp = 100;
+                    scene.add(enemy);
+                    enemyShips.push(enemy);
+                    mission1Enemies.push(enemy);
+                }
             });
             
-            // Spawn 3 enemy drones on the far side of Saturn
-            mission1Enemies = [];
-            for (let i = 0; i < 3; i++) {
-                const enemy = createEnemyInterceptorMesh();
-                enemy.position.set(72060 + (i-1)*600, 214 + (Math.random()-0.5)*400, -96000 + (Math.random()-0.5)*400);
-                enemy.lookAt(playerShip.position);
-                enemy.userData.hp = 100;
-                enemy.userData.maxHp = 100;
-                scene.add(enemy);
-                enemyShips.push(enemy);
-                mission1Enemies.push(enemy);
-            }
-            
-            showCommsTransmission("ELIAS VANCE", "Alright, kid. Let's see if those stabilizer tweaks I made hold up. Fly around Saturn, clear those 3 training rings, and shoot down the 3 target drones I set up on the dark side.", 9000);
+            showCommsTransmission("ELIAS VANCE", "Alright, kid. Let's see if those stabilizer tweaks I made hold up. Fly around Saturn, clear those 3 training rings, and shoot down the 6 target drones I set up near the rings.", 9000);
             
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
             if (sec) sec.innerText = "MISSION 1: ROUTINE PATROL";
-            if (obj) obj.innerText = "Fly around Saturn, clear 3 training rings, and destroy 3 drones (0/3 Rings, 0/3 Enemies).";
+            if (obj) obj.innerText = "Fly around Saturn, clear 3 training rings, and destroy 6 drones (0/3 Rings, 0/6 Enemies).";
             showToast("🎯 NEW OBJECTIVE: Clear Saturn Training Rings");
             
             // (Collision check is now safely handled in the high-framerate animate() loop to prevent skipping)
@@ -9747,10 +9744,10 @@ function createEpicPlayerDeathExplosion(pos) {
             }
             
             // Update HUD text if not fully complete
-            if (mission1Stage < 3 || enemiesDestroyed < 3) {
+            if (mission1Stage < 3 || enemiesDestroyed < 6) {
                 const obj = document.getElementById('hud-objective');
-                if (obj) obj.innerText = `Fly around Saturn, clear 3 training rings, and destroy 3 drones (${mission1Stage}/3 Rings, ${enemiesDestroyed}/3 Enemies).`;
-            } else if (mission1Stage === 3 && enemiesDestroyed === 3) {
+                if (obj) obj.innerText = `Fly around Saturn, clear 3 training rings, and destroy 6 drones (${mission1Stage}/3 Rings, ${enemiesDestroyed}/6 Enemies).`;
+            } else if (mission1Stage === 3 && enemiesDestroyed === 6) {
                 // BOTH OBJECTIVES COMPLETE
                 mission1Stage = 4; // Prevent re-triggering this block
                 
