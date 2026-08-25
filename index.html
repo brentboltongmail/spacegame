@@ -2814,8 +2814,8 @@
 
         let isGamePaused = false;
         let playerCredits = 125000;
-        // Max speed cap fixed at 900 (which equates to 150,000 km/h in HUD)
-        const maxSpeedCap = 900;
+        // Max speed cap fixed at 1350 (which equates to 150,000 km/h in HUD)
+        const maxSpeedCap = 1350;
         let upgradeHangarScene, upgradeHangarCamera, upgradeHangarRenderer, upgradeHangarShip, hangarShieldMesh;
         let isHangarDragging = false;
         let previousHangarMousePosition = { x: 0, y: 0 };
@@ -6802,8 +6802,8 @@ function createEpicPlayerDeathExplosion(pos) {
 
             // Accelerate ship at full overdrive thrust straight through the ring
             isTitanCinematicEnteringGate = true;
-            targetSpeed = 650;
-            currentSpeed = 650;
+            targetSpeed = 2000;
+            currentSpeed = 2000;
 
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
@@ -9727,8 +9727,8 @@ function createEpicPlayerDeathExplosion(pos) {
             playerShip.quaternion.set(0, 0, 0, 1);
             playerShip.lookAt(new THREE.Vector3(75200, -600, -43500));
             playerShip.rotateY(Math.PI); // 180-degree rotation
-            targetSpeed = 450;
-            currentSpeed = 450;
+            targetSpeed = 675;
+            currentSpeed = 675;
             
             // Snap camera instantly to player
             if (camera) {
