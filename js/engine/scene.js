@@ -3,6 +3,7 @@
         let playerShip;
         let playerShieldBubble, capitalShip, theCrestStation, wormholeGate, starfield, spacePlanet, spacePlanetSphere, spacePlanetRing, spacePlanetRingMesh, spaceTitan, spaceTitanSphere, spaceTitanAtmosphere, spaceSun, targetBox3D;
         let capitalShips = [];
+        let solarSystemPlanets = [];
         let activeHyperspaceRifts = [];
         let fleetEmergenceActive = false;
         let fleetEmergenceStartTime = 0;
@@ -229,6 +230,7 @@
             createSolarSun();
             createSpacePlanet();
             createTitanMoon();
+            createSolarSystemPlanets();
             createTheCrestStation();
             loadVoidInterceptorModel();
             loadDominionFighterModel();
@@ -794,3 +796,42 @@
             spaceTitanSphere.add(spaceTitanAtmosphere);
         }
 
+        
+        function createSolarSystemPlanets() {
+            // Scale and layout relative to Saturn at X=72060
+            // The radius ratio is 9000 units : 58232 km (approx 0.15455 units per km)
+            const planetData = [
+                { name: 'Mercury', radius: 377, x: 2060, tex: 'docs/images/mercury_surface.jpg', color: 0x888888 },
+                { name: 'Venus', radius: 935, x: 12060, tex: 'docs/images/venus_surface.jpg', color: 0xeebb88 },
+                { name: 'Earth', radius: 984, x: 22060, tex: 'docs/images/earth_surface.jpg', color: 0x4488ff },
+                { name: 'Mars', radius: 524, x: 32060, tex: 'docs/images/mars_surface.jpg', color: 0xff4422 },
+                { name: 'Jupiter', radius: 10804, x: 49060, tex: 'docs/images/jupiter_surface.jpg', color: 0xddaa88 },
+                // Saturn is already present at 72060
+                { name: 'Uranus', radius: 3920, x: 92060, tex: 'docs/images/uranus_surface.jpg', color: 0x88ccff },
+                { name: 'Neptune', radius: 3805, x: 105060, tex: 'docs/images/neptune_surface.jpg', color: 0x2244ff }
+            ];
+
+            planetData.forEach(data => {
+                const group = new THREE.Group();
+                group.position.set(data.x, 214, -81280);
+                scene.add(group);
+
+                const geo = new THREE.SphereGeometry(data.radius, 128, 128);
+                const mat = new THREE.MeshBasicMaterial({ color: data.color });
+                const mesh = new THREE.Mesh(geo, mat);
+                group.add(mesh);
+                
+                solarSystemPlanets.push({ mesh: mesh, group: group, name: data.name, baseColor: data.color });
+
+                new THREE.TextureLoader().load(
+                    data.tex,
+                    (tex) => {
+                        tex.wrapS = THREE.RepeatWrapping;
+                        tex.wrapT = THREE.ClampToEdgeWrapping;
+                        mat.map = tex;
+                        mat.color.setHex(0xffffff); // Revert to white after loading texture
+                        mat.needsUpdate = true;
+                    }
+                );
+            });
+        }

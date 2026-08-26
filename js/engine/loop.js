@@ -596,6 +596,9 @@
 
             // Rotate Saturn cloud bands, textured ring disc, asteroid ring particles, Titan moon, and The Crest station
             if (spacePlanetSphere) spacePlanetSphere.rotation.y += 0.00015;
+            if (solarSystemPlanets) {
+                solarSystemPlanets.forEach(p => { if (p.mesh) p.mesh.rotation.y += 0.00015; });
+            }
             if (spacePlanetRingMesh) spacePlanetRingMesh.rotation.y += 0.00025;
             if (spacePlanetRing) spacePlanetRing.rotation.y += 0.00025;
             if (spaceTitanSphere) spaceTitanSphere.rotation.y += 0.00018;
@@ -1495,6 +1498,14 @@
             // Draw Saturn Blip (Golden-Amber)
             if (spacePlanet && spacePlanet.position) {
                 drawBlip(spacePlanet.position, '#eab308', 7, false, 'SATURN');
+            }
+
+            if (solarSystemPlanets) {
+                solarSystemPlanets.forEach(p => {
+                    if (p.group && p.group.position) {
+                        drawBlip(p.group.position, '#' + new THREE.Color(p.baseColor).getHexString(), 6, false, p.name.toUpperCase());
+                    }
+                });
             }
 
             // Draw Titan Moon Blip (Hazy Amber)
