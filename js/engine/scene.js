@@ -185,6 +185,7 @@
             }
             let conf = { logarithmicDepthBuffer: true };
             if (p === "mac") {
+                conf.logarithmicDepthBuffer = false; // Disable heavy depth buffer math on Mac for huge FPS boost
                 conf.antialias = (window.devicePixelRatio === 1);
                 conf.alpha = false;
                 conf.powerPreference = "high-performance";
@@ -699,6 +700,17 @@
                 color: 0xffffff,
                 fog: false
             });
+            
+            new THREE.TextureLoader().load(
+                'docs/images/asteroid_texture.jpg',
+                (tex) => {
+                    tex.wrapS = THREE.RepeatWrapping;
+                    tex.wrapT = THREE.RepeatWrapping;
+                    particleMat.map = tex;
+                    particleMat.needsUpdate = true;
+                }
+            );
+            
             spacePlanetRing = new THREE.InstancedMesh(particleGeo, particleMat, particleCount);
             
             const dummy = new THREE.Object3D();
