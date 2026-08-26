@@ -619,7 +619,8 @@
             const planetGeo = new THREE.SphereGeometry(9000, 128, 128); // 18,000 unit diameter colossal gas giant
             // MeshBasicMaterial guarantees authentic texture albedo without overexposure from scene lights
             const planetMat = new THREE.MeshBasicMaterial({ 
-                map: fallbackTex
+                map: fallbackTex,
+                fog: false
             });
 
             // Async load high-res photorealistic Saturn texture map with fallback
@@ -765,7 +766,8 @@
 
             const titanGeo = new THREE.SphereGeometry(1100, 64, 64); // Scaled down to authentic moon proportions (2,200 unit diameter)
             const titanMat = new THREE.MeshBasicMaterial({
-                map: fallbackTex
+                map: fallbackTex,
+                fog: false
             });
 
             // Async load high-res photorealistic Titan texture map with fallback
@@ -798,26 +800,32 @@
 
         
         function createSolarSystemPlanets() {
-            // Scale and layout relative to Saturn at X=72060
+            const saturnPos = new THREE.Vector3(72060, 214, -81280);
+            const sunPos = new THREE.Vector3(750000, 400000, 500000);
+            
+            const getPos = (fractionFromSun) => {
+                return new THREE.Vector3().copy(sunPos).lerp(saturnPos, fractionFromSun);
+            };
+
             // The radius ratio is 9000 units : 58232 km (approx 0.15455 units per km)
             const planetData = [
-                { name: 'Mercury', radius: 377, x: 2060, tex: 'docs/images/mercury_surface.jpg', color: 0x888888 },
-                { name: 'Venus', radius: 935, x: 12060, tex: 'docs/images/venus_surface.jpg', color: 0xeebb88 },
-                { name: 'Earth', radius: 984, x: 22060, tex: 'docs/images/earth_surface.jpg', color: 0x4488ff },
-                { name: 'Mars', radius: 524, x: 32060, tex: 'docs/images/mars_surface.jpg', color: 0xff4422 },
-                { name: 'Jupiter', radius: 10804, x: 49060, tex: 'docs/images/jupiter_surface.jpg', color: 0xddaa88 },
-                // Saturn is already present at 72060
-                { name: 'Uranus', radius: 3920, x: 92060, tex: 'docs/images/uranus_surface.jpg', color: 0x88ccff },
-                { name: 'Neptune', radius: 3805, x: 105060, tex: 'docs/images/neptune_surface.jpg', color: 0x2244ff }
+                { name: 'Mercury', radius: 377, pos: getPos(1/6), tex: 'docs/images/mercury_surface.jpg', color: 0x888888 },
+                { name: 'Venus', radius: 935, pos: getPos(2/6), tex: 'docs/images/venus_surface.jpg', color: 0xeebb88 },
+                { name: 'Earth', radius: 984, pos: getPos(3/6), tex: 'docs/images/earth_surface.jpg', color: 0x4488ff },
+                { name: 'Mars', radius: 524, pos: getPos(4/6), tex: 'docs/images/mars_surface.jpg', color: 0xff4422 },
+                { name: 'Jupiter', radius: 10804, pos: getPos(5/6), tex: 'docs/images/jupiter_surface.jpg', color: 0xddaa88 },
+                // Saturn is already present at getPos(6/6)
+                { name: 'Uranus', radius: 3920, pos: getPos(7/6), tex: 'docs/images/uranus_surface.jpg', color: 0x88ccff },
+                { name: 'Neptune', radius: 3805, pos: getPos(8/6), tex: 'docs/images/neptune_surface.jpg', color: 0x2244ff }
             ];
 
             planetData.forEach(data => {
                 const group = new THREE.Group();
-                group.position.set(data.x, 214, -81280);
+                group.position.copy(data.pos);
                 scene.add(group);
 
                 const geo = new THREE.SphereGeometry(data.radius, 128, 128);
-                const mat = new THREE.MeshBasicMaterial({ color: data.color });
+                const mat = new THREE.MeshBasicMaterial({ color: data.color, fog: false });
                 const mesh = new THREE.Mesh(geo, mat);
                 group.add(mesh);
                 
