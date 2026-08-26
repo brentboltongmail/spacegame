@@ -23,3 +23,5 @@
     3. **Target Triangle Ceilings**: Fighters (~150k), Interceptors (~180k), Capitals (~220k), Stations (~350k) to ensure rock-solid 60+ FPS rendering across all scenes and swarms.
 
 
+## 📌 Dialogue & Audio Rule
+- **Mandatory Action**: All dialogue in the game should use the ElevenLabs API to generate audio. Keep the voices chosen for characters consistent throughout the codebase (e.g. check docs or existing files for voice mappings).

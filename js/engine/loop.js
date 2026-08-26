@@ -608,6 +608,9 @@
             if (typeof checkMission1Progress === 'function') {
                 checkMission1Progress();
             }
+            if (typeof window.checkMission2Progress === 'function') {
+                window.checkMission2Progress();
+            }
 
             // --- ANIMATE ENEMY INTERCEPTORS & TARGET LOCK SELECTION ---
             let closestEnemy = null;
