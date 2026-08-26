@@ -207,7 +207,8 @@
 
             renderer = new THREE.WebGLRenderer(getRendererConfig({ alpha: currentProfile?.settings?.platform !== "mac" }));
             renderer.setSize(container.clientWidth, container.clientHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            const maxPixelRatio = (currentProfile?.settings?.platform === "mac") ? 1 : 2;
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxPixelRatio));
             renderer.shadowMap.enabled = true;
             container.appendChild(renderer.domElement);
 
