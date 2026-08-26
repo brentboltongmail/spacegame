@@ -217,6 +217,65 @@
                 }
             }
 
+            // Prevent clipping into other Solar System Planets
+            if (solarSystemPlanets) {
+                solarSystemPlanets.forEach(p => {
+                    if (p.group) {
+                        let pRadius = 1000;
+                        if (p.mesh && p.mesh.geometry && p.mesh.geometry.parameters) {
+                            pRadius = p.mesh.geometry.parameters.radius;
+                        }
+                        const pBuffer = 80;
+                        const distToP = playerShip.position.distanceTo(p.group.position);
+                        
+                        if (distToP < pRadius + pBuffer) {
+                            const pushOutDir = playerShip.position.clone().sub(p.group.position).normalize();
+                            playerShip.position.copy(p.group.position).add(pushOutDir.multiplyScalar(pRadius + pBuffer));
+                            
+                            if (currentSpeed > 50) {
+                                const statusTag = document.getElementById('throttle-status-tag');
+                                if (statusTag && Math.random() < 0.1) {
+                                    statusTag.innerText = p.name.toUpperCase() + ' REPULSE';
+                                    statusTag.style.color = '#' + new THREE.Color(p.baseColor).getHexString();
+                                    setTimeout(() => {
+                                        if (statusTag.innerText === p.name.toUpperCase() + ' REPULSE') {
+                                            statusTag.innerText = 'STABLE';
+                                            statusTag.style.color = '#f59e0b';
+                                        }
+                                    }, 500);
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Prevent clipping into the Solar Sun
+            if (spaceSun) {
+                const sunRadius = 30000;
+                const sunBuffer = 800; // Larger buffer because it's a massive star with corona
+                const distToSun = playerShip.position.distanceTo(spaceSun.position);
+                
+                if (distToSun < sunRadius + sunBuffer) {
+                    const pushOutDir = playerShip.position.clone().sub(spaceSun.position).normalize();
+                    playerShip.position.copy(spaceSun.position).add(pushOutDir.multiplyScalar(sunRadius + sunBuffer));
+                    
+                    if (currentSpeed > 50) {
+                        const statusTag = document.getElementById('throttle-status-tag');
+                        if (statusTag && Math.random() < 0.1) {
+                            statusTag.innerText = 'SOLAR REPULSE';
+                            statusTag.style.color = '#f59e0b';
+                            setTimeout(() => {
+                                if (statusTag.innerText === 'SOLAR REPULSE') {
+                                    statusTag.innerText = 'STABLE';
+                                    statusTag.style.color = '#f59e0b';
+                                }
+                            }, 500);
+                        }
+                    }
+                }
+            }
+
             // Prevent flying through Enemy Fighters
             if (!isShipInvincible && !isPlayerDead && typeof enemyShips !== 'undefined') {
                 const fighterCollisionRadius = 18; 
