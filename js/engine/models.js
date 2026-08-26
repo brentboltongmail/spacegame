@@ -1001,6 +1001,7 @@
 
         function buildSingleCapitalShip(cfg) {
             const shipGroup = new THREE.Group();
+            shipGroup.visible = false; // Immediately hide
             const meshContainer = new THREE.Group();
             shipGroup.add(meshContainer);
 

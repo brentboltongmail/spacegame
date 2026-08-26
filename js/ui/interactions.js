@@ -710,7 +710,10 @@
             if (typeof camera !== 'undefined' && typeof playerShip !== 'undefined') {
                 camera.position.set(100000, 0, 100000);
                 playerShip.position.copy(camera.position);
-                velocity.set(0,0,0);
+                if (typeof currentSpeed !== 'undefined') {
+                    currentSpeed = 0;
+                    targetSpeed = 0;
+                }
             }
             
             // Spawn Asteroids
