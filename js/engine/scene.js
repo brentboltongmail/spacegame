@@ -666,9 +666,10 @@
             const ringDiscMat = new THREE.MeshBasicMaterial({
                 color: 0xffffff,
                 transparent: true,
-                opacity: 0.98,
+                opacity: 1.0,
                 side: THREE.DoubleSide,
-                depthWrite: false
+                depthWrite: false,
+                fog: false
             });
 
             new THREE.TextureLoader().load(
@@ -695,7 +696,8 @@
             const particleCount = 20000;
             const particleGeo = new THREE.TetrahedronGeometry(1, 0);
             const particleMat = new THREE.MeshBasicMaterial({ 
-                color: 0xffffff
+                color: 0xffffff,
+                fog: false
             });
             spacePlanetRing = new THREE.InstancedMesh(particleGeo, particleMat, particleCount);
             
