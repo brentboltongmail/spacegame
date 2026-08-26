@@ -3,20 +3,30 @@
     "id": "mission1_01_elias",
     "speaker": "Elias Vance",
     "role": "The Crest Comms",
-    "text": "Alright, kid. Let's see if those stabilizer tweaks I made hold up. Cycle the thrusters, and keep an eye on the plasma intake\u2014she runs hot.",
+    "text": "Alright, kid. Let's see if those stabilizer tweaks I made hold up. Fly around Saturn, clear those 3 training rings, and shoot down 3 target drones I set up near the rings.",
     "audio": "audio/cinematics/mission_1/mission1_01_elias.mp3",
     "voice_id": "pqHfZKP75CvOlQylNhV4",
     "voice_name": "Bill",
-    "size_bytes": 165137
+    "size_bytes": 198156
   },
   {
     "id": "mission1_02_kaylen",
     "speaker": "Kaylen Vance",
     "role": "Void Interceptor Cockpit",
-    "text": "Copy that, old man. Controls are stiff, but responsive.",
+    "text": "Copy that, old man. Controls are stiff, but responsive. Rings and drones cleared.",
     "audio": "audio/cinematics/mission_1/mission1_02_kaylen.mp3",
     "voice_id": "TX3LPaxmHKxFdv7VOQHJ",
     "voice_name": "Liam",
-    "size_bytes": 56886
+    "size_bytes": 85725
+  },
+  {
+    "id": "mission1_03_elias",
+    "speaker": "Elias Vance",
+    "role": "The Crest Comms",
+    "text": "Good. Now dock back at The Crest.",
+    "audio": "audio/cinematics/mission_1/mission1_03_elias.mp3",
+    "voice_id": "pqHfZKP75CvOlQylNhV4",
+    "voice_name": "Bill",
+    "size_bytes": 43511
   }
 ]

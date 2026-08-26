@@ -108,7 +108,8 @@
     "playerDamageMult": 34,
     "flashOnHit": false,
     "turnSpeed": 50,
-    "platform": "mac"
+    "platform": "mac",
+    "toastDuration": 5
   },
   "progress": {},
   "keyBindings": {

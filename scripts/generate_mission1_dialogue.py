@@ -20,14 +20,21 @@ MISSION_1_DIALOGUE = [
         "char_key": "elias_vance",
         "speaker": "Elias Vance",
         "role": "The Crest Comms",
-        "text": "Alright, kid. Let's see if those stabilizer tweaks I made hold up. Cycle the thrusters, and keep an eye on the plasma intake—she runs hot."
+        "text": "Alright, kid. Let's see if those stabilizer tweaks I made hold up. Fly around Saturn, clear those 3 training rings, and shoot down 3 target drones I set up near the rings."
     },
     {
         "id": "mission1_02_kaylen",
         "char_key": "kaylen_vance",
         "speaker": "Kaylen Vance",
         "role": "Void Interceptor Cockpit",
-        "text": "Copy that, old man. Controls are stiff, but responsive."
+        "text": "Copy that, old man. Controls are stiff, but responsive. Rings and drones cleared."
+    },
+    {
+        "id": "mission1_03_elias",
+        "char_key": "elias_vance",
+        "speaker": "Elias Vance",
+        "role": "The Crest Comms",
+        "text": "Good. Now dock back at The Crest."
     }
 ]
 

@@ -478,8 +478,9 @@
             }
         });
     
+        let currentCommsAudio = null;
         let genericCommsTimeout = null;
-        function showCommsTransmission(speaker, text, duration) {
+        function showCommsTransmission(speaker, text, duration, audioUrl) {
             const overlay = document.getElementById('cinematic-comms-overlay');
             const commsBox = document.getElementById('cinematic-comms-box');
             const commsSpeaker = document.getElementById('comms-speaker');
@@ -495,6 +496,16 @@
             if (commsSubtitle) commsSubtitle.innerText = `"${text}"`;
             if (commsBadge) commsBadge.innerText = "TRANSMISSION";
             if (commsIcon) commsIcon.innerText = "📻";
+            
+            if (currentCommsAudio) {
+                currentCommsAudio.pause();
+                currentCommsAudio = null;
+            }
+            if (audioUrl && (typeof isAudioMuted === 'undefined' || !isAudioMuted)) {
+                currentCommsAudio = new Audio(audioUrl);
+                currentCommsAudio.volume = (typeof gameVolumeConfig !== 'undefined') ? (gameVolumeConfig.master || 1.0) : 1.0;
+                currentCommsAudio.play().catch(e => console.warn('Audio play prevented:', e));
+            }
 
             if (genericCommsTimeout) clearTimeout(genericCommsTimeout);
             genericCommsTimeout = setTimeout(() => {
@@ -586,7 +597,7 @@
                 }
             });
             
-            showCommsTransmission("ELIAS VANCE", "Alright, kid. Let's see if those stabilizer tweaks I made hold up. Fly around Saturn, clear those 3 training rings, and shoot down 3 target drones I set up near the rings.", 9000);
+            showCommsTransmission("ELIAS VANCE", "Alright, kid. Let's see if those stabilizer tweaks I made hold up. Fly around Saturn, clear those 3 training rings, and shoot down 3 target drones I set up near the rings.", 9000, "audio/cinematics/mission_1/mission1_01_elias.mp3");
             
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
@@ -643,9 +654,9 @@
                 const obj = document.getElementById('hud-objective');
                 if (obj) obj.innerText = `Fly around Saturn, clear 3 training rings, and destroy 3 drones (3/3 Rings, 3/3 Enemies).`;
                 
-                showCommsTransmission("KAYLEN VANCE", "Copy that, old man. Controls are stiff, but responsive. Rings and drones cleared.", 5000);
+                showCommsTransmission("KAYLEN VANCE", "Copy that, old man. Controls are stiff, but responsive. Rings and drones cleared.", 5000, "audio/cinematics/mission_1/mission1_02_kaylen.mp3");
                 setTimeout(() => {
-                    showCommsTransmission("ELIAS VANCE", "Good. Now dock back at The Crest.", 5000);
+                    showCommsTransmission("ELIAS VANCE", "Good. Now dock back at The Crest.", 5000, "audio/cinematics/mission_1/mission1_03_elias.mp3");
                     const obj = document.getElementById('hud-objective');
                     if (obj) obj.innerText = "Return and dock back at The Crest.";
                     showToast("🎯 NEW OBJECTIVE: Dock at The Crest");
