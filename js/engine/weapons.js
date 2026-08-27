@@ -582,7 +582,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 scene.add(enemy);
                 enemyShips.push(enemy);
             }
-            showToast("⚠️ 6 DOMINION FIGHTERS ENGAGED! TARGET LOCK ACTIVE");
+            // removed toast line
         }
 
         function approachTheCrest() {
@@ -658,7 +658,7 @@ function createEpicPlayerDeathExplosion(pos) {
             const obj = document.getElementById('hud-objective');
             if (sec) sec.innerText = "DOMINION SIEGE VECTOR — TITAN / THE CREST";
             if (obj) obj.innerText = "Intercept Dominion Flagship 'Iron Sovereign' in Formation";
-            showToast("Approaching Dominion Capital Flagship near Titan!");
+            // removed toast line
         }
 
         // =========================================================================

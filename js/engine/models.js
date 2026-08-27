@@ -1253,7 +1253,7 @@
                 ship.lookAt(lookTarget);
             });
 
-            showToast("⚠️ DOMINION SIEGE FLEET WARP SIGNATURES DETECTED — ARRIVAL IN 7 SECONDS!");
+            // removed toast line
         }
 
         function createWormholeGate() {
@@ -1787,7 +1787,7 @@
                 titanExcavationStartTime = performance.now() - 13000; // Jump immediately to tractor phase
                 if (ancientGoldenGate) ancientGoldenGate.visible = true;
                 if (titanIceCrustMesh) titanIceCrustMesh.visible = false;
-                showToast("🧲 DOMINION TRACTOR BEAMS LOCKED — HAULING HUGE GOLDEN RING INTO SPACE!");
+                // removed toast line
             } else if (titanExcavationPhase === 'TRACTOR_EXTRACTION') {
                 titanExcavationPhase = 'GATE_ACTIVE';
                 isTitanExcavationStarted = true;
@@ -1900,7 +1900,7 @@
             } else if (elapsedExcavation >= 12.0 && elapsedExcavation < 34.0) {
                 if (titanExcavationPhase !== 'TRACTOR_EXTRACTION') {
                     titanExcavationPhase = 'TRACTOR_EXTRACTION';
-                    showToast("🧲 DOMINION TRACTOR BEAMS ENGAGED — PULLING GOLDEN GATE OFF TITAN INTO SPACE!");
+                    // removed toast line
                 }
                 isBombardmentFiring = false; // GOLD BEAMS REMAIN OFF
                 isTractorFiring = true;      // TRACTOR BEAMS ACTIVE
@@ -1973,7 +1973,7 @@
             } else if (elapsedExcavation >= 14.5 && elapsedExcavation < 16.5) {
                 if (theCrestState !== 'STRUCK') {
                     theCrestState = 'STRUCK';
-                    showToast("⚠️ WARNING: DOMINION DREADNOUGHTS TARGETING THE CREST!");
+                    // removed toast line
                 }
                 if (theCrestExplosionLight) theCrestExplosionLight.intensity = 8.0 + Math.sin(timeSec * 20.0) * 6.0;
             } else if (elapsedExcavation >= 16.5 && elapsedExcavation < 18.5) {

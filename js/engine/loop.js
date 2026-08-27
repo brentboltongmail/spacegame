@@ -512,12 +512,12 @@
                 const remaining = Math.max(0, Math.ceil(7.0 - elapsedFleetEmergence));
                 const objElem = document.getElementById('hud-objective');
                 if (objElem && remaining > 0) {
-                    objElem.innerHTML = `<span style="color: #f43f5e; font-weight: bold; text-shadow: 0 0 8px rgba(244,63,94,0.8);">⚠️ DOMINION FLEET WARP IN: ${remaining}s</span>`;
+                    // removed toast line
                 }
             } else if (fleetEmergenceActive && elapsedFleetEmergence >= 7.0 && elapsedFleetEmergence < 12.0) {
                 const objElem = document.getElementById('hud-objective');
                 if (objElem && objElem.innerHTML.includes('WARP IN')) {
-                    objElem.innerHTML = `<span style="color: #f43f5e; font-weight: bold; text-shadow: 0 0 8px rgba(244,63,94,0.8);">⚔️ ENGAGE DOMINION SIEGE FLEET & ESCORT FIGHTERS</span>`;
+                    // removed toast line
                 }
 
                 // Line 1: Triggered ONLY when the first ship emerges from hyperspace (7.2s mark)
@@ -538,7 +538,7 @@
                 isTitanExcavationStarted = true;
                 titanExcavationPhase = 'BOMBARDMENT';
                 titanExcavationStartTime = performance.now();
-                showToast("⚡ DOMINION DREADNOUGHTS ENGAGING HEAVY PURPLE BOMBARDMENT BEAMS ON TITAN CRUST!");
+                // removed toast line
             }
 
             capitalShips.forEach(ship => {
@@ -905,7 +905,7 @@
                                 playerCredits += 25000;
                                 const credDisp = document.getElementById('hangar-credits-display');
                                 if (credDisp) credDisp.innerText = `${playerCredits.toLocaleString()} SC`;
-                                showToast("💥 DOMINION DREADNOUGHT ANNIHILATED! +25,000 SC AWARDED!");
+                                // removed toast line
                             }
                             break;
                         }
