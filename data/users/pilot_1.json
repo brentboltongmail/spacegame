@@ -2,114 +2,112 @@
   "username": "pilot_1",
   "boxPositions": {
     "hud-controls-card": {
-      "x": -24,
-      "y": -32
+      "x": -22,
+      "y": 36
     },
     "drag-sector-objective": {
-      "x": 24,
-      "y": -32
+      "x": 23,
+      "y": 36
     },
     "title-card-0": {
       "x": 0,
-      "y": 4012
+      "y": 17068
     },
     "title-card-1": {
       "x": 0,
-      "y": 4012
+      "y": 17068
     },
     "title-card-2": {
       "x": 0,
-      "y": 4012
+      "y": 17068
     },
     "title-card-3": {
       "x": 0,
-      "y": 4012
+      "y": 17068
     },
     "title-card-4": {
       "x": 0,
-      "y": 4012
+      "y": 17068
     },
     "title-card-5": {
       "x": 0,
-      "y": 4012
+      "y": 17068
     },
     "drag-prologue-sol-system-the-crest": {
       "x": 0,
-      "y": 4012
+      "y": 17068
     },
     "drag-the-truth-of-the-vanguard-throne": {
       "x": 0,
-      "y": 4012
+      "y": 17068
     },
     "drag-all-out-multi-system-warfare": {
       "x": 0,
-      "y": 4012
+      "y": 17068
     },
     "drag-the-battle-for-the-homeworld": {
       "x": 0,
-      "y": 4012
+      "y": 17068
     },
     "drag-core-gameplay-mechanics-matrix": {
       "x": 0,
-      "y": 4012
+      "y": 17068
     },
     "drag-key-factions": {
       "x": 0,
-      "y": 4012
+      "y": 17068
     },
     "drag-void-interceptor": {
       "x": 0,
-      "y": 4012
+      "y": 17068
     },
     "drag-heavy-strike-corvette": {
       "x": 0,
-      "y": 4012
+      "y": 17068
     },
     "drag-vanguard-royal-battlecruiser": {
       "x": 0,
-      "y": 4012
+      "y": 17068
     },
     "hud-shield-card": {
-      "x": -25,
-      "y": 85
+      "x": -8,
+      "y": 6
     },
     "hud-action-bar-card": {
       "x": -47,
       "y": 11
     },
-    "cinematic-comms-overlay": {
-      "x": 0,
-      "y": 136
+    "hud-top-target-card": {
+      "x": 18,
+      "y": -7
     },
     "drag-the-scavenger-frontier": {
       "x": 0,
-      "y": 816
-    },
-    "hud-top-target-card": {
-      "x": 21,
-      "y": -75
+      "y": 10336
     },
     "hud-radar-card": {
-      "x": 25,
-      "y": 85
+      "x": 23,
+      "y": 12
+    },
+    "cinematic-comms-overlay": {
+      "x": 0,
+      "y": 136
     }
   },
   "settings": {
-    "masterVol": 99,
-    "engineVol": 80,
-    "firingVol": 85,
-    "musicVol": 60,
-    "rollSpeed": 100,
-    "cameraLag": 59,
+    "masterVol": 43,
+    "engineVol": 45,
+    "firingVol": 100,
+    "musicVol": 100,
+    "rollSpeed": 55,
+    "cameraLag": 86,
     "throttleAccel": 100,
-    "shieldRegenMult": 100,
-    "hullRegenMult": 100,
-    "enemyDamageMult": 26,
-    "playerDamageMult": 34,
+    "shieldRegenMult": 72,
+    "hullRegenMult": 74,
+    "enemyDamageMult": 27,
+    "playerDamageMult": 35,
     "flashOnHit": false,
-    "turnSpeed": 50,
-    "platform": "mac",
-    "toastDuration": 5
+    "turnSpeed": 25
   },
   "progress": {},
   "keyBindings": {
@@ -125,10 +123,8 @@
   },
   "minimizedBoxes": {
     "drag-sector-objective": false,
-    "hud-top-target-card": true,
-    "hud-action-bar-card": true,
-    "hud-controls-card": true,
-    "hud-shield-card": true,
-    "hud-radar-card": false
+    "hud-top-target-card": false,
+    "hud-action-bar-card": false,
+    "hud-controls-card": false
   }
 }
