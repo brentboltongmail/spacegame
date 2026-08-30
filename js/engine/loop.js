@@ -1,10 +1,6 @@
         const _targetWorldPos = new THREE.Vector3();
         const _targetBBox = new THREE.Box3();
         const _targetSizeVec = new THREE.Vector3();
-        const _prevPos = new THREE.Vector3();
-        const _currentPos = new THREE.Vector3();
-        const _toTarget = new THREE.Vector3();
-        const _curDir = new THREE.Vector3();
 
         function animate() {
             requestAnimationFrame(animate);
