@@ -727,17 +727,13 @@
                                 e.userData.breakawayTargetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), worldBreakDir);
                             }
 
-                            // Smoothly turn into breakaway vector (slerp 0.035 for realistic wide arc)
-                            e.quaternion.slerp(e.userData.breakawayTargetQuat, 0.035);
-
-                            // Smooth banking roll during breakaway turn
-                            const currentRoll = e.rotation.z;
-                            e.rotation.z = currentRoll * 0.95 + (Math.sin(Date.now() * 0.002) * 0.4) * 0.05;
+                            // Smooth capped turn rate into breakaway vector (0.010 rad/frame = ~34 deg/sec max turn rate)
+                            e.quaternion.rotateTowards(e.userData.breakawayTargetQuat, 0.010);
 
                             // High momentum cruise speed
                             e.translateZ(-7.0);
 
-                            if (e.userData.breakawayTimer <= 0 || dist > 2400) {
+                            if (e.userData.breakawayTimer <= 0 || dist > 2600) {
                                 e.userData.attackState = 'intercept';
                                 e.userData.breakawayTargetQuat = null;
                             }
@@ -749,27 +745,18 @@
                             const toLead = predictedLeadPos.sub(e.position);
                             const leadDir = toLead.clone().normalize();
 
-                            // Smooth turn towards predicted lead position (slerp 0.03 for smooth flight path)
+                            // Smooth turn towards predicted lead position capped at 0.010 rad/frame (max 34 deg/sec)
                             const targetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), leadDir);
-
-                            // Calculate roll banking based on yaw angle difference
-                            const currentFwd = new THREE.Vector3(0, 0, -1).applyQuaternion(e.quaternion);
-                            const crossY = currentFwd.clone().cross(leadDir).y;
-                            const targetRoll = Math.max(-0.6, Math.min(0.6, crossY * 2.5));
-
-                            e.quaternion.slerp(targetQuat, 0.03);
-
-                            // Apply coordinated banking roll into turns
-                            e.rotateZ((targetRoll - (e.rotation.z % (Math.PI * 2))) * 0.05);
+                            e.quaternion.rotateTowards(targetQuat, 0.010);
 
                             // High-speed attack run (6.5 to 8.5 speed)
                             const attackSpeed = Math.min(8.5, 5.5 + (dist / 1000));
                             e.translateZ(-attackSpeed);
 
-                            // Initiate breakaway if closing under 320 units to prevent collision or swirling
-                            if (dist < 320) {
+                            // Initiate breakaway if closing under 350 units to prevent collision or close-range snapping
+                            if (dist < 350) {
                                 e.userData.attackState = 'breakaway';
-                                e.userData.breakawayTimer = 2.2 + Math.random() * 1.5;
+                                e.userData.breakawayTimer = 2.5 + Math.random() * 1.5;
                                 e.userData.breakawayTargetQuat = null;
                             }
 
