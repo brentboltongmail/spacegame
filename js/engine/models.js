@@ -144,7 +144,7 @@
 
                     // 2. Glowing Dark Blue Edge Frame (4 thin border bars fitting the entrance rim perfectly)
                     const borderGroup = new THREE.Group();
-                    const edgeThickness = 0.022; // Thin subtle glowing blue border edge
+                    const edgeThickness = 0.025; // Thin subtle glowing blue border edge
 
                     const borderMat = new THREE.MeshBasicMaterial({
                         color: 0x0055ff, // Deep Electric Cobalt Blue
