@@ -65,35 +65,6 @@
                 isHangarDragging = true;
                 previousHangarMousePosition = { x: e.clientX, y: e.clientY };
             });
-        }
-
-        function refreshHangarBackgroundShips() {
-            if (!upgradeHangarBackgroundShips) return;
-            upgradeHangarBackgroundShips.clear();
-
-            if (typeof voidInterceptorTemplate !== 'undefined' && voidInterceptorTemplate) {
-                // Add 3 extra pure Void Interceptors parked in the hangar bay
-                const extraShip1 = voidInterceptorTemplate.clone(true);
-                extraShip1.visible = true;
-                extraShip1.position.set(-6, 0, -4);
-                extraShip1.rotation.set(0, Math.PI / 4, 0);
-                upgradeHangarBackgroundShips.add(extraShip1);
-                
-                const extraShip2 = voidInterceptorTemplate.clone(true);
-                extraShip2.visible = true;
-                extraShip2.position.set(6, 0, -4);
-                extraShip2.rotation.set(0, -Math.PI / 4, 0);
-                upgradeHangarBackgroundShips.add(extraShip2);
-                
-                const extraShip3 = voidInterceptorTemplate.clone(true);
-                extraShip3.visible = true;
-                extraShip3.position.set(0, 0, -8);
-                extraShip3.rotation.set(0, Math.PI, 0); 
-                upgradeHangarBackgroundShips.add(extraShip3);
-            }
-        }
-                previousHangarMousePosition = { x: e.clientX, y: e.clientY };
-            });
 
             window.addEventListener('mousemove', (e) => {
                 if (!isHangarDragging || !upgradeHangarShip) return;
@@ -107,6 +78,36 @@
             });
 
             window.addEventListener('mouseup', () => { isHangarDragging = false; });
+        }
+
+        function refreshHangarBackgroundShips() {
+            if (!upgradeHangarBackgroundShips) return;
+            upgradeHangarBackgroundShips.clear();
+
+            if (typeof voidInterceptorTemplate !== 'undefined' && voidInterceptorTemplate) {
+                // Add 3 extra pure Void Interceptors parked in the hangar bay
+                // We wrap the template in a Group so we don't overwrite its centering position/rotation/scale!
+                const ship1Group = new THREE.Group();
+                const ship1Mesh = voidInterceptorTemplate.clone(true);
+                ship1Group.add(ship1Mesh);
+                ship1Group.position.set(-6, 0, -4);
+                ship1Group.rotation.set(0, Math.PI / 4, 0);
+                upgradeHangarBackgroundShips.add(ship1Group);
+                
+                const ship2Group = new THREE.Group();
+                const ship2Mesh = voidInterceptorTemplate.clone(true);
+                ship2Group.add(ship2Mesh);
+                ship2Group.position.set(6, 0, -4);
+                ship2Group.rotation.set(0, -Math.PI / 4, 0);
+                upgradeHangarBackgroundShips.add(ship2Group);
+                
+                const ship3Group = new THREE.Group();
+                const ship3Mesh = voidInterceptorTemplate.clone(true);
+                ship3Group.add(ship3Mesh);
+                ship3Group.position.set(0, 0, -8);
+                ship3Group.rotation.set(0, Math.PI, 0); 
+                upgradeHangarBackgroundShips.add(ship3Group);
+            }
         }
 
         function renderUpgradeHangar3D() {
