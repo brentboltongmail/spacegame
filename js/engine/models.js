@@ -126,7 +126,7 @@
                     const rectW = 1.88; // Exact width of the large main opening rim
                     const rectH = 0.88; // Exact height of the large main opening rim
                     const centerY = 0.0; // Vertical center aligned with hanger entrance
-                    const entranceZ = 0.96; // Snapped directly on the FRONT main entrance opening face!
+                    const entranceZ = 0.94; // Snapped tightly inside the FRONT main entrance opening face
 
                     // 1. Dark Blue Force Field Shield Plane (exact 1:1 fit over opening)
                     const shieldGeo = new THREE.PlaneGeometry(rectW, rectH);
@@ -142,7 +142,7 @@
                     forceFieldMesh.position.set(0, centerY, entranceZ);
                     hangerModel.add(forceFieldMesh);
 
-                    // 2. Glowing Dark Blue Edge Frame (4 thin border bars fitting the entrance rim exactly)
+                    // 2. Glowing Dark Blue Edge Frame (4 thin border bars fitting the entrance rim perfectly)
                     const borderGroup = new THREE.Group();
                     const edgeThickness = 0.022; // Thin subtle glowing blue border edge
 
@@ -156,22 +156,22 @@
 
                     // Top Edge Bar
                     const topBar = new THREE.Mesh(new THREE.PlaneGeometry(rectW + edgeThickness * 2, edgeThickness), borderMat);
-                    topBar.position.set(0, centerY + rectH * 0.5, entranceZ + 0.01);
+                    topBar.position.set(0, centerY + (rectH + edgeThickness) * 0.5, entranceZ);
                     borderGroup.add(topBar);
 
                     // Bottom Edge Bar
                     const bottomBar = new THREE.Mesh(new THREE.PlaneGeometry(rectW + edgeThickness * 2, edgeThickness), borderMat);
-                    bottomBar.position.set(0, centerY - rectH * 0.5, entranceZ + 0.01);
+                    bottomBar.position.set(0, centerY - (rectH + edgeThickness) * 0.5, entranceZ);
                     borderGroup.add(bottomBar);
 
                     // Left Edge Bar
                     const leftBar = new THREE.Mesh(new THREE.PlaneGeometry(edgeThickness, rectH), borderMat);
-                    leftBar.position.set(-rectW * 0.5, centerY, entranceZ + 0.01);
+                    leftBar.position.set(-(rectW + edgeThickness) * 0.5, centerY, entranceZ);
                     borderGroup.add(leftBar);
 
                     // Right Edge Bar
                     const rightBar = new THREE.Mesh(new THREE.PlaneGeometry(edgeThickness, rectH), borderMat);
-                    rightBar.position.set(rectW * 0.5, centerY, entranceZ + 0.01);
+                    rightBar.position.set((rectW + edgeThickness) * 0.5, centerY, entranceZ);
                     borderGroup.add(rightBar);
 
                     hangerModel.add(borderGroup);
