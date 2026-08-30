@@ -675,15 +675,16 @@
                 const obj = document.getElementById('hud-objective');
                 const displayEnemies = Math.min(enemiesDestroyed, 3);
                 if (obj) obj.innerText = `Fly around Saturn, clear ${totalRings} training rings, and destroy 3 drones (${clearedRings}/${totalRings} Rings, ${displayEnemies}/3 Enemies).`;
-            } else if (clearedRings >= totalRings && enemiesDestroyed >= 3) {
-                // BOTH OBJECTIVES COMPLETE
-                mission1Stage = 4; // Prevent re-triggering this block
+            } else if (mission1Stage < 4 && clearedRings >= totalRings && enemiesDestroyed >= 3) {
+                // BOTH OBJECTIVES COMPLETE — Execute transition EXACTLY ONCE
+                mission1Stage = 4; // Immediately advance stage to lock out re-triggering!
                 
                 const obj = document.getElementById('hud-objective');
-                if (obj) obj.innerText = `Fly around Saturn, clear 3 training rings, and destroy 3 drones (3/3 Rings, 3/3 Enemies).`;
+                if (obj) obj.innerText = `Fly around Saturn, clear ${totalRings} training rings, and destroy 3 drones (${totalRings}/${totalRings} Rings, 3/3 Enemies).`;
                 
                 showCommsTransmission("KAYLEN VANCE", "Copy that, old man. Controls are stiff, but responsive. Rings and drones cleared.", 5000, "audio/cinematics/mission_1/mission1_02_kaylen.mp3");
                 setTimeout(() => {
+                    if (!mission1Active) return;
                     showCommsTransmission("ELIAS VANCE", "Good. Now dock back at The Crest.", 5000, "audio/cinematics/mission_1/mission1_03_elias.mp3");
                     const obj = document.getElementById('hud-objective');
                     if (obj) obj.innerText = "Return and dock back at The Crest.";
