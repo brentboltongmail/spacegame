@@ -112,7 +112,7 @@
             });
         }
 
-        let cameraMode = 2; // 0: Cockpit View with Canopy Frame Bars, 1: Close, 2: Far (Default), 3: Cinematic Showcase (Invincible)
+        let cameraMode = 0; // 0: Cockpit View (Default), 1: Follow (close), 2: Follow (far), 3: Cinematic Showcase (Invincible)
         let isShipInvincible = false;
         let isPlayerDead = false;
         let cinematicAngle = 0;
@@ -276,6 +276,7 @@
             const lockZone = document.getElementById('target-lock-zone');
             if (lockZone) lockZone.style.opacity = (cameraMode === 0) ? '1' : '0';
 
+            updateCameraViewUI();
             initTacticalMap3D();
 
             // Event Listeners for Mouse Targeting & Key Controls
