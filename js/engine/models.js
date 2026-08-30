@@ -234,7 +234,7 @@
                         const doorMat = new THREE.MeshStandardMaterial({ map: doorTex, color: 0x1a1a1a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
                         const doorGeo = new THREE.PlaneGeometry(1.78, 0.80); 
                         const doorMesh = new THREE.Mesh(doorGeo, doorMat);
-                        doorMesh.position.set(0, 0, -0.89); 
+                        doorMesh.position.set(0, 0, -0.87); 
                         doorMesh.layers.set(1); // Isolate from global sunLight and station lights
                         hangerModel.add(doorMesh);
                     });
