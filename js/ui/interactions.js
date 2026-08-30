@@ -559,8 +559,8 @@
             playerShip.quaternion.set(0, 0, 0, 1);
             playerShip.lookAt(theCrestStation.position);
             playerShip.rotateY(Math.PI); // 180-degree rotation so cockpit faces the hanger!
-            targetSpeed = 400;
-            currentSpeed = 400;
+            targetSpeed = 0;
+            currentSpeed = 0;
             
             // Snap camera instantly to player
             if (camera) {
