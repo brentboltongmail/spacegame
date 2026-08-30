@@ -138,14 +138,18 @@
 
         function updateCameraViewUI() {
             const modeLabels = [
-                "📷 COCKPIT VIEW",
-                "🚀 CLOSE CHASE",
-                "🪐 THIRD-PERSON FAR",
-                "🎬 CINEMATIC SHOWCASE"
+                "Cockpit (First-Person)",
+                "Third-Person Close",
+                "Third-Person Far",
+                "Cinematic Showcase [Invincible]"
             ];
+            const btnEl = document.getElementById('camera-view-mode-btn');
+            if (btnEl) {
+                btnEl.innerText = `(C) Camera: ${modeLabels[cameraMode] || "Third-Person Far"}`;
+            }
             const textEl = document.getElementById('camera-view-mode-text');
             if (textEl) {
-                textEl.innerText = modeLabels[cameraMode] || "🪐 THIRD-PERSON FAR";
+                textEl.innerText = modeLabels[cameraMode] || "Third-Person Far";
             }
         }
 
