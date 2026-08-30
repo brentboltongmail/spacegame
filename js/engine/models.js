@@ -353,32 +353,32 @@
                     const clipPlanesLocal = [];
                     const eps = 0.02; // Small buffer to ensure we completely cut out walls without z-fighting
                     
-                    // 1. Front Plane (Z+)
-                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, 0, 1), -(0.94 + eps)));
-                    // 2. Back Plane (Z-) - Correct negative sign, keeping it tight to the hangar depth
-                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, 0, -1), -(0.86 + eps)));
-                    // 3. Top Plane (Y+)
-                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, 1, 0), -(0.39 + eps)));
-                    // 4. Bottom Plane (Y-) - Correct negative sign
-                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, -1, 0), -(0.39 + eps)));
+                    // 1. Front Plane (Z+) -> Normal faces Z- (0, 0, -1)
+                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, 0, -1), (0.94 + eps)));
+                    // 2. Back Plane (Z-) -> Normal faces Z+ (0, 0, 1)
+                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, 0, 1), (0.86 + eps)));
+                    // 3. Top Plane (Y+) -> Normal faces Y- (0, -1, 0)
+                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, -1, 0), (0.39 + eps)));
+                    // 4. Bottom Plane (Y-) -> Normal faces Y+ (0, 1, 0)
+                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, 1, 0), (0.39 + eps)));
                     
-                    // 5. Top-Right: Normal (0.39, 0.292), Point (1.218, 0)
-                    const nTR = new THREE.Vector3(0.39, 0.292, 0).normalize();
+                    // 5. Top-Right: Points inward
+                    const nTR = new THREE.Vector3(-0.39, -0.292, 0).normalize();
                     const dTR = nTR.dot(new THREE.Vector3(1.218 + eps, eps, 0));
                     clipPlanesLocal.push(new THREE.Plane(nTR, -dTR));
                     
-                    // 6. Bottom-Right: Normal (0.39, -0.292), Point (1.218, 0)
-                    const nBR = new THREE.Vector3(0.39, -0.292, 0).normalize();
+                    // 6. Bottom-Right: Points inward
+                    const nBR = new THREE.Vector3(-0.39, 0.292, 0).normalize();
                     const dBR = nBR.dot(new THREE.Vector3(1.218 + eps, -eps, 0));
                     clipPlanesLocal.push(new THREE.Plane(nBR, -dBR));
                     
-                    // 7. Top-Left: Normal (-0.39, 0.292), Point (-1.218, 0)
-                    const nTL = new THREE.Vector3(-0.39, 0.292, 0).normalize();
+                    // 7. Top-Left: Points inward
+                    const nTL = new THREE.Vector3(0.39, -0.292, 0).normalize();
                     const dTL = nTL.dot(new THREE.Vector3(-1.218 - eps, eps, 0));
                     clipPlanesLocal.push(new THREE.Plane(nTL, -dTL));
                     
-                    // 8. Bottom-Left: Normal (-0.39, -0.292), Point (-1.218, 0)
-                    const nBL = new THREE.Vector3(-0.39, -0.292, 0).normalize();
+                    // 8. Bottom-Left: Points inward
+                    const nBL = new THREE.Vector3(0.39, 0.292, 0).normalize();
                     const dBL = nBL.dot(new THREE.Vector3(-1.218 - eps, -eps, 0));
                     clipPlanesLocal.push(new THREE.Plane(nBL, -dBL));
                     
