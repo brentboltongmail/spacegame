@@ -655,7 +655,7 @@
 
         .cinematic-comms-container {
             position: fixed;
-            bottom: 11vh;
+            bottom: 15px;
             left: 50%;
             transform: translateX(-50%);
             width: 720px;
