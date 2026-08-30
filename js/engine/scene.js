@@ -640,6 +640,72 @@
             return texture;
         }
 
+        function createAsteroidRockTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            // Dark silicate rock base gradient
+            const grad = ctx.createLinearGradient(0, 0, 512, 512);
+            grad.addColorStop(0, '#262422');
+            grad.addColorStop(0.5, '#3b3734');
+            grad.addColorStop(1.0, '#1c1b1a');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 512, 512);
+
+            // Add rocky noise, mineral specks, and pitting
+            const imgData = ctx.getImageData(0, 0, 512, 512);
+            const data = imgData.data;
+            for (let i = 0; i < data.length; i += 4) {
+                const noise = (Math.random() - 0.5) * 35;
+                data[i] = Math.min(255, Math.max(0, data[i] + noise));
+                data[i+1] = Math.min(255, Math.max(0, data[i+1] + noise));
+                data[i+2] = Math.min(255, Math.max(0, data[i+2] + noise));
+            }
+            ctx.putImageData(imgData, 0, 0);
+
+            // Draw craters & impact indentations
+            for (let c = 0; c < 45; c++) {
+                const cx = Math.random() * 512;
+                const cy = Math.random() * 512;
+                const r = 8 + Math.random() * 32;
+
+                ctx.strokeStyle = 'rgba(15, 14, 13, 0.6)';
+                ctx.fillStyle = 'rgba(25, 23, 21, 0.4)';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+            }
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            return texture;
+        }
+        window.createAsteroidRockTexture = createAsteroidRockTexture;
+
+        function createIrregularAsteroidGeometry(radius = 1, detail = 1) {
+            const geo = new THREE.IcosahedronGeometry(radius, detail);
+            const pos = geo.attributes.position;
+            const v = new THREE.Vector3();
+
+            for (let i = 0; i < pos.count; i++) {
+                v.fromBufferAttribute(pos, i);
+                // Irregular non-uniform deformation & crater indentation
+                const noise = Math.sin(v.x * 2.8) * Math.cos(v.y * 3.1) * Math.sin(v.z * 2.5);
+                const crater = Math.pow(Math.sin(v.x * 5.0 + v.y * 5.0), 2) * 0.18;
+                const scale = 1.0 + noise * 0.32 - crater;
+                v.multiplyScalar(scale);
+                pos.setXYZ(i, v.x, v.y, v.z);
+            }
+            geo.computeVertexNormals();
+            return geo;
+        }
+        window.createIrregularAsteroidGeometry = createIrregularAsteroidGeometry;
+
         function createSpacePlanet() {
             // High-Resolution Procedural Saturn Surface Map (Guaranteed Fallback)
             const fallbackTex = createSaturnSurfaceTexture();
