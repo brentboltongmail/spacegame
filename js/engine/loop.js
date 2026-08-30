@@ -1844,10 +1844,10 @@
                 landingPhase = 2;
             }
             
-            const approachWP = new THREE.Vector3(0, 0.2, 3.0).applyMatrix4(hangerModel.matrixWorld);
-            const entryWP = new THREE.Vector3(0, 0.2, 0.5).applyMatrix4(hangerModel.matrixWorld);
-            const hoverWP = new THREE.Vector3(-0.55, 0.2, 0.75).applyMatrix4(hangerModel.matrixWorld);
-            const landWP = new THREE.Vector3(-0.55, 0.0, 0.75).applyMatrix4(hangerModel.matrixWorld);
+            const approachWP = new THREE.Vector3(0, -0.18, 3.0).applyMatrix4(hangerModel.matrixWorld);
+            const entryWP = new THREE.Vector3(0, -0.18, 0.5).applyMatrix4(hangerModel.matrixWorld);
+            const hoverWP = new THREE.Vector3(-0.55, -0.18, 0.75).applyMatrix4(hangerModel.matrixWorld);
+            const landWP = new THREE.Vector3(-0.55, -0.38, 0.75).applyMatrix4(hangerModel.matrixWorld);
             
             // Hangar door faces +Z in local space. We approach facing -Z.
             const inwardQuat = hangerModel.getWorldQuaternion(new THREE.Quaternion()).multiply(

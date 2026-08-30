@@ -426,12 +426,12 @@
                             for (let i = 0; i < 5; i++) {
                                 if (i === 4) continue; // Leave the spot closest to entrance open
                                 const zPos = -0.75 + (i / 4) * 1.5; // Spread from Z=-0.75 to Z=0.75
-                                positions.push({ x: -0.55, y: 0, z: zPos }); // Y=0 for upper floor
+                                positions.push({ x: -0.55, y: -0.38, z: zPos }); // Y=-0.38 for textured floor
                             }
                             // 5 fighters on the right wall
                             for (let i = 0; i < 5; i++) {
                                 const zPos = -0.75 + (i / 4) * 1.5; // Same spread
-                                positions.push({ x: 0.55, y: 0, z: zPos }); // Y=0 for upper floor
+                                positions.push({ x: 0.55, y: -0.38, z: zPos }); // Y=-0.38 for textured floor
                             }
                             
                             positions.forEach(pos => {
