@@ -1885,6 +1885,33 @@
             if (!theCrestStation || !theCrestStation.userData.hangerModel) return;
             const hangerModel = theCrestStation.userData.hangerModel;
             
+            // --- Blast Door Animation ---
+            if (hangerModel.userData.leftFrontDoor && hangerModel.userData.rightFrontDoor) {
+                let targetDoorT = 0; // 0 = closed, 1 = open
+                if (landingPhase >= 1 && landingPhase < 6) {
+                    targetDoorT = 1;
+                }
+                
+                if (typeof hangerModel.userData.doorT === 'undefined') {
+                    hangerModel.userData.doorT = 0;
+                }
+                
+                if (hangerModel.userData.doorT < targetDoorT) {
+                    hangerModel.userData.doorT += 0.015 * dtFactor;
+                    if (hangerModel.userData.doorT > targetDoorT) hangerModel.userData.doorT = targetDoorT;
+                } else if (hangerModel.userData.doorT > targetDoorT) {
+                    hangerModel.userData.doorT -= 0.015 * dtFactor;
+                    if (hangerModel.userData.doorT < targetDoorT) hangerModel.userData.doorT = targetDoorT;
+                }
+                
+                const closedX = hangerModel.userData.doorClosedX;
+                const openX = hangerModel.userData.doorOpenX;
+                const currentX = closedX + (openX - closedX) * hangerModel.userData.doorT;
+                
+                hangerModel.userData.leftFrontDoor.position.x = -currentX;
+                hangerModel.userData.rightFrontDoor.position.x = currentX;
+            }
+            
             const outerWP = new THREE.Vector3(0, -0.18, 12.0).applyMatrix4(hangerModel.matrixWorld);
             const approachWP = new THREE.Vector3(0, -0.18, 3.0).applyMatrix4(hangerModel.matrixWorld);
             const entryWP = new THREE.Vector3(0, -0.18, 0.5).applyMatrix4(hangerModel.matrixWorld);

@@ -234,6 +234,24 @@
                     doorMesh.position.set(0, 0, -0.84); 
                     doorMesh.layers.set(1); // Isolate from global sunLight and station lights
                     hangerModel.add(doorMesh);
+                    
+                    // 1.5 Front Blast Doors (Dynamic)
+                    const frontDoorGeo = new THREE.PlaneGeometry(rectW / 2, rectH, 2, 2);
+                    const leftFrontDoor = new THREE.Mesh(frontDoorGeo, doorMat);
+                    leftFrontDoor.position.set(-rectW / 4, centerY, entranceZ + 0.01);
+                    leftFrontDoor.layers.set(1);
+                    
+                    const rightFrontDoor = new THREE.Mesh(frontDoorGeo, doorMat);
+                    rightFrontDoor.position.set(rectW / 4, centerY, entranceZ + 0.01);
+                    rightFrontDoor.layers.set(1);
+                    
+                    hangerModel.add(leftFrontDoor);
+                    hangerModel.add(rightFrontDoor);
+                    
+                    hangerModel.userData.leftFrontDoor = leftFrontDoor;
+                    hangerModel.userData.rightFrontDoor = rightFrontDoor;
+                    hangerModel.userData.doorClosedX = rectW / 4;
+                    hangerModel.userData.doorOpenX = rectW / 4 + rectW / 2;
 
                     // 2. Generic Left and Right Walls
                     const wallTex = texLoader.load('data/textures/hangar_wall.jpg');
