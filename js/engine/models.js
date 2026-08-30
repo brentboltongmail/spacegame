@@ -242,14 +242,15 @@
                     const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, color: 0x1a1a1a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
                     
                     // 1.5 Front Blast Doors (Dynamic)
-                    const frontDoorGeo = new THREE.PlaneGeometry(rectW / 2, rectH, 2, 2);
+                    const doorWidth = 2.7; // Wider to fully cover the hexagonal bulging walls
+                    const frontDoorGeo = new THREE.PlaneGeometry(doorWidth / 2, rectH, 2, 2);
                     const leftFrontDoor = new THREE.Mesh(frontDoorGeo, wallMat);
-                    leftFrontDoor.position.set(-rectW / 4, centerY, entranceZ + 0.01);
+                    leftFrontDoor.position.set(-doorWidth / 4, centerY, entranceZ + 0.01);
                     leftFrontDoor.layers.set(1);
                     leftFrontDoor.userData.noDeform = true;
                     
                     const rightFrontDoor = new THREE.Mesh(frontDoorGeo, wallMat);
-                    rightFrontDoor.position.set(rectW / 4, centerY, entranceZ + 0.01);
+                    rightFrontDoor.position.set(doorWidth / 4, centerY, entranceZ + 0.01);
                     rightFrontDoor.layers.set(1);
                     rightFrontDoor.userData.noDeform = true;
                     
@@ -258,8 +259,8 @@
                     
                     hangerModel.userData.leftFrontDoor = leftFrontDoor;
                     hangerModel.userData.rightFrontDoor = rightFrontDoor;
-                    hangerModel.userData.doorClosedX = rectW / 4;
-                    hangerModel.userData.doorOpenX = rectW / 4 + rectW / 2;
+                    hangerModel.userData.doorClosedX = doorWidth / 4;
+                    hangerModel.userData.doorOpenX = doorWidth / 4 + doorWidth / 2;
 
                     // 2. Generic Left and Right Walls
                     const leftWallMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.88, 0.80, 4, 4), wallMat);
