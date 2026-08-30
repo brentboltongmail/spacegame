@@ -874,28 +874,31 @@
         /* 🎬 Wing Commander 3 Seamless Flight Deck Overlay */
         .flight-deck-debrief-overlay {
             position: fixed;
-            bottom: 35px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(3, 6, 16, 0.95);
+            backdrop-filter: blur(25px);
             z-index: 9500;
-            width: 90%;
-            max-width: 960px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            box-sizing: border-box;
             pointer-events: auto;
-            animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        @keyframes slideUpFade {
-            from { opacity: 0; transform: translate(-50%, 30px); }
-            to { opacity: 1; transform: translate(-50%, 0); }
+            animation: fadeIn 0.4s ease-out;
         }
 
         .debrief-panel-card {
-            background: rgba(8, 14, 30, 0.88);
-            border: 1.5px solid rgba(0, 240, 255, 0.5);
+            width: 100%;
+            max-width: 940px;
+            background: rgba(8, 14, 30, 0.96);
+            border: 1.5px solid rgba(0, 240, 255, 0.6);
             border-radius: 16px;
-            padding: 24px 28px;
-            backdrop-filter: blur(18px);
-            box-shadow: 0 0 40px rgba(0, 240, 255, 0.25), inset 0 0 20px rgba(0, 240, 255, 0.1);
+            padding: 32px 36px;
+            backdrop-filter: blur(25px);
+            box-shadow: 0 0 50px rgba(0, 240, 255, 0.35), inset 0 0 30px rgba(0, 240, 255, 0.12);
         }
 
         .debrief-header {

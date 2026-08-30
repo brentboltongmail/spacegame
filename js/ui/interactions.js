@@ -968,6 +968,9 @@
             const drawer = document.getElementById('tactical-armory-drawer');
             if (drawer) drawer.style.display = 'none';
 
+            const blackout = document.getElementById('cinematic-blackout-overlay');
+            if (blackout) blackout.classList.remove('active');
+
             if (currentDebriefAudio) {
                 currentDebriefAudio.pause();
                 currentDebriefAudio = null;

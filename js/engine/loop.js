@@ -124,10 +124,10 @@
                             }
                         }, 250);
 
-                        // Reveal Wing Commander 3 Seamless Flight Deck Transition Hub after penetrating singularity
+                        // Reveal Wing Commander 3 Seamless Flight Deck Transition Hub over blacked out screen
                         setTimeout(() => {
                             const blackout = document.getElementById('cinematic-blackout-overlay');
-                            if (blackout) blackout.classList.remove('active');
+                            if (blackout) blackout.classList.add('active');
 
                             if (typeof triggerMissionDebriefSequence === 'function') {
                                 triggerMissionDebriefSequence({
