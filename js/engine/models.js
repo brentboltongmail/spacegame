@@ -33,7 +33,7 @@
                             mat.depthWrite = true;
                             mat.depthTest = true;
                             mat.side = THREE.DoubleSide;
-                            mat.metalness = THREE.MathUtils.clamp(mat.metalness || 0.6, 0.4, 0.85);
+                            mat.metalness = 0.10; // 10% reflectivity
                             mat.roughness = THREE.MathUtils.clamp(mat.roughness || 0.4, 0.25, 0.55);
                             mat.envMapIntensity = 1.6;
                             if (mat.map) {
@@ -79,7 +79,7 @@
                                 mat.depthWrite = true;
                                 mat.depthTest = true;
                                 mat.side = THREE.DoubleSide;
-                                mat.metalness = THREE.MathUtils.clamp(mat.metalness || 0.6, 0.4, 0.85);
+                                mat.metalness = 0.10; // 10% reflectivity
                                 mat.roughness = THREE.MathUtils.clamp(mat.roughness || 0.4, 0.25, 0.55);
                                 mat.envMapIntensity = 1.6;
                                 if (mat.map) {
