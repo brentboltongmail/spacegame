@@ -671,6 +671,52 @@ function createEpicPlayerDeathExplosion(pos) {
         let titanCinematicTimeout = null;
 
         const titanCinematicScript = [
+            // --- PART A: FLEET EMERGENCE & TITAN EXTRACTION ---
+            {
+                id: "titan_arrival_01_kaylen",
+                speaker: "KAYLEN VANCE",
+                subspeaker: "VOID INTERCEPTOR COCKPIT / TACTICAL COMMS",
+                theme: "speaker-kaylen",
+                icon: "🚨",
+                camMode: 2, // Far Third Person (Panoramic Vista)
+                speed: 0, // Void engines shut off!
+                text: "What is going on?! We are being attacked! By... by... I don't know who!",
+                audioSrc: "audio/cinematics/titan_gate/titan_arrival_01_kaylen.mp3"
+            },
+            {
+                id: "titan_arrival_02_kaylen",
+                speaker: "KAYLEN VANCE",
+                subspeaker: "VOID INTERCEPTOR COCKPIT / SENSOR TELEMETRY",
+                theme: "speaker-kaylen",
+                icon: "📡",
+                camMode: 2, // Far Third Person (Panoramic Vista)
+                speed: 0, // Void engines shut off!
+                text: "They're attacking Titan! Actually... it looks like they're looking for something...",
+                audioSrc: "audio/cinematics/titan_gate/titan_arrival_02_kaylen.mp3"
+            },
+            {
+                id: "titan_arrival_03_kaylen",
+                speaker: "KAYLEN VANCE",
+                subspeaker: "VOID INTERCEPTOR COCKPIT / OPTICAL SCAN",
+                theme: "speaker-kaylen",
+                icon: "👁️",
+                camMode: 2, // Far Third Person (Panoramic Vista)
+                speed: 0, // Void engines shut off!
+                text: "There is some kind of giant circle down on Titan. They are pulling up out of the ice. I think they may be creating a wormhole.",
+                audioSrc: "audio/cinematics/titan_gate/titan_arrival_03_kaylen.mp3"
+            },
+            {
+                id: "titan_arrival_04_kaylen",
+                speaker: "KAYLEN VANCE",
+                subspeaker: "VOID INTERCEPTOR COCKPIT / MAYDAY CALL",
+                theme: "speaker-kaylen",
+                icon: "🚨",
+                camMode: 2, // Far Third Person (Panoramic Vista)
+                speed: 0, // Void engines shut off!
+                text: "Oh no... The Crest!! NOOO!!",
+                audioSrc: "audio/cinematics/titan_gate/titan_arrival_04_kaylen.mp3"
+            },
+            // --- PART B: MARS COMMS & PRECURSOR RIFT DIVE ---
             {
                 id: "titan_gate_01_elias",
                 speaker: "ELIAS VANCE",
@@ -891,8 +937,8 @@ function createEpicPlayerDeathExplosion(pos) {
             targetSpeed = lineData.speed;
             currentSpeed = Math.max(currentSpeed, lineData.speed * 0.85);
 
-            // On Line 10, hold until "Dad" is spoken
-            if (currentStepIndex === 9) {
+            // On final line (titan_gate_10_kaylen), hold speed until "Dad" is spoken before hyper-accelerating into gate
+            if (currentStepIndex === 13) {
                 targetSpeed = 150;
                 setTimeout(() => {
                     if (!isTitanCinematicActive) return;
