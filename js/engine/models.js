@@ -101,11 +101,11 @@
                     hangerModel.rotation.y = Math.PI / 2;
 
                     // --- 🛡️ ATMOSPHERIC CONTAINMENT FORCE FIELD SHIELD & DOCKING BAY ENTRANCE GLOW ---
-                    // Fine-tuned docking bay entrance aperture dimensions to fit the outer rim face 1:1
-                    const rectW = 1.08; // Exact width of docking bay opening rim
-                    const rectH = 0.48; // Exact height of docking bay opening rim
-                    const centerY = -0.04; // Vertical center aligned with hanger floor/ceiling
-                    const entranceZ = 1.85; // Opening rim face
+                    // Docking bay entrance aperture dimensions snapped 1:1 to the hanger opening rim face:
+                    const rectW = 1.12; // Exact width of docking bay opening rim
+                    const rectH = 0.52; // Exact height of docking bay opening rim
+                    const centerY = -0.02; // Vertical center aligned with hanger entrance
+                    const entranceZ = 0.0; // Snapped directly on the entrance opening face!
 
                     // 1. Dark Blue Force Field Shield Plane (exact 1:1 fit over opening)
                     const shieldGeo = new THREE.PlaneGeometry(rectW, rectH);
