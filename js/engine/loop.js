@@ -1882,10 +1882,14 @@
             const hoverWP = new THREE.Vector3(-0.55, -0.18, 0.75).applyMatrix4(hangerModel.matrixWorld);
             const landWP = new THREE.Vector3(-0.55, -0.38, 0.75).applyMatrix4(hangerModel.matrixWorld);
             
-            const inwardQuat = hangerModel.getWorldQuaternion(new THREE.Quaternion()).multiply(
+            // In THREE.js, objects look down their local -Z axis.
+            // If the hangar door is at local +Z, looking INTO the hangar means looking towards -Z.
+            // So inward is hangerModel's native rotation.
+            // Parked ships should face outward (+Z), which requires a 180 degree rotation.
+            const inwardQuat = hangerModel.getWorldQuaternion(new THREE.Quaternion());
+            const outwardQuat = hangerModel.getWorldQuaternion(new THREE.Quaternion()).multiply(
                 new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), Math.PI)
             );
-            const outwardQuat = hangerModel.getWorldQuaternion(new THREE.Quaternion());
             
             if (landingPhase === 1) {
                 targetSpeed = 0;
@@ -1948,7 +1952,10 @@
                 if (toEntry.length() > 20) {
                     const dir = toEntry.normalize();
                     playerShip.position.add(dir.multiplyScalar(60 * 0.0064 * dtFactor));
-                    playerShip.quaternion.slerp(inwardQuat, 0.03 * dtFactor);
+                    const targetRot = new THREE.Quaternion().setFromRotationMatrix(
+                        new THREE.Matrix4().lookAt(playerShip.position, entryWP, new THREE.Vector3(0, 1, 0))
+                    );
+                    playerShip.quaternion.slerp(targetRot, 0.03 * dtFactor);
                 } else {
                     landingPhase = 4;
                 }
@@ -1957,7 +1964,10 @@
                 if (toHover.length() > 2) {
                     const dir = toHover.normalize();
                     playerShip.position.add(dir.multiplyScalar(20 * 0.0064 * dtFactor));
-                    playerShip.quaternion.slerp(inwardQuat, 0.03 * dtFactor);
+                    const targetRot = new THREE.Quaternion().setFromRotationMatrix(
+                        new THREE.Matrix4().lookAt(playerShip.position, hoverWP, new THREE.Vector3(0, 1, 0))
+                    );
+                    playerShip.quaternion.slerp(targetRot, 0.03 * dtFactor);
                 } else {
                     landingPhase = 4.5;
                 }

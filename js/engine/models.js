@@ -439,7 +439,7 @@
                                 const shipGroup = new THREE.Group();
                                 shipGroup.scale.set(sx * 4, sy * 4, sz * 4);
                                 shipGroup.position.set(pos.x, pos.y, pos.z);
-                                shipGroup.rotation.set(0, 0, 0); // Facing out towards +Z
+                                shipGroup.rotation.set(0, Math.PI, 0); // Facing out towards +Z
 
                                 const ship = voidInterceptorTemplate.clone(true);
                                 shipGroup.add(ship);
