@@ -90,23 +90,26 @@
                 const ship1Group = new THREE.Group();
                 const ship1Mesh = voidInterceptorTemplate.clone(true);
                 ship1Group.add(ship1Mesh);
-                ship1Group.position.set(-6, 0, -4);
+                ship1Group.position.set(-3.8, 0, -5);
                 ship1Group.rotation.set(0, Math.PI / 4, 0);
                 upgradeHangarBackgroundShips.add(ship1Group);
                 
                 const ship2Group = new THREE.Group();
                 const ship2Mesh = voidInterceptorTemplate.clone(true);
                 ship2Group.add(ship2Mesh);
-                ship2Group.position.set(6, 0, -4);
+                ship2Group.position.set(3.8, 0, -5);
                 ship2Group.rotation.set(0, -Math.PI / 4, 0);
                 upgradeHangarBackgroundShips.add(ship2Group);
                 
                 const ship3Group = new THREE.Group();
                 const ship3Mesh = voidInterceptorTemplate.clone(true);
                 ship3Group.add(ship3Mesh);
-                ship3Group.position.set(0, 0, -8);
+                ship3Group.position.set(0, 0, -9);
                 ship3Group.rotation.set(0, Math.PI, 0); 
                 upgradeHangarBackgroundShips.add(ship3Group);
+
+                // Disable frustum culling for all background ships just in case bounds are incorrect
+                upgradeHangarBackgroundShips.traverse(c => { c.frustumCulled = false; });
             }
         }
 
