@@ -853,18 +853,17 @@ function createEpicPlayerDeathExplosion(pos) {
 
             showToast("🎬 TITAN GATE CINEMATIC: Teleported to Titan Vista (Controls Locked)");
 
-            // Schedule Dominion Fleet Slipspace Emergence strictly 7.0 SECONDS LATER
+            // Schedule Dominion Fleet Slipspace Emergence & Dialogue Transmission strictly 7.0 SECONDS LATER after establishing panorama
             if (window.titanEmergenceTimer) clearTimeout(window.titanEmergenceTimer);
             window.titanEmergenceTimer = setTimeout(() => {
                 if (isTitanCinematicActive) {
                     if (typeof triggerDominionFleetHyperspaceEmergence === 'function') {
                         triggerDominionFleetHyperspaceEmergence();
                     }
+                    // Play Line 1 ("Kaylen! Kaylen, do you read me?!") after establishing panorama
+                    playNextCinematicLine();
                 }
             }, 7000);
-
-            // Play Line 1: "Kaylen! Kaylen, do you read me?!"
-            playNextCinematicLine();
         }
 
         function playNextCinematicLine() {
