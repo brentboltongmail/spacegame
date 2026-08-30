@@ -225,7 +225,6 @@
                     }
 
                     // 1. Back Blast Doors
-                    /*
                     const doorTex = texLoader.load('data/textures/hangar_doors.jpg');
                     setupTiledTex(doorTex, 2, 1);
                     const doorMat = new THREE.MeshStandardMaterial({ map: doorTex, color: 0x1a1a1a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
@@ -234,7 +233,6 @@
                     doorMesh.position.set(0, 0, -0.84); 
                     doorMesh.layers.set(1); // Isolate from global sunLight and station lights
                     hangerModel.add(doorMesh);
-                    */
 
                     // 2. Generic Left and Right Walls
                     const wallTex = texLoader.load('data/textures/hangar_wall.jpg');
