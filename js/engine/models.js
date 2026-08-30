@@ -33,9 +33,11 @@
                             mat.depthWrite = true;
                             mat.depthTest = true;
                             mat.side = THREE.DoubleSide;
-                            mat.metalness = 0.02; // 2% reflectivity
-                            mat.roughness = 0.98; // 98% roughness (2% shiny)
-                            mat.envMapIntensity = 0.02; // 2% env map intensity
+                            mat.metalnessMap = null;
+                            mat.roughnessMap = null;
+                            mat.metalness = 0.01; // 1% reflectivity
+                            mat.roughness = 0.99; // 99% roughness (1% shiny)
+                            mat.envMapIntensity = 0.01; // 1% env map intensity
                             if (mat.map) {
                                 mat.map.anisotropy = maxAniso;
                                 mat.map.generateMipmaps = true;
@@ -79,9 +81,11 @@
                                 mat.depthWrite = true;
                                 mat.depthTest = true;
                                 mat.side = THREE.DoubleSide;
-                                mat.metalness = 0.02; // 2% reflectivity
-                                mat.roughness = 0.98; // 98% roughness (2% shiny)
-                                mat.envMapIntensity = 0.02; // 2% env map intensity
+                                mat.metalnessMap = null;
+                                mat.roughnessMap = null;
+                                mat.metalness = 0.01; // 1% reflectivity
+                                mat.roughness = 0.99; // 99% roughness (1% shiny)
+                                mat.envMapIntensity = 0.01; // 1% env map intensity
                                 if (mat.map) {
                                     mat.map.anisotropy = maxAniso;
                                     mat.map.generateMipmaps = true;
@@ -187,21 +191,20 @@
                     // 1. Back Blast Doors
                     texLoader.load('data/textures/hangar_doors.jpg', function(doorTex) {
                         doorTex.colorSpace = THREE.SRGBColorSpace;
-                        const doorMat = new THREE.MeshBasicMaterial({ map: doorTex, side: THREE.DoubleSide });
-                        // Size matching the back wall (approx 1.78w x 0.8h, scaled to fit inside)
-                        const doorGeo = new THREE.PlaneGeometry(1.6, 0.7); 
+                        const doorMat = new THREE.MeshStandardMaterial({ map: doorTex, side: THREE.DoubleSide, metalness: 0.2, roughness: 0.8 });
+                        const doorGeo = new THREE.PlaneGeometry(1.78, 0.80); 
                         const doorMesh = new THREE.Mesh(doorGeo, doorMat);
-                        doorMesh.position.set(0, 0, -0.9); // Back wall
+                        doorMesh.position.set(0, 0, -0.93); // Back wall exactly
                         hangerModel.add(doorMesh);
                     });
 
                     // 2. Left Wall - Tool Areas
                     texLoader.load('data/textures/hangar_tools.jpg', function(toolsTex) {
                         toolsTex.colorSpace = THREE.SRGBColorSpace;
-                        const toolsMat = new THREE.MeshBasicMaterial({ map: toolsTex, side: THREE.DoubleSide });
-                        const toolsGeo = new THREE.PlaneGeometry(1.2, 0.6); 
+                        const toolsMat = new THREE.MeshStandardMaterial({ map: toolsTex, side: THREE.DoubleSide, metalness: 0.2, roughness: 0.8 });
+                        const toolsGeo = new THREE.PlaneGeometry(1.88, 0.80); 
                         const toolsMesh = new THREE.Mesh(toolsGeo, toolsMat);
-                        toolsMesh.position.set(-0.85, 0, 0); // Left wall
+                        toolsMesh.position.set(-0.88, 0, 0); // Flush to left wall
                         toolsMesh.rotation.y = Math.PI / 2; // Face inwards
                         hangerModel.add(toolsMesh);
                     });
@@ -209,10 +212,10 @@
                     // 3. Right Wall - Barrels and Cargo
                     texLoader.load('data/textures/hangar_barrels.jpg', function(barrelsTex) {
                         barrelsTex.colorSpace = THREE.SRGBColorSpace;
-                        const barrelsMat = new THREE.MeshBasicMaterial({ map: barrelsTex, side: THREE.DoubleSide });
-                        const barrelsGeo = new THREE.PlaneGeometry(1.2, 0.6); 
+                        const barrelsMat = new THREE.MeshStandardMaterial({ map: barrelsTex, side: THREE.DoubleSide, metalness: 0.2, roughness: 0.8 });
+                        const barrelsGeo = new THREE.PlaneGeometry(1.88, 0.80); 
                         const barrelsMesh = new THREE.Mesh(barrelsGeo, barrelsMat);
-                        barrelsMesh.position.set(0.85, 0, 0); // Right wall
+                        barrelsMesh.position.set(0.88, 0, 0); // Flush to right wall
                         barrelsMesh.rotation.y = -Math.PI / 2; // Face inwards
                         hangerModel.add(barrelsMesh);
                     });
