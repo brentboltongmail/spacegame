@@ -727,11 +727,11 @@
                                 e.userData.breakawayTargetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), worldBreakDir);
                             }
 
-                            // Smooth capped turn rate into breakaway vector (0.010 rad/frame = ~34 deg/sec max turn rate)
-                            e.quaternion.rotateTowards(e.userData.breakawayTargetQuat, 0.010);
+                            // Smooth capped turn rate into breakaway vector (scaled to match 3x slower flight speed)
+                            e.quaternion.rotateTowards(e.userData.breakawayTargetQuat, 0.004);
 
-                            // High momentum cruise speed
-                            e.translateZ(-7.0);
+                            // 3x Slower momentum cruise speed (7.0 -> 2.33)
+                            e.translateZ(-2.33);
 
                             if (e.userData.breakawayTimer <= 0 || dist > 2600) {
                                 e.userData.attackState = 'intercept';
@@ -745,12 +745,12 @@
                             const toLead = predictedLeadPos.sub(e.position);
                             const leadDir = toLead.clone().normalize();
 
-                            // Smooth turn towards predicted lead position capped at 0.010 rad/frame (max 34 deg/sec)
+                            // Smooth turn towards predicted lead position scaled to match 3x slower flight speed
                             const targetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), leadDir);
-                            e.quaternion.rotateTowards(targetQuat, 0.010);
+                            e.quaternion.rotateTowards(targetQuat, 0.004);
 
-                            // High-speed attack run (6.5 to 8.5 speed)
-                            const attackSpeed = Math.min(8.5, 5.5 + (dist / 1000));
+                            // 3x Slower attack run speed (6.5-8.5 -> 2.16-2.83)
+                            const attackSpeed = Math.min(2.83, 1.83 + (dist / 3000));
                             e.translateZ(-attackSpeed);
 
                             // Initiate breakaway if closing under 350 units to prevent collision or close-range snapping
