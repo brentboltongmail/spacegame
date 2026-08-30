@@ -697,62 +697,100 @@
                 window.checkMission2Progress();
             }
 
-            // --- ANIMATE ENEMY INTERCEPTORS & TARGET LOCK SELECTION ---
+            // --- 🚀 AUTHENTIC TACTICAL SPACE FIGHTER FLIGHT ENGINE ---
             let closestEnemy = null;
             let closestDist = 3000; // Weapon max range: 3000 Units / 3.0 KM
             const fwdDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
+            const playerVel = fwdDir.clone().negate().multiplyScalar(currentSpeed);
 
             enemyShips.forEach(e => {
                 if (e.userData && e.userData.hp > 0 && playerShip) {
                     const toPlayer = playerShip.position.clone().sub(e.position);
                     const dist = toPlayer.length();
                     
-                    // Continuous attack runs AI at the player
-                    if (dist > 0 && dist < 120000) { // Aggro across active engagement sector
-                        const dir = toPlayer.clone().normalize();
-                        
-                        e.userData.attackState = e.userData.attackState || 'run';
+                    if (dist > 0 && dist < 120000) {
+                        e.userData.attackState = e.userData.attackState || 'intercept';
                         e.userData.breakawayTimer = e.userData.breakawayTimer || 0;
+                        e.userData.burstCount = e.userData.burstCount || 0;
 
                         if (e.userData.attackState === 'breakaway') {
+                            // 🚀 EXTENSION / BREAKAWAY (ZOOM) PHASE
+                            // Fly along a fixed banking arc away from player to gain distance & energy
                             e.userData.breakawayTimer -= timeDelta;
-                            if (e.userData.breakawayTimer <= 0) {
-                                e.userData.attackState = 'run';
-                            } else {
-                                // Perform banking arc during breakaway loop
-                                const breakDir = new THREE.Vector3(0.8, 0.2, 0.4).applyQuaternion(e.quaternion).normalize();
-                                const targetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), breakDir);
-                                e.quaternion.slerp(targetQuat, 0.08);
-                                e.translateZ(-6.0); // Fast speed during breakaway loop
+
+                            if (!e.userData.breakawayTargetQuat) {
+                                // Calculate a fixed world breakaway heading (bank 45 degrees up/side away from player)
+                                const sideSign = (e.id % 2 === 0) ? 1 : -1;
+                                const upSign = (e.id % 3 === 0) ? 0.6 : -0.3;
+                                const localBreakDir = new THREE.Vector3(sideSign * 0.8, upSign, 0.6).normalize();
+                                const worldBreakDir = localBreakDir.applyQuaternion(e.quaternion).normalize();
+                                e.userData.breakawayTargetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), worldBreakDir);
+                            }
+
+                            // Smoothly turn into breakaway vector (slerp 0.035 for realistic wide arc)
+                            e.quaternion.slerp(e.userData.breakawayTargetQuat, 0.035);
+
+                            // Smooth banking roll during breakaway turn
+                            const currentRoll = e.rotation.z;
+                            e.rotation.z = currentRoll * 0.95 + (Math.sin(Date.now() * 0.002) * 0.4) * 0.05;
+
+                            // High momentum cruise speed
+                            e.translateZ(-7.0);
+
+                            if (e.userData.breakawayTimer <= 0 || dist > 2400) {
+                                e.userData.attackState = 'intercept';
+                                e.userData.breakawayTargetQuat = null;
                             }
                         } else {
-                            // ATTACK RUN PHASE: Turn smoothly towards player and charge hard
-                            const targetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), dir);
-                            e.quaternion.slerp(targetQuat, 0.07);
+                            // 🎯 LEAD PURSUIT (BOOM RUN) ATTACK PHASE
+                            // Predict target lead position based on player velocity and laser flight time
+                            const leadTime = Math.min(dist / 1400, 2.5);
+                            const predictedLeadPos = playerShip.position.clone().add(playerVel.clone().multiplyScalar(leadTime));
+                            const toLead = predictedLeadPos.sub(e.position);
+                            const leadDir = toLead.clone().normalize();
 
-                            // High speed attack run vector
-                            e.translateZ(-7.5);
+                            // Smooth turn towards predicted lead position (slerp 0.03 for smooth flight path)
+                            const targetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), leadDir);
 
-                            // If too close (under 220 units), initiate breakaway loop to re-engage
-                            if (dist < 220) {
+                            // Calculate roll banking based on yaw angle difference
+                            const currentFwd = new THREE.Vector3(0, 0, -1).applyQuaternion(e.quaternion);
+                            const crossY = currentFwd.clone().cross(leadDir).y;
+                            const targetRoll = Math.max(-0.6, Math.min(0.6, crossY * 2.5));
+
+                            e.quaternion.slerp(targetQuat, 0.03);
+
+                            // Apply coordinated banking roll into turns
+                            e.rotateZ((targetRoll - (e.rotation.z % (Math.PI * 2))) * 0.05);
+
+                            // High-speed attack run (6.5 to 8.5 speed)
+                            const attackSpeed = Math.min(8.5, 5.5 + (dist / 1000));
+                            e.translateZ(-attackSpeed);
+
+                            // Initiate breakaway if closing under 320 units to prevent collision or swirling
+                            if (dist < 320) {
                                 e.userData.attackState = 'breakaway';
-                                e.userData.breakawayTimer = 1.8 + Math.random() * 1.2;
+                                e.userData.breakawayTimer = 2.2 + Math.random() * 1.5;
+                                e.userData.breakawayTargetQuat = null;
                             }
 
-                            // Shoot blasters at player during attack run
-                            e.userData.lastFireTime = e.userData.lastFireTime || 0;
-                            if (dist < 5000 && Date.now() - e.userData.lastFireTime > 750 + Math.random() * 850) {
-                                e.userData.lastFireTime = Date.now();
-                                const eLaser = getPooledEnemyLaserBolt();
-                                if (eLaser) {
-                                    eLaser.visible = true;
-                                    eLaser.quaternion.copy(e.quaternion);
-                                    const side = Math.random() > 0.5 ? -2.4 : 2.4;
-                                    const offset = new THREE.Vector3(side, -0.1, -2.4).applyQuaternion(e.quaternion);
-                                    eLaser.position.copy(e.position).add(offset);
-                                    eLaser.userData.prevPos.copy(eLaser.position);
-                                    eLaser.userData.velocity.copy(dir).multiplyScalar(15);
-                                    if (!enemyLaserProjectiles.includes(eLaser)) enemyLaserProjectiles.push(eLaser);
+                            // Rhythmic Plasma Cannon Bursts when in lead alignment (< 25 degrees)
+                            const aimAngle = currentFwd.angleTo(leadDir);
+                            if (dist < 4000 && aimAngle < 0.44) {
+                                e.userData.lastFireTime = e.userData.lastFireTime || 0;
+                                if (Date.now() - e.userData.lastFireTime > 900 + Math.random() * 600) {
+                                    e.userData.lastFireTime = Date.now();
+                                    const eLaser = getPooledEnemyLaserBolt();
+                                    if (eLaser) {
+                                        eLaser.visible = true;
+                                        eLaser.quaternion.copy(e.quaternion);
+                                        const side = (e.userData.burstCount % 2 === 0) ? -2.4 : 2.4;
+                                        e.userData.burstCount++;
+                                        const offset = new THREE.Vector3(side, -0.1, -2.4).applyQuaternion(e.quaternion);
+                                        eLaser.position.copy(e.position).add(offset);
+                                        eLaser.userData.prevPos.copy(eLaser.position);
+                                        eLaser.userData.velocity.copy(currentFwd).multiplyScalar(16);
+                                        if (!enemyLaserProjectiles.includes(eLaser)) enemyLaserProjectiles.push(eLaser);
+                                    }
                                 }
                             }
                         }

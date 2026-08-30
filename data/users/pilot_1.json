@@ -92,6 +92,10 @@
     "cinematic-comms-overlay": {
       "x": 0,
       "y": 136
+    },
+    "hud-camera-card": {
+      "x": -207,
+      "y": 769
     }
   },
   "settings": {
