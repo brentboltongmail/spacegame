@@ -769,7 +769,7 @@
             spacePlanetSphere.add(atmosphere);
 
             // High-Resolution Textured Continuous Planetary Ring Disc (Dual Volumetric Layers for 3D depth)
-            const ringDiscGeo = new THREE.RingGeometry(7200, 45000, 128, 12);
+            const ringDiscGeo = new THREE.RingGeometry(10800, 22800, 128);
             ringDiscGeo.rotateX(Math.PI / 2); // Aligns ring disc directly into planetary equatorial plane (parallel to cloud bands)
             
             const ringDiscMat = new THREE.MeshBasicMaterial({
@@ -797,29 +797,20 @@
             ringLower.position.y = -35;
             spacePlanet.add(ringLower);
 
-            // Gigantic Planetary Ring System - 3D particle asteroids (300% spread, darkish rock texture, 2x jaggedness)
+            // Gigantic Planetary Ring System - 3D particle asteroids in Equatorial XZ plane
             const particleCount = 20000;
-            const particleGeo = createIrregularAsteroidGeometry(1, 2);
-            
-            const fallbackAsteroidTex = createAsteroidRockTexture();
-
-            const particleMat = new THREE.MeshStandardMaterial({ 
-                color: 0x5a5550, // Darkish silicate rock tone
-                roughness: 0.88,
-                metalness: 0.12,
-                bumpScale: 0.45,
-                map: fallbackAsteroidTex,
-                bumpMap: fallbackAsteroidTex,
-                flatShading: true // Faceted lighting on irregular rock faces!
+            const particleGeo = new THREE.TetrahedronGeometry(1, 0);
+            const particleMat = new THREE.MeshBasicMaterial({ 
+                color: 0xffffff,
+                fog: false
             });
-
+            
             new THREE.TextureLoader().load(
                 'docs/images/asteroid_texture.jpg',
                 (tex) => {
                     tex.wrapS = THREE.RepeatWrapping;
                     tex.wrapT = THREE.RepeatWrapping;
                     particleMat.map = tex;
-                    particleMat.bumpMap = tex;
                     particleMat.needsUpdate = true;
                 }
             );
@@ -828,24 +819,27 @@
             
             const dummy = new THREE.Object3D();
             
-            // 300% Expanded Field Spread
-            const innerRadius = 7200;
-            const outerRadius = 45000;
-            const ringThickness = 1200;
+            const innerRadius = 10800;
+            const outerRadius = 22800;
+            const ringThickness = 180;
             
-            // Darkish silicate rock color palette (no bright white)
+            // Saturn ring particle color palette (creams, warm golds, icy silvers, dusty silicates)
             const colors = [
-                new THREE.Color(0x3f3f46), // dark charcoal silicate
-                new THREE.Color(0x52525b), // zinc grey rock
-                new THREE.Color(0x78716c), // silicate tan
-                new THREE.Color(0x57534e), // dark stone
-                new THREE.Color(0x71717a), // slate grey
-                new THREE.Color(0x44403c)  // deep basalt
+                new THREE.Color(0xfef3c7), // warm cream
+                new THREE.Color(0xfde68a), // soft gold
+                new THREE.Color(0xfbbf24), // amber tan
+                new THREE.Color(0xd4d4d8), // icy silver grey
+                new THREE.Color(0xa8a29e), // silicate tan
+                new THREE.Color(0xffffff), // pure water ice
+                new THREE.Color(0x78716c)  // dark silicate rock
             ];
 
             for (let i = 0; i < particleCount; i++) {
-                // Continuous 300% spread across entire expanded ring field
+                // Random radius between inner and outer, respecting Cassini Division gap (16,800 to 18,000)
                 let r = innerRadius + Math.random() * (outerRadius - innerRadius);
+                if (r >= 16800 && r <= 18000 && Math.random() < 0.88) {
+                    r = (Math.random() < 0.5) ? (innerRadius + Math.random() * (16800 - innerRadius)) : (18000 + Math.random() * (outerRadius - 18000));
+                }
                 const theta = Math.random() * Math.PI * 2;
                 
                 const x = r * Math.cos(theta);
@@ -854,13 +848,8 @@
                 
                 dummy.position.set(x, y, z);
                 
-                // Wide size & scale variety (pebbles 0.3 up to megastructures 52.0)
-                const baseScale = Math.pow(Math.random(), 2.8) * 52.0 + 0.3;
-                dummy.scale.set(
-                    baseScale * (0.4 + Math.random() * 1.2),
-                    baseScale * (0.4 + Math.random() * 1.2),
-                    baseScale * (0.4 + Math.random() * 1.2)
-                );
+                const scale = Math.random() * 16.0 + 0.5;
+                dummy.scale.set(scale, scale, scale);
                 
                 dummy.rotation.set(
                     Math.random() * Math.PI,

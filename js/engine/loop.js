@@ -1588,21 +1588,20 @@
             const needed = 5 - activePirates.length;
             if (needed <= 0) return;
 
-            const planetPos = spacePlanet.position || new THREE.Vector3(72060, 214, -81280);
+            const fieldCenter = (typeof window.mission2Freighter !== 'undefined' && window.mission2Freighter && window.mission2Freighter.position) 
+                ? window.mission2Freighter.position.clone() 
+                : new THREE.Vector3(100000, 0, 100000);
 
             for (let k = 0; k < needed; k++) {
                 const pirate = createEnemyInterceptorMesh();
                 
-                // Spawn at a random position inside Saturn's active 14,000 to 36,000 unit asteroid belt
-                const radius = 14000 + Math.random() * 22000;
-                const theta = Math.random() * Math.PI * 2;
-                
-                const px = planetPos.x + Math.cos(theta) * radius;
-                const pz = planetPos.z + Math.sin(theta) * radius;
-                const py = planetPos.y + (Math.random() - 0.5) * 800;
+                // Spawn at a random position inside the 300% expanded pirate asteroid field
+                const px = fieldCenter.x + (Math.random() - 0.5) * 38000;
+                const pz = fieldCenter.z + (Math.random() - 0.5) * 38000;
+                const py = fieldCenter.y + (Math.random() - 0.5) * 8000;
 
                 pirate.position.set(px, py, pz);
-                pirate.rotation.set(0, Math.random() * Math.PI * 2, 0);
+                pirate.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI * 2, 0);
 
                 pirate.userData.isAsteroidPirate = true;
                 pirate.userData.hp = 100;
