@@ -240,12 +240,10 @@
             createCapitalShip();
             createWormholeGate();
             initLaserPool();
-            // Create 3D Wireframe Target Lock Box
-            const targetBoxGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(20, 20, 20));
-            const targetBoxMat = new THREE.LineBasicMaterial({ color: 0xff3333, linewidth: 2 });
-            targetBox3D = new THREE.LineSegments(targetBoxGeo, targetBoxMat);
-            targetBox3D.visible = false;
-            scene.add(targetBox3D);
+
+            // 🎯 Create 3D Corner Bracket Target Box Pool for All Visible Hostiles
+            initEnemyTargetBoxPool(45);
+
             const crosshair = document.querySelector('.hud-center-crosshair');
             if (crosshair) crosshair.style.opacity = (cameraMode === 0) ? '1' : '0';
             const lockZone = document.getElementById('target-lock-zone');
@@ -857,4 +855,58 @@
                     }
                 );
             });
+        }
+
+        // =========================================================================
+        // 🎯 3D RED CORNER BRACKET TARGET BOX GEOMETRY & POOL ENGINE
+        // =========================================================================
+        let enemyTargetBoxPool = [];
+
+        function createCornerBoxGeometry(baseSize = 20, cornerRatio = 0.22) {
+            const hs = baseSize / 2;
+            const cl = baseSize * cornerRatio;
+            const vertices = [];
+
+            const xs = [-hs, hs];
+            const ys = [-hs, hs];
+            const zs = [-hs, hs];
+
+            xs.forEach(x => {
+                const dirX = x > 0 ? -1 : 1;
+                ys.forEach(y => {
+                    const dirY = y > 0 ? -1 : 1;
+                    zs.forEach(z => {
+                        const dirZ = z > 0 ? -1 : 1;
+
+                        // Segment along X
+                        vertices.push(x, y, z);
+                        vertices.push(x + dirX * cl, y, z);
+
+                        // Segment along Y
+                        vertices.push(x, y, z);
+                        vertices.push(x, y + dirY * cl, z);
+
+                        // Segment along Z
+                        vertices.push(x, y, z);
+                        vertices.push(x, y, z + dirZ * cl);
+                    });
+                });
+            });
+
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+            return geometry;
+        }
+
+        function initEnemyTargetBoxPool(poolSize = 45) {
+            const cornerBoxGeo = createCornerBoxGeometry(20, 0.22);
+            enemyTargetBoxPool = [];
+
+            for (let i = 0; i < poolSize; i++) {
+                const mat = new THREE.LineBasicMaterial({ color: 0xef4444, linewidth: 2, transparent: true, opacity: 0.85 });
+                const lineSegments = new THREE.LineSegments(cornerBoxGeo, mat);
+                lineSegments.visible = false;
+                scene.add(lineSegments);
+                enemyTargetBoxPool.push(lineSegments);
+            }
         }

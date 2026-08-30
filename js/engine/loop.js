@@ -785,30 +785,68 @@
                 });
             }
 
-            // --- 3D TARGET LOCK BOX UPDATER ---
-            if (targetBox3D) {
-                if (closestEnemy && closestEnemy.userData && closestEnemy.userData.hp > 0 && closestDist < 4000 && (cameraMode === 0 || cameraMode === 1) && !isTitanCinematicActive) {
-                    targetBox3D.visible = true;
+            // --- 🎯 ALL VISIBLE ENEMIES 3D RED CORNER BRACKET BOX UPDATER ---
+            let activeBoxIdx = 0;
+            if (typeof enemyTargetBoxPool !== 'undefined' && enemyTargetBoxPool.length > 0) {
+                if (!isTitanCinematicActive && (cameraMode === 0 || cameraMode === 1)) {
+                    // Gather all active visible hostiles (enemyShips + capitalShips)
+                    const allHostiles = [];
+                    enemyShips.forEach(e => {
+                        if (e && e.userData && e.userData.hp > 0 && e.visible) {
+                            allHostiles.push(e);
+                        }
+                    });
+                    if (typeof capitalShips !== 'undefined') {
+                        capitalShips.forEach(cap => {
+                            if (cap && cap.userData && !cap.userData.isDead && cap.userData.hp > 0 && cap.visible) {
+                                allHostiles.push(cap);
+                            }
+                        });
+                    }
 
-                    // Calculate precise 3D world center and bounding box of the targeted mesh
-                    _targetBBox.setFromObject(closestEnemy);
-                    _targetBBox.getCenter(_targetWorldPos);
-                    _targetBBox.getSize(_targetSizeVec);
+                    allHostiles.forEach(hostile => {
+                        _targetBBox.setFromObject(hostile);
+                        _targetBBox.getCenter(_targetWorldPos);
+                        _targetBBox.getSize(_targetSizeVec);
 
-                    // Position target box at exact world coordinates of target center
-                    targetBox3D.position.copy(_targetWorldPos);
-                    
-                    // Add smooth spinning effect to the wireframe box around target center
-                    targetBox3D.rotation.y += 0.04;
-                    targetBox3D.rotation.x += 0.02;
-                    targetBox3D.rotation.z += 0.01;
-                    
-                    // Dynamically scale wireframe box to fit around target with 35% margin (BoxGeometry base size is 20)
-                    const maxDim = Math.max(_targetSizeVec.x, _targetSizeVec.y, _targetSizeVec.z, 8);
-                    const scaleFactor = (maxDim * 1.35) / 20.0;
-                    targetBox3D.scale.set(scaleFactor, scaleFactor, scaleFactor);
-                } else {
-                    targetBox3D.visible = false;
+                        const toHostile = _targetWorldPos.clone().sub(playerShip.position);
+                        const distToHostile = toHostile.length();
+
+                        // Render corner boxes for hostiles in front of player within 5000 units
+                        if (distToHostile > 0 && distToHostile < 5000) {
+                            const dot = toHostile.clone().normalize().dot(fwdDir);
+                            if (dot > 0.15) { // In front of view cone
+                                if (activeBoxIdx < enemyTargetBoxPool.length) {
+                                    const box = enemyTargetBoxPool[activeBoxIdx++];
+                                    box.visible = true;
+                                    box.position.copy(_targetWorldPos);
+
+                                    const isPrimaryLock = (hostile === closestEnemy);
+                                    if (isPrimaryLock) {
+                                        box.material.color.setHex(0xff0044); // Bright crimson red for primary target
+                                        box.material.opacity = 1.0;
+                                        // Smooth constant rotation for locked primary target
+                                        box.rotation.y += 0.04;
+                                        box.rotation.x += 0.02;
+                                        box.rotation.z += 0.01;
+                                    } else {
+                                        box.material.color.setHex(0xef4444); // Tactical red for visible hostiles
+                                        box.material.opacity = 0.85;
+                                        box.rotation.set(0, 0, 0);
+                                    }
+
+                                    const maxDim = Math.max(_targetSizeVec.x, _targetSizeVec.y, _targetSizeVec.z, 8);
+                                    const scaleFactor = (maxDim * 1.35) / 20.0;
+                                    box.scale.set(scaleFactor, scaleFactor, scaleFactor);
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Hide unused pool boxes
+                for (let i = activeBoxIdx; i < enemyTargetBoxPool.length; i++) {
+                    enemyTargetBoxPool[i].visible = false;
                 }
             }
             
