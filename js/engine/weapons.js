@@ -1107,11 +1107,11 @@ function createEpicPlayerDeathExplosion(pos) {
             if (typeof isTitanCinematicActive !== 'undefined' && isTitanCinematicActive) {
                 stopTitanGateCinematic();
             }
-            playerShip.position.set(75200, -350, -39500);
+            playerShip.position.set(theCrestStation.position.x + 800, theCrestStation.position.y, theCrestStation.position.z);
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
-            playerShip.lookAt(new THREE.Vector3(72060, 214, -81280));
-            playerShip.rotateY(Math.PI); // 180-degree rotation so cockpit faces Saturn!
+            playerShip.lookAt(theCrestStation.position);
+            playerShip.rotateY(Math.PI); // 180-degree rotation so cockpit faces the hanger!
             if (camera) {
                 const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
                 camera.up.copy(localUp);

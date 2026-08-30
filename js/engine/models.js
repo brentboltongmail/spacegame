@@ -912,12 +912,12 @@
             playerShieldBubble.visible = false;
             playerShip.add(playerShieldBubble);
 
-            // Position Void Interceptor just behind The Crest and Titan looking at Saturn
-            playerShip.position.set(75200, -350, -39500);
+            // Position Void Interceptor just outside the Crest Hanger, looking at the hanger
+            playerShip.position.set(theCrestStation.position.x + 800, theCrestStation.position.y, theCrestStation.position.z);
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
-            playerShip.lookAt(new THREE.Vector3(72060, 214, -81280));
-            playerShip.rotateY(Math.PI); // 180-degree rotation so cockpit faces Saturn!
+            playerShip.lookAt(theCrestStation.position);
+            playerShip.rotateY(Math.PI); // 180-degree rotation so cockpit faces the hanger!
             scene.add(playerShip);
 
             if (camera) {
