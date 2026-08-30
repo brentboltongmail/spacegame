@@ -713,12 +713,11 @@
             playerShieldBubble.visible = false;
             playerShip.add(playerShieldBubble);
 
-            // Position Void Interceptor in panoramic vantage looking forward towards the battle line and Saturn
-            playerShip.position.set(75200, 350, -25000); // Started further back
+            // Position Void Interceptor just behind The Crest and Titan looking at Saturn
+            playerShip.position.set(75200, -350, -39500);
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
-            playerShip.lookAt(new THREE.Vector3(75200, -600, -43500));
-            playerShip.rotateY(Math.PI); // 180-degree rotation
+            playerShip.lookAt(new THREE.Vector3(72060, 214, -81280));
             scene.add(playerShip);
 
             if (camera) {

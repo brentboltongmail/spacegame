@@ -1055,11 +1055,10 @@ function createEpicPlayerDeathExplosion(pos) {
             if (typeof isTitanCinematicActive !== 'undefined' && isTitanCinematicActive) {
                 stopTitanGateCinematic();
             }
-            playerShip.position.set(75200, 350, -25000); // Started further back
+            playerShip.position.set(75200, -350, -39500);
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
-            playerShip.lookAt(new THREE.Vector3(75200, -600, -43500));
-            playerShip.rotateY(Math.PI); // 180-degree rotation
+            playerShip.lookAt(new THREE.Vector3(72060, 214, -81280));
             if (camera) {
                 const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
                 camera.up.copy(localUp);

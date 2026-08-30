@@ -535,14 +535,13 @@
             }
             mission1Rings = [];
 
-            // Start at the same spot as Mission 3 / Free Roam
-            playerShip.position.set(75200, 350, -25000);
+            // Start just behind The Crest and Titan looking at Saturn
+            playerShip.position.set(75200, -350, -39500);
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
-            playerShip.lookAt(new THREE.Vector3(75200, -600, -43500));
-            playerShip.rotateY(Math.PI); // 180-degree rotation
-            targetSpeed = 675;
-            currentSpeed = 675;
+            playerShip.lookAt(new THREE.Vector3(72060, 214, -81280));
+            targetSpeed = 400;
+            currentSpeed = 400;
             
             // Snap camera instantly to player
             if (camera) {
