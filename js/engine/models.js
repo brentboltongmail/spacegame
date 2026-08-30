@@ -338,6 +338,14 @@
                             }
                         });
                     });
+                    // Gather station meshes BEFORE adding the hangar so we don't accidentally clip the hangar itself
+                    const stationMeshes = [];
+                    model.traverse(function(child) {
+                        if (child.isMesh && child.material) {
+                            stationMeshes.push(child);
+                        }
+                    });
+
                     model.add(hangerModel);
                     
                     // --- HEXAGONAL CLIPPING PLANES FOR STATION ---
@@ -378,18 +386,16 @@
                     hangerModel.updateMatrixWorld(true);
                     const stationClipPlanes = clipPlanesLocal.map(p => p.clone().applyMatrix4(hangerModel.matrixWorld));
                     
-                    // Apply clipping planes to the station materials
-                    model.traverse(function(child) {
-                        if (child.isMesh && child.material) {
-                            const mats = Array.isArray(child.material) ? child.material : [child.material];
-                            mats.forEach(mat => {
-                                // Assign the 8 clipping planes
-                                mat.clippingPlanes = stationClipPlanes;
-                                // Only discard a pixel if it's clipped by ALL 8 planes (meaning it's INSIDE the hexagon)
-                                mat.clipIntersection = true;
-                                mat.needsUpdate = true;
-                            });
-                        }
+                    // Apply clipping planes ONLY to the station materials
+                    stationMeshes.forEach(function(child) {
+                        const mats = Array.isArray(child.material) ? child.material : [child.material];
+                        mats.forEach(mat => {
+                            // Assign the 8 clipping planes
+                            mat.clippingPlanes = stationClipPlanes;
+                            // Only discard a pixel if it's clipped by ALL 8 planes (meaning it's INSIDE the hexagon)
+                            mat.clipIntersection = true;
+                            mat.needsUpdate = true;
+                        });
                     });
 
                     console.log("[THE CREST HANGER] GLB Model & Atmospheric Force Field Loaded!");
