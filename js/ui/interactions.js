@@ -617,13 +617,19 @@
             mission1EnemiesDestroyed = enemiesDestroyed;
             
             if (mission1Stage < 3) {
-                // Check all rings for collision to allow any order
+                // Check all rings for exact plane penetration through 800-radius aperture
                 for (let i = 0; i < mission1Rings.length; i++) {
                     const targetRing = mission1Rings[i];
                     if (targetRing.userData.cleared) continue;
                     
-                    const dist = playerShip.position.distanceTo(targetRing.position);
-                    if (dist < 5000) { // Extremely generous collision radius
+                    const toPlayer = playerShip.position.clone().sub(targetRing.position);
+                    const ringNormal = new THREE.Vector3(0, 0, 1).applyQuaternion(targetRing.quaternion);
+                    const planeDist = Math.abs(toPlayer.dot(ringNormal));
+                    const totalDist = toPlayer.length();
+                    const radialDist = Math.sqrt(Math.max(0, totalDist * totalDist - planeDist * planeDist));
+
+                    // Only clear when physically passing through the ring opening plane
+                    if (planeDist < 250 && radialDist < 850) {
                         // Passed through
                         targetRing.userData.cleared = true;
                         targetRing.material.color.setHex(0x10b981);
