@@ -851,7 +851,13 @@ function createEpicPlayerDeathExplosion(pos) {
                 return;
             }
 
-            const lineData = titanCinematicScript[titanCinematicIndex];
+            if (titanCinematicTimeout) {
+                clearTimeout(titanCinematicTimeout);
+                titanCinematicTimeout = null;
+            }
+
+            const currentStepIndex = titanCinematicIndex;
+            const lineData = titanCinematicScript[currentStepIndex];
             
             // Switch camera mode per cinematic line
             if (lineData.camMode !== undefined) {
@@ -862,11 +868,8 @@ function createEpicPlayerDeathExplosion(pos) {
             currentSpeed = Math.max(currentSpeed, lineData.speed * 0.85);
 
             // On Line 10, hold until "Dad" is spoken
-            if (titanCinematicIndex === 9) {
-                // We keep targetSpeed at 250 initially
+            if (currentStepIndex === 9) {
                 targetSpeed = 150;
-                
-                // Audio is around 8-9 seconds. Let's trigger the plunge at 7.0 seconds.
                 setTimeout(() => {
                     if (!isTitanCinematicActive) return;
                     isTitanCinematicEnteringGate = true;
@@ -890,41 +893,80 @@ function createEpicPlayerDeathExplosion(pos) {
             if (commsSpeaker) commsSpeaker.innerText = lineData.speaker;
             if (commsSubspeaker) commsSubspeaker.innerText = lineData.subspeaker;
             if (commsSubtitle) commsSubtitle.innerText = `"${lineData.text}"`;
-            if (commsBadge) commsBadge.innerText = `${titanCinematicIndex + 1} / ${titanCinematicScript.length}`;
+            if (commsBadge) commsBadge.innerText = `${currentStepIndex + 1} / ${titanCinematicScript.length}`;
             if (commsIcon) commsIcon.innerText = lineData.icon;
 
-            // Play voice audio
+            // Stop previous voice audio
             if (titanCinematicAudio) {
+                titanCinematicAudio.onended = null;
+                titanCinematicAudio.onerror = null;
                 titanCinematicAudio.pause();
                 titanCinematicAudio = null;
             }
 
-            titanCinematicAudio = new Audio(lineData.audioSrc);
-            titanCinematicAudio.volume = 1.0;
-
-            titanCinematicAudio.onended = () => {
+            let hasAdvanced = false;
+            const advanceLine = () => {
+                if (hasAdvanced || !isTitanCinematicActive) return;
+                if (titanCinematicIndex !== currentStepIndex) return;
+                hasAdvanced = true;
+                
+                if (titanCinematicAudio) {
+                    titanCinematicAudio.onended = null;
+                    titanCinematicAudio.onerror = null;
+                }
+                if (titanCinematicTimeout) {
+                    clearTimeout(titanCinematicTimeout);
+                    titanCinematicTimeout = null;
+                }
+                
                 titanCinematicIndex++;
                 titanCinematicTimeout = setTimeout(() => {
                     playNextCinematicLine();
                 }, 400); // slight pause between transmissions
             };
 
-            titanCinematicAudio.onerror = (e) => {
-                console.warn("Cinematic audio playback fallback:", e);
-                // Advance after estimated reading time
-                titanCinematicIndex++;
-                titanCinematicTimeout = setTimeout(() => {
-                    playNextCinematicLine();
-                }, 3500);
-            };
+            // Estimate duration based on text length (~12 chars per second) with safety bounds
+            const textLen = (lineData.text || '').length;
+            const estimatedMs = Math.max(6000, Math.min(15000, Math.ceil(textLen / 12) * 1000 + 3500));
 
-            titanCinematicAudio.play().catch(e => {
-                console.warn("Audio play prevented (user gesture needed or error):", e);
-                titanCinematicIndex++;
-                titanCinematicTimeout = setTimeout(() => {
-                    playNextCinematicLine();
-                }, 3500);
-            });
+            // Absolute fail-safe timeout so sequence NEVER hangs even if audio fails/stalls
+            titanCinematicTimeout = setTimeout(() => {
+                console.warn(`[Titan Cinematic] Line ${currentStepIndex + 1} fail-safe timeout reached. Advancing.`);
+                advanceLine();
+            }, estimatedMs);
+
+            try {
+                titanCinematicAudio = new Audio(lineData.audioSrc);
+                titanCinematicAudio.volume = 1.0;
+
+                titanCinematicAudio.onloadedmetadata = () => {
+                    if (titanCinematicAudio && titanCinematicAudio.duration && isFinite(titanCinematicAudio.duration)) {
+                        const audioMs = Math.ceil(titanCinematicAudio.duration * 1000) + 1500;
+                        if (titanCinematicTimeout) clearTimeout(titanCinematicTimeout);
+                        titanCinematicTimeout = setTimeout(() => {
+                            console.warn(`[Titan Cinematic] Line ${currentStepIndex + 1} audio duration timeout. Advancing.`);
+                            advanceLine();
+                        }, audioMs);
+                    }
+                };
+
+                titanCinematicAudio.onended = () => {
+                    advanceLine();
+                };
+
+                titanCinematicAudio.onerror = (e) => {
+                    console.warn("[Titan Cinematic] Audio playback error:", e);
+                    advanceLine();
+                };
+
+                titanCinematicAudio.play().catch(e => {
+                    console.warn("[Titan Cinematic] Audio play prevented:", e);
+                    advanceLine();
+                });
+            } catch (err) {
+                console.warn("[Titan Cinematic] Audio init exception:", err);
+                advanceLine();
+            }
         }
 
         function finishTitanGateCinematic() {

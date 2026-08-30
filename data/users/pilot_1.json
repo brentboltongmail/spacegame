@@ -100,14 +100,16 @@
     "firingVol": 100,
     "musicVol": 100,
     "rollSpeed": 55,
-    "cameraLag": 86,
+    "cameraLag": 41,
     "throttleAccel": 100,
     "shieldRegenMult": 72,
     "hullRegenMult": 74,
     "enemyDamageMult": 27,
     "playerDamageMult": 35,
     "flashOnHit": false,
-    "turnSpeed": 25
+    "turnSpeed": 25,
+    "toastDuration": 5,
+    "platform": "windows"
   },
   "progress": {},
   "keyBindings": {
