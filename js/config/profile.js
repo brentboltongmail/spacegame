@@ -143,6 +143,8 @@
             let didCorrection = false;
             document.querySelectorAll('.draggable-box').forEach(box => {
                 const rect = box.getBoundingClientRect();
+                if (rect.width === 0 || rect.height === 0) return; // Skip hidden or unrendered boxes
+
                 let currentY = parseFloat(box.dataset.dragY) || 0;
                 let currentX = parseFloat(box.dataset.dragX) || 0;
                 
