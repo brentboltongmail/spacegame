@@ -706,13 +706,7 @@
                     ringDiscMat.map = tex;
                     ringDiscMat.needsUpdate = true;
                 }
-                roughness: 0.8,
-                metalness: 0.1,
-                depthWrite: false
-            });
-
-            // Flat equatorial alignment
-            ringDiscGeo.rotateX(Math.PI / 2);
+            );
 
             const ringUpper = new THREE.Mesh(ringDiscGeo, ringDiscMat);
             ringUpper.position.y = 35;
