@@ -715,33 +715,34 @@
                 }
             }
             
-            // Spawn Dark Textured Irregular Asteroids
+            // Spawn Dark Textured Irregular Asteroids (300% Expanded Spread)
             const astGeo = (typeof createIrregularAsteroidGeometry === 'function') 
-                ? createIrregularAsteroidGeometry(150, 1) 
-                : new THREE.IcosahedronGeometry(150, 1);
+                ? createIrregularAsteroidGeometry(150, 2) 
+                : new THREE.IcosahedronGeometry(150, 2);
 
             const fallbackTex = (typeof createAsteroidRockTexture === 'function') ? createAsteroidRockTexture() : null;
             const astMat = new THREE.MeshStandardMaterial({ 
                 color: 0x5a5550, 
                 roughness: 0.88, 
                 metalness: 0.12, 
-                bumpScale: 0.35,
+                bumpScale: 0.45,
                 map: fallbackTex,
                 bumpMap: fallbackTex,
                 flatShading: true 
             });
             
-            for(let i=0; i<200; i++) {
+            for(let i=0; i<300; i++) {
                 const ast = new THREE.Mesh(astGeo, astMat);
                 ast.position.set(
-                    100000 + (Math.random() - 0.5) * 15000,
-                    (Math.random() - 0.5) * 4000,
-                    100000 + (Math.random() - 0.5) * 15000
+                    100000 + (Math.random() - 0.5) * 45000,
+                    (Math.random() - 0.5) * 12000,
+                    100000 + (Math.random() - 0.5) * 45000
                 );
+                const astScale = Math.pow(Math.random(), 2.2) * 4.5 + 0.3;
                 ast.scale.set(
-                    (Math.random() * 2 + 0.5) * (0.8 + Math.random() * 0.4),
-                    (Math.random() * 2 + 0.5) * (0.8 + Math.random() * 0.4),
-                    (Math.random() * 2 + 0.5) * (0.8 + Math.random() * 0.4)
+                    astScale * (0.4 + Math.random() * 1.2),
+                    astScale * (0.4 + Math.random() * 1.2),
+                    astScale * (0.4 + Math.random() * 1.2)
                 );
                 ast.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
                 

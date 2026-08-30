@@ -687,19 +687,34 @@
         }
         window.createAsteroidRockTexture = createAsteroidRockTexture;
 
-        function createIrregularAsteroidGeometry(radius = 1, detail = 1) {
+        function createIrregularAsteroidGeometry(radius = 1, detail = 2) {
             const geo = new THREE.IcosahedronGeometry(radius, detail);
             const pos = geo.attributes.position;
+            const uvs = geo.attributes.uv;
             const v = new THREE.Vector3();
 
             for (let i = 0; i < pos.count; i++) {
                 v.fromBufferAttribute(pos, i);
-                // Irregular non-uniform deformation & crater indentation
-                const noise = Math.sin(v.x * 2.8) * Math.cos(v.y * 3.1) * Math.sin(v.z * 2.5);
-                const crater = Math.pow(Math.sin(v.x * 5.0 + v.y * 5.0), 2) * 0.18;
-                const scale = 1.0 + noise * 0.32 - crater;
-                v.multiplyScalar(scale);
+                
+                // Doubled multi-frequency jagged noise layers
+                const n1 = Math.sin(v.x * 3.8) * Math.cos(v.y * 4.4) * Math.sin(v.z * 3.2);
+                const n2 = Math.sin(v.x * 9.0 + v.y * 9.0 + v.z * 9.0) * 0.35;
+                const n3 = Math.cos(v.x * 15.0 - v.z * 15.0) * 0.18;
+                
+                // Deep jagged crater indentations
+                const crater1 = Math.pow(Math.sin(v.x * 5.5 + v.y * 5.5), 2) * 0.38;
+                const crater2 = Math.pow(Math.cos(v.y * 7.0 + v.z * 7.0), 2) * 0.28;
+                
+                // Asymmetric oblong stretching factor per vertex
+                const jaggedScale = 1.0 + (n1 * 0.65 + n2 + n3) - (crater1 + crater2);
+                v.multiplyScalar(Math.max(0.25, jaggedScale));
                 pos.setXYZ(i, v.x, v.y, v.z);
+
+                // Multi-scale randomized texture UV mapping variety
+                if (uvs) {
+                    const texScale = 1.0 + Math.abs(Math.sin(v.x * 8.0) * 2.5);
+                    uvs.setXY(i, uvs.getX(i) * texScale, uvs.getY(i) * texScale);
+                }
             }
             geo.computeVertexNormals();
             return geo;
@@ -754,7 +769,7 @@
             spacePlanetSphere.add(atmosphere);
 
             // High-Resolution Textured Continuous Planetary Ring Disc (Dual Volumetric Layers for 3D depth)
-            const ringDiscGeo = new THREE.RingGeometry(10500, 23000, 128, 8);
+            const ringDiscGeo = new THREE.RingGeometry(7200, 45000, 128, 12);
             ringDiscGeo.rotateX(Math.PI / 2); // Aligns ring disc directly into planetary equatorial plane (parallel to cloud bands)
             
             const ringDiscMat = new THREE.MeshBasicMaterial({
@@ -782,9 +797,9 @@
             ringLower.position.y = -35;
             spacePlanet.add(ringLower);
 
-            // Gigantic Planetary Ring System - 3D particle asteroids (no gaps, darkish rock texture, irregular shapes)
+            // Gigantic Planetary Ring System - 3D particle asteroids (300% spread, darkish rock texture, 2x jaggedness)
             const particleCount = 20000;
-            const particleGeo = createIrregularAsteroidGeometry(1, 1);
+            const particleGeo = createIrregularAsteroidGeometry(1, 2);
             
             const fallbackAsteroidTex = createAsteroidRockTexture();
 
@@ -792,7 +807,7 @@
                 color: 0x5a5550, // Darkish silicate rock tone
                 roughness: 0.88,
                 metalness: 0.12,
-                bumpScale: 0.35,
+                bumpScale: 0.45,
                 map: fallbackAsteroidTex,
                 bumpMap: fallbackAsteroidTex,
                 flatShading: true // Faceted lighting on irregular rock faces!
@@ -813,9 +828,10 @@
             
             const dummy = new THREE.Object3D();
             
-            const innerRadius = 10800;
-            const outerRadius = 22800;
-            const ringThickness = 220;
+            // 300% Expanded Field Spread
+            const innerRadius = 7200;
+            const outerRadius = 45000;
+            const ringThickness = 1200;
             
             // Darkish silicate rock color palette (no bright white)
             const colors = [
@@ -828,7 +844,7 @@
             ];
 
             for (let i = 0; i < particleCount; i++) {
-                // Continuous distribution with no gaps across the entire ring plane
+                // Continuous 300% spread across entire expanded ring field
                 let r = innerRadius + Math.random() * (outerRadius - innerRadius);
                 const theta = Math.random() * Math.PI * 2;
                 
@@ -838,11 +854,12 @@
                 
                 dummy.position.set(x, y, z);
                 
-                const scale = Math.random() * 16.0 + 0.5;
+                // Wide size & scale variety (pebbles 0.3 up to megastructures 52.0)
+                const baseScale = Math.pow(Math.random(), 2.8) * 52.0 + 0.3;
                 dummy.scale.set(
-                    scale * (0.75 + Math.random() * 0.5),
-                    scale * (0.75 + Math.random() * 0.5),
-                    scale * (0.75 + Math.random() * 0.5)
+                    baseScale * (0.4 + Math.random() * 1.2),
+                    baseScale * (0.4 + Math.random() * 1.2),
+                    baseScale * (0.4 + Math.random() * 1.2)
                 );
                 
                 dummy.rotation.set(

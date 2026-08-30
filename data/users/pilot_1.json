@@ -78,7 +78,7 @@
       "y": 11
     },
     "hud-top-target-card": {
-      "x": 77,
+      "x": -2,
       "y": -75
     },
     "drag-the-scavenger-frontier": {
@@ -94,8 +94,8 @@
       "y": 136
     },
     "hud-camera-card": {
-      "x": -200,
-      "y": 743
+      "x": -198,
+      "y": 901
     }
   },
   "settings": {
