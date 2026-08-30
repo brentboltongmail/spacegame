@@ -152,10 +152,12 @@
                 const initialLeft = rect.left - currentX;
                 
                 const minAllowedY = headerBoundary - initialTop;
-                const maxAllowedY = window.innerHeight - initialTop - rect.height;
+                // More lenient bottom clamp on load: just ensure the top 30px (drag handle) remains visible on screen.
+                // This prevents windows from being artificially pushed up if their height slightly fluctuates during page load (e.g., before web fonts finish rendering).
+                const maxAllowedY = window.innerHeight - initialTop - 30;
                 const minAllowedX = -initialLeft;
-                const maxAllowedX = window.innerWidth - initialLeft - rect.width;
-                
+                const maxAllowedX = window.innerWidth - initialLeft - 30; // Keep at least 30px of the left side visible
+
                 let changed = false;
 
                 if (currentY < minAllowedY) { currentY = minAllowedY; changed = true; }
@@ -237,8 +239,12 @@
                 setupDragEvents(box, dragId);
             });
 
-            // Auto-clamp any window that is currently above top menu bar boundary
-            setTimeout(() => clampAllWindowPositions(), 60);
+            // Auto-clamp any window that is currently above top menu bar boundary, wait for fonts to avoid height pop-in
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(() => setTimeout(() => clampAllWindowPositions(), 100));
+            } else {
+                window.addEventListener('load', () => setTimeout(() => clampAllWindowPositions(), 100));
+            }
         }
 
         function setupDragEvents(element, dragId) {
