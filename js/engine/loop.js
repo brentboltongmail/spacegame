@@ -523,8 +523,8 @@
                 } else if (cameraMode === 3) {
                     // Mode 3: Cinematic Orbiting Showcase (Ship Invincible, 50% Slower Ultra-Majestic Panning)
                     cinematicAngle += 0.0015; // Reduced by 50% for ultra-filmic slow cinematic sweeps
-                    const radius = 12;
-                    const height = Math.sin(cinematicAngle * 0.7) * 3 + 2.5;
+                    const radius = 9;
+                    const height = Math.sin(cinematicAngle * 0.7) * 2 + 1.5;
                     const orbitOffset = new THREE.Vector3(
                         Math.cos(cinematicAngle) * radius,
                         height,
@@ -548,7 +548,7 @@
                 camera.up.lerp(localUp, rollLerp).normalize();
             }
 
-            camera.position.lerp(targetCamPos, cameraMode === 3 ? 0.01 : dynamicLerp);
+            camera.position.lerp(targetCamPos, cameraMode === 3 ? 0.08 : dynamicLerp);
             camera.lookAt(targetLookAtPos);
             camera.updateMatrixWorld(); // Force matrix update so 2D UI projections have zero frame lag
 
