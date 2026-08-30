@@ -98,25 +98,36 @@
                         }
                     });
 
-                    // Grab the texture from the hanger and apply it to the crest
-                    let hangerTex = null;
+                    // Use hanger ceiling texture as the base for both the crest and the hanger bay
+                    const texLoaderBase = new THREE.TextureLoader();
+                    const newBaseTex = texLoaderBase.load('data/textures/hangar_ceiling.jpg');
+                    newBaseTex.colorSpace = THREE.SRGBColorSpace;
+                    newBaseTex.wrapS = THREE.RepeatWrapping;
+                    newBaseTex.wrapT = THREE.RepeatWrapping;
+                    newBaseTex.repeat.set(10, 10);
+                    if (typeof maxAniso !== 'undefined') newBaseTex.anisotropy = maxAniso;
+
+                    // Apply to hanger base
                     hangerModel.traverse(function(child) {
-                        if (!hangerTex && child.isMesh && child.material) {
-                            const m = Array.isArray(child.material) ? child.material[0] : child.material;
-                            if (m.map) hangerTex = m.map;
+                        if (child.isMesh && child.material) {
+                            const mats = Array.isArray(child.material) ? child.material : [child.material];
+                            mats.forEach(mat => {
+                                mat.map = newBaseTex;
+                                mat.needsUpdate = true;
+                            });
                         }
                     });
-                    if (hangerTex) {
-                        model.traverse(function(child) {
-                            if (child.isMesh && child.material) {
-                                const mats = Array.isArray(child.material) ? child.material : [child.material];
-                                mats.forEach(mat => {
-                                    mat.map = hangerTex;
-                                    mat.needsUpdate = true;
-                                });
-                            }
-                        });
-                    }
+
+                    // Apply to crest station
+                    model.traverse(function(child) {
+                        if (child.isMesh && child.material) {
+                            const mats = Array.isArray(child.material) ? child.material : [child.material];
+                            mats.forEach(mat => {
+                                mat.map = newBaseTex;
+                                mat.needsUpdate = true;
+                            });
+                        }
+                    });
 
                     // Reduce Y height by 40% (0.25 * 0.6 = 0.15)
                     hangerModel.scale.set(0.22, 0.15, 0.39);
