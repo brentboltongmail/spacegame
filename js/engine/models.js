@@ -34,8 +34,8 @@
                             mat.depthTest = true;
                             mat.side = THREE.DoubleSide;
                             mat.metalness = 0.10; // 10% reflectivity
-                            mat.roughness = THREE.MathUtils.clamp(mat.roughness || 0.4, 0.25, 0.55);
-                            mat.envMapIntensity = 1.6;
+                            mat.roughness = 0.90; // 90% roughness (10% shiny)
+                            mat.envMapIntensity = 0.10; // 10% env map intensity
                             if (mat.map) {
                                 mat.map.anisotropy = maxAniso;
                                 mat.map.generateMipmaps = true;
@@ -80,8 +80,8 @@
                                 mat.depthTest = true;
                                 mat.side = THREE.DoubleSide;
                                 mat.metalness = 0.10; // 10% reflectivity
-                                mat.roughness = THREE.MathUtils.clamp(mat.roughness || 0.4, 0.25, 0.55);
-                                mat.envMapIntensity = 1.6;
+                                mat.roughness = 0.90; // 90% roughness (10% shiny)
+                                mat.envMapIntensity = 0.10; // 10% env map intensity
                                 if (mat.map) {
                                     mat.map.anisotropy = maxAniso;
                                     mat.map.generateMipmaps = true;
