@@ -133,7 +133,7 @@
                     const shieldMat = new THREE.MeshBasicMaterial({
                         color: 0x0044ff, // Deep Cobalt Blue
                         transparent: true,
-                        opacity: 0.05, // Subtle dark blue force field keeping atmosphere inside!
+                        opacity: 0.02, // Subtle dark blue force field keeping atmosphere inside!
                         side: THREE.DoubleSide,
                         depthWrite: false,
                         blending: THREE.AdditiveBlending
