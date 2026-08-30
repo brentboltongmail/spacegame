@@ -238,6 +238,7 @@
             const maxPixelRatio = (currentProfile?.settings?.platform === "mac") ? 1 : 2;
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxPixelRatio));
             renderer.shadowMap.enabled = true;
+            renderer.localClippingEnabled = true;
             container.appendChild(renderer.domElement);
 
             // Lighting (Brightened for Crisp 3D Ship Detail Visibility)

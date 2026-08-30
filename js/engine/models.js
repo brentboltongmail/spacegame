@@ -133,8 +133,8 @@
 
                     // Reduce Y height by 40% (0.25 * 0.6 = 0.15)
                     hangerModel.scale.set(0.035, 0.025, 0.10);
-                    // Move it closer to center (X=0.38) and raise it up to touch bottom of ring (Y=0)
-                    hangerModel.position.set(0.30, 0.0, 0);
+                    // Move it closer to center (X=0.20) and raise it up to touch bottom of ring (Y=0)
+                    hangerModel.position.set(0.20, 0.0, 0);
                     // Rotate the hanger so its opening faces outward from the center
                     hangerModel.rotation.y = Math.PI / 2;
 
@@ -339,6 +339,59 @@
                         });
                     });
                     model.add(hangerModel);
+                    
+                    // --- HEXAGONAL CLIPPING PLANES FOR STATION ---
+                    // Carve out a perfect convex hexagonal hole in the Crest Station geometry matching the hangar
+                    const clipPlanesLocal = [];
+                    const eps = 0.02; // Small buffer to ensure we completely cut out walls without z-fighting
+                    
+                    // 1. Front Plane (Z+)
+                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, 0, 1), -(0.94 + eps)));
+                    // 2. Back Plane (Z-)
+                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, 0, -1), -(-0.84 - eps)));
+                    // 3. Top Plane (Y+)
+                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, 1, 0), -(0.39 + eps)));
+                    // 4. Bottom Plane (Y-)
+                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, -1, 0), -(-0.39 - eps)));
+                    
+                    // 5. Top-Right: Normal (0.39, 0.292), Point (1.218, 0)
+                    const nTR = new THREE.Vector3(0.39, 0.292, 0).normalize();
+                    const dTR = nTR.dot(new THREE.Vector3(1.218 + eps, eps, 0));
+                    clipPlanesLocal.push(new THREE.Plane(nTR, -dTR));
+                    
+                    // 6. Bottom-Right: Normal (0.39, -0.292), Point (1.218, 0)
+                    const nBR = new THREE.Vector3(0.39, -0.292, 0).normalize();
+                    const dBR = nBR.dot(new THREE.Vector3(1.218 + eps, -eps, 0));
+                    clipPlanesLocal.push(new THREE.Plane(nBR, -dBR));
+                    
+                    // 7. Top-Left: Normal (-0.39, 0.292), Point (-1.218, 0)
+                    const nTL = new THREE.Vector3(-0.39, 0.292, 0).normalize();
+                    const dTL = nTL.dot(new THREE.Vector3(-1.218 - eps, eps, 0));
+                    clipPlanesLocal.push(new THREE.Plane(nTL, -dTL));
+                    
+                    // 8. Bottom-Left: Normal (-0.39, -0.292), Point (-1.218, 0)
+                    const nBL = new THREE.Vector3(-0.39, -0.292, 0).normalize();
+                    const dBL = nBL.dot(new THREE.Vector3(-1.218 - eps, -eps, 0));
+                    clipPlanesLocal.push(new THREE.Plane(nBL, -dBL));
+                    
+                    // Convert Hangar-Local planes to World Space
+                    hangerModel.updateMatrixWorld(true);
+                    const stationClipPlanes = clipPlanesLocal.map(p => p.clone().applyMatrix4(hangerModel.matrixWorld));
+                    
+                    // Apply clipping planes to the station materials
+                    model.traverse(function(child) {
+                        if (child.isMesh && child.material) {
+                            const mats = Array.isArray(child.material) ? child.material : [child.material];
+                            mats.forEach(mat => {
+                                // Assign the 8 clipping planes
+                                mat.clippingPlanes = stationClipPlanes;
+                                // Only discard a pixel if it's clipped by ALL 8 planes (meaning it's INSIDE the hexagon)
+                                mat.clipIntersection = true;
+                                mat.needsUpdate = true;
+                            });
+                        }
+                    });
+
                     console.log("[THE CREST HANGER] GLB Model & Atmospheric Force Field Loaded!");
                     
                     // Add 3 parked Void Interceptors inside the hanger bay!
