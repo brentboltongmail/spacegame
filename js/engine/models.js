@@ -146,7 +146,7 @@
                     const entranceZ = 0.94; // Snapped tightly inside the FRONT main entrance opening face
 
                     // 1. Dark Blue Force Field Shield Plane (exact 1:1 fit over opening)
-                    const shieldGeo = new THREE.PlaneGeometry(rectW, rectH);
+                    const shieldGeo = new THREE.PlaneGeometry(rectW, rectH, 4, 4);
                     const shieldMat = new THREE.MeshBasicMaterial({
                         color: 0x0044ff, // Deep Cobalt Blue
                         transparent: true,
@@ -172,22 +172,22 @@
                     });
 
                     // Top Edge Bar
-                    const topBar = new THREE.Mesh(new THREE.PlaneGeometry(rectW + edgeThickness * 2, edgeThickness), borderMat);
+                    const topBar = new THREE.Mesh(new THREE.PlaneGeometry(rectW + edgeThickness * 2, edgeThickness, 4, 4), borderMat);
                     topBar.position.set(0, centerY + (rectH + edgeThickness) * 0.5, entranceZ);
                     borderGroup.add(topBar);
 
                     // Bottom Edge Bar
-                    const bottomBar = new THREE.Mesh(new THREE.PlaneGeometry(rectW + edgeThickness * 2, edgeThickness), borderMat);
+                    const bottomBar = new THREE.Mesh(new THREE.PlaneGeometry(rectW + edgeThickness * 2, edgeThickness, 4, 4), borderMat);
                     bottomBar.position.set(0, centerY - (rectH + edgeThickness) * 0.5, entranceZ);
                     borderGroup.add(bottomBar);
 
                     // Left Edge Bar
-                    const leftBar = new THREE.Mesh(new THREE.PlaneGeometry(edgeThickness, rectH), borderMat);
+                    const leftBar = new THREE.Mesh(new THREE.PlaneGeometry(edgeThickness, rectH, 4, 4), borderMat);
                     leftBar.position.set(-(rectW + edgeThickness) * 0.5, centerY, entranceZ);
                     borderGroup.add(leftBar);
 
                     // Right Edge Bar
-                    const rightBar = new THREE.Mesh(new THREE.PlaneGeometry(edgeThickness, rectH), borderMat);
+                    const rightBar = new THREE.Mesh(new THREE.PlaneGeometry(edgeThickness, rectH, 4, 4), borderMat);
                     rightBar.position.set((rectW + edgeThickness) * 0.5, centerY, entranceZ);
                     borderGroup.add(rightBar);
 
@@ -232,7 +232,7 @@
                     texLoader.load('data/textures/hangar_doors.jpg', function(doorTex) {
                         setupTiledTex(doorTex, 2, 1);
                         const doorMat = new THREE.MeshStandardMaterial({ map: doorTex, color: 0x1a1a1a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
-                        const doorGeo = new THREE.PlaneGeometry(1.78, 0.80); 
+                        const doorGeo = new THREE.PlaneGeometry(1.78, 0.80, 4, 4); 
                         const doorMesh = new THREE.Mesh(doorGeo, doorMat);
                         doorMesh.position.set(0, 0, -0.84); 
                         doorMesh.layers.set(1); // Isolate from global sunLight and station lights
@@ -244,13 +244,13 @@
                         setupTiledTex(wallTex, 4, 2);
                         const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, color: 0x1a1a1a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
                         
-                        const leftWallMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.88, 0.80), wallMat);
+                        const leftWallMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.88, 0.80, 4, 4), wallMat);
                         leftWallMesh.position.set(-0.87, 0, 0); 
                         leftWallMesh.rotation.y = Math.PI / 2;
                         leftWallMesh.layers.set(1);
                         hangerModel.add(leftWallMesh);
 
-                        const rightWallMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.88, 0.80), wallMat);
+                        const rightWallMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.88, 0.80, 4, 4), wallMat);
                         rightWallMesh.position.set(0.87, 0, 0); 
                         rightWallMesh.rotation.y = -Math.PI / 2;
                         rightWallMesh.layers.set(1);
@@ -261,7 +261,7 @@
                     texLoader.load('data/textures/hangar_tools.jpg', function(toolsTex) {
                         toolsTex.colorSpace = THREE.SRGBColorSpace;
                         const toolsMat = new THREE.MeshStandardMaterial({ map: toolsTex, color: 0x2a2a2a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
-                        const toolsGeo = new THREE.PlaneGeometry(0.3, 0.15); // Much smaller
+                        const toolsGeo = new THREE.PlaneGeometry(0.3, 0.15, 4, 4); // Much smaller
                         const toolsMesh = new THREE.Mesh(toolsGeo, toolsMat);
                         toolsMesh.position.set(-0.86, -0.39 + 0.075, -0.5); // Resting on floor, pushed slightly in front of left wall
                         toolsMesh.rotation.y = Math.PI / 2;
@@ -273,7 +273,7 @@
                     texLoader.load('data/textures/hangar_barrels.jpg', function(barrelsTex) {
                         barrelsTex.colorSpace = THREE.SRGBColorSpace;
                         const barrelsMat = new THREE.MeshStandardMaterial({ map: barrelsTex, color: 0x2a2a2a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
-                        const barrelsGeo = new THREE.PlaneGeometry(0.3, 0.15); // Much smaller
+                        const barrelsGeo = new THREE.PlaneGeometry(0.3, 0.15, 4, 4); // Much smaller
                         const barrelsMesh = new THREE.Mesh(barrelsGeo, barrelsMat);
                         barrelsMesh.position.set(0.86, -0.39 + 0.075, -0.5); // Resting on floor, pushed slightly in front of right wall
                         barrelsMesh.rotation.y = -Math.PI / 2;
@@ -285,7 +285,7 @@
                     texLoader.load('data/textures/hangar_floor.jpg', function(floorTex) {
                         setupTiledTex(floorTex, 3, 3);
                         const floorMat = new THREE.MeshStandardMaterial({ map: floorTex, color: 0x151515, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
-                        const floorGeo = new THREE.PlaneGeometry(1.78, 1.88); 
+                        const floorGeo = new THREE.PlaneGeometry(1.78, 1.88, 4, 4); 
                         const floorMesh = new THREE.Mesh(floorGeo, floorMat);
                         floorMesh.position.set(0, -0.39, 0); 
                         floorMesh.rotation.x = -Math.PI / 2;
@@ -297,7 +297,7 @@
                     texLoader.load('data/textures/hangar_ceiling.jpg', function(ceilingTex) {
                         setupTiledTex(ceilingTex, 3, 3);
                         const ceilingMat = new THREE.MeshStandardMaterial({ map: ceilingTex, color: 0x151515, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
-                        const ceilingGeo = new THREE.PlaneGeometry(1.78, 1.88); 
+                        const ceilingGeo = new THREE.PlaneGeometry(1.78, 1.88, 4, 4); 
                         const ceilingMesh = new THREE.Mesh(ceilingGeo, ceilingMat);
                         ceilingMesh.position.set(0, 0.39, 0); 
                         ceilingMesh.rotation.x = Math.PI / 2;
@@ -305,6 +305,49 @@
                         hangerModel.add(ceilingMesh);
                     });
 
+
+                    // Apply hexagon deformation to all programmatically added planes in the hanger
+                    const stretchAmount = 0.4;
+                    const mid_y = 0;
+                    const half_y = 0.465;
+                    
+                    hangerModel.updateMatrixWorld(true);
+                    const hangerInv = hangerModel.matrixWorld.clone().invert();
+                    
+                    hangerModel.children.forEach(child => {
+                        // Skip the main GLTF mesh, only deform our programmatically added items
+                        if (child.name === "GLTF" || child.type === "PointLight" || child.type === "AmbientLight") return;
+                        
+                        child.traverse(obj => {
+                            if (obj.isMesh && obj.geometry.type === 'PlaneGeometry') {
+                                // Important: make sure world matrices are perfectly updated
+                                obj.updateMatrixWorld(true);
+                                const objInv = obj.matrixWorld.clone().invert();
+                                
+                                const pos = obj.geometry.attributes.position;
+                                for (let j = 0; j < pos.count; j++) {
+                                    const v = new THREE.Vector3().fromBufferAttribute(pos, j);
+                                    
+                                    // 1. Local -> World -> Hanger-Local
+                                    v.applyMatrix4(obj.matrixWorld);
+                                    v.applyMatrix4(hangerInv);
+                                    
+                                    // 2. Deform X based on Y
+                                    let y_factor = 1.0 - Math.abs(v.y - mid_y) / half_y;
+                                    if (y_factor < 0) y_factor = 0;
+                                    v.x *= (1.0 + y_factor * stretchAmount);
+                                    
+                                    // 3. Hanger-Local -> World -> Local
+                                    v.applyMatrix4(hangerModel.matrixWorld);
+                                    v.applyMatrix4(objInv);
+                                    
+                                    pos.setXYZ(j, v.x, v.y, v.z);
+                                }
+                                obj.geometry.computeVertexNormals();
+                                pos.needsUpdate = true;
+                            }
+                        });
+                    });
                     model.add(hangerModel);
                     console.log("[THE CREST HANGER] GLB Model & Atmospheric Force Field Loaded!");
                     
