@@ -690,7 +690,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 icon: "🚀",
                 camMode: 1, // Rear Third-Person Close (Ship clearly visible)
                 speed: 0, // Void engines shut off!
-                text: "Elias... they wiped out the fleet. The kinetic rounds bounced right off their hulls. They're lining up their dreadnoughts on the rift right now.",
+                text: "Elias... we're under attack! They wiped out the fleet. The kinetic rounds bounced right off their hulls. They're lining up their dreadnoughts on the rift right now.",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_02_kaylen.mp3"
             },
             {
@@ -842,31 +842,29 @@ function createEpicPlayerDeathExplosion(pos) {
                 camera.updateMatrixWorld();
             }
 
-            // Keep comms overlay hidden during 7.0s silent establishing view
+            // Display comms overlay & HUD headers immediately on teleport
             const overlay = document.getElementById('cinematic-comms-overlay');
-            if (overlay) overlay.style.display = 'none';
+            if (overlay) overlay.style.display = 'block';
 
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
             if (sec) sec.innerText = "DOMINION SIEGE VECTOR — TITAN / THE CREST";
-            if (obj) obj.innerText = "OBSERVING TITAN SURVIVAL SECTOR";
+            if (obj) obj.innerText = "INTERCEPTED HYPERWAVE OVERRIDE — TITAN SECTOR";
 
             showToast("🎬 TITAN GATE CINEMATIC: Teleported to Titan Vista (Controls Locked)");
 
-            // Schedule 5 Dominion Capital Ships Emergence & Dialogue Transmission strictly 7.0 SECONDS LATER after establishing view
+            // Schedule the 5 Dominion Capital Ships to emerge strictly 7.0 SECONDS LATER while dialogue plays
             if (window.titanEmergenceTimer) clearTimeout(window.titanEmergenceTimer);
             window.titanEmergenceTimer = setTimeout(() => {
                 if (isTitanCinematicActive) {
-                    if (overlay) overlay.style.display = 'block';
-                    if (obj) obj.innerText = "INTERCEPTED HYPERWAVE OVERRIDE — TITAN SECTOR";
-
                     if (typeof triggerDominionFleetHyperspaceEmergence === 'function') {
                         triggerDominionFleetHyperspaceEmergence();
                     }
-                    // Play Line 1 ("Kaylen! Kaylen, do you read me?!") after 5 capital ships arrive
-                    playNextCinematicLine();
                 }
             }, 7000);
+
+            // Immediately start dialogue (Elias & Kaylen: "Elias... we're under attack!")
+            playNextCinematicLine();
         }
 
         function playNextCinematicLine() {
