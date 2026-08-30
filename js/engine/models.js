@@ -102,9 +102,9 @@
                     const texLoaderBase = new THREE.TextureLoader();
                     const newBaseTex = texLoaderBase.load('data/textures/hangar_ceiling.jpg');
                     newBaseTex.colorSpace = THREE.SRGBColorSpace;
+                    newBaseTex.flipY = false; // Required for GLTF UV maps
                     newBaseTex.wrapS = THREE.RepeatWrapping;
                     newBaseTex.wrapT = THREE.RepeatWrapping;
-                    newBaseTex.repeat.set(10, 10);
                     if (typeof maxAniso !== 'undefined') newBaseTex.anisotropy = maxAniso;
 
                     // Apply to hanger base
