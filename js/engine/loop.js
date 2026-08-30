@@ -523,8 +523,8 @@
                 } else if (cameraMode === 3) {
                     // Mode 3: Cinematic Orbiting Showcase (Ship Invincible, 50% Slower Ultra-Majestic Panning)
                     cinematicAngle += 0.0015; // Reduced by 50% for ultra-filmic slow cinematic sweeps
-                    const radius = 22;
-                    const height = Math.sin(cinematicAngle * 0.7) * 5 + 4;
+                    const radius = 12;
+                    const height = Math.sin(cinematicAngle * 0.7) * 3 + 2.5;
                     const orbitOffset = new THREE.Vector3(
                         Math.cos(cinematicAngle) * radius,
                         height,
