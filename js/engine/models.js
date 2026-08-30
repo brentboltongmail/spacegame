@@ -347,12 +347,12 @@
                     
                     // 1. Front Plane (Z+)
                     clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, 0, 1), -(0.94 + eps)));
-                    // 2. Back Plane (Z-)
-                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, 0, -1), -(-0.84 - eps)));
+                    // 2. Back Plane (Z-) - Correct negative sign, keeping it tight to the hangar depth
+                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, 0, -1), -(0.86 + eps)));
                     // 3. Top Plane (Y+)
                     clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, 1, 0), -(0.39 + eps)));
-                    // 4. Bottom Plane (Y-)
-                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, -1, 0), -(-0.39 - eps)));
+                    // 4. Bottom Plane (Y-) - Correct negative sign
+                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, -1, 0), -(0.39 + eps)));
                     
                     // 5. Top-Right: Normal (0.39, 0.292), Point (1.218, 0)
                     const nTR = new THREE.Vector3(0.39, 0.292, 0).normalize();
