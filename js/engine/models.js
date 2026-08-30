@@ -319,11 +319,17 @@
                             const sy = 1 / (targetScale * 0.15);
                             const sz = 1 / (targetScale * 0.39);
 
-                            const positions = [
-                                { x: -0.4, y: -0.37, z: 0.1 },
-                                { x: 0.0, y: -0.37, z: -0.3 },
-                                { x: 0.4, y: -0.37, z: 0.1 }
-                            ];
+                            const positions = [];
+                            // 8 fighters on the left wall
+                            for (let i = 0; i < 8; i++) {
+                                const zPos = -0.75 + (i / 7) * 1.5; // Spread from Z=-0.75 to Z=0.75
+                                positions.push({ x: -0.55, y: -0.38, z: zPos });
+                            }
+                            // 7 fighters on the right wall
+                            for (let i = 0; i < 7; i++) {
+                                const zPos = -0.7 + (i / 6) * 1.4; // Slightly tighter spread
+                                positions.push({ x: 0.55, y: -0.38, z: zPos });
+                            }
                             
                             positions.forEach(pos => {
                                 const shipGroup = new THREE.Group();
@@ -336,7 +342,31 @@
                                 
                                 hangerModel.add(shipGroup);
                             });
-                            console.log("[THE CREST HANGER] Spawned 3 parked Void Interceptors inside the bay.");
+                            
+                            // --- BLUE GLOW STRIPS (RUNWAY) ---
+                            const runwayMat = new THREE.MeshBasicMaterial({
+                                color: 0x00f0ff,
+                                transparent: true,
+                                opacity: 0.7,
+                                blending: THREE.AdditiveBlending,
+                                side: THREE.DoubleSide
+                            });
+                            
+                            // We can use a PlaneGeometry for the strips
+                            const stripGeo = new THREE.PlaneGeometry(0.02, 1.7); // width, length
+                            stripGeo.rotateX(-Math.PI / 2); // Lay flat on the floor
+                            
+                            // Left runway strip
+                            const leftStrip = new THREE.Mesh(stripGeo, runwayMat);
+                            leftStrip.position.set(-0.25, -0.385, 0);
+                            hangerModel.add(leftStrip);
+                            
+                            // Right runway strip
+                            const rightStrip = new THREE.Mesh(stripGeo, runwayMat);
+                            rightStrip.position.set(0.25, -0.385, 0);
+                            hangerModel.add(rightStrip);
+
+                            console.log("[THE CREST HANGER] Spawned 15 parked Void Interceptors and Runway Lights.");
                         }
                     }, 500);
 
