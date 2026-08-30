@@ -1888,7 +1888,7 @@
             // --- Blast Door Animation ---
             if (hangerModel.userData.leftFrontDoor && hangerModel.userData.rightFrontDoor) {
                 let targetDoorT = 0; // 0 = closed, 1 = open
-                if (landingPhase >= 1 && landingPhase < 6) {
+                if (landingPhase >= 2 && landingPhase < 6) {
                     targetDoorT = 1;
                 }
                 
@@ -1955,7 +1955,7 @@
                 const toNav = landingApproachWaypoint.clone().sub(playerShip.position);
                 if (toNav.length() > 50) {
                     const dir = toNav.normalize();
-                    playerShip.position.add(dir.multiplyScalar(250 * 0.0064 * dtFactor));
+                    playerShip.position.add(dir.multiplyScalar(125 * 0.0064 * dtFactor));
                     const targetRot = new THREE.Quaternion().setFromRotationMatrix(
                         new THREE.Matrix4().lookAt(playerShip.position, landingApproachWaypoint, new THREE.Vector3(0, 1, 0))
                     );
@@ -1967,7 +1967,7 @@
                 const toOuter = outerWP.clone().sub(playerShip.position);
                 if (toOuter.length() > 50) {
                     const dir = toOuter.normalize();
-                    playerShip.position.add(dir.multiplyScalar(250 * 0.0064 * dtFactor));
+                    playerShip.position.add(dir.multiplyScalar(125 * 0.0064 * dtFactor));
                     const targetRot = new THREE.Quaternion().setFromRotationMatrix(
                         new THREE.Matrix4().lookAt(playerShip.position, outerWP, new THREE.Vector3(0, 1, 0))
                     );
