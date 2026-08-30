@@ -107,12 +107,12 @@
                     const centerY = -0.04; // Vertical center aligned with hanger floor/ceiling
                     const entranceZ = 1.85; // Opening rim face
 
-                    // 1. 1% Opacity Blue Force Field Shield Plane (exact 1:1 fit over opening)
+                    // 1. Dark Blue Force Field Shield Plane (exact 1:1 fit over opening)
                     const shieldGeo = new THREE.PlaneGeometry(rectW, rectH);
                     const shieldMat = new THREE.MeshBasicMaterial({
-                        color: 0x00f0ff,
+                        color: 0x0044ff, // Deep Cobalt Blue
                         transparent: true,
-                        opacity: 0.01, // 1% opacity blue force field keeping atmosphere inside!
+                        opacity: 0.05, // Subtle dark blue force field keeping atmosphere inside!
                         side: THREE.DoubleSide,
                         depthWrite: false,
                         blending: THREE.AdditiveBlending
@@ -121,12 +121,12 @@
                     forceFieldMesh.position.set(0, centerY, entranceZ);
                     hangerModel.add(forceFieldMesh);
 
-                    // 2. Glowing Blue Edge Frame (4 thin border bars fitting the entrance rim exactly)
+                    // 2. Glowing Dark Blue Edge Frame (4 thin border bars fitting the entrance rim exactly)
                     const borderGroup = new THREE.Group();
                     const edgeThickness = 0.022; // Thin subtle glowing blue border edge
 
                     const borderMat = new THREE.MeshBasicMaterial({
-                        color: 0x00f0ff,
+                        color: 0x0055ff, // Deep Electric Cobalt Blue
                         transparent: true,
                         opacity: 0.95,
                         side: THREE.DoubleSide,
@@ -155,8 +155,8 @@
 
                     hangerModel.add(borderGroup);
 
-                    // 3. Subtle Blue Ambient Force Field Light
-                    const forceFieldLight = new THREE.PointLight(0x00f0ff, 2.5, 50);
+                    // 3. Deep Blue Ambient Force Field Light
+                    const forceFieldLight = new THREE.PointLight(0x0044ff, 3.5, 50);
                     forceFieldLight.position.set(0, centerY, entranceZ);
                     hangerModel.add(forceFieldLight);
 
