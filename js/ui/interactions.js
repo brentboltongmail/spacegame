@@ -555,12 +555,12 @@
                 camera.updateMatrixWorld();
             }
             
-            // Create 3 holographic rings on the opposite side of Saturn
-            // Saturn radius is 9000
+            // Create 3 holographic rings along Titan Orbital Patrol Route
+            // Player launch point is (79900, -850, -46600) near The Crest
             const ringPos = [
-                {x: 60000, y: 214, z: -81280}, // Left of Saturn
-                {x: 72060, y: 214, z: -95000}, // Behind Saturn
-                {x: 84000, y: 214, z: -81280}  // Right of Saturn
+                {x: 77500, y: -650, z: -50000}, // Gate 1: 4km ahead of launch point
+                {x: 73500, y: -300, z: -55000}, // Gate 2: Mid-patrol waypoint
+                {x: 69000, y: 150, z: -61000}   // Gate 3: Outer perimeter waypoint
             ];
             
             const ringGeo = new THREE.TorusGeometry(800, 20, 16, 100);
@@ -570,10 +570,9 @@
                 const ringMat = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
                 const ring = new THREE.Mesh(ringGeo, ringMat);
                 ring.position.set(pos.x, pos.y, pos.z);
-                // Aim them so they make a path. 
-                if (i === 0) ring.lookAt(72060, 214, -81280); 
-                else if (i === 1) ring.rotation.y = 0; // facing front/back
-                else if (i === 2) ring.lookAt(72060, 214, -81280); 
+                // Orient rings sequentially along the patrol course
+                const nextTargetPos = (i < 2) ? ringPos[i+1] : {x: 65000, y: 300, z: -68000};
+                ring.lookAt(nextTargetPos.x, nextTargetPos.y, nextTargetPos.z); 
                 
                 ring.userData = { cleared: false };
                 scene.add(ring);

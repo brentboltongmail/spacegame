@@ -711,7 +711,9 @@
                     const toPlayer = playerShip.position.clone().sub(e.position);
                     const dist = toPlayer.length();
                     
-                    if (dist > 0 && dist < 120000) {
+                    // Only engage in pursuit runs if within 14,000 units (14 km) tactical aggro radius or damaged
+                    const isAggroed = (dist < 14000) || (e.userData.hp < (e.userData.maxHp || 100));
+                    if (dist > 0 && isAggroed) {
                         e.userData.attackState = e.userData.attackState || 'intercept';
                         e.userData.breakawayTimer = e.userData.breakawayTimer || 0;
                         e.userData.burstCount = e.userData.burstCount || 0;
