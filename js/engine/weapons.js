@@ -842,25 +842,28 @@ function createEpicPlayerDeathExplosion(pos) {
                 camera.updateMatrixWorld();
             }
 
-            // Display comms overlay & HUD headers
+            // Keep comms overlay hidden during 7.0s silent establishing view
             const overlay = document.getElementById('cinematic-comms-overlay');
-            if (overlay) overlay.style.display = 'block';
+            if (overlay) overlay.style.display = 'none';
 
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
             if (sec) sec.innerText = "DOMINION SIEGE VECTOR — TITAN / THE CREST";
-            if (obj) obj.innerText = "INTERCEPTED HYPERWAVE OVERRIDE — TITAN SECTOR";
+            if (obj) obj.innerText = "OBSERVING TITAN SURVIVAL SECTOR";
 
             showToast("🎬 TITAN GATE CINEMATIC: Teleported to Titan Vista (Controls Locked)");
 
-            // Schedule Dominion Fleet Slipspace Emergence & Dialogue Transmission strictly 7.0 SECONDS LATER after establishing panorama
+            // Schedule 5 Dominion Capital Ships Emergence & Dialogue Transmission strictly 7.0 SECONDS LATER after establishing view
             if (window.titanEmergenceTimer) clearTimeout(window.titanEmergenceTimer);
             window.titanEmergenceTimer = setTimeout(() => {
                 if (isTitanCinematicActive) {
+                    if (overlay) overlay.style.display = 'block';
+                    if (obj) obj.innerText = "INTERCEPTED HYPERWAVE OVERRIDE — TITAN SECTOR";
+
                     if (typeof triggerDominionFleetHyperspaceEmergence === 'function') {
                         triggerDominionFleetHyperspaceEmergence();
                     }
-                    // Play Line 1 ("Kaylen! Kaylen, do you read me?!") after establishing panorama
+                    // Play Line 1 ("Kaylen! Kaylen, do you read me?!") after 5 capital ships arrive
                     playNextCinematicLine();
                 }
             }, 7000);
