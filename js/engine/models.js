@@ -435,7 +435,7 @@
                             
                             positions.forEach(pos => {
                                 const shipGroup = new THREE.Group();
-                                shipGroup.scale.set(sx, sy, sz);
+                                shipGroup.scale.set(sx * 2, sy * 2, sz * 2);
                                 shipGroup.position.set(pos.x, pos.y, pos.z);
                                 shipGroup.rotation.set(0, 0, 0); // Facing out towards +Z
 
