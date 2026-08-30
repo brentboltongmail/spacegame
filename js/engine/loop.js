@@ -707,38 +707,53 @@
                     const toPlayer = playerShip.position.clone().sub(e.position);
                     const dist = toPlayer.length();
                     
-                    if (dist > 0 && dist < 12000) { // Only aggro if within 12km (so Saturn drones don't fly to Titan)
+                    // Continuous attack runs AI at the player
+                    if (dist > 0 && dist < 120000) { // Aggro across active engagement sector
                         const dir = toPlayer.clone().normalize();
-                        // Turn towards player smoothly
-                        const targetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), dir);
-                        e.quaternion.slerp(targetQuat, 0.05);
+                        
+                        e.userData.attackState = e.userData.attackState || 'run';
+                        e.userData.breakawayTimer = e.userData.breakawayTimer || 0;
 
-                        // Move based on distance (75% slower normal flight speed)
-                        if (dist > 400) {
-                            e.translateZ(-1.5);
-                        } else if (dist < 150) {
-                            e.translateZ(0.75); // Back away to avoid ramming or clipping
+                        if (e.userData.attackState === 'breakaway') {
+                            e.userData.breakawayTimer -= timeDelta;
+                            if (e.userData.breakawayTimer <= 0) {
+                                e.userData.attackState = 'run';
+                            } else {
+                                // Perform banking arc during breakaway loop
+                                const breakDir = new THREE.Vector3(0.8, 0.2, 0.4).applyQuaternion(e.quaternion).normalize();
+                                const targetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), breakDir);
+                                e.quaternion.slerp(targetQuat, 0.08);
+                                e.translateZ(-6.0); // Fast speed during breakaway loop
+                            }
                         } else {
-                            // Strafe around player
-                            e.translateX(Math.sin(Date.now() * 0.001 + e.id) * 0.75);
-                            e.translateY(Math.cos(Date.now() * 0.001 + e.id) * 0.375);
-                        }
+                            // ATTACK RUN PHASE: Turn smoothly towards player and charge hard
+                            const targetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), dir);
+                            e.quaternion.slerp(targetQuat, 0.07);
 
-                        // Shoot at player
-                        e.userData.lastFireTime = e.userData.lastFireTime || 0;
-                        if (dist < 3000 && Date.now() - e.userData.lastFireTime > 800 + Math.random() * 1000) {
-                            e.userData.lastFireTime = Date.now();
-                            const eLaser = getPooledEnemyLaserBolt();
-                            if (eLaser) {
-                                eLaser.visible = true;
-                                eLaser.quaternion.copy(e.quaternion);
-                                // Random left or right wing offset
-                                const side = Math.random() > 0.5 ? -2.4 : 2.4;
-                                const offset = new THREE.Vector3(side, -0.1, -2.4).applyQuaternion(e.quaternion);
-                                eLaser.position.copy(e.position).add(offset);
-                                eLaser.userData.prevPos.copy(eLaser.position);
-                                eLaser.userData.velocity.copy(dir).multiplyScalar(12); // Speed 12
-                                if (!enemyLaserProjectiles.includes(eLaser)) enemyLaserProjectiles.push(eLaser);
+                            // High speed attack run vector
+                            e.translateZ(-7.5);
+
+                            // If too close (under 220 units), initiate breakaway loop to re-engage
+                            if (dist < 220) {
+                                e.userData.attackState = 'breakaway';
+                                e.userData.breakawayTimer = 1.8 + Math.random() * 1.2;
+                            }
+
+                            // Shoot blasters at player during attack run
+                            e.userData.lastFireTime = e.userData.lastFireTime || 0;
+                            if (dist < 5000 && Date.now() - e.userData.lastFireTime > 750 + Math.random() * 850) {
+                                e.userData.lastFireTime = Date.now();
+                                const eLaser = getPooledEnemyLaserBolt();
+                                if (eLaser) {
+                                    eLaser.visible = true;
+                                    eLaser.quaternion.copy(e.quaternion);
+                                    const side = Math.random() > 0.5 ? -2.4 : 2.4;
+                                    const offset = new THREE.Vector3(side, -0.1, -2.4).applyQuaternion(e.quaternion);
+                                    eLaser.position.copy(e.position).add(offset);
+                                    eLaser.userData.prevPos.copy(eLaser.position);
+                                    eLaser.userData.velocity.copy(dir).multiplyScalar(15);
+                                    if (!enemyLaserProjectiles.includes(eLaser)) enemyLaserProjectiles.push(eLaser);
+                                }
                             }
                         }
                     }
