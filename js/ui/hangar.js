@@ -40,21 +40,11 @@
             padRing.position.y = -2.18;
             upgradeHangarScene.add(padRing);
 
-            // Build Hangar Ship Group & Clone Void Interceptor
             upgradeHangarShip = new THREE.Group();
-            upgradeHangarBackgroundShips = new THREE.Group(); // New group for background parked ships
             
-            if (playerShip) {
-                const clonedShip = playerShip.clone(true);
-                clonedShip.visible = true;
-                clonedShip.position.set(0, 0, 0);
-                clonedShip.rotation.set(0, 0, 0);
-                upgradeHangarShip.add(clonedShip);
-            }
-            upgradeHangarScene.add(upgradeHangarShip);
-            upgradeHangarScene.add(upgradeHangarBackgroundShips);
+            populateHangarShips();
 
-            refreshHangarBackgroundShips();
+            upgradeHangarScene.add(upgradeHangarShip);
 
             // Holographic Form-Fitting Deflector Shield Mesh
             hangarShieldMesh = createHexagonalShieldMesh();
@@ -80,37 +70,40 @@
             window.addEventListener('mouseup', () => { isHangarDragging = false; });
         }
 
-        function refreshHangarBackgroundShips() {
-            if (!upgradeHangarBackgroundShips) return;
-            upgradeHangarBackgroundShips.clear();
+        function populateHangarShips() {
+            if (!upgradeHangarShip || !playerShip) return;
+            upgradeHangarShip.clear();
 
-            if (typeof voidInterceptorTemplate !== 'undefined' && voidInterceptorTemplate) {
-                // Add 3 extra pure Void Interceptors parked in the hangar bay
-                // We wrap the template in a Group so we don't overwrite its centering position/rotation/scale!
-                const ship1Group = new THREE.Group();
-                const ship1Mesh = voidInterceptorTemplate.clone(true);
-                ship1Group.add(ship1Mesh);
-                ship1Group.position.set(-3.8, 0, -5);
-                ship1Group.rotation.set(0, Math.PI / 4, 0);
-                upgradeHangarBackgroundShips.add(ship1Group);
-                
-                const ship2Group = new THREE.Group();
-                const ship2Mesh = voidInterceptorTemplate.clone(true);
-                ship2Group.add(ship2Mesh);
-                ship2Group.position.set(3.8, 0, -5);
-                ship2Group.rotation.set(0, -Math.PI / 4, 0);
-                upgradeHangarBackgroundShips.add(ship2Group);
-                
-                const ship3Group = new THREE.Group();
-                const ship3Mesh = voidInterceptorTemplate.clone(true);
-                ship3Group.add(ship3Mesh);
-                ship3Group.position.set(0, 0, -9);
-                ship3Group.rotation.set(0, Math.PI, 0); 
-                upgradeHangarBackgroundShips.add(ship3Group);
+            // Main central ship
+            const clonedShip = playerShip.clone(true);
+            clonedShip.visible = true;
+            clonedShip.position.set(0, 0, 0);
+            clonedShip.quaternion.set(0, 0, 0, 1);
+            upgradeHangarShip.add(clonedShip);
 
-                // Disable frustum culling for all background ships just in case bounds are incorrect
-                upgradeHangarBackgroundShips.traverse(c => { c.frustumCulled = false; });
-            }
+            // Extra background parked ships
+            const extra1 = playerShip.clone(true);
+            extra1.visible = true;
+            extra1.quaternion.set(0, 0, 0, 1);
+            extra1.position.set(-3.5, 0, -4);
+            extra1.rotation.set(0, Math.PI / 4, 0);
+            upgradeHangarShip.add(extra1);
+
+            const extra2 = playerShip.clone(true);
+            extra2.visible = true;
+            extra2.quaternion.set(0, 0, 0, 1);
+            extra2.position.set(3.5, 0, -4);
+            extra2.rotation.set(0, -Math.PI / 4, 0);
+            upgradeHangarShip.add(extra2);
+
+            const extra3 = playerShip.clone(true);
+            extra3.visible = true;
+            extra3.quaternion.set(0, 0, 0, 1);
+            extra3.position.set(0, 0, -8);
+            extra3.rotation.set(0, Math.PI, 0);
+            upgradeHangarShip.add(extra3);
+
+            if (hangarShieldMesh) upgradeHangarShip.add(hangarShieldMesh);
         }
 
         function renderUpgradeHangar3D() {
@@ -140,18 +133,7 @@
                 if (!upgradeHangarRenderer) {
                     initUpgradeHangar3D();
                 } else if (playerShip && upgradeHangarShip) {
-                    upgradeHangarShip.clear();
-                    
-                    const clonedShip = playerShip.clone(true);
-                    clonedShip.visible = true;
-                    clonedShip.position.set(0, 0, 0);
-                    clonedShip.rotation.set(0, 0, 0);
-                    clonedShip.quaternion.set(0, 0, 0, 1);
-                    upgradeHangarShip.add(clonedShip);
-                    
-                    refreshHangarBackgroundShips();
-                    
-                    if (hangarShieldMesh) upgradeHangarShip.add(hangarShieldMesh);
+                    populateHangarShips();
                 }
                 requestAnimationFrame(() => {
                     resizeHangarViewport();
