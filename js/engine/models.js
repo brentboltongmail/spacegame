@@ -1818,6 +1818,13 @@
             }
         }
 
+        const _spinalShipCenterWorld = new THREE.Vector3();
+        const _spinalTargetWorld = new THREE.Vector3();
+        const _spinalBeamVec = new THREE.Vector3();
+        const _spinalBeamDir = new THREE.Vector3();
+        const _spinalMidPoint = new THREE.Vector3();
+        const _spinalUnitY = new THREE.Vector3(0, 1, 0);
+
         function updateTitanExcavationAndTractorBeams(timeSec, timeDelta) {
             if (!titanExcavationSite || !ancientGoldenGate) return;
 
@@ -2161,6 +2168,7 @@
 
                 if (goldenGateSpiralPoints && goldenGateSpiralPoints.geometry) {
                     const posAttr = goldenGateSpiralPoints.geometry.attributes.position;
+                    const arr = posAttr.array;
                     const pData = goldenGateSpiralPoints.userData.pData;
                     if (pData) {
                         for (let i = 0; i < pData.length; i++) {
@@ -2172,7 +2180,10 @@
                             }
                             const rNorm = (d.r - d.rMin) / (d.rMax - d.rMin);
                             const depth = -Math.sin((1.0 - rNorm) * Math.PI * 0.5) * 75;
-                            posAttr.setXYZ(i, Math.cos(d.theta) * d.r, depth, Math.sin(d.theta) * d.r);
+                            const idx = i * 3;
+                            arr[idx] = Math.cos(d.theta) * d.r;
+                            arr[idx + 1] = depth;
+                            arr[idx + 2] = Math.sin(d.theta) * d.r;
                         }
                         posAttr.needsUpdate = true;
                     }
@@ -2180,6 +2191,7 @@
 
                 if (goldenGateTunnelPoints && goldenGateTunnelPoints.geometry) {
                     const posAttr = goldenGateTunnelPoints.geometry.attributes.position;
+                    const arr = posAttr.array;
                     const pData = goldenGateTunnelPoints.userData.pData;
                     if (pData) {
                         for (let i = 0; i < pData.length; i++) {
@@ -2189,7 +2201,10 @@
                             if (d.y < -205) d.y = 35;
                             const tNorm = (35 - d.y) / 240.0;
                             const rThroat = 6 + (1.0 - tNorm * 0.80) * 90;
-                            posAttr.setXYZ(i, Math.cos(d.theta) * rThroat, d.y, Math.sin(d.theta) * rThroat);
+                            const idx = i * 3;
+                            arr[idx] = Math.cos(d.theta) * rThroat;
+                            arr[idx + 1] = d.y;
+                            arr[idx + 2] = Math.sin(d.theta) * rThroat;
                         }
                         posAttr.needsUpdate = true;
                     }
@@ -2197,12 +2212,16 @@
 
                 if (goldenGateBorderPoints && goldenGateBorderPoints.geometry) {
                     const posAttr = goldenGateBorderPoints.geometry.attributes.position;
+                    const arr = posAttr.array;
                     const pData = goldenGateBorderPoints.userData.pData;
                     if (pData) {
                         for (let i = 0; i < pData.length; i++) {
                             const d = pData[i];
                             d.theta += d.rotSpeed * timeDelta;
-                            posAttr.setXYZ(i, Math.cos(d.theta) * d.r, (Math.random() - 0.5) * 26, Math.sin(d.theta) * d.r);
+                            const idx = i * 3;
+                            arr[idx] = Math.cos(d.theta) * d.r;
+                            arr[idx + 1] = (Math.random() - 0.5) * 26;
+                            arr[idx + 2] = Math.sin(d.theta) * d.r;
                         }
                         posAttr.needsUpdate = true;
                     }
@@ -2223,7 +2242,7 @@
                 }
             }
 
-            // 6. Animate Dreadnought Spinal Beams (Gold Bombardment Beams -> Purple Tractor Beams -> Off)
+            // 6. Animate Dreadnought Spinal Beams (Zero-Allocation Optimized)
             if (capitalSpinalBeams && capitalSpinalBeams.length > 0) {
                 capitalSpinalBeams.forEach(bData => {
                     const ship = bData.ship;
@@ -2243,37 +2262,36 @@
                     bData.group.visible = true;
                     bData.flare.visible = true;
 
-                    // Origin: Exact center of each capital ship
-                    const shipCenterWorld = ship.getWorldPosition(new THREE.Vector3());
-                    bData.flare.position.copy(shipCenterWorld);
+                    // Origin: Exact center of each capital ship (zero-allocation)
+                    ship.getWorldPosition(_spinalShipCenterWorld);
+                    bData.flare.position.copy(_spinalShipCenterWorld);
                     bData.flare.scale.setScalar(1.0 + Math.sin(timeSec * 8.0 + bData.shipIndex) * 0.2);
 
                     // Target point:
                     // Both Bombardment & Tractor Beams connect directly from ship center to the ring on Titan (pylons / crystals)
-                    let targetWorld = new THREE.Vector3();
                     const pylon = (goldenGatePylons && goldenGatePylons.length > 0) ? goldenGatePylons[bData.pylonTargetIndex] : null;
                     if (pylon && pylon.crystal) {
-                        pylon.crystal.getWorldPosition(targetWorld);
+                        pylon.crystal.getWorldPosition(_spinalTargetWorld);
                     } else if (pylon && pylon.group) {
-                        pylon.group.getWorldPosition(targetWorld);
+                        pylon.group.getWorldPosition(_spinalTargetWorld);
                     } else if (ancientGoldenGate) {
-                        ancientGoldenGate.getWorldPosition(targetWorld);
+                        ancientGoldenGate.getWorldPosition(_spinalTargetWorld);
                     } else {
-                        targetWorld.copy(craterWorldPos);
+                        _spinalTargetWorld.copy(craterWorldPos);
                     }
 
                     // Vector from middle of capital ship to target on Titan
-                    const beamVec = targetWorld.clone().sub(shipCenterWorld);
-                    const beamDist = beamVec.length();
-                    const beamDir = beamVec.clone().normalize();
+                    _spinalBeamVec.subVectors(_spinalTargetWorld, _spinalShipCenterWorld);
+                    const beamDist = _spinalBeamVec.length();
+                    _spinalBeamDir.copy(_spinalBeamVec).normalize();
 
                     // Midpoint between ship center and ring on Titan
-                    const midPoint = new THREE.Vector3().addVectors(shipCenterWorld, targetWorld).multiplyScalar(0.5);
+                    _spinalMidPoint.addVectors(_spinalShipCenterWorld, _spinalTargetWorld).multiplyScalar(0.5);
 
                     // Position beam group EXACTLY at the midpoint
-                    bData.group.position.copy(midPoint);
+                    bData.group.position.copy(_spinalMidPoint);
                     // Direct +Y axis along the beam vector towards target
-                    bData.group.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), beamDir);
+                    bData.group.quaternion.setFromUnitVectors(_spinalUnitY, _spinalBeamDir);
                     // Scale along Y to reach target distance (local y = -0.5 is ship center, local y = +0.5 is ring on Titan)
                     bData.group.scale.set(1, beamDist, 1);
 
