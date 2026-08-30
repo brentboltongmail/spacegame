@@ -307,6 +307,39 @@
 
                     model.add(hangerModel);
                     console.log("[THE CREST HANGER] GLB Model & Atmospheric Force Field Loaded!");
+                    
+                    // Add 3 parked Void Interceptors inside the hanger bay!
+                    // Wait for the voidInterceptorTemplate to load, then spawn them.
+                    const checkInterval = setInterval(() => {
+                        if (typeof voidInterceptorTemplate !== 'undefined' && voidInterceptorTemplate) {
+                            clearInterval(checkInterval);
+                            
+                            // 1 / (targetScale * hangerScale)
+                            const sx = 1 / (targetScale * 0.22);
+                            const sy = 1 / (targetScale * 0.15);
+                            const sz = 1 / (targetScale * 0.39);
+
+                            const positions = [
+                                { x: -0.4, y: -0.37, z: 0.1 },
+                                { x: 0.0, y: -0.37, z: -0.3 },
+                                { x: 0.4, y: -0.37, z: 0.1 }
+                            ];
+                            
+                            positions.forEach(pos => {
+                                const shipGroup = new THREE.Group();
+                                shipGroup.scale.set(sx, sy, sz);
+                                shipGroup.position.set(pos.x, pos.y, pos.z);
+                                shipGroup.rotation.set(0, 0, 0); // Facing out towards +Z
+
+                                const ship = voidInterceptorTemplate.clone(true);
+                                shipGroup.add(ship);
+                                
+                                hangerModel.add(shipGroup);
+                            });
+                            console.log("[THE CREST HANGER] Spawned 3 parked Void Interceptors inside the bay.");
+                        }
+                    }, 500);
+
                 }, undefined, function(err) {
                     console.error("[THE CREST HANGER GLB ERROR]", err);
                 });
