@@ -136,8 +136,32 @@
             sensors:  { level: 4, maxLevel: 5, cost: 12000, name: 'Tactical Sensor Array' }
         };
 
+        function updateCameraViewUI() {
+            const modeLabels = [
+                "📷 COCKPIT VIEW",
+                "🚀 CLOSE CHASE",
+                "🪐 THIRD-PERSON FAR",
+                "🎬 CINEMATIC SHOWCASE"
+            ];
+            const textEl = document.getElementById('camera-view-mode-text');
+            if (textEl) {
+                textEl.innerText = modeLabels[cameraMode] || "🪐 THIRD-PERSON FAR";
+            }
+        }
+
+        function setCameraMode(modeIndex) {
+            if (typeof modeIndex === 'number' && modeIndex >= 0 && modeIndex < 4) {
+                cameraMode = modeIndex;
+                applyCameraModeEffects();
+            }
+        }
+
         function toggleCameraMode() {
             cameraMode = (cameraMode + 1) % 4;
+            applyCameraModeEffects();
+        }
+
+        function applyCameraModeEffects() {
             isShipInvincible = (cameraMode === 3);
 
             const modeLabels = [
@@ -148,6 +172,7 @@
             ];
 
             showToast(`🎥 ${modeLabels[cameraMode]}`);
+            updateCameraViewUI();
 
             const crosshair = document.querySelector('.hud-center-crosshair');
             if (crosshair) {
@@ -157,8 +182,6 @@
             if (lockZone) {
                 lockZone.style.opacity = (cameraMode === 0) ? '1' : '0';
             }
-
-
         }
 
         let normalizedMouse = { x: 0, y: 0 };

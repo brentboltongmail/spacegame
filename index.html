@@ -90,6 +90,31 @@
                     </div>
                 </div>
 
+                <!-- 🎥 Standalone Draggable Camera View Selector Window -->
+                <div class="hud-card draggable-box" id="hud-camera-card" style="position: absolute; top: 75px; right: 25px; width: 270px; padding: 12px 14px; z-index: 50; background: var(--bg-glass); backdrop-filter: blur(14px); border: 1.5px solid rgba(0, 240, 255, 0.4); border-radius: 12px; box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);">
+                    <div class="drag-handle-bar"></div>
+                    <div class="hud-title drag-handle" style="display: flex; justify-content: space-between; align-items: center; color: var(--accent-cyan); border-bottom: 1px solid rgba(0, 240, 255, 0.2); padding-bottom: 6px; margin-bottom: 10px;">
+                        <span>🎥 CAMERA VIEW SELECTOR</span>
+                        <button class="btn-minimize" title="Minimize window" onclick="event.stopPropagation(); toggleMinimizeBox(this)">&ndash;</button>
+                    </div>
+                    
+                    <div style="font-size: 0.72rem; color: #94a3b8; font-family: Orbitron; letter-spacing: 1px; margin-bottom: 4px;">ACTIVE PERSPECTIVE</div>
+                    <div id="camera-view-mode-text" style="font-family: Orbitron; font-size: 0.95rem; font-weight: 800; color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.5); margin-bottom: 10px;">🪐 THIRD-PERSON FAR</div>
+
+                    <!-- Main View Toggle Button -->
+                    <button class="sim-btn" style="width: 100%; background: linear-gradient(135deg, rgba(0, 240, 255, 0.25), rgba(168, 85, 247, 0.3)); border: 1.5px solid #00f0ff; color: #ffffff; font-weight: 800; padding: 9px; font-size: 0.85rem; border-radius: 8px; cursor: pointer; box-shadow: 0 0 15px rgba(0, 240, 255, 0.3); margin-bottom: 10px;" onclick="toggleCameraMode()">
+                        🔄 TOGGLE CAMERA VIEW (C)
+                    </button>
+
+                    <!-- Quick Perspective Selectors -->
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;">
+                        <button class="sim-btn" style="padding: 6px 4px; font-size: 0.75rem; border-color: rgba(0, 240, 255, 0.4); color: #e2e8f0;" onclick="setCameraMode(0)">📷 Cockpit</button>
+                        <button class="sim-btn" style="padding: 6px 4px; font-size: 0.75rem; border-color: rgba(0, 240, 255, 0.4); color: #e2e8f0;" onclick="setCameraMode(1)">🚀 Close Chase</button>
+                        <button class="sim-btn" style="padding: 6px 4px; font-size: 0.75rem; border-color: rgba(0, 240, 255, 0.4); color: #e2e8f0;" onclick="setCameraMode(2)">🪐 Far Vista</button>
+                        <button class="sim-btn" style="padding: 6px 4px; font-size: 0.75rem; border-color: rgba(168, 85, 247, 0.5); color: #c084fc;" onclick="setCameraMode(3)">🎬 Cinematic</button>
+                    </div>
+                </div>
+
                 <!-- Shield & Throttle Combined Matrix (Bottom Left Draggable) -->
                 <div class="hud-card draggable-box" id="hud-shield-card" style="position: absolute; bottom: 85px; left: 25px; width: 420px; padding: 10px; z-index: 40; background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px; display: flex; flex-direction: column;">
                     
