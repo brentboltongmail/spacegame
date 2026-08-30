@@ -205,14 +205,23 @@
                 const maxDepth = planetRadius + bufferZone;
                 
                 if (distToCore < atmosphereStart) {
-                    let fogFactor = 1.0 - ((distToCore - maxDepth) / (atmosphereStart - maxDepth));
-                    fogFactor = Math.max(0, Math.min(1, fogFactor)); // 0 outside, 1 deep inside
-                    
                     const baseColor = new THREE.Color(0x070913);
                     const saturnColor = new THREE.Color(0xd4a359);
                     
-                    scene.fog.color.copy(baseColor).lerp(saturnColor, fogFactor);
-                    scene.fog.density = 0.00003 + (0.015 * Math.pow(fogFactor, 3)); // Exponential thickness
+                    if (distToCore > planetRadius) {
+                        // Approach phase (outside the planet)
+                        let approachFactor = 1.0 - ((distToCore - planetRadius) / 3000);
+                        scene.fog.color.copy(baseColor).lerp(saturnColor, approachFactor * 0.5);
+                        scene.fog.density = 0.00003 + (0.0005 * approachFactor);
+                    } else {
+                        // Inside Saturn: every 10 units = 2% more opacity
+                        const depthIntoSaturn = planetRadius - distToCore;
+                        const opacityPercent = depthIntoSaturn * 0.002; // (depth / 10) * 0.02
+                        
+                        scene.fog.color.copy(saturnColor);
+                        // At 100% opacity (depth = 500), density becomes extremely dense (0.05)
+                        scene.fog.density = 0.00053 + (opacityPercent * 0.05); 
+                    }
                 } else {
                     scene.fog.color.setHex(0x070913);
                     scene.fog.density = 0.00003;
