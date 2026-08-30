@@ -197,9 +197,27 @@
             // Prevent clipping into planet (Smooth sliding atmospheric repulsor buffer)
             if (spacePlanet) {
                 const planetRadius = 9000;
-                const bufferZone = 120; // Maintain 120 unit atmospheric buffer
+                const bufferZone = -1500; // Allow flying 1500 units deep into Saturn's atmosphere
                 const distToCore = playerShip.position.distanceTo(spacePlanet.position);
                 
+                // Dynamic Atmosphere / Fog for Saturn
+                const atmosphereStart = planetRadius + 3000; // Start getting foggy 3000 units above surface
+                const maxDepth = planetRadius + bufferZone;
+                
+                if (distToCore < atmosphereStart) {
+                    let fogFactor = 1.0 - ((distToCore - maxDepth) / (atmosphereStart - maxDepth));
+                    fogFactor = Math.max(0, Math.min(1, fogFactor)); // 0 outside, 1 deep inside
+                    
+                    const baseColor = new THREE.Color(0x070913);
+                    const saturnColor = new THREE.Color(0xd4a359);
+                    
+                    scene.fog.color.copy(baseColor).lerp(saturnColor, fogFactor);
+                    scene.fog.density = 0.00003 + (0.015 * Math.pow(fogFactor, 3)); // Exponential thickness
+                } else {
+                    scene.fog.color.setHex(0x070913);
+                    scene.fog.density = 0.00003;
+                }
+
                 if (distToCore < planetRadius + bufferZone) {
                     const pushOutDir = playerShip.position.clone().sub(spacePlanet.position).normalize();
                     playerShip.position.copy(spacePlanet.position).add(pushOutDir.multiplyScalar(planetRadius + bufferZone));
@@ -208,10 +226,10 @@
                     if (currentSpeed > 50) {
                         const statusTag = document.getElementById('throttle-status-tag');
                         if (statusTag && Math.random() < 0.1) {
-                            statusTag.innerText = 'SATURN REPULSE';
-                            statusTag.style.color = '#eab308';
+                            statusTag.innerText = 'CRITICAL PRESSURE';
+                            statusTag.style.color = '#ef4444';
                             setTimeout(() => {
-                                if (statusTag.innerText === 'SATURN REPULSE') {
+                                if (statusTag.innerText === 'CRITICAL PRESSURE') {
                                     statusTag.innerText = 'STABLE';
                                     statusTag.style.color = '#f59e0b';
                                 }
