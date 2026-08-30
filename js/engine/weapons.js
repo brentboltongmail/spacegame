@@ -867,24 +867,26 @@ function createEpicPlayerDeathExplosion(pos) {
             ancientGoldenGate.scale.set(2.0, 2.0, 2.0);
             ancientGoldenGate.visible = true;
 
-            // Instantly teleport ship and camera to Titan panoramic view (facing Titan & The Crest) BEFORE slipspace emergence
+            // Instantly teleport ship and camera to Titan panoramic view (facing Titan, The Crest & Saturn) BEFORE slipspace emergence
             playerShip.position.set(79900, -850, -46600);
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
             playerShip.lookAt(new THREE.Vector3(72060, 214, -81280));
+            playerShip.rotateY(Math.PI); // 180-degree yaw rotation so cockpit faces Saturn & Titan!
             
             cameraMode = 2; // Far Third Person (Panoramic Vista)
             playerShip.visible = true;
             targetSpeed = 0; // Void engines shut off to begin cinematic!
             currentSpeed = 0;
 
-            // Instantly snap camera matching panoramic view overlooking Titan
+            // Instantly snap camera matching panoramic view overlooking Titan & Saturn
             if (camera) {
                 const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
                 camera.up.copy(localUp);
-                const initCamOffset = new THREE.Vector3(0, 80.0, 320.0).applyQuaternion(playerShip.quaternion);
+                const initCamOffset = new THREE.Vector3(0, 6.0, 22.0).applyQuaternion(playerShip.quaternion);
                 camera.position.copy(playerShip.position).add(initCamOffset);
-                camera.lookAt(new THREE.Vector3(72060, 214, -81280));
+                const targetLookAt = playerShip.position.clone().add(new THREE.Vector3(0, 0, -50).applyQuaternion(playerShip.quaternion));
+                camera.lookAt(targetLookAt);
                 camera.updateMatrixWorld();
             }
 
