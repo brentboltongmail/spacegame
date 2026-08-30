@@ -183,6 +183,7 @@
                     // 3. Deep Blue Ambient Force Field Light
                     const forceFieldLight = new THREE.PointLight(0x0044ff, 0.3, 50); // Further reduced brightness
                     forceFieldLight.position.set(0, centerY, entranceZ);
+                    forceFieldLight.layers.enable(1);
                     hangerModel.add(forceFieldLight);
                     
                     // Add 6 dim point lights to the ceiling
@@ -194,8 +195,14 @@
                     lightPositions.forEach(pos => {
                         const pLight = new THREE.PointLight(0xfff5e6, 0.2, 1.5); // Much dimmer overhead light, shorter falloff
                         pLight.position.set(pos.x, 0.35, pos.z);
+                        pLight.layers.enable(1);
                         hangerModel.add(pLight);
                     });
+
+                    // Add an isolated ambient light for the hangar interior (only affects layer 1)
+                    const hangarAmbient = new THREE.AmbientLight(0xffffff, 0.5);
+                    hangarAmbient.layers.set(1);
+                    hangerModel.add(hangarAmbient);
 
                     // --- 🛠️ AI GENERATED HANGAR INTERIOR TEXTURES 🛠️ ---
                     const texLoader = new THREE.TextureLoader();
@@ -215,6 +222,7 @@
                         const doorGeo = new THREE.PlaneGeometry(1.78, 0.80); 
                         const doorMesh = new THREE.Mesh(doorGeo, doorMat);
                         doorMesh.position.set(0, 0, -0.91); 
+                        doorMesh.layers.set(1); // Isolate from global sunLight and station lights
                         hangerModel.add(doorMesh);
                     });
 
@@ -226,11 +234,13 @@
                         const leftWallMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.88, 0.80), wallMat);
                         leftWallMesh.position.set(-0.87, 0, 0); 
                         leftWallMesh.rotation.y = Math.PI / 2;
+                        leftWallMesh.layers.set(1);
                         hangerModel.add(leftWallMesh);
 
                         const rightWallMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.88, 0.80), wallMat);
                         rightWallMesh.position.set(0.87, 0, 0); 
                         rightWallMesh.rotation.y = -Math.PI / 2;
+                        rightWallMesh.layers.set(1);
                         hangerModel.add(rightWallMesh);
                     });
 
@@ -242,6 +252,7 @@
                         const toolsMesh = new THREE.Mesh(toolsGeo, toolsMat);
                         toolsMesh.position.set(-0.86, -0.39 + 0.075, -0.5); // Resting on floor, pushed slightly in front of left wall
                         toolsMesh.rotation.y = Math.PI / 2;
+                        toolsMesh.layers.set(1);
                         hangerModel.add(toolsMesh);
                     });
 
@@ -253,6 +264,7 @@
                         const barrelsMesh = new THREE.Mesh(barrelsGeo, barrelsMat);
                         barrelsMesh.position.set(0.86, -0.39 + 0.075, -0.5); // Resting on floor, pushed slightly in front of right wall
                         barrelsMesh.rotation.y = -Math.PI / 2;
+                        barrelsMesh.layers.set(1);
                         hangerModel.add(barrelsMesh);
                     });
 
@@ -264,6 +276,7 @@
                         const floorMesh = new THREE.Mesh(floorGeo, floorMat);
                         floorMesh.position.set(0, -0.39, 0); 
                         floorMesh.rotation.x = -Math.PI / 2;
+                        floorMesh.layers.set(1);
                         hangerModel.add(floorMesh);
                     });
 
@@ -275,6 +288,7 @@
                         const ceilingMesh = new THREE.Mesh(ceilingGeo, ceilingMat);
                         ceilingMesh.position.set(0, 0.39, 0); 
                         ceilingMesh.rotation.x = Math.PI / 2;
+                        ceilingMesh.layers.set(1);
                         hangerModel.add(ceilingMesh);
                     });
 

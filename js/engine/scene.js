@@ -231,6 +231,7 @@
 
             camera = new THREE.PerspectiveCamera(65, container.clientWidth / container.clientHeight, 1.0, 2000000);
             camera.position.set(78600, -1174, -47158);
+            camera.layers.enable(1); // Enable Layer 1 for interior isolated lighting
 
             renderer = new THREE.WebGLRenderer(getRendererConfig({ alpha: currentProfile?.settings?.platform !== "mac" }));
             renderer.setSize(container.clientWidth, container.clientHeight);
