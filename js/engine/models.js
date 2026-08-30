@@ -33,9 +33,9 @@
                             mat.depthWrite = true;
                             mat.depthTest = true;
                             mat.side = THREE.DoubleSide;
-                            mat.metalness = 0.10; // 10% reflectivity
-                            mat.roughness = 0.90; // 90% roughness (10% shiny)
-                            mat.envMapIntensity = 0.10; // 10% env map intensity
+                            mat.metalness = 0.02; // 2% reflectivity
+                            mat.roughness = 0.98; // 98% roughness (2% shiny)
+                            mat.envMapIntensity = 0.02; // 2% env map intensity
                             if (mat.map) {
                                 mat.map.anisotropy = maxAniso;
                                 mat.map.generateMipmaps = true;
@@ -79,9 +79,9 @@
                                 mat.depthWrite = true;
                                 mat.depthTest = true;
                                 mat.side = THREE.DoubleSide;
-                                mat.metalness = 0.10; // 10% reflectivity
-                                mat.roughness = 0.90; // 90% roughness (10% shiny)
-                                mat.envMapIntensity = 0.10; // 10% env map intensity
+                                mat.metalness = 0.02; // 2% reflectivity
+                                mat.roughness = 0.98; // 98% roughness (2% shiny)
+                                mat.envMapIntensity = 0.02; // 2% env map intensity
                                 if (mat.map) {
                                     mat.map.anisotropy = maxAniso;
                                     mat.map.generateMipmaps = true;
@@ -180,6 +180,42 @@
                     const forceFieldLight = new THREE.PointLight(0x0044ff, 3.5, 50);
                     forceFieldLight.position.set(0, centerY, entranceZ);
                     hangerModel.add(forceFieldLight);
+
+                    // --- 🛠️ AI GENERATED HANGAR INTERIOR TEXTURES 🛠️ ---
+                    const texLoader = new THREE.TextureLoader();
+                    
+                    // 1. Back Blast Doors
+                    texLoader.load('data/textures/hangar_doors.jpg', function(doorTex) {
+                        doorTex.colorSpace = THREE.SRGBColorSpace;
+                        const doorMat = new THREE.MeshBasicMaterial({ map: doorTex, side: THREE.DoubleSide });
+                        // Size matching the back wall (approx 1.78w x 0.8h, scaled to fit inside)
+                        const doorGeo = new THREE.PlaneGeometry(1.6, 0.7); 
+                        const doorMesh = new THREE.Mesh(doorGeo, doorMat);
+                        doorMesh.position.set(0, 0, -0.9); // Back wall
+                        hangerModel.add(doorMesh);
+                    });
+
+                    // 2. Left Wall - Tool Areas
+                    texLoader.load('data/textures/hangar_tools.jpg', function(toolsTex) {
+                        toolsTex.colorSpace = THREE.SRGBColorSpace;
+                        const toolsMat = new THREE.MeshBasicMaterial({ map: toolsTex, side: THREE.DoubleSide });
+                        const toolsGeo = new THREE.PlaneGeometry(1.2, 0.6); 
+                        const toolsMesh = new THREE.Mesh(toolsGeo, toolsMat);
+                        toolsMesh.position.set(-0.85, 0, 0); // Left wall
+                        toolsMesh.rotation.y = Math.PI / 2; // Face inwards
+                        hangerModel.add(toolsMesh);
+                    });
+
+                    // 3. Right Wall - Barrels and Cargo
+                    texLoader.load('data/textures/hangar_barrels.jpg', function(barrelsTex) {
+                        barrelsTex.colorSpace = THREE.SRGBColorSpace;
+                        const barrelsMat = new THREE.MeshBasicMaterial({ map: barrelsTex, side: THREE.DoubleSide });
+                        const barrelsGeo = new THREE.PlaneGeometry(1.2, 0.6); 
+                        const barrelsMesh = new THREE.Mesh(barrelsGeo, barrelsMat);
+                        barrelsMesh.position.set(0.85, 0, 0); // Right wall
+                        barrelsMesh.rotation.y = -Math.PI / 2; // Face inwards
+                        hangerModel.add(barrelsMesh);
+                    });
 
                     model.add(hangerModel);
                     console.log("[THE CREST HANGER] GLB Model & Atmospheric Force Field Loaded!");
