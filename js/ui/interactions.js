@@ -716,17 +716,21 @@
                 }
             }
             
-            // Spawn Asteroids
-            const astGeo = new THREE.IcosahedronGeometry(150, 1);
-            // Jitter vertices
-            const posAttr = astGeo.attributes.position;
-            for(let i = 0; i < posAttr.count; i++) {
-                posAttr.setX(i, posAttr.getX(i) + (Math.random() - 0.5) * 40);
-                posAttr.setY(i, posAttr.getY(i) + (Math.random() - 0.5) * 40);
-                posAttr.setZ(i, posAttr.getY(i) + (Math.random() - 0.5) * 40); // bug in original prompt, fix to getZ
-            }
-            astGeo.computeVertexNormals();
-            const astMat = new THREE.MeshStandardMaterial({ color: 0x555555, roughness: 0.9 });
+            // Spawn Dark Textured Irregular Asteroids
+            const astGeo = (typeof createIrregularAsteroidGeometry === 'function') 
+                ? createIrregularAsteroidGeometry(150, 1) 
+                : new THREE.IcosahedronGeometry(150, 1);
+
+            const fallbackTex = (typeof createAsteroidRockTexture === 'function') ? createAsteroidRockTexture() : null;
+            const astMat = new THREE.MeshStandardMaterial({ 
+                color: 0x5a5550, 
+                roughness: 0.88, 
+                metalness: 0.12, 
+                bumpScale: 0.35,
+                map: fallbackTex,
+                bumpMap: fallbackTex,
+                flatShading: true 
+            });
             
             for(let i=0; i<200; i++) {
                 const ast = new THREE.Mesh(astGeo, astMat);
@@ -735,7 +739,11 @@
                     (Math.random() - 0.5) * 4000,
                     100000 + (Math.random() - 0.5) * 15000
                 );
-                ast.scale.setScalar(Math.random() * 2 + 0.5);
+                ast.scale.set(
+                    (Math.random() * 2 + 0.5) * (0.8 + Math.random() * 0.4),
+                    (Math.random() * 2 + 0.5) * (0.8 + Math.random() * 0.4),
+                    (Math.random() * 2 + 0.5) * (0.8 + Math.random() * 0.4)
+                );
                 ast.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
                 
                 // Add bounding sphere for collision

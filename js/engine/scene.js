@@ -706,12 +706,14 @@
                     ringDiscMat.map = tex;
                     ringDiscMat.needsUpdate = true;
                 }
-            );
+                roughness: 0.8,
+                metalness: 0.1,
+                depthWrite: false
+            });
 
-            spacePlanetRingMesh = new THREE.Mesh(ringDiscGeo, ringDiscMat);
-            spacePlanet.add(spacePlanetRingMesh);
+            // Flat equatorial alignment
+            ringDiscGeo.rotateX(Math.PI / 2);
 
-            // Upper & Lower Volumetric Offset Ring Discs (Prevents edge-on invisible hairline disappearance)
             const ringUpper = new THREE.Mesh(ringDiscGeo, ringDiscMat);
             ringUpper.position.y = 35;
             spacePlanet.add(ringUpper);
@@ -720,64 +722,69 @@
             ringLower.position.y = -35;
             spacePlanet.add(ringLower);
 
-            // Gigantic Planetary Ring System - 3D particle asteroids in Equatorial XZ plane (aligned with planet cloud bands)
+            // Gigantic Planetary Ring System - 3D particle asteroids (no gaps, darkish rock texture, irregular shapes)
             const particleCount = 20000;
-            const particleGeo = new THREE.TetrahedronGeometry(1, 0);
-            const particleMat = new THREE.MeshBasicMaterial({ 
-                color: 0xffffff,
-                fog: false
-            });
+            const particleGeo = createIrregularAsteroidGeometry(1, 1);
             
+            const fallbackAsteroidTex = createAsteroidRockTexture();
+
+            const particleMat = new THREE.MeshStandardMaterial({ 
+                color: 0x5a5550, // Darkish silicate rock tone
+                roughness: 0.88,
+                metalness: 0.12,
+                bumpScale: 0.35,
+                map: fallbackAsteroidTex,
+                bumpMap: fallbackAsteroidTex,
+                flatShading: true // Faceted lighting on irregular rock faces!
+            });
+
             new THREE.TextureLoader().load(
                 'docs/images/asteroid_texture.jpg',
                 (tex) => {
                     tex.wrapS = THREE.RepeatWrapping;
                     tex.wrapT = THREE.RepeatWrapping;
                     particleMat.map = tex;
+                    particleMat.bumpMap = tex;
                     particleMat.needsUpdate = true;
                 }
             );
-            
+
             spacePlanetRing = new THREE.InstancedMesh(particleGeo, particleMat, particleCount);
             
             const dummy = new THREE.Object3D();
             
             const innerRadius = 10800;
             const outerRadius = 22800;
-            const ringThickness = 180;
+            const ringThickness = 220;
             
-            // Saturn ring particle color palette (creams, warm golds, icy silvers, dusty silicates)
+            // Darkish silicate rock color palette (no bright white)
             const colors = [
-                new THREE.Color(0xfef3c7), // warm cream
-                new THREE.Color(0xfde68a), // soft gold
-                new THREE.Color(0xfbbf24), // amber tan
-                new THREE.Color(0xd4d4d8), // icy silver grey
-                new THREE.Color(0xa8a29e), // silicate tan
-                new THREE.Color(0xffffff), // pure water ice
-                new THREE.Color(0x78716c)  // dark silicate rock
+                new THREE.Color(0x3f3f46), // dark charcoal silicate
+                new THREE.Color(0x52525b), // zinc grey rock
+                new THREE.Color(0x78716c), // silicate tan
+                new THREE.Color(0x57534e), // dark stone
+                new THREE.Color(0x71717a), // slate grey
+                new THREE.Color(0x44403c)  // deep basalt
             ];
-            
+
             for (let i = 0; i < particleCount; i++) {
-                // Random radius between inner and outer, respecting Cassini Division gap (16,800 to 18,000)
+                // Continuous distribution with no gaps across the entire ring plane
                 let r = innerRadius + Math.random() * (outerRadius - innerRadius);
-                if (r >= 16800 && r <= 18000 && Math.random() < 0.88) {
-                    // 88% chance to push out of Cassini Division gap for authentic ring structure
-                    r = (Math.random() < 0.5) ? (innerRadius + Math.random() * (16800 - innerRadius)) : (18000 + Math.random() * (outerRadius - 18000));
-                }
                 const theta = Math.random() * Math.PI * 2;
                 
-                // Position in equatorial XZ plane parallel to the planet's cloud bands
                 const x = r * Math.cos(theta);
                 const z = r * Math.sin(theta);
                 const y = (Math.random() - 0.5) * ringThickness;
                 
                 dummy.position.set(x, y, z);
                 
-                // Ranging from tiny pebble (0.5) to medium boulder (16.5)
                 const scale = Math.random() * 16.0 + 0.5;
-                dummy.scale.set(scale, scale, scale);
+                dummy.scale.set(
+                    scale * (0.75 + Math.random() * 0.5),
+                    scale * (0.75 + Math.random() * 0.5),
+                    scale * (0.75 + Math.random() * 0.5)
+                );
                 
-                // Random rotation
                 dummy.rotation.set(
                     Math.random() * Math.PI,
                     Math.random() * Math.PI,
@@ -787,7 +794,6 @@
                 dummy.updateMatrix();
                 spacePlanetRing.setMatrixAt(i, dummy.matrix);
                 
-                // Apply color variation
                 const color = colors[Math.floor(Math.random() * colors.length)];
                 spacePlanetRing.setColorAt(i, color);
             }
