@@ -157,6 +157,7 @@
                     });
                     const forceFieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
                     forceFieldMesh.position.set(0, centerY, entranceZ);
+                    forceFieldMesh.userData.isForceField = true;
                     hangerModel.add(forceFieldMesh);
 
                     // 2. Glowing Dark Blue Edge Frame (4 thin border bars fitting the entrance rim perfectly)

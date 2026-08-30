@@ -418,21 +418,40 @@
                         landingBtn.style.display = 'none';
                     }
                 }
-                // Apply the generic 180-radius station core push-out ONLY if we aren't inside the hangar
-                if (!inHangerZone && distToCrest < 180) {
-                    const pushOutDir = playerShip.position.clone().sub(theCrestStation.position).normalize();
-                    playerShip.position.copy(theCrestStation.position).add(pushOutDir.multiplyScalar(180));
-                    if (currentSpeed > 50) {
-                        const statusTag = document.getElementById('throttle-status-tag');
-                        if (statusTag && Math.random() < 0.1) {
-                            statusTag.innerText = 'STATION REPULSE';
-                            statusTag.style.color = '#38bdf8';
-                            setTimeout(() => {
-                                if (statusTag.innerText === 'STATION REPULSE') {
-                                    statusTag.innerText = 'STABLE';
-                                    statusTag.style.color = '#f59e0b';
+                // Apply raycast collision against the entire station hull
+                if (!inHangerZone && distToCrest < 1200) {
+                    if (!window.stationRaycaster) window.stationRaycaster = new THREE.Raycaster();
+                    const moveDist = oldPos.distanceTo(playerShip.position);
+                    if (moveDist > 0.1) {
+                        const rayDir = playerShip.position.clone().sub(oldPos).normalize();
+                        window.stationRaycaster.set(oldPos, rayDir);
+                        window.stationRaycaster.far = moveDist + 5.0; // small buffer
+                        
+                        // Check for collision against the station mesh
+                        const intersects = window.stationRaycaster.intersectObject(theCrestStation, true);
+                        if (intersects.length > 0) {
+                            // Find first hit that isn't the force field
+                            const hit = intersects.find(i => !i.object.userData.isForceField);
+                            if (hit && hit.face) {
+                                // Push the ship back to the collision point and slightly outwards along the normal
+                                const pushNormal = hit.face.normal.clone().transformDirection(hit.object.matrixWorld).normalize();
+                                playerShip.position.copy(hit.point).add(pushNormal.multiplyScalar(5));
+                                
+                                if (currentSpeed > 20) {
+                                    currentSpeed *= 0.5; // bleed speed on impact
+                                    const statusTag = document.getElementById('throttle-status-tag');
+                                    if (statusTag && Math.random() < 0.2) {
+                                        statusTag.innerText = 'HULL IMPACT';
+                                        statusTag.style.color = '#ef4444';
+                                        setTimeout(() => {
+                                            if (statusTag.innerText === 'HULL IMPACT') {
+                                                statusTag.innerText = 'STABLE';
+                                                statusTag.style.color = '#00ffcc';
+                                            }
+                                        }, 800);
+                                    }
                                 }
-                            }, 500);
+                            }
                         }
                     }
                 }
