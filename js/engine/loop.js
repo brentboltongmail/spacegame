@@ -692,6 +692,9 @@
             // Animate Titan Dark-Energy Excavation, Boiling Methane Geysers, Golden Ring Ascent & Tractor Beams
             updateTitanExcavationAndTractorBeams(timeSec, timeDelta);
 
+            // Maintain continuous 5-pirate patrol fleet inside Saturn's Asteroid Belt
+            maintainAsteroidPiratePatrol();
+
             // Mission 1 high-speed collision checking
             if (typeof checkMission1Progress === 'function') {
                 checkMission1Progress();
@@ -787,6 +790,10 @@
                                 }
                             }
                         }
+                    } else {
+                        // Unaggroed Asteroid Belt Patrol: Smooth cruise around Saturn's ring system
+                        e.translateZ(-2.0 * dtFactor);
+                        e.rotateY(0.002 * dtFactor);
                     }
 
                     // Target Lock Candidate Check
@@ -1570,6 +1577,48 @@
 
             ctx.shadowBlur = 0;
         }
+
+        function maintainAsteroidPiratePatrol() {
+            if (!spacePlanet || typeof enemyShips === 'undefined' || typeof createEnemyInterceptorMesh !== 'function') return;
+
+            // Filter living pirate vessels assigned to the asteroid field
+            const activePirates = enemyShips.filter(e => e && e.userData && e.userData.isAsteroidPirate && e.userData.hp > 0);
+
+            // Maintain at least 5 pirate vessels patrolling the asteroid field at all times
+            const needed = 5 - activePirates.length;
+            if (needed <= 0) return;
+
+            const planetPos = spacePlanet.position || new THREE.Vector3(72060, 214, -81280);
+
+            for (let k = 0; k < needed; k++) {
+                const pirate = createEnemyInterceptorMesh();
+                
+                // Spawn at a random position inside Saturn's active 14,000 to 36,000 unit asteroid belt
+                const radius = 14000 + Math.random() * 22000;
+                const theta = Math.random() * Math.PI * 2;
+                
+                const px = planetPos.x + Math.cos(theta) * radius;
+                const pz = planetPos.z + Math.sin(theta) * radius;
+                const py = planetPos.y + (Math.random() - 0.5) * 800;
+
+                pirate.position.set(px, py, pz);
+                pirate.rotation.set(0, Math.random() * Math.PI * 2, 0);
+
+                pirate.userData.isAsteroidPirate = true;
+                pirate.userData.hp = 100;
+                pirate.userData.maxHp = 100;
+                pirate.userData.name = 'PIRATE RAIDER';
+
+                // Spawn hyperspace warp arrival sparks
+                if (typeof spawnLaserImpactSparks === 'function') {
+                    spawnLaserImpactSparks(pirate.position);
+                }
+
+                scene.add(pirate);
+                enemyShips.push(pirate);
+            }
+        }
+        window.maintainAsteroidPiratePatrol = maintainAsteroidPiratePatrol;
 
         function drawTacticalRadar() {
             const canvas = document.getElementById('radar-canvas');
