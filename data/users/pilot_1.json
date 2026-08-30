@@ -94,8 +94,8 @@
       "y": 136
     },
     "hud-camera-card": {
-      "x": -207,
-      "y": 611
+      "x": -196,
+      "y": 901
     }
   },
   "settings": {
@@ -131,6 +131,7 @@
     "drag-sector-objective": false,
     "hud-top-target-card": false,
     "hud-action-bar-card": false,
-    "hud-controls-card": false
+    "hud-controls-card": false,
+    "hud-camera-card": false
   }
 }

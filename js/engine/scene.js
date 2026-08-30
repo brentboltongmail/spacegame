@@ -138,18 +138,18 @@
 
         function updateCameraViewUI() {
             const modeLabels = [
-                "Cockpit (First-Person)",
-                "Third-Person Close",
-                "Third-Person Far",
-                "Cinematic Showcase [Invincible]"
+                "Cockpit",
+                "Follow (close)",
+                "Follow (far)",
+                "Cinematic"
             ];
             const btnEl = document.getElementById('camera-view-mode-btn');
             if (btnEl) {
-                btnEl.innerText = `(C) Camera: ${modeLabels[cameraMode] || "Third-Person Far"}`;
+                btnEl.innerText = `(C) Camera: ${modeLabels[cameraMode] || "Follow (far)"}`;
             }
             const textEl = document.getElementById('camera-view-mode-text');
             if (textEl) {
-                textEl.innerText = modeLabels[cameraMode] || "Third-Person Far";
+                textEl.innerText = modeLabels[cameraMode] || "Follow (far)";
             }
         }
 
@@ -169,13 +169,13 @@
             isShipInvincible = (cameraMode === 3);
 
             const modeLabels = [
-                "COCKPIT VIEW (FIRST-PERSON)",
-                "THIRD-PERSON CLOSE",
-                "THIRD-PERSON FAR",
-                "CINEMATIC SHOWCASE [INVINCIBLE]"
+                "Cockpit",
+                "Follow (close)",
+                "Follow (far)",
+                "Cinematic"
             ];
 
-            showToast(`🎥 ${modeLabels[cameraMode]}`);
+            showToast(`🎥 Camera: ${modeLabels[cameraMode]}`);
             updateCameraViewUI();
 
             const crosshair = document.querySelector('.hud-center-crosshair');
