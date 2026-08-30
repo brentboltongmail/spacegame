@@ -354,14 +354,13 @@
             }
 
 
-            // Prevent clipping into The Crest station (Smooth sliding atmospheric repulsor buffer)
+            // Prevent clipping into core station geometry while allowing free flight inside the docking bay
             if (theCrestStation) {
-                const crestRadius = 750;
-                const crestBuffer = 60;
                 const distToCrest = playerShip.position.distanceTo(theCrestStation.position);
-                if (distToCrest < crestRadius + crestBuffer) {
+                // Allow free flight into the docking bay hanger (outer radius ~750, core radius 180)
+                if (distToCrest < 180) {
                     const pushOutDir = playerShip.position.clone().sub(theCrestStation.position).normalize();
-                    playerShip.position.copy(theCrestStation.position).add(pushOutDir.multiplyScalar(crestRadius + crestBuffer));
+                    playerShip.position.copy(theCrestStation.position).add(pushOutDir.multiplyScalar(180));
                     if (currentSpeed > 50) {
                         const statusTag = document.getElementById('throttle-status-tag');
                         if (statusTag && Math.random() < 0.1) {

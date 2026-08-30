@@ -692,20 +692,28 @@
                     mission1Stage = 5; // Ready to check distance to Crest
                 }, 6000);
             } else if (mission1Stage === 5) {
-                // Check distance to The Crest to trigger invasion
+                // Check distance to The Crest to trigger docking completion inside the hanger bay
                 const crestDist = playerShip.position.distanceTo(theCrestStation.position);
-                if (crestDist < 12000) {
+                const obj = document.getElementById('hud-objective');
+                if (obj) obj.innerText = `Fly inside The Crest Docking Bay (${Math.round(crestDist)}m / 600m).`;
+
+                if (crestDist < 600) {
                     mission1Stage = 6;
                     mission1Active = false;
                     clearInterval(window.mission1Interval);
                     window.mission1Interval = null;
                     
-                    // Transition to Mission 2
-                    showToast("🎯 MISSION 1 COMPLETE");
+                    // Trigger docking magnetic lock sequence
+                    showCommsTransmission("CREST FLIGHT DECK", "Magnetic locks engaged. Welcome home, Vance. Initiating maintenance cycle.", 5000);
+                    showToast("⚓ MAGNETIC LOCK ENGAGED: DOCKED AT THE CREST");
+                    
                     setTimeout(() => {
-                        if (typeof startMission2 === 'function') {
-                            startMission2();
-                        }
+                        showToast("🎯 MISSION 1 COMPLETE");
+                        setTimeout(() => {
+                            if (typeof startMission2 === 'function') {
+                                startMission2();
+                            }
+                        }, 3000);
                     }, 4000);
                 }
             }
