@@ -101,12 +101,13 @@
                     hangerModel.rotation.y = Math.PI / 2;
 
                     // --- 🛡️ ATMOSPHERIC CONTAINMENT FORCE FIELD SHIELD & DOCKING BAY ENTRANCE GLOW ---
-                    // Docking bay entrance aperture dimensions in crest_hanger.glb local space:
-                    const rectW = 2.2; // Width of docking bay aperture
-                    const rectH = 1.4; // Height of docking bay aperture
+                    // Fine-tuned docking bay entrance aperture dimensions to fit the outer rim face 1:1
+                    const rectW = 1.08; // Exact width of docking bay opening rim
+                    const rectH = 0.48; // Exact height of docking bay opening rim
+                    const centerY = -0.04; // Vertical center aligned with hanger floor/ceiling
                     const entranceZ = 1.85; // Opening rim face
 
-                    // 1. 1% Opacity Blue Force Field Shield Plane (exact fit over opening)
+                    // 1. 1% Opacity Blue Force Field Shield Plane (exact 1:1 fit over opening)
                     const shieldGeo = new THREE.PlaneGeometry(rectW, rectH);
                     const shieldMat = new THREE.MeshBasicMaterial({
                         color: 0x00f0ff,
@@ -117,12 +118,12 @@
                         blending: THREE.AdditiveBlending
                     });
                     const forceFieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
-                    forceFieldMesh.position.set(0, 0, entranceZ);
+                    forceFieldMesh.position.set(0, centerY, entranceZ);
                     hangerModel.add(forceFieldMesh);
 
-                    // 2. Glowing Blue Edge Frame (4 thin border bars fitting the entrance rim)
+                    // 2. Glowing Blue Edge Frame (4 thin border bars fitting the entrance rim exactly)
                     const borderGroup = new THREE.Group();
-                    const edgeThickness = 0.06; // Thin subtle glowing blue border edge
+                    const edgeThickness = 0.022; // Thin subtle glowing blue border edge
 
                     const borderMat = new THREE.MeshBasicMaterial({
                         color: 0x00f0ff,
@@ -134,29 +135,29 @@
 
                     // Top Edge Bar
                     const topBar = new THREE.Mesh(new THREE.PlaneGeometry(rectW + edgeThickness * 2, edgeThickness), borderMat);
-                    topBar.position.set(0, rectH * 0.5, entranceZ + 0.01);
+                    topBar.position.set(0, centerY + rectH * 0.5, entranceZ + 0.01);
                     borderGroup.add(topBar);
 
                     // Bottom Edge Bar
                     const bottomBar = new THREE.Mesh(new THREE.PlaneGeometry(rectW + edgeThickness * 2, edgeThickness), borderMat);
-                    bottomBar.position.set(0, -rectH * 0.5, entranceZ + 0.01);
+                    bottomBar.position.set(0, centerY - rectH * 0.5, entranceZ + 0.01);
                     borderGroup.add(bottomBar);
 
                     // Left Edge Bar
                     const leftBar = new THREE.Mesh(new THREE.PlaneGeometry(edgeThickness, rectH), borderMat);
-                    leftBar.position.set(-rectW * 0.5, 0, entranceZ + 0.01);
+                    leftBar.position.set(-rectW * 0.5, centerY, entranceZ + 0.01);
                     borderGroup.add(leftBar);
 
                     // Right Edge Bar
                     const rightBar = new THREE.Mesh(new THREE.PlaneGeometry(edgeThickness, rectH), borderMat);
-                    rightBar.position.set(rectW * 0.5, 0, entranceZ + 0.01);
+                    rightBar.position.set(rectW * 0.5, centerY, entranceZ + 0.01);
                     borderGroup.add(rightBar);
 
                     hangerModel.add(borderGroup);
 
                     // 3. Subtle Blue Ambient Force Field Light
                     const forceFieldLight = new THREE.PointLight(0x00f0ff, 2.5, 50);
-                    forceFieldLight.position.set(0, 0, entranceZ);
+                    forceFieldLight.position.set(0, centerY, entranceZ);
                     hangerModel.add(forceFieldLight);
 
                     model.add(hangerModel);
