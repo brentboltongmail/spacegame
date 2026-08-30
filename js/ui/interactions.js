@@ -573,33 +573,34 @@
                 camera.updateMatrixWorld();
             }
             
-            // Create 3 holographic rings along Titan Orbital Patrol Route
-            // Player launch point is (79900, -850, -46600) near The Crest
+            // Create 4 holographic rings forming a grand orbital course down and around Saturn
+            // Saturn is at (72060, 214, -81280) with 6,000 unit radius and 22,800 ring system
             const ringPos = [
-                {x: 77500, y: -650, z: -50000}, // Gate 1: 4km ahead of launch point
-                {x: 73500, y: -300, z: -55000}, // Gate 2: Mid-patrol waypoint
-                {x: 69000, y: 150, z: -61000}   // Gate 3: Outer perimeter waypoint
+                {x: 74000, y: -300, z: -56000}, // Gate 1: Upper Orbital Entry Vector (towards Saturn)
+                {x: 61000, y: -100, z: -72000}, // Gate 2: Saturn Outer Ring Plane Entry
+                {x: 58000, y: 200, z: -90000},  // Gate 3: Saturn Southern Polar Curve
+                {x: 78000, y: 400, z: -98000}   // Gate 4: Saturn Slingshot Return Vector
             ];
             
-            const ringGeo = new THREE.TorusGeometry(800, 20, 16, 100);
+            const ringGeo = new THREE.TorusGeometry(1000, 25, 16, 100);
             
             mission1Enemies = [];
             ringPos.forEach((pos, i) => {
                 const ringMat = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
                 const ring = new THREE.Mesh(ringGeo, ringMat);
                 ring.position.set(pos.x, pos.y, pos.z);
-                // Orient rings sequentially along the patrol course
-                const nextTargetPos = (i < 2) ? ringPos[i+1] : {x: 65000, y: 300, z: -68000};
+                // Orient rings sequentially along the patrol course down around Saturn
+                const nextTargetPos = (i < ringPos.length - 1) ? ringPos[i+1] : {x: 72060, y: 214, z: -81280};
                 ring.lookAt(nextTargetPos.x, nextTargetPos.y, nextTargetPos.z); 
                 
                 ring.userData = { cleared: false };
                 scene.add(ring);
                 mission1Rings.push(ring);
                 
-                // Spawn 2 enemy ships visibly adjacent to each ring
+                // Spawn target drones near each orbital ring checkpoint
                 const offsets = [
-                    { x: -500, y: 150, z: 200 },
-                    { x: 500, y: -150, z: 200 }
+                    { x: -600, y: 200, z: 200 },
+                    { x: 600, y: -200, z: 200 }
                 ];
                 
                 for (let e = 0; e < 2; e++) {
@@ -614,13 +615,13 @@
                 }
             });
             
-            showCommsTransmission("ELIAS VANCE", "Alright, kid. Let's see if those stabilizer tweaks I made hold up. Fly around Saturn, clear those 3 training rings, and shoot down 3 target drones I set up near the rings.", 9000, "audio/cinematics/mission_1/mission1_01_elias.mp3");
+            showCommsTransmission("ELIAS VANCE", "Alright, kid. Let's see if those stabilizer tweaks I made hold up. Fly around Saturn, clear all 4 training rings down around the planet, and shoot down the target drones near the rings.", 9000, "audio/cinematics/mission_1/mission1_01_elias.mp3");
             
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
             if (sec) sec.innerText = "MISSION 1: ROUTINE PATROL";
-            if (obj) obj.innerText = "Fly around Saturn, clear 3 training rings, and destroy 3 drones (0/3 Rings, 0/3 Enemies).";
-            showToast("🎯 NEW OBJECTIVE: Clear Saturn Training Rings");
+            if (obj) obj.innerText = "Fly around Saturn, clear 4 training rings, and destroy 3 drones (0/4 Rings, 0/3 Enemies).";
+            showToast("🎯 NEW OBJECTIVE: Clear Saturn Orbital Training Rings");
             
             // (Collision check is now safely handled in the high-framerate animate() loop to prevent skipping)
         }
@@ -634,8 +635,11 @@
             let enemiesDestroyed = mission1Enemies.filter(e => e.userData.hp <= 0).length;
             mission1EnemiesDestroyed = enemiesDestroyed;
             
-            if (mission1Stage < 3) {
-                // Check all rings for exact plane penetration through 800-radius aperture
+            const clearedRings = mission1Rings.filter(r => r.userData.cleared).length;
+            const totalRings = mission1Rings.length || 4;
+
+            if (clearedRings < totalRings) {
+                // Check all rings for exact plane penetration through 1000-radius aperture
                 for (let i = 0; i < mission1Rings.length; i++) {
                     const targetRing = mission1Rings[i];
                     if (targetRing.userData.cleared) continue;
@@ -647,16 +651,17 @@
                     const radialDist = Math.sqrt(Math.max(0, totalDist * totalDist - planeDist * planeDist));
 
                     // Only clear when physically passing through the ring opening plane
-                    if (planeDist < 250 && radialDist < 850) {
+                    if (planeDist < 300 && radialDist < 1050) {
                         // Passed through
                         targetRing.userData.cleared = true;
                         targetRing.material.color.setHex(0x10b981);
                         targetRing.material.opacity = 0.2;
-                        mission1Stage++;
-                        showToast(`Ring ${mission1Stage}/3 cleared.`, "var(--accent-cyan)");
+                        
+                        const newClearedCount = mission1Rings.filter(r => r.userData.cleared).length;
+                        showToast(`Ring ${newClearedCount}/${totalRings} cleared.`, "var(--accent-cyan)");
                         
                         // Remind the player if they still need to kill drones
-                        if (mission1Stage === 3 && enemiesDestroyed < 3) {
+                        if (newClearedCount === totalRings && enemiesDestroyed < 3) {
                             setTimeout(() => {
                                 showToast(`⚠️ RINGS CLEARED! You still need to destroy ${3 - enemiesDestroyed} more drones!`, "var(--accent-gold)");
                             }, 2000);
@@ -666,11 +671,11 @@
             }
             
             // Update HUD text if not fully complete
-            if (mission1Stage < 3 || enemiesDestroyed < 3) {
+            if (clearedRings < totalRings || enemiesDestroyed < 3) {
                 const obj = document.getElementById('hud-objective');
                 const displayEnemies = Math.min(enemiesDestroyed, 3);
-                if (obj) obj.innerText = `Fly around Saturn, clear 3 training rings, and destroy 3 drones (${mission1Stage}/3 Rings, ${displayEnemies}/3 Enemies).`;
-            } else if (mission1Stage === 3 && enemiesDestroyed >= 3) {
+                if (obj) obj.innerText = `Fly around Saturn, clear ${totalRings} training rings, and destroy 3 drones (${clearedRings}/${totalRings} Rings, ${displayEnemies}/3 Enemies).`;
+            } else if (clearedRings >= totalRings && enemiesDestroyed >= 3) {
                 // BOTH OBJECTIVES COMPLETE
                 mission1Stage = 4; // Prevent re-triggering this block
                 
