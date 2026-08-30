@@ -113,6 +113,7 @@
                             const mats = Array.isArray(child.material) ? child.material : [child.material];
                             mats.forEach(mat => {
                                 mat.map = newBaseTex;
+                                mat.color.setHex(0x151515); // Match hangar ceiling intensity
                                 mat.needsUpdate = true;
                             });
                         }
@@ -124,6 +125,7 @@
                             const mats = Array.isArray(child.material) ? child.material : [child.material];
                             mats.forEach(mat => {
                                 mat.map = newBaseTex;
+                                mat.color.setHex(0x151515); // Match hangar ceiling intensity
                                 mat.needsUpdate = true;
                             });
                         }
