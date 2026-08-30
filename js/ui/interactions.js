@@ -530,6 +530,17 @@
         let mission1Stage = 0;
 
         function startMission1() {
+            window.mission3Active = false;
+            window.isMission3Active = false;
+            if (typeof enemyShips !== 'undefined') {
+                for (let i = enemyShips.length - 1; i >= 0; i--) {
+                    const e = enemyShips[i];
+                    if (e && e.userData && e.userData.isAsteroidPirate) {
+                        if (e.parent) e.parent.remove(e);
+                        enemyShips.splice(i, 1);
+                    }
+                }
+            }
             if (mission1Active) return;
             mission1Active = true;
             mission1Stage = 0;
@@ -704,6 +715,17 @@
         window.mission2Freighter = null;
 
         function startMission2() {
+            window.mission3Active = false;
+            window.isMission3Active = false;
+            if (typeof enemyShips !== 'undefined') {
+                for (let i = enemyShips.length - 1; i >= 0; i--) {
+                    const e = enemyShips[i];
+                    if (e && e.userData && e.userData.isAsteroidPirate) {
+                        if (e.parent) e.parent.remove(e);
+                        enemyShips.splice(i, 1);
+                    }
+                }
+            }
             if (window.mission2Active) return;
             window.mission2Active = true;
             window.mission2Stage = 0;

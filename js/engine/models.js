@@ -1233,6 +1233,8 @@
         }
 
         function triggerDominionFleetHyperspaceEmergence() {
+            window.mission3Active = true;
+            window.isMission3Active = true;
             fleetEmergenceStartTime = performance.now();
             fleetEmergenceActive = true;
 

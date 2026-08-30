@@ -1587,6 +1587,9 @@
         function maintainAsteroidPiratePatrol() {
             if (!spacePlanet || typeof enemyShips === 'undefined' || typeof createEnemyInterceptorMesh !== 'function') return;
 
+            // Only spawn/maintain pirate belt patrols during Mission 3
+            if (!window.mission3Active && !window.isMission3Active) return;
+
             // Filter living pirate vessels assigned to the asteroid field
             const activePirates = enemyShips.filter(e => e && e.userData && e.userData.isAsteroidPirate && e.userData.hp > 0);
 

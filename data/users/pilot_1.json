@@ -94,7 +94,7 @@
       "y": 136
     },
     "hud-camera-card": {
-      "x": -195,
+      "x": -200,
       "y": 743
     }
   },
@@ -103,17 +103,18 @@
     "engineVol": 45,
     "firingVol": 100,
     "musicVol": 100,
-    "rollSpeed": 55,
-    "cameraLag": 41,
+    "rollSpeed": 79,
+    "cameraLag": 34,
     "throttleAccel": 100,
     "shieldRegenMult": 72,
     "hullRegenMult": 74,
     "enemyDamageMult": 27,
     "playerDamageMult": 12,
     "flashOnHit": false,
-    "turnSpeed": 54,
+    "turnSpeed": 61,
     "toastDuration": 5,
-    "platform": "windows"
+    "platform": "windows",
+    "enemySpeedMult": 50
   },
   "progress": {},
   "keyBindings": {
