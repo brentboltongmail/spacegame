@@ -87,15 +87,15 @@
     },
     "hud-radar-card": {
       "x": 25,
-      "y": 85
+      "y": -43
     },
     "cinematic-comms-overlay": {
       "x": 0,
-      "y": 136
+      "y": -10
     },
     "hud-camera-card": {
-      "x": -200,
-      "y": 743
+      "x": -257,
+      "y": 834
     }
   },
   "settings": {
@@ -135,4 +135,3 @@
     "hud-controls-card": false,
     "hud-camera-card": false
   }
-}
