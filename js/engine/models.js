@@ -561,7 +561,27 @@
                     clonedShip.rotation.set(0, 0, 0);
                     clonedShip.quaternion.set(0, 0, 0, 1);
                     upgradeHangarShip.add(clonedShip);
-                    if (hangarShieldMesh) upgradeHangarShip.add(hangarShieldMesh);
+                    
+                    if (typeof upgradeHangarBackgroundShips !== 'undefined' && upgradeHangarBackgroundShips) {
+                        upgradeHangarBackgroundShips.clear();
+                        
+                        const extraShip1 = playerShip.clone(true);
+                        extraShip1.position.set(-6, 0, -6);
+                        extraShip1.rotation.set(0, Math.PI / 5, 0);
+                        upgradeHangarBackgroundShips.add(extraShip1);
+                        
+                        const extraShip2 = playerShip.clone(true);
+                        extraShip2.position.set(6, 0, -6);
+                        extraShip2.rotation.set(0, -Math.PI / 5, 0);
+                        upgradeHangarBackgroundShips.add(extraShip2);
+                        
+                        const extraShip3 = playerShip.clone(true);
+                        extraShip3.position.set(0, 0, -10);
+                        extraShip3.rotation.set(0, Math.PI, 0);
+                        upgradeHangarBackgroundShips.add(extraShip3);
+                    }
+                    
+                    if (typeof hangarShieldMesh !== 'undefined' && hangarShieldMesh) upgradeHangarShip.add(hangarShieldMesh);
                 }
 
                 console.log("[VOID INTERCEPTOR] GLB Model and Texture Loaded Successfully!");
