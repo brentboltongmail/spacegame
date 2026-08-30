@@ -25,3 +25,10 @@
 
 ## 📌 Dialogue & Audio Rule
 - **Mandatory Action**: All dialogue in the game should use the ElevenLabs API to generate audio. Keep the voices chosen for characters consistent throughout the codebase (e.g. check docs or existing files for voice mappings).
+
+## 📌 Player Ship Spawn Location Rule
+- **Mandatory Action for Repositioning the Player's Ship**: When asked to move or adjust the player's starting spawn location, you MUST update the initialization coordinates in all THREE of the following files simultaneously:
+  1. `js/engine/models.js` (inside `createPlayerShip()`)
+  2. `js/ui/interactions.js` (inside mission reset functions like `startMission1()`)
+  3. `js/engine/weapons.js` (inside `resetSimView()`)
+- **Note**: Ensure that `playerShip.position.set(...)`, `playerShip.lookAt(...)`, and `playerShip.rotateY(...)` are updated together as a unified block so the ship mesh and camera orientation stay perfectly aligned.
