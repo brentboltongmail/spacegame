@@ -1,3 +1,11 @@
+        const _targetWorldPos = new THREE.Vector3();
+        const _targetBBox = new THREE.Box3();
+        const _targetSizeVec = new THREE.Vector3();
+        const _prevPos = new THREE.Vector3();
+        const _currentPos = new THREE.Vector3();
+        const _toTarget = new THREE.Vector3();
+        const _curDir = new THREE.Vector3();
+
         function animate() {
             requestAnimationFrame(animate);
             const now = performance.now();
@@ -781,16 +789,24 @@
             if (targetBox3D) {
                 if (closestEnemy && closestEnemy.userData && closestEnemy.userData.hp > 0 && closestDist < 4000 && (cameraMode === 0 || cameraMode === 1) && !isTitanCinematicActive) {
                     targetBox3D.visible = true;
-                    targetBox3D.position.copy(closestEnemy.position);
+
+                    // Calculate precise 3D world center and bounding box of the targeted mesh
+                    _targetBBox.setFromObject(closestEnemy);
+                    _targetBBox.getCenter(_targetWorldPos);
+                    _targetBBox.getSize(_targetSizeVec);
+
+                    // Position target box at exact world coordinates of target center
+                    targetBox3D.position.copy(_targetWorldPos);
                     
-                    // Add a cool constant spinning effect to the wireframe box
+                    // Add smooth spinning effect to the wireframe box around target center
                     targetBox3D.rotation.y += 0.04;
                     targetBox3D.rotation.x += 0.02;
                     targetBox3D.rotation.z += 0.01;
                     
-                    // Scale based on enemy size roughly
-                    const s = closestEnemy.userData.name ? (closestEnemy.userData.scale / 15 || 50) : 1.2;
-                    targetBox3D.scale.set(s, s, s);
+                    // Dynamically scale wireframe box to fit around target with 35% margin (BoxGeometry base size is 20)
+                    const maxDim = Math.max(_targetSizeVec.x, _targetSizeVec.y, _targetSizeVec.z, 8);
+                    const scaleFactor = (maxDim * 1.35) / 20.0;
+                    targetBox3D.scale.set(scaleFactor, scaleFactor, scaleFactor);
                 } else {
                     targetBox3D.visible = false;
                 }
@@ -817,9 +833,9 @@
 
                 _prevPos.copy(laser.position);
 
-                // Zero-Allocation Aim Assist
+                // Zero-Allocation Aim Assist toward exact world target center
                 if (closestEnemy && closestEnemy.userData && closestEnemy.userData.hp > 0 && laser.userData.velocity) {
-                    _toTarget.subVectors(closestEnemy.position, laser.position).normalize();
+                    _toTarget.subVectors(_targetWorldPos, laser.position).normalize();
                     const speed = laser.userData.velocity.length();
                     _curDir.copy(laser.userData.velocity).normalize();
                     if (_curDir.dot(_toTarget) > 0.4) {
