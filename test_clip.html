@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Three.js Clipping Test</title>
+    <style>body { margin: 0; }</style>
+</head>
+<body>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script type="module">
+        import * as THREE from "three";
+        import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.localClippingEnabled = true;
+        document.body.appendChild(renderer.domElement);
+
+        camera.position.set(0, 5, 10);
+        const controls = new OrbitControls(camera, renderer.domElement);
+
+        // A large box to represent the station
+        const geometry = new THREE.BoxGeometry(5, 5, 5);
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, side: THREE.DoubleSide, wireframe: false });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        // Calculate clipping planes for a hole from -1 to 1 in XYZ
+        const planes = [];
+        
+        // Front (Z+)
+        planes.push(new THREE.Plane(new THREE.Vector3(0, 0, -1), 1));
+        // Back (Z-)
+        planes.push(new THREE.Plane(new THREE.Vector3(0, 0, 1), 1));
+        // Top (Y+)
+        planes.push(new THREE.Plane(new THREE.Vector3(0, -1, 0), 1));
+        // Bottom (Y-)
+        planes.push(new THREE.Plane(new THREE.Vector3(0, 1, 0), 1));
+        // Right (X+)
+        planes.push(new THREE.Plane(new THREE.Vector3(-1, 0, 0), 1));
+        // Left (X-)
+        planes.push(new THREE.Plane(new THREE.Vector3(1, 0, 0), 1));
+
+        material.clippingPlanes = planes;
+        material.clipIntersection = true;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>
