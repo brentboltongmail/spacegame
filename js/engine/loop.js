@@ -27,7 +27,7 @@
                 let _throttle = gameMechanicsConfig.throttleAccel !== undefined ? gameMechanicsConfig.throttleAccel : 50;
                 if (_throttle > 100) _throttle = 100;
                 const throttleMult = (_throttle / 100) * 2.5;
-                const accelRate = 1.76 * throttleMult; 
+                const accelRate = 2.46 * throttleMult; 
 
                 if (keys.KeyW) targetSpeed = Math.min(targetSpeed + accelRate, maxSpeedCap);
                 if (keys.KeyS) targetSpeed = Math.max(targetSpeed - accelRate, 0);
@@ -37,7 +37,7 @@
             // Update Cockpit Engine Sound Pitch, Muffling & Volume dynamically (0% -> 100% Throttle)
             updateEngineAudio(currentSpeed / maxSpeedCap, cameraMode === 0);
 
-            const postedSpeed = Math.round(currentSpeed * (500 / maxSpeedCap)); // Posted speed scaled to max 500 km/s
+            const postedSpeed = Math.round(currentSpeed * (700 / maxSpeedCap)); // Posted speed scaled to max 700 km/s (40% boost)
             const speedElem = document.getElementById('hud-speed');
             if (speedElem) speedElem.innerText = `SPEED: ${postedSpeed.toLocaleString()} km/s ${currentSpeed > (maxSpeedCap * 0.9) ? '[MAX THROTTLE]' : ''}`;
 
@@ -1479,7 +1479,7 @@
 
             const speedSubtext = document.getElementById('throttle-speed-subtext');
             if (speedSubtext) {
-                const postedSpeed = Math.round(currentSpeed * (500 / maxSpeedCap));
+                const postedSpeed = Math.round(currentSpeed * (700 / maxSpeedCap));
                 speedSubtext.innerText = `${postedSpeed.toLocaleString()} km/s`;
             }
 

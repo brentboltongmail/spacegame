@@ -119,8 +119,8 @@
 
         let isGamePaused = false;
         let playerCredits = 125000;
-        // Max speed cap fixed at 1350 (which equates to 500 km/s in HUD)
-        const maxSpeedCap = 1350;
+        // Max speed cap increased by 40% (1350 -> 1890 units/frame, 700 km/s in HUD)
+        const maxSpeedCap = 1890;
         let upgradeHangarScene, upgradeHangarCamera, upgradeHangarRenderer, upgradeHangarShip, hangarShieldMesh;
         let isHangarDragging = false;
         let previousHangarMousePosition = { x: 0, y: 0 };
