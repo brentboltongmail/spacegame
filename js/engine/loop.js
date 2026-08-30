@@ -1609,13 +1609,15 @@
             // Full 3D Orientation: Transform any world target directly to cockpit local space
             _radarInvQuat.copy(playerShip.quaternion).invert();
 
-            function drawBlip(objPos, color, size, isSquare, label = '') {
+            const MAX_RADAR_DIST = 150000; // 150,000 units max tactical detection range
+
+            function drawBlip(objPos, color, isCapital = false) {
                 if (!objPos) return;
 
                 // Relative position in player cockpit local space
                 _radarRelPos.copy(objPos).sub(playerShip.position).applyQuaternion(_radarInvQuat);
                 const dist = _radarRelPos.length();
-                if (dist < 1) return;
+                if (dist < 1 || dist > MAX_RADAR_DIST) return; // Exclude targets beyond tactical radar range
 
                 const isBehind = _radarRelPos.z > 0;
                 
@@ -1626,14 +1628,13 @@
                 let rx, ry;
                 if (!isBehind) {
                     // In Front: Center of radar (cx, cy) is dead ahead
-                    // Anything right in front of the nose (nx=0, ny=0) is dead center in the middle!
                     const fovOffset = Math.hypot(nx, ny); // 0 at center, 1 at 90°
                     const radarRadius = fovOffset * (cx * 0.88);
-                    const angle = Math.atan2(-ny, nx); // Canvas Y is inverted relative to 3D Y
+                    const angle = Math.atan2(-ny, nx);
                     rx = cx + Math.cos(angle) * radarRadius;
                     ry = cy + Math.sin(angle) * radarRadius;
                 } else {
-                    // Behind: Place on outer compass perimeter in direction to turn
+                    // Behind: Place on outer compass perimeter
                     const angle = Math.atan2(-ny, nx);
                     rx = cx + Math.cos(angle) * (cx * 0.92);
                     ry = cy + Math.sin(angle) * (cy * 0.92);
@@ -1642,91 +1643,59 @@
                 ctx.save();
                 ctx.fillStyle = color;
                 ctx.shadowColor = color;
-                ctx.shadowBlur = isBehind ? 2 : 8;
+                ctx.shadowBlur = isBehind ? 2 : 6;
+                ctx.globalAlpha = isBehind ? 0.70 : 1.0;
 
-                if (isBehind) {
-                    // Hollow / Ring indicator for targets behind you
-                    ctx.strokeStyle = color;
-                    ctx.lineWidth = 1.5;
-                    ctx.beginPath();
-                    ctx.arc(rx, ry, size * 0.75, 0, Math.PI * 2);
-                    ctx.stroke();
-                } else if (isSquare) {
-                    ctx.fillRect(rx - size/2, ry - size/2, size, size);
-                } else {
-                    ctx.beginPath();
-                    ctx.arc(rx, ry, size, 0, Math.PI * 2);
-                    ctx.fill();
-                }
+                // Render all blips as clean tactical dots
+                const dotRadius = isCapital ? 3.5 : (isBehind ? 2.0 : 2.5);
+                ctx.beginPath();
+                ctx.arc(rx, ry, dotRadius, 0, Math.PI * 2);
+                ctx.fill();
 
                 ctx.restore();
-            }
-
-            // Draw Radiant Solar Star Blip (Golden)
-            if (spaceSun && spaceSun.position) {
-                drawBlip(spaceSun.position, '#fbbf24', 6, false, 'SUN');
-            }
-
-            // Draw Saturn Blip (Golden-Amber)
-            if (spacePlanet && spacePlanet.position) {
-                drawBlip(spacePlanet.position, '#eab308', 7, false, 'SATURN');
-            }
-
-            if (solarSystemPlanets) {
-                solarSystemPlanets.forEach(p => {
-                    if (p.group && p.group.position) {
-                        drawBlip(p.group.position, '#' + new THREE.Color(p.baseColor).getHexString(), 6, false, p.name.toUpperCase());
-                    }
-                });
-            }
-
-            // Draw Titan Moon Blip (Hazy Amber)
-            if (spaceTitan && spaceTitan.position) {
-                drawBlip(spaceTitan.position, '#f59e0b', 5.5, false, 'TITAN');
             }
 
             // Draw The Crest Station Blip (Cyan Torus/Station or Red/Orange Burning Debris)
             if (theCrestStation && theCrestStation.position) {
                 if (theCrestState === 'DESTROYED') {
-                    drawBlip(theCrestStation.position, '#ea580c', 5.5, false, 'THE CREST (DEBRIS)');
+                    drawBlip(theCrestStation.position, '#ea580c');
                 } else if (theCrestState === 'EXPLODING' || theCrestState === 'STRUCK') {
-                    drawBlip(theCrestStation.position, '#ef4444', 7, false, 'THE CREST (BREACH)');
+                    drawBlip(theCrestStation.position, '#ef4444');
                 } else {
-                    drawBlip(theCrestStation.position, '#38bdf8', 6, false, 'THE CREST');
+                    drawBlip(theCrestStation.position, '#38bdf8');
                 }
             }
 
             // Draw Ancient Precursor Golden Gate Blip (Radiant Gold - only when revealed)
             if (ancientGoldenGate && ancientGoldenGate.visible && ancientGoldenGate.position) {
-                drawBlip(ancientGoldenGate.position, '#fbbf24', 6, false, 'GOLDEN GATE');
+                drawBlip(ancientGoldenGate.position, '#fbbf24');
             }
 
             // Draw Titan Excavation Site Blip (Violet Crater)
             if (titanExcavationSite && spaceTitan) {
                 const craterPos = titanExcavationSite.getWorldPosition(new THREE.Vector3());
-                drawBlip(craterPos, '#d946ef', 4.5, false, 'EXCAVATION');
+                drawBlip(craterPos, '#d946ef');
             }
 
-            // Draw Crimson Square Blips for Dominion Capital Dreadnought Fleet
+            // Draw Crimson Dots for Dominion Capital Dreadnought Fleet
             capitalShips.forEach(cs => {
                 if (cs && cs.visible && cs.position) {
-                    drawBlip(cs.position, '#ff1e38', 8, true, cs.userData.name ? cs.userData.name.toUpperCase() : 'DOMINION DREADNOUGHT');
+                    drawBlip(cs.position, '#ff1e38', true);
                 }
             });
 
-            // Draw Red Blips for Active Living Enemy Ships
+            // Draw Red Dots for Active Living Enemy Ships
             enemyShips.forEach(enemy => {
                 if (enemy && enemy.position && enemy.userData && enemy.userData.hp > 0) {
-                    drawBlip(enemy.position, '#ff3b5c', 4.5, false, 'ENEMY');
+                    drawBlip(enemy.position, '#ff3b5c');
                 }
             });
 
-            // Draw Blue/Green Blips for Mission 1 Rings
+            // Draw Blue/Green Dots for Mission 1 Rings
             if (typeof mission1Active !== 'undefined' && typeof mission1Rings !== 'undefined' && typeof mission1Stage !== 'undefined') {
                 mission1Rings.forEach((ring, idx) => {
                     if (ring && ring.position) {
                         const isCleared = ring.userData && ring.userData.cleared;
-                        // Find the next uncleared ring index to mark as current target
                         let currentTargetIdx = -1;
                         for (let i=0; i<mission1Rings.length; i++) {
                             if (!mission1Rings[i].userData || !mission1Rings[i].userData.cleared) {
@@ -1735,9 +1704,8 @@
                             }
                         }
                         const isCurrent = idx === currentTargetIdx;
-                        // Green for cleared, Cyan for current target, Blue for future rings
                         const color = isCleared ? '#10b981' : (isCurrent ? '#00f0ff' : '#0284c7'); 
-                        drawBlip(ring.position, color, isCleared ? 3.5 : 5, false, 'TRAINING RING');
+                        drawBlip(ring.position, color);
                     }
                 });
             }

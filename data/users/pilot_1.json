@@ -94,8 +94,8 @@
       "y": 136
     },
     "hud-camera-card": {
-      "x": 0,
-      "y": 0
+      "x": -200,
+      "y": 901
     }
   },
   "settings": {
@@ -111,7 +111,7 @@
     "enemyDamageMult": 27,
     "playerDamageMult": 12,
     "flashOnHit": false,
-    "turnSpeed": 25,
+    "turnSpeed": 54,
     "toastDuration": 5,
     "platform": "windows"
   },
