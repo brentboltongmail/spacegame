@@ -870,15 +870,23 @@
                 
                 setTimeout(() => {
                     window.mission2Active = false;
-                    // Trigger Mission 3
-                    if (typeof triggerDominionFleetHyperspaceEmergence === 'function') {
+                    // Trigger Mission 3 Cinematic (Dominion Capital Ships Arrival)
+                    if (typeof startTitanGateCinematic === 'function') {
+                        startTitanGateCinematic();
+                    } else if (typeof triggerDominionFleetHyperspaceEmergence === 'function') {
                         triggerDominionFleetHyperspaceEmergence();
-                        const sec = document.getElementById('hud-sector');
-                        if (sec) sec.innerText = "Mission 3";
-                        const obj2 = document.getElementById('hud-objective');
-                        if (obj2) obj2.innerText = "🚨 WARNING: MASSIVE SLIPSPACE RUPTURES DETECTED IN SECTOR";
                     }
                 }, 8000);
+            }
+        };
+
+        window.startMission3 = function() {
+            window.mission3Active = true;
+            window.isMission3Active = true;
+            if (typeof startTitanGateCinematic === 'function') {
+                startTitanGateCinematic();
+            } else if (typeof triggerDominionFleetHyperspaceEmergence === 'function') {
+                triggerDominionFleetHyperspaceEmergence();
             }
         };
 

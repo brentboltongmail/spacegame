@@ -785,6 +785,10 @@ function createEpicPlayerDeathExplosion(pos) {
 
         function startTitanGateCinematic() {
             if (!ancientGoldenGate) return;
+            window.mission3Active = true;
+            window.isMission3Active = true;
+            if (typeof hasTitanCinematicPlayed !== 'undefined') hasTitanCinematicPlayed = true;
+
             isTitanCinematicActive = true;
             isTitanCinematicEnteringGate = false;
             isFlightLocked = true; // USER CONTROL LOCKED: WATCH-ONLY CINEMATIC MODE!
