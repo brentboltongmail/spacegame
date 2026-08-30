@@ -761,6 +761,7 @@
                             }
 
                             // Rhythmic Plasma Cannon Bursts when in lead alignment (< 25 degrees)
+                            const currentFwd = new THREE.Vector3(0, 0, -1).applyQuaternion(e.quaternion);
                             const aimAngle = currentFwd.angleTo(leadDir);
                             if (dist < 4000 && aimAngle < 0.44) {
                                 e.userData.lastFireTime = e.userData.lastFireTime || 0;
