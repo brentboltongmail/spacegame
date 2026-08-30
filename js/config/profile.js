@@ -152,11 +152,10 @@
                 const initialLeft = rect.left - currentX;
                 
                 const minAllowedY = headerBoundary - initialTop;
-                // More lenient bottom clamp on load: just ensure the top 30px (drag handle) remains visible on screen.
-                // This prevents windows from being artificially pushed up if their height slightly fluctuates during page load (e.g., before web fonts finish rendering).
-                const maxAllowedY = window.innerHeight - initialTop - 30;
+                // Extremely lenient bottom clamp to prevent artificial push-up on window resize
+                const maxAllowedY = window.innerHeight - initialTop + 1000; 
                 const minAllowedX = -initialLeft;
-                const maxAllowedX = window.innerWidth - initialLeft - 30; // Keep at least 30px of the left side visible
+                const maxAllowedX = window.innerWidth - initialLeft - 30;
 
                 let changed = false;
 
@@ -290,7 +289,8 @@
 
                                         // Enforce top and bottom boundaries
                     const minAllowedY = headerBoundary - initialTop;
-                    const maxAllowedY = window.innerHeight - initialTop - rect.height;
+                    // Allow dragging slightly off-screen at the bottom so user isn't blocked by bounding rect
+                    const maxAllowedY = window.innerHeight - initialTop - 30;
                     if (currentY < minAllowedY) {
                         currentY = minAllowedY;
                     } else if (currentY > maxAllowedY) {
