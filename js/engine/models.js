@@ -229,81 +229,75 @@
                     }
 
                     // 1. Back Blast Doors
-                    texLoader.load('data/textures/hangar_doors.jpg', function(doorTex) {
-                        setupTiledTex(doorTex, 2, 1);
-                        const doorMat = new THREE.MeshStandardMaterial({ map: doorTex, color: 0x1a1a1a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
-                        const doorGeo = new THREE.PlaneGeometry(1.78, 0.80, 4, 4); 
-                        const doorMesh = new THREE.Mesh(doorGeo, doorMat);
-                        doorMesh.position.set(0, 0, -0.84); 
-                        doorMesh.layers.set(1); // Isolate from global sunLight and station lights
-                        hangerModel.add(doorMesh);
-                    });
+                    const doorTex = texLoader.load('data/textures/hangar_doors.jpg');
+                    setupTiledTex(doorTex, 2, 1);
+                    const doorMat = new THREE.MeshStandardMaterial({ map: doorTex, color: 0x1a1a1a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
+                    const doorGeo = new THREE.PlaneGeometry(1.78, 0.80, 4, 4); 
+                    const doorMesh = new THREE.Mesh(doorGeo, doorMat);
+                    doorMesh.position.set(0, 0, -0.84); 
+                    doorMesh.layers.set(1); // Isolate from global sunLight and station lights
+                    hangerModel.add(doorMesh);
 
                     // 2. Generic Left and Right Walls
-                    texLoader.load('data/textures/hangar_wall.jpg', function(wallTex) {
-                        setupTiledTex(wallTex, 4, 2);
-                        const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, color: 0x1a1a1a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
-                        
-                        const leftWallMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.88, 0.80, 4, 4), wallMat);
-                        leftWallMesh.position.set(-0.87, 0, 0); 
-                        leftWallMesh.rotation.y = Math.PI / 2;
-                        leftWallMesh.layers.set(1);
-                        hangerModel.add(leftWallMesh);
+                    const wallTex = texLoader.load('data/textures/hangar_wall.jpg');
+                    setupTiledTex(wallTex, 4, 2);
+                    const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, color: 0x1a1a1a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
+                    
+                    const leftWallMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.88, 0.80, 4, 4), wallMat);
+                    leftWallMesh.position.set(-0.87, 0, 0); 
+                    leftWallMesh.rotation.y = Math.PI / 2;
+                    leftWallMesh.layers.set(1);
+                    hangerModel.add(leftWallMesh);
 
-                        const rightWallMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.88, 0.80, 4, 4), wallMat);
-                        rightWallMesh.position.set(0.87, 0, 0); 
-                        rightWallMesh.rotation.y = -Math.PI / 2;
-                        rightWallMesh.layers.set(1);
-                        hangerModel.add(rightWallMesh);
-                    });
+                    const rightWallMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.88, 0.80, 4, 4), wallMat);
+                    rightWallMesh.position.set(0.87, 0, 0); 
+                    rightWallMesh.rotation.y = -Math.PI / 2;
+                    rightWallMesh.layers.set(1);
+                    hangerModel.add(rightWallMesh);
 
                     // 3. Tool Area Decal (Small)
-                    texLoader.load('data/textures/hangar_tools.jpg', function(toolsTex) {
-                        toolsTex.colorSpace = THREE.SRGBColorSpace;
-                        const toolsMat = new THREE.MeshStandardMaterial({ map: toolsTex, color: 0x2a2a2a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
-                        const toolsGeo = new THREE.PlaneGeometry(0.3, 0.15, 4, 4); // Much smaller
-                        const toolsMesh = new THREE.Mesh(toolsGeo, toolsMat);
-                        toolsMesh.position.set(-0.86, -0.39 + 0.075, -0.5); // Resting on floor, pushed slightly in front of left wall
-                        toolsMesh.rotation.y = Math.PI / 2;
-                        toolsMesh.layers.set(1);
-                        hangerModel.add(toolsMesh);
-                    });
+                    const toolsTex = texLoader.load('data/textures/hangar_tools.jpg');
+                    toolsTex.colorSpace = THREE.SRGBColorSpace;
+                    const toolsMat = new THREE.MeshStandardMaterial({ map: toolsTex, color: 0x2a2a2a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
+                    const toolsGeo = new THREE.PlaneGeometry(0.3, 0.15, 4, 4); // Much smaller
+                    const toolsMesh = new THREE.Mesh(toolsGeo, toolsMat);
+                    toolsMesh.position.set(-0.86, -0.39 + 0.075, -0.5); // Resting on floor, pushed slightly in front of left wall
+                    toolsMesh.rotation.y = Math.PI / 2;
+                    toolsMesh.layers.set(1);
+                    hangerModel.add(toolsMesh);
 
                     // 4. Barrels Decal (Small)
-                    texLoader.load('data/textures/hangar_barrels.jpg', function(barrelsTex) {
-                        barrelsTex.colorSpace = THREE.SRGBColorSpace;
-                        const barrelsMat = new THREE.MeshStandardMaterial({ map: barrelsTex, color: 0x2a2a2a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
-                        const barrelsGeo = new THREE.PlaneGeometry(0.3, 0.15, 4, 4); // Much smaller
-                        const barrelsMesh = new THREE.Mesh(barrelsGeo, barrelsMat);
-                        barrelsMesh.position.set(0.86, -0.39 + 0.075, -0.5); // Resting on floor, pushed slightly in front of right wall
-                        barrelsMesh.rotation.y = -Math.PI / 2;
-                        barrelsMesh.layers.set(1);
-                        hangerModel.add(barrelsMesh);
-                    });
+                    const barrelsTex = texLoader.load('data/textures/hangar_barrels.jpg');
+                    barrelsTex.colorSpace = THREE.SRGBColorSpace;
+                    const barrelsMat = new THREE.MeshStandardMaterial({ map: barrelsTex, color: 0x2a2a2a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
+                    const barrelsGeo = new THREE.PlaneGeometry(0.3, 0.15, 4, 4); // Much smaller
+                    const barrelsMesh = new THREE.Mesh(barrelsGeo, barrelsMat);
+                    barrelsMesh.position.set(0.86, -0.39 + 0.075, -0.5); // Resting on floor, pushed slightly in front of right wall
+                    barrelsMesh.rotation.y = -Math.PI / 2;
+                    barrelsMesh.layers.set(1);
+                    hangerModel.add(barrelsMesh);
 
                     // 5. Floor
-                    texLoader.load('data/textures/hangar_floor.jpg', function(floorTex) {
-                        setupTiledTex(floorTex, 3, 3);
-                        const floorMat = new THREE.MeshStandardMaterial({ map: floorTex, color: 0x151515, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
-                        const floorGeo = new THREE.PlaneGeometry(1.78, 1.88, 4, 4); 
-                        const floorMesh = new THREE.Mesh(floorGeo, floorMat);
-                        floorMesh.position.set(0, -0.39, 0); 
-                        floorMesh.rotation.x = -Math.PI / 2;
-                        floorMesh.layers.set(1);
-                        hangerModel.add(floorMesh);
-                    });
+                    const floorTex = texLoader.load('data/textures/hangar_floor.jpg');
+                    setupTiledTex(floorTex, 3, 3);
+                    const floorMat = new THREE.MeshStandardMaterial({ map: floorTex, color: 0x151515, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
+                    const floorGeo = new THREE.PlaneGeometry(1.78, 1.88, 4, 4); 
+                    const floorMesh = new THREE.Mesh(floorGeo, floorMat);
+                    floorMesh.position.set(0, -0.39, 0); 
+                    floorMesh.rotation.x = -Math.PI / 2;
+                    floorMesh.layers.set(1);
+                    hangerModel.add(floorMesh);
 
                     // 6. Ceiling
-                    texLoader.load('data/textures/hangar_ceiling.jpg', function(ceilingTex) {
-                        setupTiledTex(ceilingTex, 3, 3);
-                        const ceilingMat = new THREE.MeshStandardMaterial({ map: ceilingTex, color: 0x151515, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
-                        const ceilingGeo = new THREE.PlaneGeometry(1.78, 1.88, 4, 4); 
-                        const ceilingMesh = new THREE.Mesh(ceilingGeo, ceilingMat);
-                        ceilingMesh.position.set(0, 0.39, 0); 
-                        ceilingMesh.rotation.x = Math.PI / 2;
-                        ceilingMesh.layers.set(1);
-                        hangerModel.add(ceilingMesh);
-                    });
+                    const ceilingTex = texLoader.load('data/textures/hangar_ceiling.jpg');
+                    setupTiledTex(ceilingTex, 3, 3);
+                    const ceilingMat = new THREE.MeshStandardMaterial({ map: ceilingTex, color: 0x151515, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
+                    const ceilingGeo = new THREE.PlaneGeometry(1.78, 1.88, 4, 4); 
+                    const ceilingMesh = new THREE.Mesh(ceilingGeo, ceilingMat);
+                    ceilingMesh.position.set(0, 0.39, 0); 
+                    ceilingMesh.rotation.x = Math.PI / 2;
+                    ceilingMesh.layers.set(1);
+                    hangerModel.add(ceilingMesh);
 
 
                     // Apply hexagon deformation to all programmatically added planes in the hanger
