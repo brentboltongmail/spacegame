@@ -123,8 +123,8 @@
 
                     // --- 🛡️ ATMOSPHERIC CONTAINMENT FORCE FIELD SHIELD & DOCKING BAY ENTRANCE GLOW ---
                     // Docking bay entrance aperture dimensions snapped 1:1 to the main front opening rim face:
-                    const rectW = 1.78; // Exact width of the large main opening rim
-                    const rectH = 0.80; // Exact height of the large main opening rim
+                    const rectW = 1.79; // Exact width of the large main opening rim
+                    const rectH = 0.82; // Exact height of the large main opening rim
                     const centerY = 0.0; // Vertical center aligned with hanger entrance
                     const entranceZ = 0.94; // Snapped tightly inside the FRONT main entrance opening face
 
