@@ -225,6 +225,7 @@
                     }
 
                     // 1. Back Blast Doors
+                    /*
                     const doorTex = texLoader.load('data/textures/hangar_doors.jpg');
                     setupTiledTex(doorTex, 2, 1);
                     const doorMat = new THREE.MeshStandardMaterial({ map: doorTex, color: 0x1a1a1a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
@@ -233,6 +234,7 @@
                     doorMesh.position.set(0, 0, -0.84); 
                     doorMesh.layers.set(1); // Isolate from global sunLight and station lights
                     hangerModel.add(doorMesh);
+                    */
 
                     // 2. Generic Left and Right Walls
                     const wallTex = texLoader.load('data/textures/hangar_wall.jpg');
@@ -353,32 +355,32 @@
                     const clipPlanesLocal = [];
                     const eps = 0.02; // Small buffer to ensure we completely cut out walls without z-fighting
                     
-                    // 1. Front Plane (Z+) -> Normal faces Z- (0, 0, -1)
-                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, 0, -1), (0.94 + eps)));
-                    // 2. Back Plane (Z-) -> Normal faces Z+ (0, 0, 1)
-                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, 0, 1), (0.86 + eps)));
-                    // 3. Top Plane (Y+) -> Normal faces Y- (0, -1, 0)
-                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, -1, 0), (0.39 + eps)));
-                    // 4. Bottom Plane (Y-) -> Normal faces Y+ (0, 1, 0)
-                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, 1, 0), (0.39 + eps)));
+                    // 1. Front Plane (Z+)
+                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, 0, 1), -(2.0 + eps)));
+                    // 2. Back Plane (Z-) - Extend to -2.0 to tunnel through the local station wall but avoid shredding the far side of the ring
+                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, 0, -1), -(2.0 + eps)));
+                    // 3. Top Plane (Y+)
+                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, 1, 0), -(0.39 + eps)));
+                    // 4. Bottom Plane (Y-) - Correct negative sign
+                    clipPlanesLocal.push(new THREE.Plane(new THREE.Vector3(0, -1, 0), -(0.39 + eps)));
                     
-                    // 5. Top-Right: Points inward
-                    const nTR = new THREE.Vector3(-0.39, -0.292, 0).normalize();
+                    // 5. Top-Right: Normal (0.39, 0.292), Point (1.218, 0)
+                    const nTR = new THREE.Vector3(0.39, 0.292, 0).normalize();
                     const dTR = nTR.dot(new THREE.Vector3(1.218 + eps, eps, 0));
                     clipPlanesLocal.push(new THREE.Plane(nTR, -dTR));
                     
-                    // 6. Bottom-Right: Points inward
-                    const nBR = new THREE.Vector3(-0.39, 0.292, 0).normalize();
+                    // 6. Bottom-Right: Normal (0.39, -0.292), Point (1.218, 0)
+                    const nBR = new THREE.Vector3(0.39, -0.292, 0).normalize();
                     const dBR = nBR.dot(new THREE.Vector3(1.218 + eps, -eps, 0));
                     clipPlanesLocal.push(new THREE.Plane(nBR, -dBR));
                     
-                    // 7. Top-Left: Points inward
-                    const nTL = new THREE.Vector3(0.39, -0.292, 0).normalize();
+                    // 7. Top-Left: Normal (-0.39, 0.292), Point (-1.218, 0)
+                    const nTL = new THREE.Vector3(-0.39, 0.292, 0).normalize();
                     const dTL = nTL.dot(new THREE.Vector3(-1.218 - eps, eps, 0));
                     clipPlanesLocal.push(new THREE.Plane(nTL, -dTL));
                     
-                    // 8. Bottom-Left: Points inward
-                    const nBL = new THREE.Vector3(0.39, 0.292, 0).normalize();
+                    // 8. Bottom-Left: Normal (-0.39, -0.292), Point (-1.218, 0)
+                    const nBL = new THREE.Vector3(-0.39, -0.292, 0).normalize();
                     const dBL = nBL.dot(new THREE.Vector3(-1.218 - eps, -eps, 0));
                     clipPlanesLocal.push(new THREE.Plane(nBL, -dBL));
                     
