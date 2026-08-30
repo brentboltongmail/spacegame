@@ -235,13 +235,18 @@
                     doorMesh.layers.set(1); // Isolate from global sunLight and station lights
                     hangerModel.add(doorMesh);
                     
+                    // 2. Generic Left and Right Walls
+                    const wallTex = texLoader.load('data/textures/hangar_wall.jpg');
+                    setupTiledTex(wallTex, 4, 2);
+                    const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, color: 0x1a1a1a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
+                    
                     // 1.5 Front Blast Doors (Dynamic)
                     const frontDoorGeo = new THREE.PlaneGeometry(rectW / 2, rectH, 2, 2);
-                    const leftFrontDoor = new THREE.Mesh(frontDoorGeo, doorMat);
+                    const leftFrontDoor = new THREE.Mesh(frontDoorGeo, wallMat);
                     leftFrontDoor.position.set(-rectW / 4, centerY, entranceZ + 0.01);
                     leftFrontDoor.layers.set(1);
                     
-                    const rightFrontDoor = new THREE.Mesh(frontDoorGeo, doorMat);
+                    const rightFrontDoor = new THREE.Mesh(frontDoorGeo, wallMat);
                     rightFrontDoor.position.set(rectW / 4, centerY, entranceZ + 0.01);
                     rightFrontDoor.layers.set(1);
                     
@@ -254,10 +259,6 @@
                     hangerModel.userData.doorOpenX = rectW / 4 + rectW / 2;
 
                     // 2. Generic Left and Right Walls
-                    const wallTex = texLoader.load('data/textures/hangar_wall.jpg');
-                    setupTiledTex(wallTex, 4, 2);
-                    const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, color: 0x1a1a1a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
-                    
                     const leftWallMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.88, 0.80, 4, 4), wallMat);
                     leftWallMesh.position.set(-0.87, 0, 0); 
                     leftWallMesh.rotation.y = Math.PI / 2;

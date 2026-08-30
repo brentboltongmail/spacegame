@@ -1897,10 +1897,10 @@
                 }
                 
                 if (hangerModel.userData.doorT < targetDoorT) {
-                    hangerModel.userData.doorT += 0.015 * dtFactor;
+                    hangerModel.userData.doorT += 0.00375 * dtFactor;
                     if (hangerModel.userData.doorT > targetDoorT) hangerModel.userData.doorT = targetDoorT;
                 } else if (hangerModel.userData.doorT > targetDoorT) {
-                    hangerModel.userData.doorT -= 0.015 * dtFactor;
+                    hangerModel.userData.doorT -= 0.00375 * dtFactor;
                     if (hangerModel.userData.doorT < targetDoorT) hangerModel.userData.doorT = targetDoorT;
                 }
                 
@@ -1985,28 +1985,37 @@
                     hangerModel.userData.landingCurve = new THREE.CatmullRomCurve3(pts);
                     hangerModel.userData.landingCurve.curveType = 'centripetal';
                     hangerModel.userData.landingProgress = 0;
+                    
+                    // Capture initial offset to eliminate snapping jitter
+                    const startPos = hangerModel.userData.landingCurve.getPointAt(0).applyMatrix4(hangerModel.matrixWorld);
+                    hangerModel.userData.landingOffset = playerShip.position.clone().sub(startPos);
                 }
                 
-                let speed = 0.003; 
-                if (hangerModel.userData.landingProgress > 0.8) speed = 0.0015;
-                if (hangerModel.userData.landingProgress > 0.95) speed = 0.0008; // smooth landing
+                // Uniform arc-length speed - eliminates the weird speed up!
+                let speed = 0.002; 
+                if (hangerModel.userData.landingProgress > 0.8) speed = 0.001;
+                if (hangerModel.userData.landingProgress > 0.95) speed = 0.0005; // smooth landing
                 
                 hangerModel.userData.landingProgress += speed * dtFactor;
                 let prog = hangerModel.userData.landingProgress;
                 if (prog >= 1.0) prog = 1.0;
                 
-                const localPos = hangerModel.userData.landingCurve.getPoint(prog);
+                // Use getPointAt for uniform speed along the curve
+                const localPos = hangerModel.userData.landingCurve.getPointAt(prog);
                 const worldPos = localPos.clone().applyMatrix4(hangerModel.matrixWorld);
                 
-                // Interpolate position smoothly to the curve (since we start slightly off due to > 50 distance check)
-                playerShip.position.lerp(worldPos, 0.2 * dtFactor);
+                // Decay the offset smoothly to 0 over the first second
+                hangerModel.userData.landingOffset.lerp(new THREE.Vector3(0,0,0), 0.05 * dtFactor);
                 
-                // For rotation, look slightly ahead
+                // Set absolute position exactly to avoid physics jitter
+                playerShip.position.copy(worldPos).add(hangerModel.userData.landingOffset);
+                
+                // For rotation, look slightly ahead using getTangentAt
                 let lookAhead = prog + 0.02;
                 if (lookAhead > 1.0) lookAhead = 1.0;
                 
                 if (prog < 0.98) {
-                    const localTangent = hangerModel.userData.landingCurve.getTangent(lookAhead);
+                    const localTangent = hangerModel.userData.landingCurve.getTangentAt(lookAhead);
                     localTangent.y = 0; // Keep ship level during approach
                     localTangent.normalize();
                     const worldTangent = localTangent.transformDirection(hangerModel.matrixWorld);
@@ -2015,7 +2024,7 @@
                     const targetRot = new THREE.Quaternion().setFromRotationMatrix(
                         new THREE.Matrix4().lookAt(playerShip.position, lookTarget, new THREE.Vector3(0, 1, 0))
                     );
-                    playerShip.quaternion.slerp(targetRot, 0.1 * dtFactor);
+                    playerShip.quaternion.slerp(targetRot, 0.15 * dtFactor);
                 }
                 
                 if (prog >= 1.0) {
