@@ -678,7 +678,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-elias",
                 icon: "📻",
                 camMode: 2, // Far Third Person (Panoramic Vista)
-                speed: 80,
+                speed: 0, // Void engines shut off!
                 text: "Kaylen! Kaylen, do you read me?! The long-range sensors on Mars just went red—The Crest is gone from the grid! Report in, kid!",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_01_elias.mp3"
             },
@@ -689,7 +689,7 @@ function createEpicPlayerDeathExplosion(pos) {
                 theme: "speaker-kaylen",
                 icon: "🚀",
                 camMode: 1, // Rear Third-Person Close (Ship clearly visible)
-                speed: 100,
+                speed: 0, // Void engines shut off!
                 text: "Elias... they wiped out the fleet. The kinetic rounds bounced right off their hulls. They're lining up their dreadnoughts on the rift right now.",
                 audioSrc: "audio/cinematics/titan_gate/titan_gate_02_kaylen.mp3"
             },
@@ -825,8 +825,8 @@ function createEpicPlayerDeathExplosion(pos) {
             
             cameraMode = 2; // Far Third Person (Panoramic Vista)
             playerShip.visible = true;
-            targetSpeed = 40;
-            currentSpeed = 40;
+            targetSpeed = 0; // Void engines shut off to begin cinematic!
+            currentSpeed = 0;
 
             // Instantly snap camera matching panoramic view overlooking Titan
             if (camera) {
