@@ -117,12 +117,31 @@
                             }
                         }, 250);
 
-                        // Reveal Act 1 Transition modal after penetrating the singularity
+                        // Reveal Wing Commander 3 Seamless Flight Deck Transition Hub after penetrating singularity
                         setTimeout(() => {
-                            const endModal = document.getElementById('cinematic-end-modal');
-                            if (endModal) {
-                                endModal.style.display = 'flex';
-                                setTimeout(() => endModal.classList.add('active'), 50);
+                            const blackout = document.getElementById('cinematic-blackout-overlay');
+                            if (blackout) blackout.classList.remove('active');
+
+                            if (typeof triggerMissionDebriefSequence === 'function') {
+                                triggerMissionDebriefSequence({
+                                    title: "ACT I COMPLETE — THE SOL GATE SEVERED",
+                                    status: "SLIPSPACE TRANSIT / UNKNOWN SECTOR",
+                                    kills: 14,
+                                    accuracy: "92%",
+                                    hull: "100%",
+                                    wingman: "ACTIVE (MARS HYPERWAVE)",
+                                    speaker: "ELIAS VANCE",
+                                    subspeaker: "MARS FLIGHT COMMAND / HYPERWAVE OVERRIDE",
+                                    quote: "Kaylen, your signature just stabilized across the rift! The wormhole collapsed behind you—Earth is safe for now. Prepare your interceptor for vanguard reconnaissance in this new sector!",
+                                    icon: "📻",
+                                    audioSrc: "audio/cinematics/mission_1/mission1_01_elias.mp3"
+                                });
+                            } else {
+                                const endModal = document.getElementById('cinematic-end-modal');
+                                if (endModal) {
+                                    endModal.style.display = 'flex';
+                                    setTimeout(() => endModal.classList.add('active'), 50);
+                                }
                             }
                         }, 1400);
                     }

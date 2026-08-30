@@ -839,3 +839,99 @@
                 }, 8000);
             }
         };
+
+        // =========================================================================
+        // 🎬 WING COMMANDER 3 INSPIRED SEAMLESS DEBRIEF & TRANSITION ENGINE
+        // =========================================================================
+        let currentDebriefAudio = null;
+        let isDebriefOverlayActive = false;
+
+        function triggerMissionDebriefSequence(missionData) {
+            isDebriefOverlayActive = true;
+
+            const overlay = document.getElementById('flight-deck-debrief-overlay');
+            if (overlay) {
+                overlay.style.display = 'block';
+            }
+
+            const title = document.getElementById('debrief-mission-title');
+            const statusTag = document.getElementById('debrief-status-tag');
+            const statKills = document.getElementById('debrief-stat-kills');
+            const statAcc = document.getElementById('debrief-stat-accuracy');
+            const statHull = document.getElementById('debrief-stat-hull');
+            const statWingman = document.getElementById('debrief-stat-wingman');
+            const speakerName = document.getElementById('debrief-speaker-name');
+            const speakerTitle = document.getElementById('debrief-speaker-title');
+            const quoteText = document.getElementById('debrief-quote-text');
+            const avatarIcon = document.getElementById('debrief-avatar-icon');
+
+            if (title) title.innerText = missionData?.title || "MISSION DEBRIEF: PROLOGUE CLEARED";
+            if (statusTag) statusTag.innerText = missionData?.status || "VICTORY / SECTOR SECURED";
+            if (statKills) statKills.innerText = missionData?.kills !== undefined ? missionData.kills : 12;
+            if (statAcc) statAcc.innerText = missionData?.accuracy || "94%";
+            if (statHull) statHull.innerText = missionData?.hull || "100%";
+            if (statWingman) {
+                statWingman.innerText = missionData?.wingman || "ACTIVE";
+                statWingman.className = "stat-value " + (missionData?.wingman === "CRITICAL" ? "wingman-damaged" : "wingman-active");
+            }
+            if (speakerName) speakerName.innerText = missionData?.speaker || "ELIAS VANCE";
+            if (speakerTitle) speakerTitle.innerText = missionData?.subspeaker || "MARS FLIGHT COMMAND";
+            if (quoteText) quoteText.innerText = `"${missionData?.quote || "Outstanding flying out there, Kaylen. Your interceptor is locked into magnetic formation. Ready to scramble when you give the mark!"}"`;
+            if (avatarIcon) avatarIcon.innerText = missionData?.icon || "📻";
+
+            // Update armory drawer display levels if present
+            if (typeof shipUpgrades !== 'undefined') {
+                const b = document.getElementById('armory-blasters-lvl');
+                const s = document.getElementById('armory-shields-lvl');
+                const t = document.getElementById('armory-thrusters-lvl');
+                if (b && shipUpgrades.blasters) b.innerText = shipUpgrades.blasters.level;
+                if (s && shipUpgrades.shields) s.innerText = shipUpgrades.shields.level;
+                if (t && shipUpgrades.thrusters) t.innerText = shipUpgrades.thrusters.level;
+            }
+
+            // Play voice audio if provided
+            if (currentDebriefAudio) {
+                currentDebriefAudio.pause();
+                currentDebriefAudio = null;
+            }
+            if (missionData?.audioSrc) {
+                currentDebriefAudio = new Audio(missionData.audioSrc);
+                currentDebriefAudio.volume = 1.0;
+                currentDebriefAudio.play().catch(e => console.warn("Debrief audio play error:", e));
+            }
+        }
+
+        function toggleTacticalArmoryDrawer() {
+            const drawer = document.getElementById('tactical-armory-drawer');
+            if (!drawer) return;
+            if (drawer.style.display === 'none' || !drawer.style.display) {
+                drawer.style.display = 'block';
+            } else {
+                drawer.style.display = 'none';
+            }
+        }
+
+        function scrambleNextMission() {
+            isDebriefOverlayActive = false;
+            const overlay = document.getElementById('flight-deck-debrief-overlay');
+            if (overlay) overlay.style.display = 'none';
+            const drawer = document.getElementById('tactical-armory-drawer');
+            if (drawer) drawer.style.display = 'none';
+
+            if (currentDebriefAudio) {
+                currentDebriefAudio.pause();
+                currentDebriefAudio = null;
+            }
+
+            showToast("🚀 HYPERDRIVE ENGAGED: Scrambling to next sector vector!");
+
+            const sec = document.getElementById('hud-sector');
+            const obj = document.getElementById('hud-objective');
+            if (sec) sec.innerText = "SECTOR 02 — UNKNOWN VOID BOUNDARY";
+            if (obj) obj.innerText = "Intercept Precursor Vanguard Patrols in Deep Slipspace";
+
+            if (typeof targetSpeed !== 'undefined') targetSpeed = 600;
+            if (typeof currentSpeed !== 'undefined') currentSpeed = 400;
+
+            if (typeof cameraMode !== 'undefined') cameraMode = 1;
+        }

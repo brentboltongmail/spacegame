@@ -227,6 +227,87 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 🎬 WING COMMANDER 3 INSPIRED SEAMLESS FLIGHT DECK DEBRIEF & TRANSITION HUB -->
+            <div id="flight-deck-debrief-overlay" class="flight-deck-debrief-overlay" style="display: none;">
+                <div class="debrief-panel-card drag-handle-bar">
+                    <div class="debrief-header">
+                        <div class="debrief-badge">COMMAND DECK — SEAMLESS MISSION TRANSITION</div>
+                        <h2 id="debrief-mission-title">MISSION DEBRIEF: PROLOGUE CLEARED</h2>
+                        <div class="debrief-status-tag" id="debrief-status-tag">VICTORY / SECTOR SECURED</div>
+                    </div>
+                    
+                    <!-- Debrief Metrics & Wingman Grid -->
+                    <div class="debrief-body">
+                        <div class="debrief-stats-grid">
+                            <div class="stat-box">
+                                <div class="stat-label">HOSTILES ELIMINATED</div>
+                                <div class="stat-value" id="debrief-stat-kills">12</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">BLASTER ACCURACY</div>
+                                <div class="stat-value" id="debrief-stat-accuracy">87%</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">HULL INTEGRITY</div>
+                                <div class="stat-value" id="debrief-stat-hull">100%</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">WINGMAN STATUS</div>
+                                <div class="stat-value wingman-active" id="debrief-stat-wingman">ACTIVE</div>
+                            </div>
+                        </div>
+
+                        <!-- Debrief Radio Chatter & Audio Card -->
+                        <div class="debrief-comms-box">
+                            <div class="debrief-avatar" id="debrief-avatar-icon">📻</div>
+                            <div class="debrief-comms-text">
+                                <div class="debrief-speaker" id="debrief-speaker-name">ELIAS VANCE</div>
+                                <div class="debrief-subspeaker" id="debrief-speaker-title">MARS FLIGHT COMMAND</div>
+                                <div class="debrief-quote" id="debrief-quote-text">"Outstanding flying out there, Kaylen. Your interceptor is refueled and locked in magnetic formation. Ready to scramble when you give the mark!"</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Controls -->
+                    <div class="debrief-actions">
+                        <button class="sim-btn btn-secondary" onclick="toggleTacticalArmoryDrawer()">⚙️ Tactical Armory</button>
+                        <button class="sim-btn btn-replay" onclick="startTitanGateCinematic()">🔄 Replay Cutscene</button>
+                        <button class="sim-btn btn-primary" onclick="scrambleNextMission()">🚀 SCRAMBLE NEXT MISSION</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide-Out Tactical Armory & Briefing Drawer -->
+            <div id="tactical-armory-drawer" class="tactical-armory-drawer" style="display: none;">
+                <div class="drawer-header">
+                    <h3>⚙️ FLIGHT DECK ARMORY & PRE-FLIGHT CHECK</h3>
+                    <button class="drawer-close-btn" onclick="toggleTacticalArmoryDrawer()">✕</button>
+                </div>
+                <div class="drawer-content">
+                    <div class="upgrade-item">
+                        <div class="upgrade-info">
+                            <div class="upgrade-name">Quantum Plasma Blasters</div>
+                            <div class="upgrade-desc">Increases energy projectile damage output and fire rate.</div>
+                        </div>
+                        <div class="upgrade-level">LVL <span id="armory-blasters-lvl">3</span></div>
+                    </div>
+                    <div class="upgrade-item">
+                        <div class="upgrade-info">
+                            <div class="upgrade-name">Deflector Shield Generator</div>
+                            <div class="upgrade-desc">Reinforces kinetic and plasma deflection fields.</div>
+                        </div>
+                        <div class="upgrade-level">LVL <span id="armory-shields-lvl">4</span></div>
+                    </div>
+                    <div class="upgrade-item">
+                        <div class="upgrade-info">
+                            <div class="upgrade-name">Ion Thruster Nacelles</div>
+                            <div class="upgrade-desc">Boosts sub-warp acceleration and max velocity cap.</div>
+                        </div>
+                        <div class="upgrade-level">LVL <span id="armory-thrusters-lvl">3</span></div>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- TAB 2: Game Titles -->
