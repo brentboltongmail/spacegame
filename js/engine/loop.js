@@ -1857,27 +1857,49 @@
             const outwardQuat = hangerModel.getWorldQuaternion(new THREE.Quaternion());
             
             if (landingPhase === 2) {
-                playerShip.position.lerp(approachWP, 0.01 * dtFactor);
-                playerShip.quaternion.slerp(inwardQuat, 0.02 * dtFactor);
-                if (playerShip.position.distanceTo(approachWP) < 50) {
+                const toApproach = approachWP.clone().sub(playerShip.position);
+                const dist = toApproach.length();
+                if (dist > 50) {
+                    const dir = toApproach.normalize();
+                    playerShip.position.add(dir.multiplyScalar(250 * 0.0064 * dtFactor));
+                    
+                    const targetRot = new THREE.Quaternion().setFromRotationMatrix(
+                        new THREE.Matrix4().lookAt(playerShip.position, approachWP, new THREE.Vector3(0, 1, 0))
+                    );
+                    playerShip.quaternion.slerp(targetRot, 0.03 * dtFactor);
+                } else {
                     landingPhase = 3;
                 }
             } else if (landingPhase === 3) {
-                playerShip.position.lerp(entryWP, 0.005 * dtFactor);
-                playerShip.quaternion.slerp(inwardQuat, 0.02 * dtFactor);
-                if (playerShip.position.distanceTo(entryWP) < 20) {
+                const toEntry = entryWP.clone().sub(playerShip.position);
+                const dist = toEntry.length();
+                if (dist > 20) {
+                    const dir = toEntry.normalize();
+                    playerShip.position.add(dir.multiplyScalar(60 * 0.0064 * dtFactor));
+                    playerShip.quaternion.slerp(inwardQuat, 0.03 * dtFactor);
+                } else {
                     landingPhase = 4;
                 }
             } else if (landingPhase === 4) {
-                playerShip.position.lerp(hoverWP, 0.01 * dtFactor);
-                playerShip.quaternion.slerp(outwardQuat, 0.015 * dtFactor);
-                if (playerShip.position.distanceTo(hoverWP) < 5 && playerShip.quaternion.angleTo(outwardQuat) < 0.1) {
+                const toHover = hoverWP.clone().sub(playerShip.position);
+                const dist = toHover.length();
+                if (dist > 2 || playerShip.quaternion.angleTo(outwardQuat) > 0.05) {
+                    if (dist > 2) {
+                        const dir = toHover.normalize();
+                        playerShip.position.add(dir.multiplyScalar(20 * 0.0064 * dtFactor));
+                    }
+                    playerShip.quaternion.slerp(outwardQuat, 0.03 * dtFactor);
+                } else {
                     landingPhase = 5;
                 }
             } else if (landingPhase === 5) {
-                playerShip.position.lerp(landWP, 0.02 * dtFactor);
-                playerShip.quaternion.slerp(outwardQuat, 0.05 * dtFactor);
-                if (playerShip.position.distanceTo(landWP) < 0.5) {
+                const toLand = landWP.clone().sub(playerShip.position);
+                const dist = toLand.length();
+                if (dist > 0.1) {
+                    const dir = toLand.normalize();
+                    playerShip.position.add(dir.multiplyScalar(5 * 0.0064 * dtFactor));
+                    playerShip.quaternion.slerp(outwardQuat, 0.05 * dtFactor);
+                } else {
                     landingPhase = 6;
                     showToast("🛬 LANDING COMPLETE. WELCOME TO THE CREST.");
                 }
