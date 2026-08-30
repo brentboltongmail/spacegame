@@ -50,31 +50,11 @@
                 clonedShip.position.set(0, 0, 0);
                 clonedShip.rotation.set(0, 0, 0);
                 upgradeHangarShip.add(clonedShip);
-                
-                // Add 3 extra Void Interceptors parked in the hangar bay
-                const extraShip1 = playerShip.clone(true);
-                extraShip1.visible = true;
-                extraShip1.quaternion.set(0, 0, 0, 1);
-                extraShip1.position.set(-5, 0, -3);
-                extraShip1.rotation.set(0, Math.PI / 6, 0);
-                upgradeHangarBackgroundShips.add(extraShip1);
-                
-                const extraShip2 = playerShip.clone(true);
-                extraShip2.visible = true;
-                extraShip2.quaternion.set(0, 0, 0, 1);
-                extraShip2.position.set(5, 0, -3);
-                extraShip2.rotation.set(0, -Math.PI / 6, 0);
-                upgradeHangarBackgroundShips.add(extraShip2);
-                
-                const extraShip3 = playerShip.clone(true);
-                extraShip3.visible = true;
-                extraShip3.quaternion.set(0, 0, 0, 1);
-                extraShip3.position.set(0, 0, -6);
-                extraShip3.rotation.set(0, Math.PI, 0); 
-                upgradeHangarBackgroundShips.add(extraShip3);
             }
             upgradeHangarScene.add(upgradeHangarShip);
             upgradeHangarScene.add(upgradeHangarBackgroundShips);
+
+            refreshHangarBackgroundShips();
 
             // Holographic Form-Fitting Deflector Shield Mesh
             hangarShieldMesh = createHexagonalShieldMesh();
@@ -83,6 +63,35 @@
             // Click & Drag to Orbit/Rotate 3D Ship Listeners
             container.addEventListener('mousedown', (e) => {
                 isHangarDragging = true;
+                previousHangarMousePosition = { x: e.clientX, y: e.clientY };
+            });
+        }
+
+        function refreshHangarBackgroundShips() {
+            if (!upgradeHangarBackgroundShips) return;
+            upgradeHangarBackgroundShips.clear();
+
+            if (typeof voidInterceptorTemplate !== 'undefined' && voidInterceptorTemplate) {
+                // Add 3 extra pure Void Interceptors parked in the hangar bay
+                const extraShip1 = voidInterceptorTemplate.clone(true);
+                extraShip1.visible = true;
+                extraShip1.position.set(-6, 0, -4);
+                extraShip1.rotation.set(0, Math.PI / 4, 0);
+                upgradeHangarBackgroundShips.add(extraShip1);
+                
+                const extraShip2 = voidInterceptorTemplate.clone(true);
+                extraShip2.visible = true;
+                extraShip2.position.set(6, 0, -4);
+                extraShip2.rotation.set(0, -Math.PI / 4, 0);
+                upgradeHangarBackgroundShips.add(extraShip2);
+                
+                const extraShip3 = voidInterceptorTemplate.clone(true);
+                extraShip3.visible = true;
+                extraShip3.position.set(0, 0, -8);
+                extraShip3.rotation.set(0, Math.PI, 0); 
+                upgradeHangarBackgroundShips.add(extraShip3);
+            }
+        }
                 previousHangarMousePosition = { x: e.clientX, y: e.clientY };
             });
 
@@ -128,7 +137,6 @@
                     initUpgradeHangar3D();
                 } else if (playerShip && upgradeHangarShip) {
                     upgradeHangarShip.clear();
-                    if (upgradeHangarBackgroundShips) upgradeHangarBackgroundShips.clear();
                     
                     const clonedShip = playerShip.clone(true);
                     clonedShip.visible = true;
@@ -137,28 +145,7 @@
                     clonedShip.quaternion.set(0, 0, 0, 1);
                     upgradeHangarShip.add(clonedShip);
                     
-                    if (upgradeHangarBackgroundShips) {
-                        const extraShip1 = playerShip.clone(true);
-                        extraShip1.visible = true;
-                        extraShip1.quaternion.set(0, 0, 0, 1);
-                        extraShip1.position.set(-5, 0, -3);
-                        extraShip1.rotation.set(0, Math.PI / 6, 0);
-                        upgradeHangarBackgroundShips.add(extraShip1);
-                        
-                        const extraShip2 = playerShip.clone(true);
-                        extraShip2.visible = true;
-                        extraShip2.quaternion.set(0, 0, 0, 1);
-                        extraShip2.position.set(5, 0, -3);
-                        extraShip2.rotation.set(0, -Math.PI / 6, 0);
-                        upgradeHangarBackgroundShips.add(extraShip2);
-                        
-                        const extraShip3 = playerShip.clone(true);
-                        extraShip3.visible = true;
-                        extraShip3.quaternion.set(0, 0, 0, 1);
-                        extraShip3.position.set(0, 0, -6);
-                        extraShip3.rotation.set(0, Math.PI, 0);
-                        upgradeHangarBackgroundShips.add(extraShip3);
-                    }
+                    refreshHangarBackgroundShips();
                     
                     if (hangarShieldMesh) upgradeHangarShip.add(hangarShieldMesh);
                 }

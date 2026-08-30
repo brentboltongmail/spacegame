@@ -587,29 +587,8 @@
                     clonedShip.quaternion.set(0, 0, 0, 1);
                     upgradeHangarShip.add(clonedShip);
                     
-                    if (typeof upgradeHangarBackgroundShips !== 'undefined' && upgradeHangarBackgroundShips) {
-                        upgradeHangarBackgroundShips.clear();
-                        
-                        const extraShip1 = playerShip.clone(true);
-                        extraShip1.visible = true;
-                        extraShip1.quaternion.set(0, 0, 0, 1);
-                        extraShip1.position.set(-5, 0, -3);
-                        extraShip1.rotation.set(0, Math.PI / 6, 0);
-                        upgradeHangarBackgroundShips.add(extraShip1);
-                        
-                        const extraShip2 = playerShip.clone(true);
-                        extraShip2.visible = true;
-                        extraShip2.quaternion.set(0, 0, 0, 1);
-                        extraShip2.position.set(5, 0, -3);
-                        extraShip2.rotation.set(0, -Math.PI / 6, 0);
-                        upgradeHangarBackgroundShips.add(extraShip2);
-                        
-                        const extraShip3 = playerShip.clone(true);
-                        extraShip3.visible = true;
-                        extraShip3.quaternion.set(0, 0, 0, 1);
-                        extraShip3.position.set(0, 0, -6);
-                        extraShip3.rotation.set(0, Math.PI, 0);
-                        upgradeHangarBackgroundShips.add(extraShip3);
+                    if (typeof refreshHangarBackgroundShips === 'function') {
+                        refreshHangarBackgroundShips();
                     }
                     
                     if (typeof hangarShieldMesh !== 'undefined' && hangarShieldMesh) upgradeHangarShip.add(hangarShieldMesh);
