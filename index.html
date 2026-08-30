@@ -840,6 +840,15 @@
 
                     <div class="volume-slider-group">
                         <div class="slider-header">
+                            <span>🛸 Enemy Fighter Flight Speed</span>
+                            <span id="lbl-set-enemy-speed">50%</span>
+                        </div>
+                        <input type="range" id="slider-set-enemy-speed" min="10" max="150" value="50" step="1" oninput="updateGameSettings()">
+                        <div style="font-size: 0.7rem; color: #64748b; margin-top: 4px;">Lower = slower enemy dogfighting speed (50% = half speed)</div>
+                    </div>
+
+                    <div class="volume-slider-group">
+                        <div class="slider-header">
                             <span>🔥 Player Laser Damage Multiplier</span>
                             <span id="lbl-set-player-dmg">20%</span>
                         </div>

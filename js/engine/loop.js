@@ -709,6 +709,10 @@
             const fwdDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
             const playerVel = fwdDir.clone().negate().multiplyScalar(currentSpeed);
 
+            // Calculate dynamic enemy speed multiplier from options menu (Default: 50% = half speed)
+            let _eSpeedVal = (typeof gameMechanicsConfig !== 'undefined' && gameMechanicsConfig.enemySpeedMult !== undefined) ? gameMechanicsConfig.enemySpeedMult : 50;
+            const eSpeedFactor = (_eSpeedVal / 100) * 0.50;
+
             enemyShips.forEach(e => {
                 if (e.userData && e.userData.hp > 0 && playerShip) {
                     const toPlayer = playerShip.position.clone().sub(e.position);
@@ -720,6 +724,8 @@
                         e.userData.attackState = e.userData.attackState || 'intercept';
                         e.userData.breakawayTimer = e.userData.breakawayTimer || 0;
                         e.userData.burstCount = e.userData.burstCount || 0;
+
+                        const enemyTurnRate = 0.004 * (_eSpeedVal / 50) * dtFactor;
 
                         if (e.userData.attackState === 'breakaway') {
                             // 🚀 EXTENSION / BREAKAWAY (ZOOM) PHASE
@@ -735,11 +741,11 @@
                                 e.userData.breakawayTargetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), worldBreakDir);
                             }
 
-                            // Smooth capped turn rate into breakaway vector (scaled to match 3x slower flight speed)
-                            e.quaternion.rotateTowards(e.userData.breakawayTargetQuat, 0.004);
+                            // Smooth capped turn rate into breakaway vector
+                            e.quaternion.rotateTowards(e.userData.breakawayTargetQuat, enemyTurnRate);
 
-                            // 3x Slower momentum cruise speed (7.0 -> 2.33)
-                            e.translateZ(-2.33);
+                            // Slower momentum cruise speed
+                            e.translateZ(-2.33 * eSpeedFactor * dtFactor);
 
                             if (e.userData.breakawayTimer <= 0 || dist > 2600) {
                                 e.userData.attackState = 'intercept';
@@ -753,12 +759,12 @@
                             const toLead = predictedLeadPos.sub(e.position);
                             const leadDir = toLead.clone().normalize();
 
-                            // Smooth turn towards predicted lead position scaled to match 3x slower flight speed
+                            // Smooth turn towards predicted lead position
                             const targetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), leadDir);
-                            e.quaternion.rotateTowards(targetQuat, 0.004);
+                            e.quaternion.rotateTowards(targetQuat, enemyTurnRate);
 
-                            // 3x Slower attack run speed (6.5-8.5 -> 2.16-2.83)
-                            const attackSpeed = Math.min(2.83, 1.83 + (dist / 3000));
+                            // Slower attack run speed
+                            const attackSpeed = Math.min(2.83, 1.83 + (dist / 3000)) * eSpeedFactor * dtFactor;
                             e.translateZ(-attackSpeed);
 
                             // Initiate breakaway if closing under 350 units to prevent collision or close-range snapping
@@ -792,8 +798,8 @@
                         }
                     } else {
                         // Unaggroed Asteroid Belt Patrol: Smooth cruise around Saturn's ring system
-                        e.translateZ(-2.0 * dtFactor);
-                        e.rotateY(0.002 * dtFactor);
+                        e.translateZ(-2.0 * eSpeedFactor * dtFactor);
+                        e.rotateY(0.002 * dtFactor * (_eSpeedVal / 50));
                     }
 
                     // Target Lock Candidate Check

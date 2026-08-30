@@ -18,6 +18,7 @@
             shieldRegenMult: 100,
             hullRegenMult: 100,
             enemyDamageMult: 100,
+            enemySpeedMult: 50,
             playerDamageMult: 100,
             flashOnHit: false
         };
@@ -57,6 +58,8 @@
                 setText('lbl-set-hull-regen', gameMechanicsConfig.hullRegenMult + '%');
                 setEl('slider-set-enemy-dmg', gameMechanicsConfig.enemyDamageMult);
                 setText('lbl-set-enemy-dmg', gameMechanicsConfig.enemyDamageMult + '%');
+                setEl('slider-set-enemy-speed', gameMechanicsConfig.enemySpeedMult !== undefined ? gameMechanicsConfig.enemySpeedMult : 50);
+                setText('lbl-set-enemy-speed', (gameMechanicsConfig.enemySpeedMult !== undefined ? gameMechanicsConfig.enemySpeedMult : 50) + '%');
                 setEl('slider-set-player-dmg', gameMechanicsConfig.playerDamageMult);
                 setText('lbl-set-player-dmg', gameMechanicsConfig.playerDamageMult + '%');
                 
@@ -114,6 +117,7 @@
                 const shieldRegenVal = getVal('slider-set-shield-regen', 100);
                 const hullRegenVal = getVal('slider-set-hull-regen', 100);
                 const enemyDmgVal = getVal('slider-set-enemy-dmg', 100);
+                const enemySpeedVal = getVal('slider-set-enemy-speed', 50);
                 const playerDmgVal = getVal('slider-set-player-dmg', 100);
                 const chk = document.getElementById('chk-flash-on-hit');
                 const flashOnHitVal = chk ? chk.checked : false;
@@ -129,6 +133,7 @@
                 setLbl('lbl-set-shield-regen', shieldRegenVal);
                 setLbl('lbl-set-hull-regen', hullRegenVal);
                 setLbl('lbl-set-enemy-dmg', enemyDmgVal);
+                setLbl('lbl-set-enemy-speed', enemySpeedVal);
                 setLbl('lbl-set-player-dmg', playerDmgVal);
 
                 gameMechanicsConfig.rollSpeed = rollVal;
@@ -139,6 +144,7 @@
                 gameMechanicsConfig.shieldRegenMult = shieldRegenVal;
                 gameMechanicsConfig.hullRegenMult = hullRegenVal;
                 gameMechanicsConfig.enemyDamageMult = enemyDmgVal;
+                gameMechanicsConfig.enemySpeedMult = enemySpeedVal;
                 gameMechanicsConfig.playerDamageMult = playerDmgVal;
                 gameMechanicsConfig.flashOnHit = flashOnHitVal;
 
@@ -152,6 +158,7 @@
                     currentProfile.settings.shieldRegenMult = shieldRegenVal;
                     currentProfile.settings.hullRegenMult = hullRegenVal;
                     currentProfile.settings.enemyDamageMult = enemyDmgVal;
+                    currentProfile.settings.enemySpeedMult = enemySpeedVal;
                     currentProfile.settings.playerDamageMult = playerDmgVal;
                     currentProfile.settings.flashOnHit = flashOnHitVal;
                     saveProfileToServerSilent();
