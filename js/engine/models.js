@@ -442,6 +442,11 @@
                                 shipGroup.rotation.set(0, Math.PI, 0); // Facing out towards +Z
 
                                 const ship = voidInterceptorTemplate.clone(true);
+                                
+                                // Ensure the ship rests perfectly on the floor at y=-0.38
+                                const bbox = new THREE.Box3().setFromObject(ship);
+                                ship.position.y -= bbox.min.y;
+                                
                                 shipGroup.add(ship);
                                 
                                 hangerModel.add(shipGroup);
