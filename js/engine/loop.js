@@ -37,9 +37,9 @@
             // Update Cockpit Engine Sound Pitch, Muffling & Volume dynamically (0% -> 100% Throttle)
             updateEngineAudio(currentSpeed / maxSpeedCap, cameraMode === 0);
 
-            const postedSpeed = Math.round(currentSpeed * (150000 / maxSpeedCap)); // Posted speed scaled to max 150,000 km/h
+            const postedSpeed = Math.round(currentSpeed * (500 / maxSpeedCap)); // Posted speed scaled to max 500 km/s
             const speedElem = document.getElementById('hud-speed');
-            if (speedElem) speedElem.innerText = `SPEED: ${postedSpeed.toLocaleString()} km/h ${currentSpeed > (maxSpeedCap * 0.9) ? '[MAX THROTTLE]' : ''}`;
+            if (speedElem) speedElem.innerText = `SPEED: ${postedSpeed.toLocaleString()} km/s ${currentSpeed > (maxSpeedCap * 0.9) ? '[MAX THROTTLE]' : ''}`;
 
             // --- SINGULARITY-FREE 360° QUATERNION FLIGHT (LOOPS & ROLLS WITHOUT FLIPPING) ---
             const deadzone = 0.03;
@@ -1479,8 +1479,8 @@
 
             const speedSubtext = document.getElementById('throttle-speed-subtext');
             if (speedSubtext) {
-                const postedSpeed = Math.round(currentSpeed * (150000 / maxSpeedCap));
-                speedSubtext.innerText = `${postedSpeed.toLocaleString()} km/h`;
+                const postedSpeed = Math.round(currentSpeed * (500 / maxSpeedCap));
+                speedSubtext.innerText = `${postedSpeed.toLocaleString()} km/s`;
             }
 
             const startAngle = -Math.PI * 0.82;
