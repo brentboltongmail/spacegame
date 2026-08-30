@@ -422,20 +422,20 @@
                             const sz = 1 / (targetScale * 0.39);
 
                             const positions = [];
-                            // 8 fighters on the left wall
-                            for (let i = 0; i < 8; i++) {
-                                const zPos = -0.75 + (i / 7) * 1.5; // Spread from Z=-0.75 to Z=0.75
+                            // 5 fighters on the left wall
+                            for (let i = 0; i < 5; i++) {
+                                const zPos = -0.75 + (i / 4) * 1.5; // Spread from Z=-0.75 to Z=0.75
                                 positions.push({ x: -0.55, y: -0.38, z: zPos });
                             }
-                            // 7 fighters on the right wall
-                            for (let i = 0; i < 7; i++) {
-                                const zPos = -0.7 + (i / 6) * 1.4; // Slightly tighter spread
+                            // 4 fighters on the right wall
+                            for (let i = 0; i < 4; i++) {
+                                const zPos = -0.7 + (i / 3) * 1.4; // Slightly tighter spread
                                 positions.push({ x: 0.55, y: -0.38, z: zPos });
                             }
                             
                             positions.forEach(pos => {
                                 const shipGroup = new THREE.Group();
-                                shipGroup.scale.set(sx * 2, sy * 2, sz * 2);
+                                shipGroup.scale.set(sx * 4, sy * 4, sz * 4);
                                 shipGroup.position.set(pos.x, pos.y, pos.z);
                                 shipGroup.rotation.set(0, 0, 0); // Facing out towards +Z
 
@@ -468,7 +468,7 @@
                             rightStrip.position.set(0.25, -0.385, 0);
                             hangerModel.add(rightStrip);
 
-                            console.log("[THE CREST HANGER] Spawned 15 parked Void Interceptors and Runway Lights.");
+                            console.log("[THE CREST HANGER] Spawned 9 parked Void Interceptors and Runway Lights.");
                         }
                     }, 500);
 
