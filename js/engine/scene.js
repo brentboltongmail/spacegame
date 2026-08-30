@@ -19,7 +19,11 @@
         let targetSpeed = 0;
         let currentSpeed = 0;
         let isWormholeActive = false;
-
+        
+        let isLandingSequenceActive = false;
+        let landingPhase = 0;
+        let landingStartTime = 0;
+        let landingApproachWaypoint = null;
         // --- TITAN EXCAVATION, HUGE GOLDEN RING & PURPLE TRACTOR EXTRACTION GLOBALS ---
         let titanExcavationSite = null;
         let titanExcavationCraterMesh = null;
@@ -158,6 +162,19 @@
                 cameraMode = modeIndex;
                 applyCameraModeEffects();
             }
+        }
+
+        function requestLandingSequence() {
+            if (isLandingSequenceActive) return;
+            isLandingSequenceActive = true;
+            landingPhase = 1;
+            landingStartTime = performance.now();
+            
+            const btn = document.getElementById('btn-request-landing');
+            if (btn) btn.style.display = 'none';
+            
+            setCameraMode(3); // Cinematic View
+            showToast("🛬 CLEARANCE GRANTED. AUTOPILOT ENGAGED.");
         }
 
         function toggleCameraMode() {

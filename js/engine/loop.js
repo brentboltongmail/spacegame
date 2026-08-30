@@ -22,7 +22,7 @@
                 return;
             }
 
-            if (isTitanCinematicActive) {
+            if (isTitanCinematicActive || isLandingSequenceActive) {
                 // Automatic cinematic engine throttle management
                 currentSpeed += (targetSpeed - currentSpeed) * Math.min(1.0, 0.05 * dtFactor);
             } else {
@@ -153,6 +153,8 @@
                         }, 1400);
                     }
                 }
+            } else if (isLandingSequenceActive && theCrestStation && theCrestStation.userData.hangerModel) {
+                updateLandingSequence(dtFactor);
             } else {
                 // Apply local pitch (X) and yaw (Y) quaternion rotations directly
                 // Allows full 360° loop-de-loops over the top without any view snapping or gimbal flips!
@@ -182,6 +184,8 @@
                     const speedMult = (titanCinematicIndex >= 9 || isTitanCinematicEnteringGate) ? 1.0 : 1.35;
                     frameDisplacement = dirToGate.clone().multiplyScalar(currentSpeed * 0.0064 * speedMult * dtFactor);
                 }
+            } else if (isLandingSequenceActive) {
+                frameDisplacement = new THREE.Vector3(0, 0, 0); // Position is fully controlled by updateLandingSequence
             } else {
                 const moveDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
                 frameDisplacement = moveDir.clone().multiplyScalar(currentSpeed * 0.0064 * dtFactor);
@@ -406,6 +410,14 @@
                 }
 
                 const distToCrest = playerShip.position.distanceTo(theCrestStation.position);
+                const landingBtn = document.getElementById('btn-request-landing');
+                if (landingBtn) {
+                    if (distToCrest < 2000 && !isLandingSequenceActive && !inHangerZone) {
+                        landingBtn.style.display = 'block';
+                    } else {
+                        landingBtn.style.display = 'none';
+                    }
+                }
                 // Apply the generic 180-radius station core push-out ONLY if we aren't inside the hangar
                 if (!inHangerZone && distToCrest < 180) {
                     const pushOutDir = playerShip.position.clone().sub(theCrestStation.position).normalize();
@@ -1823,3 +1835,54 @@
             }
         }
 
+        function updateLandingSequence(dtFactor) {
+            if (!theCrestStation || !theCrestStation.userData.hangerModel) return;
+            const hangerModel = theCrestStation.userData.hangerModel;
+            
+            if (landingPhase === 1) {
+                targetSpeed = 0;
+                landingPhase = 2;
+            }
+            
+            const approachWP = new THREE.Vector3(0, 0.2, 3.0).applyMatrix4(hangerModel.matrixWorld);
+            const entryWP = new THREE.Vector3(0, 0.2, 0.5).applyMatrix4(hangerModel.matrixWorld);
+            const hoverWP = new THREE.Vector3(-0.55, 0.2, 0.75).applyMatrix4(hangerModel.matrixWorld);
+            const landWP = new THREE.Vector3(-0.55, 0.0, 0.75).applyMatrix4(hangerModel.matrixWorld);
+            
+            // Hangar door faces +Z in local space. We approach facing -Z.
+            const inwardQuat = hangerModel.getWorldQuaternion(new THREE.Quaternion()).multiply(
+                new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), Math.PI)
+            );
+            // Parked ships face +Z (outward).
+            const outwardQuat = hangerModel.getWorldQuaternion(new THREE.Quaternion());
+            
+            if (landingPhase === 2) {
+                playerShip.position.lerp(approachWP, 0.01 * dtFactor);
+                playerShip.quaternion.slerp(inwardQuat, 0.02 * dtFactor);
+                if (playerShip.position.distanceTo(approachWP) < 50) {
+                    landingPhase = 3;
+                }
+            } else if (landingPhase === 3) {
+                playerShip.position.lerp(entryWP, 0.005 * dtFactor);
+                playerShip.quaternion.slerp(inwardQuat, 0.02 * dtFactor);
+                if (playerShip.position.distanceTo(entryWP) < 20) {
+                    landingPhase = 4;
+                }
+            } else if (landingPhase === 4) {
+                playerShip.position.lerp(hoverWP, 0.01 * dtFactor);
+                playerShip.quaternion.slerp(outwardQuat, 0.015 * dtFactor);
+                if (playerShip.position.distanceTo(hoverWP) < 5 && playerShip.quaternion.angleTo(outwardQuat) < 0.1) {
+                    landingPhase = 5;
+                }
+            } else if (landingPhase === 5) {
+                playerShip.position.lerp(landWP, 0.02 * dtFactor);
+                playerShip.quaternion.slerp(outwardQuat, 0.05 * dtFactor);
+                if (playerShip.position.distanceTo(landWP) < 0.5) {
+                    landingPhase = 6;
+                    showToast("🛬 LANDING COMPLETE. WELCOME TO THE CREST.");
+                }
+            } else if (landingPhase === 6) {
+                playerShip.position.copy(landWP);
+                playerShip.quaternion.copy(outwardQuat);
+            }
+        }
