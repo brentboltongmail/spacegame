@@ -711,15 +711,15 @@
             </div>
 
             <div class="options-body-grid">
-                <!-- Left Box: Volume Control Sliders -->
+                <!-- Column 1: Audio Volume & Platform System -->
                 <div class="options-card">
-                    <h3 style="font-family: Orbitron; color: var(--accent-cyan); font-size: 1.1rem; margin-bottom: 16px; border-bottom: 1px solid rgba(0,240,255,0.2); padding-bottom: 8px;">
-                        🔊 MULTI-TRACK AUDIO VOLUME CONTROLS
+                    <h3 style="font-family: Orbitron; color: var(--accent-cyan); font-size: 1.05rem; margin-bottom: 16px; border-bottom: 1px solid rgba(0,240,255,0.2); padding-bottom: 8px;">
+                        🔊 AUDIO & SYSTEM
                     </h3>
                     
                     <div class="volume-slider-group">
                         <div class="slider-header">
-                            <span>🔊 Master Sound Volume</span>
+                            <span>🔊 Master Sound</span>
                             <span id="lbl-vol-master">70%</span>
                         </div>
                         <input type="range" id="slider-vol-master" min="0" max="100" value="70" oninput="updateAudioVolumes()">
@@ -727,7 +727,7 @@
 
                     <div class="volume-slider-group">
                         <div class="slider-header">
-                            <span>🚀 Engine Sound FX Volume</span>
+                            <span>🚀 Engine Sound FX</span>
                             <span id="lbl-vol-engine">80%</span>
                         </div>
                         <input type="range" id="slider-vol-engine" min="0" max="100" value="80" oninput="updateAudioVolumes()">
@@ -735,7 +735,7 @@
 
                     <div class="volume-slider-group">
                         <div class="slider-header">
-                            <span>💥 Plasma Firing SFX Volume</span>
+                            <span>💥 Plasma Firing SFX</span>
                             <span id="lbl-vol-firing">85%</span>
                         </div>
                         <input type="range" id="slider-vol-firing" min="0" max="100" value="85" oninput="updateAudioVolumes()">
@@ -743,33 +743,28 @@
 
                     <div class="volume-slider-group">
                         <div class="slider-header">
-                            <span>🎵 Epic Space Theme Music</span>
+                            <span>🎵 Space Theme Music</span>
                             <span id="lbl-vol-music">60%</span>
                         </div>
                         <input type="range" id="slider-vol-music" min="0" max="100" value="60" oninput="updateAudioVolumes()">
                     </div>
-                </div>
 
-                <!-- Middle Box: Flight Feel Settings -->
-                <div class="options-card">
-                    <h3 style="font-family: Orbitron; color: var(--accent-cyan); font-size: 1.1rem; margin-bottom: 16px; border-bottom: 1px solid rgba(0,240,255,0.2); padding-bottom: 8px;">
-                        🕹️ FLIGHT FEEL SETTINGS
-                    </h3>
-
-                    <div class="volume-slider-group" style="border: 1px solid var(--accent-cyan); padding: 10px; border-radius: 8px; margin-bottom: 15px; background: rgba(0,240,255,0.05);">
-                        <div style="font-family: Orbitron; color: var(--accent-cyan); margin-bottom: 8px; display: flex; justify-content: space-between;">
-                            <span>🖥️ PLATFORM OPTIMIZATION</span>
+                    <div class="volume-slider-group" style="border: 1px solid var(--accent-cyan); padding: 10px; border-radius: 8px; margin-top: 8px; background: rgba(0,240,255,0.05);">
+                        <div style="font-family: Orbitron; color: var(--accent-cyan); margin-bottom: 6px; font-size: 0.85rem;">
+                            🖥️ PLATFORM OPTIMIZATION
                         </div>
-                        <select id="select-platform" onchange="changePlatform()" style="width: 100%; padding: 8px; background: #0f172a; color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; font-family: 'Inter', sans-serif; cursor: pointer; outline: none;">
+                        <select id="select-platform" onchange="changePlatform()" style="width: 100%; padding: 6px; background: #0f172a; color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; font-family: 'Inter', sans-serif; cursor: pointer; outline: none; font-size: 0.8rem;">
                             <option value="windows">Windows / Gaming PC</option>
                             <option value="mac">Mac / Apple Silicon (Optimized)</option>
                         </select>
-                        <div id="platform-info" style="font-size: 0.75rem; color: #94a3b8; margin-top: 8px; line-height: 1.4;">
-                            <strong>Windows:</strong> High-res MSAA, Alpha Compositing.<br>
-                            <strong>Mac:</strong> Retina MSAA disabled, No Compositing, High-Performance Mode forced.
-                        </div>
                     </div>
+                </div>
 
+                <!-- Column 2: Flight Dynamics -->
+                <div class="options-card">
+                    <h3 style="font-family: Orbitron; color: var(--accent-cyan); font-size: 1.05rem; margin-bottom: 16px; border-bottom: 1px solid rgba(0,240,255,0.2); padding-bottom: 8px;">
+                        🚀 FLIGHT DYNAMICS
+                    </h3>
 
                     <div class="volume-slider-group">
                         <div class="slider-header">
@@ -798,11 +793,10 @@
 
                     <div class="volume-slider-group">
                         <div class="slider-header">
-                            <span>🚀 Throttle Response Speed</span>
+                            <span>🚀 Throttle Response</span>
                             <span id="lbl-set-throttle">50%</span>
                         </div>
                         <input type="range" id="slider-set-throttle" min="10" max="100" value="50" oninput="updateGameSettings()">
-                        <div style="font-size: 0.7rem; color: #64748b; margin-top: 4px;">Higher = faster engine spool up/down</div>
                     </div>
 
                     <div class="volume-slider-group">
@@ -811,8 +805,14 @@
                             <span id="lbl-set-toast">5s</span>
                         </div>
                         <input type="range" id="slider-set-toast" min="1" max="10" value="5" oninput="updateGameSettings()">
-                        <div style="font-size: 0.7rem; color: #64748b; margin-top: 4px;">Time messages stay on screen (seconds)</div>
                     </div>
+                </div>
+
+                <!-- Column 3: Combat & Multipliers -->
+                <div class="options-card">
+                    <h3 style="font-family: Orbitron; color: var(--accent-cyan); font-size: 1.05rem; margin-bottom: 16px; border-bottom: 1px solid rgba(0,240,255,0.2); padding-bottom: 8px;">
+                        🛡️ COMBAT & DIFFICULTY
+                    </h3>
 
                     <div class="volume-slider-group">
                         <div class="slider-header">
@@ -832,7 +832,7 @@
 
                     <div class="volume-slider-group">
                         <div class="slider-header">
-                            <span>💥 Enemy Void Damage Multiplier</span>
+                            <span>💥 Enemy Void Damage</span>
                             <span id="lbl-set-enemy-dmg">20%</span>
                         </div>
                         <input type="range" id="slider-set-enemy-dmg" min="10" max="100" value="20" step="1" oninput="updateGameSettings()">
@@ -840,34 +840,34 @@
 
                     <div class="volume-slider-group">
                         <div class="slider-header">
-                            <span>🛸 Enemy Fighter Flight Speed</span>
+                            <span>🛸 Enemy Fighter Speed</span>
                             <span id="lbl-set-enemy-speed">50%</span>
                         </div>
                         <input type="range" id="slider-set-enemy-speed" min="10" max="150" value="50" step="1" oninput="updateGameSettings()">
-                        <div style="font-size: 0.7rem; color: #64748b; margin-top: 4px;">Lower = slower enemy dogfighting speed (50% = half speed)</div>
+                        <div style="font-size: 0.7rem; color: #64748b; margin-top: 4px;">Lower = slower enemy dogfighting speed</div>
                     </div>
 
                     <div class="volume-slider-group">
                         <div class="slider-header">
-                            <span>🔥 Player Laser Damage Multiplier</span>
+                            <span>🔥 Player Laser Damage</span>
                             <span id="lbl-set-player-dmg">20%</span>
                         </div>
                         <input type="range" id="slider-set-player-dmg" min="10" max="100" value="20" step="1" oninput="updateGameSettings()">
                     </div>
 
-                    <div class="volume-slider-group" style="display: flex; align-items: center; justify-content: space-between; margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;">
-                        <span>💥 Enable Screen Flash on Hit</span>
-                        <input type="checkbox" id="chk-flash-on-hit" onchange="updateGameSettings()" style="width: 20px; height: 20px; accent-color: var(--accent-cyan);">
+                    <div class="volume-slider-group" style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                        <span style="font-size: 0.85rem;">💥 Enable Screen Flash</span>
+                        <input type="checkbox" id="chk-flash-on-hit" onchange="updateGameSettings()" style="width: 18px; height: 18px; accent-color: var(--accent-cyan);">
                     </div>
                 </div>
 
-                <!-- Right Box: Keymap Control Editor -->
+                <!-- Column 4: Keymap Control Editor -->
                 <div class="options-card">
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,240,255,0.2); padding-bottom: 8px; margin-bottom: 16px;">
-                        <h3 style="font-family: Orbitron; color: var(--accent-cyan); font-size: 1.1rem;">
-                            ⌨️ KEYBOARD & MOUSE CONTROLS
+                        <h3 style="font-family: Orbitron; color: var(--accent-cyan); font-size: 1.05rem;">
+                            ⌨️ KEYBOARD CONTROLS
                         </h3>
-                        <button class="sim-btn" onclick="resetDefaultKeymaps()" style="font-size: 0.75rem; padding: 4px 10px; background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #ef4444; border-radius: 4px;">
+                        <button class="sim-btn" onclick="resetDefaultKeymaps()" style="font-size: 0.7rem; padding: 4px 8px; background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #ef4444; border-radius: 4px;">
                             Reset Defaults
                         </button>
                     </div>
