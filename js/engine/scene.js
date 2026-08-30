@@ -173,7 +173,7 @@
             const btn = document.getElementById('btn-request-landing');
             if (btn) btn.style.display = 'none';
             
-            setCameraMode(1); // Follow (near)
+            setCameraMode(3); // Cinematic view
             showToast("🛬 CLEARANCE GRANTED. AUTOPILOT ENGAGED.");
         }
 

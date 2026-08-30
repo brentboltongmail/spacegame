@@ -1945,54 +1945,57 @@
                     landingPhase = 2;
                 }
             } else if (landingPhase === 2) {
-                const toApproach = approachWP.clone().sub(playerShip.position);
-                if (toApproach.length() > 50) {
-                    const dir = toApproach.normalize();
-                    playerShip.position.add(dir.multiplyScalar(150 * 0.0064 * dtFactor));
+                if (!hangerModel.userData.landingCurve) {
+                    const pts = [
+                        new THREE.Vector3(0, -0.18, 12.0),
+                        new THREE.Vector3(0, -0.18, 5.0),
+                        new THREE.Vector3(0, -0.18, 1.0),
+                        new THREE.Vector3(-0.1, -0.18, -0.5),
+                        new THREE.Vector3(-0.55, -0.18, -0.5),
+                        new THREE.Vector3(-0.55, -0.18, 0.75),
+                        new THREE.Vector3(-0.55, -0.38, 0.75)
+                    ];
+                    hangerModel.userData.landingCurve = new THREE.CatmullRomCurve3(pts);
+                    hangerModel.userData.landingCurve.curveType = 'centripetal';
+                    hangerModel.userData.landingProgress = 0;
+                }
+                
+                let speed = 0.003; 
+                if (hangerModel.userData.landingProgress > 0.8) speed = 0.0015;
+                if (hangerModel.userData.landingProgress > 0.95) speed = 0.0008; // smooth landing
+                
+                hangerModel.userData.landingProgress += speed * dtFactor;
+                let prog = hangerModel.userData.landingProgress;
+                if (prog >= 1.0) prog = 1.0;
+                
+                const localPos = hangerModel.userData.landingCurve.getPoint(prog);
+                const worldPos = localPos.clone().applyMatrix4(hangerModel.matrixWorld);
+                
+                // Interpolate position smoothly to the curve (since we start slightly off due to > 50 distance check)
+                playerShip.position.lerp(worldPos, 0.2 * dtFactor);
+                
+                // For rotation, look slightly ahead
+                let lookAhead = prog + 0.02;
+                if (lookAhead > 1.0) lookAhead = 1.0;
+                
+                if (prog < 0.98) {
+                    const localTangent = hangerModel.userData.landingCurve.getTangent(lookAhead);
+                    localTangent.y = 0; // Keep ship level during approach
+                    localTangent.normalize();
+                    const worldTangent = localTangent.transformDirection(hangerModel.matrixWorld);
+                    const lookTarget = playerShip.position.clone().add(worldTangent);
+                    
                     const targetRot = new THREE.Quaternion().setFromRotationMatrix(
-                        new THREE.Matrix4().lookAt(playerShip.position, approachWP, new THREE.Vector3(0, 1, 0))
+                        new THREE.Matrix4().lookAt(playerShip.position, lookTarget, new THREE.Vector3(0, 1, 0))
                     );
-                    playerShip.quaternion.slerp(targetRot, 0.03 * dtFactor);
-                } else {
-                    landingPhase = 3;
+                    playerShip.quaternion.slerp(targetRot, 0.1 * dtFactor);
                 }
-            } else if (landingPhase === 3) {
-                const toEntry = entryWP.clone().sub(playerShip.position);
-                if (toEntry.length() > 20) {
-                    const dir = toEntry.normalize();
-                    playerShip.position.add(dir.multiplyScalar(60 * 0.0064 * dtFactor));
-                    const targetRot = new THREE.Quaternion().setFromRotationMatrix(
-                        new THREE.Matrix4().lookAt(playerShip.position, entryWP, new THREE.Vector3(0, 1, 0))
-                    );
-                    playerShip.quaternion.slerp(targetRot, 0.03 * dtFactor);
-                } else {
-                    landingPhase = 4;
-                }
-            } else if (landingPhase === 4) {
-                const toHover = hoverWP.clone().sub(playerShip.position);
-                if (toHover.length() > 2) {
-                    const dir = toHover.normalize();
-                    playerShip.position.add(dir.multiplyScalar(20 * 0.0064 * dtFactor));
-                    const targetRot = new THREE.Quaternion().setFromRotationMatrix(
-                        new THREE.Matrix4().lookAt(playerShip.position, hoverWP, new THREE.Vector3(0, 1, 0))
-                    );
-                    playerShip.quaternion.slerp(targetRot, 0.03 * dtFactor);
-                } else {
-                    landingPhase = 4.5;
-                }
-            } else if (landingPhase === 4.5) {
-                playerShip.quaternion.slerp(outwardQuat, 0.03 * dtFactor);
-                if (playerShip.quaternion.angleTo(outwardQuat) < 0.05) {
-                    landingPhase = 5;
-                }
-            } else if (landingPhase === 5) {
-                const toLand = landWP.clone().sub(playerShip.position);
-                if (toLand.length() > 0.1) {
-                    const dir = toLand.normalize();
-                    playerShip.position.add(dir.multiplyScalar(5 * 0.0064 * dtFactor));
-                    playerShip.quaternion.slerp(outwardQuat, 0.05 * dtFactor);
-                } else {
+                
+                if (prog >= 1.0) {
                     landingPhase = 6;
+                    // Ensure perfectly placed
+                    playerShip.position.copy(worldPos);
+                    playerShip.quaternion.copy(outwardQuat);
                     showToast("🛬 LANDING COMPLETE. WELCOME TO THE CREST.");
                 }
             } else if (landingPhase === 6) {
