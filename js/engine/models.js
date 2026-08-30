@@ -193,12 +193,8 @@
 
                     hangerModel.add(borderGroup);
 
-                    // 3. Deep Blue Ambient Force Field Light
-                    const forceFieldLight = new THREE.PointLight(0x0044ff, 0.3, 50); // Further reduced brightness
-                    forceFieldLight.position.set(0, centerY, entranceZ);
-                    forceFieldLight.layers.enable(1);
-                    hangerModel.add(forceFieldLight);
-                    
+                    // The blue force field light has been removed per user request.
+
                     // Add 6 dim point lights to the ceiling
                     const lightPositions = [
                         {x: -0.2, z: 0.5}, {x: 0.2, z: 0.5},
@@ -206,7 +202,7 @@
                         {x: -0.2, z: -0.5}, {x: 0.2, z: -0.5}
                     ];
                     lightPositions.forEach(pos => {
-                        const pLight = new THREE.PointLight(0xfff5e6, 0.2, 1.5); // Much dimmer overhead light, shorter falloff
+                        const pLight = new THREE.PointLight(0xffffff, 0.4, 2.0); // Pure white light from the ceiling
                         pLight.position.set(pos.x, 0.35, pos.z);
                         pLight.layers.enable(1);
                         hangerModel.add(pLight);
