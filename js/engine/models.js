@@ -93,6 +93,27 @@
                             });
                         }
                     });
+
+                    // Grab the texture from the hanger and apply it to the crest
+                    let hangerTex = null;
+                    hangerModel.traverse(function(child) {
+                        if (!hangerTex && child.isMesh && child.material) {
+                            const m = Array.isArray(child.material) ? child.material[0] : child.material;
+                            if (m.map) hangerTex = m.map;
+                        }
+                    });
+                    if (hangerTex) {
+                        model.traverse(function(child) {
+                            if (child.isMesh && child.material) {
+                                const mats = Array.isArray(child.material) ? child.material : [child.material];
+                                mats.forEach(mat => {
+                                    mat.map = hangerTex;
+                                    mat.needsUpdate = true;
+                                });
+                            }
+                        });
+                    }
+
                     // Reduce Y height by 40% (0.25 * 0.6 = 0.15)
                     hangerModel.scale.set(0.25, 0.15, 0.25);
                     // Move it closer to center (X=0.52) and raise it up to touch bottom of ring (Y=-0.07)
