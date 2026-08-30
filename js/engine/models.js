@@ -100,25 +100,13 @@
                     // Rotate the hanger so its opening faces outward from the center
                     hangerModel.rotation.y = Math.PI / 2;
 
-                    // --- 🛡️ ATMOSPHERIC CONTAINMENT FORCE FIELD SHIELD & OUTER RECTANGLE GLOW EDGES ---
-                    const localBox = new THREE.Box3();
-                    hangerModel.traverse(child => {
-                        if (child.isMesh && child.geometry) {
-                            child.geometry.computeBoundingBox();
-                            localBox.union(child.geometry.boundingBox);
-                        }
-                    });
-                    const hSize = new THREE.Vector3();
-                    localBox.getSize(hSize);
-                    const hCenter = new THREE.Vector3();
-                    localBox.getCenter(hCenter);
+                    // --- 🛡️ ATMOSPHERIC CONTAINMENT FORCE FIELD SHIELD & DOCKING BAY ENTRANCE GLOW ---
+                    // Docking bay entrance aperture dimensions in crest_hanger.glb local space:
+                    const rectW = 2.2; // Width of docking bay aperture
+                    const rectH = 1.4; // Height of docking bay aperture
+                    const entranceZ = 1.85; // Opening rim face
 
-                    // Determine outer rectangular entrance width, height, and Z offset in local space
-                    const rectW = Math.max(50, hSize.x);
-                    const rectH = Math.max(30, hSize.y);
-                    const entranceZ = localBox.max.z;
-
-                    // 1. 1% Opacity Blue Force Field Shield Plane (exact outer rectangle across opening)
+                    // 1. 1% Opacity Blue Force Field Shield Plane (exact fit over opening)
                     const shieldGeo = new THREE.PlaneGeometry(rectW, rectH);
                     const shieldMat = new THREE.MeshBasicMaterial({
                         color: 0x00f0ff,
@@ -129,46 +117,46 @@
                         blending: THREE.AdditiveBlending
                     });
                     const forceFieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
-                    forceFieldMesh.position.set(hCenter.x, hCenter.y, entranceZ);
+                    forceFieldMesh.position.set(0, 0, entranceZ);
                     hangerModel.add(forceFieldMesh);
 
-                    // 2. Outer Rectangle Glowing Blue Border Lines (4 edge bars along the outer rectangle rim)
+                    // 2. Glowing Blue Edge Frame (4 thin border bars fitting the entrance rim)
                     const borderGroup = new THREE.Group();
-                    const edgeThickness = Math.max(3.0, rectH * 0.03);
+                    const edgeThickness = 0.06; // Thin subtle glowing blue border edge
 
                     const borderMat = new THREE.MeshBasicMaterial({
                         color: 0x00f0ff,
                         transparent: true,
-                        opacity: 0.92,
+                        opacity: 0.95,
                         side: THREE.DoubleSide,
                         blending: THREE.AdditiveBlending
                     });
 
                     // Top Edge Bar
                     const topBar = new THREE.Mesh(new THREE.PlaneGeometry(rectW + edgeThickness * 2, edgeThickness), borderMat);
-                    topBar.position.set(hCenter.x, hCenter.y + rectH * 0.5, entranceZ + 0.5);
+                    topBar.position.set(0, rectH * 0.5, entranceZ + 0.01);
                     borderGroup.add(topBar);
 
                     // Bottom Edge Bar
                     const bottomBar = new THREE.Mesh(new THREE.PlaneGeometry(rectW + edgeThickness * 2, edgeThickness), borderMat);
-                    bottomBar.position.set(hCenter.x, hCenter.y - rectH * 0.5, entranceZ + 0.5);
+                    bottomBar.position.set(0, -rectH * 0.5, entranceZ + 0.01);
                     borderGroup.add(bottomBar);
 
                     // Left Edge Bar
                     const leftBar = new THREE.Mesh(new THREE.PlaneGeometry(edgeThickness, rectH), borderMat);
-                    leftBar.position.set(hCenter.x - rectW * 0.5, hCenter.y, entranceZ + 0.5);
+                    leftBar.position.set(-rectW * 0.5, 0, entranceZ + 0.01);
                     borderGroup.add(leftBar);
 
                     // Right Edge Bar
                     const rightBar = new THREE.Mesh(new THREE.PlaneGeometry(edgeThickness, rectH), borderMat);
-                    rightBar.position.set(hCenter.x + rectW * 0.5, hCenter.y, entranceZ + 0.5);
+                    rightBar.position.set(rectW * 0.5, 0, entranceZ + 0.01);
                     borderGroup.add(rightBar);
 
                     hangerModel.add(borderGroup);
 
-                    // 3. Force Field Blue Ambient Point Light on the entrance rim
-                    const forceFieldLight = new THREE.PointLight(0x00f0ff, 5.0, 600);
-                    forceFieldLight.position.set(hCenter.x, hCenter.y, entranceZ);
+                    // 3. Subtle Blue Ambient Force Field Light
+                    const forceFieldLight = new THREE.PointLight(0x00f0ff, 2.5, 50);
+                    forceFieldLight.position.set(0, 0, entranceZ);
                     hangerModel.add(forceFieldLight);
 
                     model.add(hangerModel);
