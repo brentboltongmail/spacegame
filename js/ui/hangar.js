@@ -53,17 +53,23 @@
                 
                 // Add 3 extra Void Interceptors parked in the hangar bay
                 const extraShip1 = playerShip.clone(true);
-                extraShip1.position.set(-6, 0, -6);
-                extraShip1.rotation.set(0, Math.PI / 5, 0);
+                extraShip1.visible = true;
+                extraShip1.quaternion.set(0, 0, 0, 1);
+                extraShip1.position.set(-5, 0, -3);
+                extraShip1.rotation.set(0, Math.PI / 6, 0);
                 upgradeHangarBackgroundShips.add(extraShip1);
                 
                 const extraShip2 = playerShip.clone(true);
-                extraShip2.position.set(6, 0, -6);
-                extraShip2.rotation.set(0, -Math.PI / 5, 0);
+                extraShip2.visible = true;
+                extraShip2.quaternion.set(0, 0, 0, 1);
+                extraShip2.position.set(5, 0, -3);
+                extraShip2.rotation.set(0, -Math.PI / 6, 0);
                 upgradeHangarBackgroundShips.add(extraShip2);
                 
                 const extraShip3 = playerShip.clone(true);
-                extraShip3.position.set(0, 0, -10);
+                extraShip3.visible = true;
+                extraShip3.quaternion.set(0, 0, 0, 1);
+                extraShip3.position.set(0, 0, -6);
                 extraShip3.rotation.set(0, Math.PI, 0); 
                 upgradeHangarBackgroundShips.add(extraShip3);
             }
@@ -133,17 +139,23 @@
                     
                     if (upgradeHangarBackgroundShips) {
                         const extraShip1 = playerShip.clone(true);
-                        extraShip1.position.set(-6, 0, -6);
-                        extraShip1.rotation.set(0, Math.PI / 5, 0);
+                        extraShip1.visible = true;
+                        extraShip1.quaternion.set(0, 0, 0, 1);
+                        extraShip1.position.set(-5, 0, -3);
+                        extraShip1.rotation.set(0, Math.PI / 6, 0);
                         upgradeHangarBackgroundShips.add(extraShip1);
                         
                         const extraShip2 = playerShip.clone(true);
-                        extraShip2.position.set(6, 0, -6);
-                        extraShip2.rotation.set(0, -Math.PI / 5, 0);
+                        extraShip2.visible = true;
+                        extraShip2.quaternion.set(0, 0, 0, 1);
+                        extraShip2.position.set(5, 0, -3);
+                        extraShip2.rotation.set(0, -Math.PI / 6, 0);
                         upgradeHangarBackgroundShips.add(extraShip2);
                         
                         const extraShip3 = playerShip.clone(true);
-                        extraShip3.position.set(0, 0, -10);
+                        extraShip3.visible = true;
+                        extraShip3.quaternion.set(0, 0, 0, 1);
+                        extraShip3.position.set(0, 0, -6);
                         extraShip3.rotation.set(0, Math.PI, 0);
                         upgradeHangarBackgroundShips.add(extraShip3);
                     }
