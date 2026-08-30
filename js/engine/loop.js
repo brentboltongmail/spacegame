@@ -799,7 +799,7 @@
             // --- 🎯 ALL VISIBLE ENEMIES 3D RED CORNER BRACKET BOX UPDATER ---
             let activeBoxIdx = 0;
             if (typeof enemyTargetBoxPool !== 'undefined' && enemyTargetBoxPool.length > 0) {
-                if (!isTitanCinematicActive && (cameraMode === 0 || cameraMode === 1)) {
+                if (!isTitanCinematicActive) {
                     // Gather all active visible hostiles (enemyShips + capitalShips)
                     const allHostiles = [];
                     enemyShips.forEach(e => {
