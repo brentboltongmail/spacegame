@@ -99,8 +99,49 @@
                     hangerModel.position.set(0.52, -0.07, 0);
                     // Rotate the hanger so its opening faces outward from the center
                     hangerModel.rotation.y = Math.PI / 2;
+
+                    // --- 🛡️ ATMOSPHERIC CONTAINMENT FORCE FIELD SHIELD & GLOWING BLUE EDGES ---
+                    const hangerBox = new THREE.Box3().setFromObject(hangerModel);
+                    const hangerSize = new THREE.Vector3();
+                    hangerBox.getSize(hangerSize);
+
+                    // 1% Opacity Blue Force Field Shield Mesh across Docking Bay Entrance
+                    const shieldWidth = Math.max(120, hangerSize.x * 2.5);
+                    const shieldHeight = Math.max(80, hangerSize.y * 2.5);
+                    const shieldGeo = new THREE.PlaneGeometry(shieldWidth, shieldHeight);
+                    const shieldMat = new THREE.MeshBasicMaterial({
+                        color: 0x00f0ff,
+                        transparent: true,
+                        opacity: 0.01, // 1% opacity blue force field keeping atmosphere inside!
+                        side: THREE.DoubleSide,
+                        depthWrite: false,
+                        blending: THREE.AdditiveBlending
+                    });
+                    const forceFieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
+                    forceFieldMesh.position.set(0, 0, 150);
+                    hangerModel.add(forceFieldMesh);
+
+                    // Glowing Blue Edge Frame Emitter around Docking Bay Opening
+                    const edgeFrameGeo = new THREE.RingGeometry(shieldWidth * 0.46, shieldWidth * 0.52, 4);
+                    const edgeFrameMat = new THREE.MeshBasicMaterial({
+                        color: 0x00f0ff,
+                        transparent: true,
+                        opacity: 0.85,
+                        side: THREE.DoubleSide,
+                        blending: THREE.AdditiveBlending
+                    });
+                    const edgeGlowMesh = new THREE.Mesh(edgeFrameGeo, edgeFrameMat);
+                    edgeGlowMesh.position.set(0, 0, 150.1);
+                    edgeGlowMesh.rotation.z = Math.PI / 4; // Square perimeter outline
+                    hangerModel.add(edgeGlowMesh);
+
+                    // Force Field Blue Ambient Point Light
+                    const forceFieldLight = new THREE.PointLight(0x00f0ff, 4.5, 450);
+                    forceFieldLight.position.set(0, 0, 150);
+                    hangerModel.add(forceFieldLight);
+
                     model.add(hangerModel);
-                    console.log("[THE CREST HANGER] GLB Model Loaded & Attached to The Crest!");
+                    console.log("[THE CREST HANGER] GLB Model & Atmospheric Force Field Loaded!");
                 }, undefined, function(err) {
                     console.error("[THE CREST HANGER GLB ERROR]", err);
                 });
