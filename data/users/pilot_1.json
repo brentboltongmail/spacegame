@@ -109,7 +109,7 @@
     "shieldRegenMult": 72,
     "hullRegenMult": 74,
     "enemyDamageMult": 27,
-    "playerDamageMult": 35,
+    "playerDamageMult": 12,
     "flashOnHit": false,
     "turnSpeed": 25,
     "toastDuration": 5,

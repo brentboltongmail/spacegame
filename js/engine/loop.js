@@ -5,8 +5,11 @@
         function animate() {
             requestAnimationFrame(animate);
             const now = performance.now();
-            const timeDelta = (now - lastTime) / 1000;
+            let timeDelta = (now - lastTime) / 1000;
             lastTime = now;
+            // Clamp timeDelta to prevent huge jumps if browser tab loses focus (max 0.1s = 10 FPS min)
+            if (timeDelta > 0.1) timeDelta = 0.1;
+            const dtFactor = timeDelta * 60.0; // Benchmark 1.0 at 60 FPS for 100% consistent physics
 
             if (isTacticalMapOpen) {
                 renderTacticalMap3D();
@@ -21,17 +24,17 @@
 
             if (isTitanCinematicActive) {
                 // Automatic cinematic engine throttle management
-                currentSpeed += (targetSpeed - currentSpeed) * 0.05;
+                currentSpeed += (targetSpeed - currentSpeed) * Math.min(1.0, 0.05 * dtFactor);
             } else {
                 // --- W / S Throttle Speed Controls (W = Accelerate, S = Decelerate) ---
                 let _throttle = gameMechanicsConfig.throttleAccel !== undefined ? gameMechanicsConfig.throttleAccel : 50;
                 if (_throttle > 100) _throttle = 100;
                 const throttleMult = (_throttle / 100) * 2.5;
-                const accelRate = 2.46 * throttleMult; 
+                const accelRate = 2.46 * throttleMult * dtFactor; 
 
                 if (keys.KeyW) targetSpeed = Math.min(targetSpeed + accelRate, maxSpeedCap);
                 if (keys.KeyS) targetSpeed = Math.max(targetSpeed - accelRate, 0);
-                currentSpeed += (targetSpeed - currentSpeed) * (0.022 * throttleMult);
+                currentSpeed += (targetSpeed - currentSpeed) * Math.min(1.0, 0.022 * throttleMult * dtFactor);
             }
 
             // Update Cockpit Engine Sound Pitch, Muffling & Volume dynamically (0% -> 100% Throttle)
@@ -154,16 +157,16 @@
                 // Apply local pitch (X) and yaw (Y) quaternion rotations directly
                 // Allows full 360° loop-de-loops over the top without any view snapping or gimbal flips!
                 if (!isFlightLocked) {
-                    playerShip.rotateX(totalPitch * turnRate);
-                    playerShip.rotateY(totalYaw * turnRate);
+                    playerShip.rotateX(totalPitch * turnRate * dtFactor);
+                    playerShip.rotateY(totalYaw * turnRate * dtFactor);
                 }
 
                 // A/D Keys for rolling the ship (very slowly)
                 let _roll = gameMechanicsConfig.rollSpeed !== undefined ? gameMechanicsConfig.rollSpeed : 50;
                 if (_roll > 100) _roll = 100;
                 const rollRate = turnRate * 0.4 * ((_roll / 100) * 2.5);
-                if (keys.KeyA) playerShip.rotateZ(rollRate);
-                if (keys.KeyD) playerShip.rotateZ(-rollRate);
+                if (keys.KeyA) playerShip.rotateZ(rollRate * dtFactor);
+                if (keys.KeyD) playerShip.rotateZ(-rollRate * dtFactor);
             }
 
             // Move ship forward (In cinematic, moves directly along guided path toward the Ancient Gate; in free flight, uses ship heading)
@@ -177,11 +180,11 @@
                     frameDisplacement = new THREE.Vector3(0, 0, 0);
                 } else {
                     const speedMult = (titanCinematicIndex >= 9 || isTitanCinematicEnteringGate) ? 1.0 : 1.35;
-                    frameDisplacement = dirToGate.clone().multiplyScalar(currentSpeed * 0.0064 * speedMult);
+                    frameDisplacement = dirToGate.clone().multiplyScalar(currentSpeed * 0.0064 * speedMult * dtFactor);
                 }
             } else {
                 const moveDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
-                frameDisplacement = moveDir.clone().multiplyScalar(currentSpeed * 0.0064);
+                frameDisplacement = moveDir.clone().multiplyScalar(currentSpeed * 0.0064 * dtFactor);
             }
             const oldPos = playerShip.position.clone();
             const oldQuat = playerShip.quaternion.clone();
