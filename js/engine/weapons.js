@@ -1059,6 +1059,7 @@ function createEpicPlayerDeathExplosion(pos) {
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
             playerShip.lookAt(new THREE.Vector3(72060, 214, -81280));
+            playerShip.rotateY(Math.PI); // Mesh nose orientation correction so cockpit faces Saturn!
             if (camera) {
                 const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
                 camera.up.copy(localUp);
