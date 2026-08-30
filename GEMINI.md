@@ -25,6 +25,3 @@
 
 ## 📌 Dialogue & Audio Rule
 - **Mandatory Action**: All dialogue in the game should use the ElevenLabs API to generate audio. Keep the voices chosen for characters consistent throughout the codebase (e.g. check docs or existing files for voice mappings).
-
-## 📌 3D Ship Mesh Orientation Rule
-- **Mandatory 3D Convention**: The `playerShip` (Void Interceptor) model mesh geometry has its nose oriented opposite to default Three.js `lookAt()`. Whenever setting `playerShip` orientation towards a target via `lookAt(target)`, ALWAYS execute `playerShip.rotateY(Math.PI)` immediately afterwards so the cockpit faces TOWARDS the target instead of 180° away!
