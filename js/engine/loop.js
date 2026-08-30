@@ -686,7 +686,12 @@
             if (spacePlanetRingMesh) spacePlanetRingMesh.rotation.y += 0.00025;
             if (spacePlanetRing) spacePlanetRing.rotation.y += 0.00025;
             if (spaceTitanSphere) spaceTitanSphere.rotation.y += 0.00018;
-            if (theCrestStation) theCrestStation.rotation.y += 0.000125;
+            if (theCrestStation) {
+                theCrestStation.rotation.y += 0.000125;
+                if (theCrestStation.userData.updateClippingPlanes) {
+                    theCrestStation.userData.updateClippingPlanes();
+                }
+            }
 
             // Animate Titan Dark-Energy Excavation, Boiling Methane Geysers, Golden Ring Ascent & Tractor Beams
             updateTitanExcavationAndTractorBeams(timeSec, timeDelta);

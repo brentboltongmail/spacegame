@@ -386,6 +386,14 @@
                     hangerModel.updateMatrixWorld(true);
                     const stationClipPlanes = clipPlanesLocal.map(p => p.clone().applyMatrix4(hangerModel.matrixWorld));
                     
+                    // Attach an update function to the station so it can update the planes as it rotates
+                    theCrestStation.userData.updateClippingPlanes = function() {
+                        hangerModel.updateMatrixWorld(true);
+                        for (let i = 0; i < clipPlanesLocal.length; i++) {
+                            stationClipPlanes[i].copy(clipPlanesLocal[i]).applyMatrix4(hangerModel.matrixWorld);
+                        }
+                    };
+                    
                     // Apply clipping planes ONLY to the station materials
                     stationMeshes.forEach(function(child) {
                         const mats = Array.isArray(child.material) ? child.material : [child.material];
