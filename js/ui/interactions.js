@@ -558,6 +558,7 @@
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
             playerShip.lookAt(new THREE.Vector3(72060, 214, -81280));
+            playerShip.rotateY(Math.PI); // 180-degree rotation so cockpit faces Saturn!
             targetSpeed = 400;
             currentSpeed = 400;
             
