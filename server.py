@@ -27,7 +27,7 @@ class AstraGameRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         
         # Prevent aggressive browser caching so all HTML, JS, and 3D asset updates load immediately
-        self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
         self.send_header('Pragma', 'no-cache')
         self.send_header('Expires', '0')
             
@@ -38,6 +38,12 @@ class AstraGameRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
+        # Disable conditional 304 caching so browser refresh always fetches live files from disk
+        if 'If-Modified-Since' in self.headers:
+            del self.headers['If-Modified-Since']
+        if 'If-None-Match' in self.headers:
+            del self.headers['If-None-Match']
+
         parsed_path = urllib.parse.urlparse(self.path)
         
         # Handle API Profile Load Endpoint
