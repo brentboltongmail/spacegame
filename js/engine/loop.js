@@ -1910,6 +1910,10 @@
                 
                 hangerModel.userData.leftFrontDoor.position.x = -currentX;
                 hangerModel.userData.rightFrontDoor.position.x = currentX;
+                
+                if (hangerModel.userData.forceFieldMesh) {
+                    hangerModel.userData.forceFieldMesh.visible = (hangerModel.userData.doorT > 0);
+                }
             }
             
             const outerWP = new THREE.Vector3(0, -0.18, 12.0).applyMatrix4(hangerModel.matrixWorld);
@@ -1992,9 +1996,9 @@
                 }
                 
                 // Uniform arc-length speed - eliminates the weird speed up!
-                let speed = 0.002; 
-                if (hangerModel.userData.landingProgress > 0.8) speed = 0.001;
-                if (hangerModel.userData.landingProgress > 0.95) speed = 0.0005; // smooth landing
+                let speed = 0.001; 
+                if (hangerModel.userData.landingProgress > 0.8) speed = 0.0005;
+                if (hangerModel.userData.landingProgress > 0.95) speed = 0.00025; // smooth landing
                 
                 hangerModel.userData.landingProgress += speed * dtFactor;
                 let prog = hangerModel.userData.landingProgress;

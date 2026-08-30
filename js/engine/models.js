@@ -159,6 +159,7 @@
                     forceFieldMesh.position.set(0, centerY, entranceZ);
                     forceFieldMesh.userData.isForceField = true;
                     hangerModel.add(forceFieldMesh);
+                    hangerModel.userData.forceFieldMesh = forceFieldMesh;
 
                     // 2. Glowing Dark Blue Edge Frame (4 thin border bars fitting the entrance rim perfectly)
                     const borderGroup = new THREE.Group();
@@ -245,10 +246,12 @@
                     const leftFrontDoor = new THREE.Mesh(frontDoorGeo, wallMat);
                     leftFrontDoor.position.set(-rectW / 4, centerY, entranceZ + 0.01);
                     leftFrontDoor.layers.set(1);
+                    leftFrontDoor.userData.noDeform = true;
                     
                     const rightFrontDoor = new THREE.Mesh(frontDoorGeo, wallMat);
                     rightFrontDoor.position.set(rectW / 4, centerY, entranceZ + 0.01);
                     rightFrontDoor.layers.set(1);
+                    rightFrontDoor.userData.noDeform = true;
                     
                     hangerModel.add(leftFrontDoor);
                     hangerModel.add(rightFrontDoor);
@@ -329,7 +332,7 @@
                         if (child.name === "GLTF" || child.type === "PointLight" || child.type === "AmbientLight") return;
                         
                         child.traverse(obj => {
-                            if (obj.isMesh && obj.geometry.type === 'PlaneGeometry') {
+                            if (obj.isMesh && obj.geometry.type === 'PlaneGeometry' && !obj.userData.noDeform) {
                                 // Important: make sure world matrices are perfectly updated
                                 obj.updateMatrixWorld(true);
                                 const objInv = obj.matrixWorld.clone().invert();
