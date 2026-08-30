@@ -48,6 +48,22 @@
                 clonedShip.position.set(0, 0, 0);
                 clonedShip.rotation.set(0, 0, 0);
                 upgradeHangarShip.add(clonedShip);
+                
+                // Add 3 extra Void Interceptors parked in the hangar bay
+                const extraShip1 = playerShip.clone(true);
+                extraShip1.position.set(-12, 0, -12);
+                extraShip1.rotation.set(0, Math.PI / 4, 0);
+                upgradeHangarScene.add(extraShip1);
+                
+                const extraShip2 = playerShip.clone(true);
+                extraShip2.position.set(12, 0, -12);
+                extraShip2.rotation.set(0, -Math.PI / 4, 0);
+                upgradeHangarScene.add(extraShip2);
+                
+                const extraShip3 = playerShip.clone(true);
+                extraShip3.position.set(0, 0, -20);
+                extraShip3.rotation.set(0, Math.PI, 0); // facing forward? Math.PI is facing camera (or 0 is facing away? wait, playerShip faces +Z? We'll see)
+                upgradeHangarScene.add(extraShip3);
             }
             upgradeHangarScene.add(upgradeHangarShip);
 
