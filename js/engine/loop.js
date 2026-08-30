@@ -356,9 +356,58 @@
 
             // Prevent clipping into core station geometry while allowing free flight inside the docking bay
             if (theCrestStation) {
+                let inHangerZone = false;
+                
+                if (theCrestStation.userData.hangerModel) {
+                    const hangerModel = theCrestStation.userData.hangerModel;
+                    // Compute player position in Hangar-Local space
+                    const inv = hangerModel.matrixWorld.clone().invert();
+                    const localP = playerShip.position.clone().applyMatrix4(inv);
+                    
+                    // The entrance is at Z = 0.94, blast doors are at Z = -0.84
+                    // Check if player is near/inside the tunnel bounds
+                    if (localP.z > -1.0 && localP.z < 2.0 && Math.abs(localP.x) < 2.0 && Math.abs(localP.y) < 1.0) {
+                        inHangerZone = true;
+                        
+                        const shipRadius = 0.05; // Buffer for the ship's physical size
+                        
+                        // Clamp Z to the blast doors so they can't fly through the back
+                        const minZ = -0.84 + shipRadius; 
+                        let z_clamped = Math.max(minZ, localP.z);
+                        
+                        // Clamp Y to the ceiling/floor
+                        const maxY = 0.39 - shipRadius;
+                        let y_clamped = Math.max(-maxY, Math.min(maxY, localP.y));
+                        
+                        // Calculate the dynamic hexagon width at this Y level
+                        let y_factor = 1.0 - Math.abs(y_clamped) / 0.465;
+                        if (y_factor < 0) y_factor = 0;
+                        let maxX = 0.87 * (1.0 + y_factor * 0.4) - shipRadius;
+                        
+                        let x_clamped = Math.max(-maxX, Math.min(maxX, localP.x));
+                        
+                        // If we clamped any axis, apply it back to world space
+                        if (x_clamped !== localP.x || y_clamped !== localP.y || z_clamped !== localP.z) {
+                            localP.set(x_clamped, y_clamped, z_clamped);
+                            playerShip.position.copy(localP.applyMatrix4(hangerModel.matrixWorld));
+                            
+                            // Visual feedback for hitting the hangar walls
+                            if (currentSpeed > 50) {
+                                const statusTag = document.getElementById('throttle-status-tag');
+                                if (statusTag && Math.random() < 0.1) {
+                                    statusTag.innerText = 'HANGAR IMPACT';
+                                    statusTag.style.color = '#facc15';
+                                    setTimeout(() => { if (statusTag.innerText === 'HANGAR IMPACT') { statusTag.innerText = 'STABLE'; statusTag.style.color = '#00ffcc'; } }, 1000);
+                                }
+                                currentSpeed *= 0.9; // bleed speed on scrape
+                            }
+                        }
+                    }
+                }
+
                 const distToCrest = playerShip.position.distanceTo(theCrestStation.position);
-                // Allow free flight into the docking bay hanger (outer radius ~750, core radius 180)
-                if (distToCrest < 180) {
+                // Apply the generic 180-radius station core push-out ONLY if we aren't inside the hangar
+                if (!inHangerZone && distToCrest < 180) {
                     const pushOutDir = playerShip.position.clone().sub(theCrestStation.position).normalize();
                     playerShip.position.copy(theCrestStation.position).add(pushOutDir.multiplyScalar(180));
                     if (currentSpeed > 50) {
