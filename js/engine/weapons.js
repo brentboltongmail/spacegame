@@ -787,10 +787,10 @@ function createEpicPlayerDeathExplosion(pos) {
             if (!ancientGoldenGate) return;
             isTitanCinematicActive = true;
             isTitanCinematicEnteringGate = false;
+            isFlightLocked = true; // USER CONTROL LOCKED: WATCH-ONLY CINEMATIC MODE!
             isShipInvincible = true; // 100% Invulnerable during cinematic!
             isWormholeActive = false;
             titanCinematicIndex = 0;
-            // document.body.classList.add('in-cinematic-mode'); // Removed to avoid reducing window size
 
             const blackout = document.getElementById('cinematic-blackout-overlay');
             if (blackout) blackout.classList.remove('active');
@@ -801,45 +801,65 @@ function createEpicPlayerDeathExplosion(pos) {
                 endModal.classList.remove('active');
             }
 
-            // Ensure Ancient Golden Gate is placed and standing high above capital ships in orbit
+            // Hide capital ships and reset fleet state so NO Dominion ships exist during initial 7s
+            if (capitalShips && capitalShips.length > 0) {
+                capitalShips.forEach(ship => ship.visible = false);
+            }
+            if (typeof fleetEmergenceActive !== 'undefined') fleetEmergenceActive = false;
+            if (typeof isTitanExcavationStarted !== 'undefined') isTitanExcavationStarted = false;
+            if (typeof playedArrivalStages !== 'undefined') {
+                playedArrivalStages = { stage1: false, stage2: false, stage3: false, stage4: false };
+            }
+
+            // Ensure Ancient Golden Gate is placed in Titan orbit
             ancientGoldenGate.position.copy(titanExtractionOrbitWorldPos);
             ancientGoldenGate.quaternion.copy(new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI * 0.5, 0.15, 0)));
             ancientGoldenGate.scale.set(2.0, 2.0, 2.0);
             ancientGoldenGate.visible = true;
 
-            // Position ship and camera EXACTLY like game start (facing Titan / Saturn panoramic vista)
-            playerShip.position.set(75200, 350, -25000); // Started further back
+            // Instantly teleport ship and camera to Titan panoramic view (facing Titan & The Crest) BEFORE slipspace emergence
+            playerShip.position.set(79900, -850, -46600);
             playerShip.rotation.set(0, 0, 0);
             playerShip.quaternion.set(0, 0, 0, 1);
-            playerShip.lookAt(new THREE.Vector3(75200, -600, -43500));
-            playerShip.rotateY(Math.PI);
+            playerShip.lookAt(new THREE.Vector3(72060, 214, -81280));
             
-            cameraMode = titanCinematicScript[0].camMode !== undefined ? titanCinematicScript[0].camMode : 2;
+            cameraMode = 2; // Far Third Person (Panoramic Vista)
             playerShip.visible = true;
-            targetSpeed = titanCinematicScript[0].speed;
-            currentSpeed = titanCinematicScript[0].speed;
+            targetSpeed = 40;
+            currentSpeed = 40;
 
-            // Instantly snap camera matching game start vista view
+            // Instantly snap camera matching panoramic view overlooking Titan
             if (camera) {
                 const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
                 camera.up.copy(localUp);
-                const initCamOffset = new THREE.Vector3(0, 6.0, 22.0).applyQuaternion(playerShip.quaternion);
+                const initCamOffset = new THREE.Vector3(0, 80.0, 320.0).applyQuaternion(playerShip.quaternion);
                 camera.position.copy(playerShip.position).add(initCamOffset);
-                const targetLookAt = playerShip.position.clone().add(new THREE.Vector3(0, 0, -50).applyQuaternion(playerShip.quaternion));
-                camera.lookAt(targetLookAt);
+                camera.lookAt(new THREE.Vector3(72060, 214, -81280));
                 camera.updateMatrixWorld();
             }
 
-            // Make sure overlay is visible
+            // Display comms overlay & HUD headers
             const overlay = document.getElementById('cinematic-comms-overlay');
             if (overlay) overlay.style.display = 'block';
 
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
-            if (sec) sec.innerText = "TITAN PRECURSOR GATE — APPROACH VECTOR";
-            if (obj) obj.innerText = "Cruising toward the Ancient Precursor Gate in Titan orbit...";
+            if (sec) sec.innerText = "DOMINION SIEGE VECTOR — TITAN / THE CREST";
+            if (obj) obj.innerText = "INTERCEPTED HYPERWAVE OVERRIDE — TITAN SECTOR";
 
-            showToast("🎬 TITAN GATE CINEMATIC: Approaching the Ancient Gate (INVULNERABLE)...");
+            showToast("🎬 TITAN GATE CINEMATIC: Teleported to Titan Vista (Controls Locked)");
+
+            // Schedule Dominion Fleet Slipspace Emergence strictly 7.0 SECONDS LATER
+            if (window.titanEmergenceTimer) clearTimeout(window.titanEmergenceTimer);
+            window.titanEmergenceTimer = setTimeout(() => {
+                if (isTitanCinematicActive) {
+                    if (typeof triggerDominionFleetHyperspaceEmergence === 'function') {
+                        triggerDominionFleetHyperspaceEmergence();
+                    }
+                }
+            }, 7000);
+
+            // Play Line 1: "Kaylen! Kaylen, do you read me?!"
             playNextCinematicLine();
         }
 
@@ -997,6 +1017,7 @@ function createEpicPlayerDeathExplosion(pos) {
         function stopTitanGateCinematic() {
             isTitanCinematicActive = false;
             isTitanCinematicEnteringGate = false;
+            isFlightLocked = false; // Restore user controls
             isShipInvincible = (cameraMode === 3);
             // document.body.classList.remove('in-cinematic-mode');
 
