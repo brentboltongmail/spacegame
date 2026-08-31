@@ -535,8 +535,8 @@ const _targetWorldPos = new THREE.Vector3();
                     // Mode 2: Rear Third-Person Far
                     targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 6.0, 22.0).applyQuaternion(playerShip.quaternion));
                 } else if (cameraMode === 3) {
-                    // Mode 3: Cinematic Orbiting Showcase (Ship Invincible, 50% Slower Ultra-Majestic Panning)
-                    cinematicAngle += 0.0015; // Reduced by 50% for ultra-filmic slow cinematic sweeps
+                    // Mode 3: Cinematic Orbiting Showcase (Ship Invincible, 2x Faster Panning)
+                    cinematicAngle += 0.0030; // Sped up 2x for faster cinematic sweeps
                     const radius = 9;
                     const height = Math.sin(cinematicAngle * 0.7) * 2 + 1.5;
                     const orbitOffset = new THREE.Vector3(
