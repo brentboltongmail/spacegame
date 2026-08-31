@@ -1,6 +1,8 @@
-        const _targetWorldPos = new THREE.Vector3();
+const _targetWorldPos = new THREE.Vector3();
         const _targetBBox = new THREE.Box3();
         const _targetSizeVec = new THREE.Vector3();
+
+        window.inHangerZone = false;
 
         function animate() {
             requestAnimationFrame(animate);
@@ -153,7 +155,11 @@
                         }, 1400);
                     }
                 }
-            } else if (isLandingSequenceActive && theCrestStation && theCrestStation.userData.hangerModel) {
+            }
+            
+            updateBlastDoors(dtFactor);
+
+            if (isLandingSequenceActive && theCrestStation && theCrestStation.userData.hangerModel) {
                 updateLandingSequence(dtFactor);
             } else {
                 // Apply local pitch (X) and yaw (Y) quaternion rotations directly
@@ -387,7 +393,7 @@
 
             // Prevent clipping into core station geometry while allowing free flight inside the docking bay
             if (theCrestStation) {
-                let inHangerZone = false;
+                window.inHangerZone = false;
                 
                 if (theCrestStation.userData.hangerModel) {
                     const hangerModel = theCrestStation.userData.hangerModel;
@@ -398,7 +404,7 @@
                     // The entrance is at Z = 0.94, blast doors are at Z = -0.84
                     // Check if player is near/inside the tunnel bounds
                     if (localP.z > -1.0 && localP.z < 2.0 && Math.abs(localP.x) < 2.0 && Math.abs(localP.y) < 1.0) {
-                        inHangerZone = true;
+                        window.inHangerZone = true;
                         
                         const shipRadius = 0.05; // Buffer for the ship's physical size
                         
@@ -438,15 +444,23 @@
 
                 const distToCrest = playerShip.position.distanceTo(theCrestStation.position);
                 const landingBtn = document.getElementById('btn-request-landing');
+                const launchBtn = document.getElementById('btn-ready-launch');
                 if (landingBtn) {
-                    if (distToCrest < 2000 && !isLandingSequenceActive && !inHangerZone) {
+                    if (distToCrest < 2000 && !isLandingSequenceActive && typeof landingPhase !== 'undefined' && landingPhase === 0 && !window.inHangerZone) {
                         landingBtn.style.display = 'block';
                     } else {
                         landingBtn.style.display = 'none';
                     }
                 }
+                if (launchBtn) {
+                    if (typeof landingPhase !== 'undefined' && landingPhase === 6) {
+                        launchBtn.style.display = 'block';
+                    } else {
+                        launchBtn.style.display = 'none';
+                    }
+                }
                 // Apply raycast collision against the entire station hull
-                if (!inHangerZone && distToCrest < 1200) {
+                if (!window.inHangerZone && distToCrest < 1200) {
                     if (!window.stationRaycaster) window.stationRaycaster = new THREE.Raycaster();
                     const moveDist = oldPos.distanceTo(playerShip.position);
                     if (moveDist > 0.1) {
@@ -1881,14 +1895,14 @@
             }
         }
 
-        function updateLandingSequence(dtFactor) {
+        function updateBlastDoors(dtFactor) {
             if (!theCrestStation || !theCrestStation.userData.hangerModel) return;
             const hangerModel = theCrestStation.userData.hangerModel;
             
-            // --- Blast Door Animation ---
             if (hangerModel.userData.leftFrontDoor && hangerModel.userData.rightFrontDoor) {
                 let targetDoorT = 0; // 0 = closed, 1 = open
-                if (landingPhase >= 2 && landingPhase < 6) {
+                // Open if landing phase is active (2 to 5 or 7), OR if player is inside/near the hangar
+                if ((typeof isLandingSequenceActive !== 'undefined' && isLandingSequenceActive && ((landingPhase >= 2 && landingPhase < 6) || landingPhase === 7)) || (typeof window.inHangerZone !== 'undefined' && window.inHangerZone)) {
                     targetDoorT = 1;
                 }
                 
@@ -1915,6 +1929,11 @@
                     hangerModel.userData.forceFieldMesh.visible = (hangerModel.userData.doorT > 0);
                 }
             }
+        }
+
+        function updateLandingSequence(dtFactor) {
+            if (!theCrestStation || !theCrestStation.userData.hangerModel) return;
+            const hangerModel = theCrestStation.userData.hangerModel;
             
             const outerWP = new THREE.Vector3(0, -0.18, 12.0).applyMatrix4(hangerModel.matrixWorld);
             const approachWP = new THREE.Vector3(0, -0.18, 3.0).applyMatrix4(hangerModel.matrixWorld);
@@ -2047,5 +2066,14 @@
             } else if (landingPhase === 6) {
                 playerShip.position.copy(landWP);
                 playerShip.quaternion.copy(outwardQuat);
+            } else if (landingPhase === 7) {
+                playerShip.position.copy(landWP);
+                playerShip.quaternion.copy(outwardQuat);
+                
+                if (hangerModel.userData.doorT >= 1) {
+                    isLandingSequenceActive = false;
+                    landingPhase = 0;
+                    showToast("🚀 BLAST DOORS OPEN. YOU HAVE FLIGHT CONTROL.");
+                }
             }
         }

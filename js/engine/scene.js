@@ -167,6 +167,7 @@
         function requestLandingSequence() {
             if (isLandingSequenceActive) return;
             isLandingSequenceActive = true;
+            window.inHangerZone = false;
             landingPhase = 1;
             landingStartTime = performance.now();
             
@@ -175,6 +176,17 @@
             
             setCameraMode(1); // Follow (near) view
             showToast("🛬 CLEARANCE GRANTED. AUTOPILOT ENGAGED.");
+        }
+
+        function requestLaunchSequence() {
+            if (typeof landingPhase !== 'undefined' && landingPhase === 6) {
+                landingPhase = 7; // Launching phase
+                
+                const btn = document.getElementById('btn-ready-launch');
+                if (btn) btn.style.display = 'none';
+                
+                showToast("🚀 PREPARING TO LAUNCH. OPENING BLAST DOORS...");
+            }
         }
 
         function toggleCameraMode() {
