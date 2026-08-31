@@ -389,12 +389,12 @@
         // Initialize on load & auto-start engine audio at initial 50% thrust speed
         window.addEventListener('load', async () => {
             renderTitles();
-            await loadProfileFromServer('pilot_1');
-            init3DSimulator();
-
-            // Auto-start engine audio immediately on load at 50% initial thrust
-            initEngineAudio();
-            if (audioCtx) updateEngineAudio(currentSpeed / maxSpeedCap, cameraMode === 0);
+            // Start the profile manager screen instead of auto-loading
+            if (typeof initProfileScreen === 'function') {
+                initProfileScreen();
+            } else {
+                console.error("initProfileScreen is not defined");
+            }
 
             // Auto-start Mission 1 instead of Free Roam / Mission 3
             startMission1();

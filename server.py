@@ -75,6 +75,18 @@ class AstraGameRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(profile_data).encode('utf-8'))
             return
 
+        # Handle API Profile List Endpoint
+        if parsed_path.path == '/api/profiles':
+            profiles = []
+            if DATA_DIR.exists():
+                for f in DATA_DIR.glob('*.json'):
+                    profiles.append(f.stem)
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({"profiles": profiles}).encode('utf-8'))
+            return
+
         # Fallback to standard static file serving
         return super().do_GET()
 
@@ -126,6 +138,68 @@ class AstraGameRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(response).encode('utf-8'))
             return
 
+        # Handle API Profile Rename Endpoint
+        if parsed_path.path == '/api/rename_profile':
+            content_length = int(self.headers.get('Content-Length', 0))
+            post_body = self.rfile.read(content_length)
+            try:
+                data = json.loads(post_body.decode('utf-8'))
+                old_user = data.get('old_username', '')
+                new_user = data.get('new_username', '')
+                clean_old = "".join(c for c in old_user if c.isalnum() or c in ('_', '-')).lower()
+                clean_new = "".join(c for c in new_user if c.isalnum() or c in ('_', '-')).lower()
+                
+                if clean_old and clean_new:
+                    old_file = DATA_DIR / f"{clean_old}.json"
+                    new_file = DATA_DIR / f"{clean_new}.json"
+                    
+                    if old_file.exists():
+                        # Read old file, update internal username, save as new, delete old
+                        with open(old_file, 'r', encoding='utf-8') as f:
+                            profile_data = json.load(f)
+                        profile_data['username'] = clean_new
+                        with open(new_file, 'w', encoding='utf-8') as f:
+                            json.dump(profile_data, f, indent=2)
+                        old_file.unlink()
+                        
+                        response = {"status": "success", "username": clean_new}
+                        self.send_response(200)
+                    else:
+                        response = {"status": "error", "message": "Profile not found"}
+                        self.send_response(404)
+                else:
+                    response = {"status": "error", "message": "Invalid usernames"}
+                    self.send_response(400)
+            except Exception as e:
+                response = {"status": "error", "message": str(e)}
+                self.send_response(400)
+
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode('utf-8'))
+            return
+
+        self.send_error(404, "Endpoint not found")
+
+    def do_DELETE(self):
+        parsed_path = urllib.parse.urlparse(self.path)
+        
+        # Handle API Profile Delete Endpoint
+        if parsed_path.path == '/api/profile':
+            query_params = urllib.parse.parse_qs(parsed_path.query)
+            username = query_params.get('user', [''])[0]
+            clean_username = "".join(c for c in username if c.isalnum() or c in ('_', '-')).lower()
+            
+            if clean_username:
+                user_file = DATA_DIR / f"{clean_username}.json"
+                if user_file.exists():
+                    user_file.unlink()
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(b'{"status":"success"}')
+                return
+        
         self.send_error(404, "Endpoint not found")
 
 class ReusableTCPServer(socketserver.TCPServer):

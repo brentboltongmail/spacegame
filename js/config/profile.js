@@ -2,6 +2,97 @@
         let currentUsername = 'pilot_1';
         let currentProfile = { username: 'pilot_1', boxPositions: {}, settings: {}, progress: {} };
 
+        async function initProfileScreen() {
+            const screen = document.getElementById('profile-selection-screen');
+            if (screen) screen.style.display = 'flex';
+            await renderProfileList();
+        }
+        window.initProfileScreen = initProfileScreen;
+
+        async function renderProfileList() {
+            const list = document.getElementById('profile-list');
+            if (!list) return;
+            
+            try {
+                const res = await fetch('/api/profiles');
+                if (res.ok) {
+                    const data = await res.json();
+                    let html = '';
+                    if (data.profiles && data.profiles.length > 0) {
+                        data.profiles.forEach(p => {
+                            html += `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,240,255,0.3); border-radius: 4px;">
+                                <span style="font-size: 18px; font-weight: bold; color: #fff;">${p}</span>
+                                <div style="display: flex; gap: 8px;">
+                                    <button onclick="window.startGameWithProfile('${p}')" style="padding: 6px 12px; background: rgba(0, 255, 0, 0.2); border: 1px solid #0f0; color: #0f0; cursor: pointer; border-radius: 3px;">LOAD</button>
+                                    <button onclick="window.promptRenameProfile('${p}')" style="padding: 6px 12px; background: rgba(255, 255, 0, 0.2); border: 1px solid #ff0; color: #ff0; cursor: pointer; border-radius: 3px;">RENAME</button>
+                                    <button onclick="window.deleteProfile('${p}')" style="padding: 6px 12px; background: rgba(255, 0, 0, 0.2); border: 1px solid #f00; color: #f00; cursor: pointer; border-radius: 3px;">DELETE</button>
+                                </div>
+                            </div>`;
+                        });
+                    } else {
+                        html = '<div style="color: #888; font-style: italic; text-align: center;">No profiles found.</div>';
+                    }
+                    list.innerHTML = html;
+                }
+            } catch (e) {
+                console.error("Failed to load profiles:", e);
+                list.innerHTML = '<div style="color: #f00;">Error loading profiles. Is server running?</div>';
+            }
+        }
+
+        window.createNewProfile = async function() {
+            const input = document.getElementById('new-profile-name');
+            const name = input.value.trim();
+            if (!name) return;
+            
+            // Just saving an empty profile via POST /api/profile
+            try {
+                await fetch('/api/profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: name, boxPositions: {}, settings: {}, progress: {} })
+                });
+                input.value = '';
+                renderProfileList();
+            } catch (e) { console.error("Error creating profile", e); }
+        };
+
+        window.deleteProfile = async function(name) {
+            if (!confirm(`Are you sure you want to delete profile '${name}'?`)) return;
+            try {
+                await fetch(`/api/profile?user=${encodeURIComponent(name)}`, { method: 'DELETE' });
+                renderProfileList();
+            } catch (e) { console.error("Error deleting profile", e); }
+        };
+
+        window.promptRenameProfile = async function(oldName) {
+            const newName = prompt(`Enter new name for profile '${oldName}':`, oldName);
+            if (!newName || newName.trim() === '' || newName === oldName) return;
+            try {
+                await fetch('/api/rename_profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ old_username: oldName, new_username: newName.trim() })
+                });
+                renderProfileList();
+            } catch (e) { console.error("Error renaming profile", e); }
+        };
+
+        window.startGameWithProfile = async function(name) {
+            const screen = document.getElementById('profile-selection-screen');
+            if (screen) screen.style.display = 'none';
+            
+            await loadProfileFromServer(name);
+            
+            // Resume the init sequence that was paused in main.js/interactions.js
+            if (typeof init3DSimulator === 'function') init3DSimulator();
+            if (typeof initEngineAudio === 'function') initEngineAudio();
+            if (typeof updateEngineAudio === 'function' && typeof audioCtx !== 'undefined' && audioCtx) {
+                updateEngineAudio(typeof currentSpeed !== 'undefined' ? currentSpeed / maxSpeedCap : 0, typeof cameraMode !== 'undefined' ? cameraMode === 0 : false);
+            }
+        };
+
         async function loadProfileFromServer(username) {
             currentUsername = username || 'pilot_1';
             try {
