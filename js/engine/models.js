@@ -2173,7 +2173,7 @@
                 goldenGatePylons.push({ group: pylonGroup, crystal: crystalMesh, angle: angle });
             }
 
-            // D. Dense Volumetric Cosmic Particle Wormhole & Event Horizon Vortex (No Primitives)
+            // D. Dense 2D Planar Circular Cosmic Particle Wormhole & Dual Counter-Rotating Swirls (No 3D Funnel)
             goldenGateVortexGroup = new THREE.Group();
 
             function createWormholeParticleTexture() {
@@ -2195,38 +2195,35 @@
 
             const pTex = createWormholeParticleTexture();
 
-            // 1. Multi-Spectral Accretion Spiral Arms & Inflow Swarm (18,000 Dense Cosmic Particles)
+            // 1. Primary Clockwise Circular Particle Swirl (18,000 Dense Cosmic Particles in 2D Circular Aperture)
             const spiralCount = 18000;
             const spiralGeo = new THREE.BufferGeometry();
             const spiralPositions = new Float32Array(spiralCount * 3);
             const spiralColors = new Float32Array(spiralCount * 3);
             const spiralData = [];
 
-            const spiralColorPalette = [
+            const spiralColorPalette1 = [
                 new THREE.Color(0xa855f7), // Radiant Violet
                 new THREE.Color(0x00f0ff), // Electric Cyan
-                new THREE.Color(0xfbbf24), // Precursor Gold
                 new THREE.Color(0xd946ef), // Intense Magenta
                 new THREE.Color(0xffffff), // White Tachyon Core
                 new THREE.Color(0x38bdf8), // Subspace Sky Blue
-                new THREE.Color(0xc084fc), // Slipspace Violet
-                new THREE.Color(0xfde047)  // Hyper Solar Gold
+                new THREE.Color(0xc084fc)  // Slipspace Violet
             ];
 
             for (let p = 0; p < spiralCount; p++) {
-                const arm = p % 6; // 6 dense logarithmic spiral arms
+                const arm = p % 6; // 6 logarithmic spiral arms
                 const rNorm = Math.pow(Math.random(), 0.65); // Strong density bias toward core
-                const r = 8 + rNorm * 275; // Radius from 8 to 283 units
-                const baseTheta = (arm * (Math.PI / 3)) + (r * 0.032) + (Math.random() - 0.5) * 0.45;
-                const depthCurve = -Math.sin((1.0 - rNorm) * Math.PI * 0.5) * 75; // Funnel inward depth
-                const y = depthCurve + (Math.random() - 0.5) * 20;
+                const r = 6 + rNorm * 260; // Radius from 6 to 266 units
+                const baseTheta = (arm * (Math.PI / 3)) + (r * 0.032) + (Math.random() - 0.5) * 0.35;
+                const y = (Math.random() - 0.5) * 1.5; // Strictly in 2D planar space
                 
                 spiralPositions[p * 3] = Math.cos(baseTheta) * r;
                 spiralPositions[p * 3 + 1] = y;
                 spiralPositions[p * 3 + 2] = Math.sin(baseTheta) * r;
 
-                const col = spiralColorPalette[p % spiralColorPalette.length];
-                const finalCol = col.clone().lerp(new THREE.Color(0xffffff), Math.max(0, 1.0 - r / 120));
+                const col = spiralColorPalette1[p % spiralColorPalette1.length];
+                const finalCol = col.clone().lerp(new THREE.Color(0xffffff), Math.max(0, 1.0 - r / 100));
                 spiralColors[p * 3] = finalCol.r;
                 spiralColors[p * 3 + 1] = finalCol.g;
                 spiralColors[p * 3 + 2] = finalCol.b;
@@ -2234,11 +2231,10 @@
                 spiralData.push({
                     r: r,
                     rMin: 6,
-                    rMax: 283,
+                    rMax: 266,
                     theta: baseTheta,
-                    speed: (0.55 + (1.0 - rNorm) * 2.2) * (Math.random() > 0.05 ? 1 : -0.5),
-                    arm: arm,
-                    rSpeed: (0.8 + Math.random() * 1.8) * 16
+                    speed: 0.65 + (1.0 - rNorm) * 2.2, // Clockwise rotation speed
+                    rSpeed: (0.6 + Math.random() * 1.4) * 14
                 });
             }
 
@@ -2246,11 +2242,11 @@
             spiralGeo.setAttribute('color', new THREE.BufferAttribute(spiralColors, 3));
 
             const spiralMat = new THREE.PointsMaterial({
-                size: 18,
+                size: 16,
                 map: pTex,
                 vertexColors: true,
                 transparent: true,
-                opacity: 0.96,
+                opacity: 0.95,
                 blending: THREE.AdditiveBlending,
                 depthWrite: false
             });
@@ -2259,54 +2255,68 @@
             goldenGateSpiralPoints.userData = { pData: spiralData };
             goldenGateVortexGroup.add(goldenGateSpiralPoints);
 
-            // 2. Gravitational Singularity Throat & Tunnel Flow (12,000 Dense Particles)
-            const tunnelCount = 12000;
-            const tunnelGeo = new THREE.BufferGeometry();
-            const tunnelPositions = new Float32Array(tunnelCount * 3);
-            const tunnelColors = new Float32Array(tunnelCount * 3);
-            const tunnelData = [];
+            // 2. Secondary Counter-Clockwise (Opposite Direction) Circular Particle Swirl (18,000 Dense Particles in 2D Disc)
+            const counterCount = 18000;
+            const counterGeo = new THREE.BufferGeometry();
+            const counterPositions = new Float32Array(counterCount * 3);
+            const counterColors = new Float32Array(counterCount * 3);
+            const counterData = [];
 
-            for (let t = 0; t < tunnelCount; t++) {
-                const tNorm = Math.random(); // 0 (front horizon) to 1 (deep wormhole tunnel)
-                const y = 35 - tNorm * 240;
-                const rThroat = 6 + (1.0 - tNorm * 0.80) * 90;
-                const theta = Math.random() * Math.PI * 2;
+            const spiralColorPalette2 = [
+                new THREE.Color(0xfbbf24), // Precursor Gold
+                new THREE.Color(0xfde047), // Solar Gold
+                new THREE.Color(0xf59e0b), // Deep Amber Gold
+                new THREE.Color(0x00f0ff), // Electric Cyan
+                new THREE.Color(0xffffff), // Pure White
+                new THREE.Color(0xd946ef)  // Intense Magenta
+            ];
 
-                tunnelPositions[t * 3] = Math.cos(theta) * rThroat;
-                tunnelPositions[t * 3 + 1] = y;
-                tunnelPositions[t * 3 + 2] = Math.sin(theta) * rThroat;
+            for (let c = 0; c < counterCount; c++) {
+                const arm = c % 6; // 6 opposing logarithmic spiral arms
+                const rNorm = Math.pow(Math.random(), 0.65);
+                const r = 6 + rNorm * 260;
+                // Negative spiral winding angle for opposite swirl shape
+                const baseTheta = -(arm * (Math.PI / 3)) - (r * 0.032) + (Math.random() - 0.5) * 0.35;
+                const y = (Math.random() - 0.5) * 1.5; // Strictly in 2D planar space
 
-                const tCol = (tNorm < 0.45) ? new THREE.Color(0x00f0ff) : (Math.random() > 0.5 ? new THREE.Color(0xa855f7) : new THREE.Color(0xfbbf24));
-                tunnelColors[t * 3] = tCol.r;
-                tunnelColors[t * 3 + 1] = tCol.g;
-                tunnelColors[t * 3 + 2] = tCol.b;
+                counterPositions[c * 3] = Math.cos(baseTheta) * r;
+                counterPositions[c * 3 + 1] = y;
+                counterPositions[c * 3 + 2] = Math.sin(baseTheta) * r;
 
-                tunnelData.push({
-                    y: y,
-                    ySpeed: 60 + Math.random() * 110,
-                    theta: theta,
-                    rotSpeed: 1.6 + Math.random() * 2.5
+                const col = spiralColorPalette2[c % spiralColorPalette2.length];
+                const finalCol = col.clone().lerp(new THREE.Color(0xffffff), Math.max(0, 1.0 - r / 100));
+                counterColors[c * 3] = finalCol.r;
+                counterColors[c * 3 + 1] = finalCol.g;
+                counterColors[c * 3 + 2] = finalCol.b;
+
+                counterData.push({
+                    r: r,
+                    rMin: 6,
+                    rMax: 266,
+                    theta: baseTheta,
+                    speed: 0.65 + (1.0 - rNorm) * 2.2, // Counter-clockwise rotation speed
+                    rSpeed: (0.6 + Math.random() * 1.4) * 14
                 });
             }
 
-            tunnelGeo.setAttribute('position', new THREE.BufferAttribute(tunnelPositions, 3));
-            tunnelGeo.setAttribute('color', new THREE.BufferAttribute(tunnelColors, 3));
+            counterGeo.setAttribute('position', new THREE.BufferAttribute(counterPositions, 3));
+            counterGeo.setAttribute('color', new THREE.BufferAttribute(counterColors, 3));
 
-            const tunnelMat = new THREE.PointsMaterial({
-                size: 14,
+            const counterMat = new THREE.PointsMaterial({
+                size: 16,
                 map: pTex,
                 vertexColors: true,
                 transparent: true,
-                opacity: 0.90,
+                opacity: 0.92,
                 blending: THREE.AdditiveBlending,
                 depthWrite: false
             });
 
-            goldenGateTunnelPoints = new THREE.Points(tunnelGeo, tunnelMat);
-            goldenGateTunnelPoints.userData = { pData: tunnelData };
+            goldenGateTunnelPoints = new THREE.Points(counterGeo, counterMat);
+            goldenGateTunnelPoints.userData = { pData: counterData };
             goldenGateVortexGroup.add(goldenGateTunnelPoints);
 
-            // 3. Peripheral Precursor Boundary Sparks & Energy Corona (6,000 Dense Particles)
+            // 3. Peripheral Precursor Boundary Corona (6,000 Dense Particles in 2D Ring Plane)
             const borderCount = 6000;
             const borderGeo = new THREE.BufferGeometry();
             const borderPositions = new Float32Array(borderCount * 3);
@@ -2315,8 +2325,8 @@
 
             for (let b = 0; b < borderCount; b++) {
                 const theta = Math.random() * Math.PI * 2;
-                const r = 255 + Math.random() * 60;
-                const y = (Math.random() - 0.5) * 26;
+                const r = 250 + Math.random() * 25;
+                const y = (Math.random() - 0.5) * 1.5;
 
                 borderPositions[b * 3] = Math.cos(theta) * r;
                 borderPositions[b * 3 + 1] = y;
@@ -2865,11 +2875,12 @@
                 });
             }
 
-            // 5. Animate Slipspace Wormhole Event Horizon Particles & Accretion Vortex
+            // 5. Animate Slipspace Wormhole Event Horizon Particles & Dual 2D Counter-Rotating Swirls
             if (goldenGateVortexGroup) {
                 // Vortex is visible during gate reveal and tractor/active phases
                 goldenGateVortexGroup.visible = (titanExcavationPhase !== 'WAITING_FOR_FLEET');
 
+                // Primary Clockwise 2D Circular Swirl
                 if (goldenGateSpiralPoints && goldenGateSpiralPoints.geometry) {
                     const posAttr = goldenGateSpiralPoints.geometry.attributes.position;
                     const arr = posAttr.array;
@@ -2882,17 +2893,16 @@
                             if (d.r < d.rMin) {
                                 d.r = d.rMax;
                             }
-                            const rNorm = (d.r - d.rMin) / (d.rMax - d.rMin);
-                            const depth = -Math.sin((1.0 - rNorm) * Math.PI * 0.5) * 75;
                             const idx = i * 3;
                             arr[idx] = Math.cos(d.theta) * d.r;
-                            arr[idx + 1] = depth;
+                            arr[idx + 1] = 0; // Pure 2D circular planar space
                             arr[idx + 2] = Math.sin(d.theta) * d.r;
                         }
                         posAttr.needsUpdate = true;
                     }
                 }
 
+                // Secondary Counter-Clockwise (Opposite Direction) 2D Circular Swirl
                 if (goldenGateTunnelPoints && goldenGateTunnelPoints.geometry) {
                     const posAttr = goldenGateTunnelPoints.geometry.attributes.position;
                     const arr = posAttr.array;
@@ -2900,20 +2910,21 @@
                     if (pData) {
                         for (let i = 0; i < pData.length; i++) {
                             const d = pData[i];
-                            d.y -= d.ySpeed * timeDelta;
-                            d.theta += d.rotSpeed * timeDelta;
-                            if (d.y < -205) d.y = 35;
-                            const tNorm = (35 - d.y) / 240.0;
-                            const rThroat = 6 + (1.0 - tNorm * 0.80) * 90;
+                            d.theta -= d.speed * timeDelta; // Swirling in the opposite direction
+                            d.r -= d.rSpeed * timeDelta;
+                            if (d.r < d.rMin) {
+                                d.r = d.rMax;
+                            }
                             const idx = i * 3;
-                            arr[idx] = Math.cos(d.theta) * rThroat;
-                            arr[idx + 1] = d.y;
-                            arr[idx + 2] = Math.sin(d.theta) * rThroat;
+                            arr[idx] = Math.cos(d.theta) * d.r;
+                            arr[idx + 1] = 0; // Pure 2D circular planar space
+                            arr[idx + 2] = Math.sin(d.theta) * d.r;
                         }
                         posAttr.needsUpdate = true;
                     }
                 }
 
+                // Peripheral 2D Circular Rim Corona
                 if (goldenGateBorderPoints && goldenGateBorderPoints.geometry) {
                     const posAttr = goldenGateBorderPoints.geometry.attributes.position;
                     const arr = posAttr.array;
@@ -2924,7 +2935,7 @@
                             d.theta += d.rotSpeed * timeDelta;
                             const idx = i * 3;
                             arr[idx] = Math.cos(d.theta) * d.r;
-                            arr[idx + 1] = (Math.random() - 0.5) * 26;
+                            arr[idx + 1] = 0; // Pure 2D circular planar space
                             arr[idx + 2] = Math.sin(d.theta) * d.r;
                         }
                         posAttr.needsUpdate = true;

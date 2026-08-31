@@ -3,7 +3,7 @@
   "boxPositions": {
     "hud-camera-card": {
       "x": 85,
-      "y": 949
+      "y": 947
     },
     "hud-radar-card": {
       "x": 25,
@@ -14,7 +14,7 @@
       "y": -32
     },
     "hud-top-target-card": {
-      "x": -2,
+      "x": 0,
       "y": -75
     },
     "hud-controls-card": {
