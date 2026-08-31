@@ -2018,17 +2018,23 @@
                 let lookAhead = prog + 0.02;
                 if (lookAhead > 1.0) lookAhead = 1.0;
                 
-                if (prog < 0.98) {
+                if (prog < 0.9) {
                     const localTangent = hangerModel.userData.landingCurve.getTangentAt(lookAhead);
                     localTangent.y = 0; // Keep ship level during approach
-                    localTangent.normalize();
-                    const worldTangent = localTangent.transformDirection(hangerModel.matrixWorld);
-                    const lookTarget = playerShip.position.clone().add(worldTangent);
                     
-                    const targetRot = new THREE.Quaternion().setFromRotationMatrix(
-                        new THREE.Matrix4().lookAt(playerShip.position, lookTarget, new THREE.Vector3(0, 1, 0))
-                    );
-                    playerShip.quaternion.slerp(targetRot, 0.15 * dtFactor);
+                    if (localTangent.lengthSq() > 0.001) {
+                        localTangent.normalize();
+                        const worldTangent = localTangent.transformDirection(hangerModel.matrixWorld);
+                        const lookTarget = playerShip.position.clone().add(worldTangent);
+                        
+                        const targetRot = new THREE.Quaternion().setFromRotationMatrix(
+                            new THREE.Matrix4().lookAt(playerShip.position, lookTarget, new THREE.Vector3(0, 1, 0))
+                        );
+                        playerShip.quaternion.slerp(targetRot, 0.15 * dtFactor);
+                    }
+                } else {
+                    // Final vertical descent: gracefully lock into the final parking orientation
+                    playerShip.quaternion.slerp(outwardQuat, 0.1 * dtFactor);
                 }
                 
                 if (prog >= 1.0) {
