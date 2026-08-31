@@ -23,23 +23,24 @@
                             display: flex;
                             justify-content: space-between;
                             align-items: center;
-                            padding: 15px 25px;
-                            background: rgba(8, 12, 24, 0.5);
-                            border: 1px solid rgba(0, 240, 255, 0.15);
-                            border-radius: 6px;
+                            padding: 14px 20px;
+                            background: rgba(8, 12, 24, 0.6);
+                            border: 1px solid rgba(0, 240, 255, 0.2);
+                            border-radius: 8px;
                             margin-bottom: 12px;
                             cursor: pointer;
-                            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+                            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
                             box-shadow: 0 0 10px rgba(0, 240, 255, 0.0);
                             position: relative;
                             overflow: hidden;
+                            user-select: none;
                         }
 
                         .profile-box::after {
                             content: '';
                             position: absolute;
                             top: -50%; left: -50%; right: -50%; bottom: -50%;
-                            background: linear-gradient(45deg, transparent 40%, rgba(0, 240, 255, 0.1) 50%, transparent 60%);
+                            background: linear-gradient(45deg, transparent 40%, rgba(0, 240, 255, 0.12) 50%, transparent 60%);
                             transform: translateX(-100%);
                             transition: transform 0.6s ease;
                             z-index: 1;
@@ -48,16 +49,16 @@
 
                         @keyframes energyPulse {
                             0% {
-                                box-shadow: 0 0 15px rgba(0, 240, 255, 0.2), inset 0 0 10px rgba(0, 240, 255, 0.1);
-                                border-color: rgba(0, 240, 255, 0.5);
+                                box-shadow: 0 0 15px rgba(0, 240, 255, 0.25), inset 0 0 10px rgba(0, 240, 255, 0.1);
+                                border-color: rgba(0, 240, 255, 0.6);
                             }
                             50% {
-                                box-shadow: 0 0 35px rgba(0, 240, 255, 0.6), inset 0 0 20px rgba(0, 240, 255, 0.3);
+                                box-shadow: 0 0 35px rgba(0, 240, 255, 0.65), inset 0 0 20px rgba(0, 240, 255, 0.3);
                                 border-color: rgba(0, 240, 255, 1.0);
                             }
                             100% {
-                                box-shadow: 0 0 15px rgba(0, 240, 255, 0.2), inset 0 0 10px rgba(0, 240, 255, 0.1);
-                                border-color: rgba(0, 240, 255, 0.5);
+                                box-shadow: 0 0 15px rgba(0, 240, 255, 0.25), inset 0 0 10px rgba(0, 240, 255, 0.1);
+                                border-color: rgba(0, 240, 255, 0.6);
                             }
                         }
 
@@ -68,7 +69,7 @@
                         }
 
                         .profile-box:hover {
-                            background: rgba(12, 24, 48, 0.7);
+                            background: rgba(12, 24, 48, 0.8);
                             animation: energyPulse 2s infinite ease-in-out;
                         }
 
@@ -76,14 +77,41 @@
                             transform: translateX(100%);
                         }
 
-                        .profile-name {
-                            font-size: 22px;
-                            font-weight: 300;
-                            letter-spacing: 3px;
-                            color: rgba(255, 255, 255, 0.6);
-                            transition: all 0.3s ease;
+                        /* Main clickable area taking up ~90% of the box */
+                        .profile-main-click {
+                            display: flex;
+                            align-items: center;
+                            gap: 14px;
+                            flex: 1;
                             z-index: 2;
-                            text-shadow: 0 0 0px transparent;
+                            cursor: pointer;
+                        }
+
+                        .profile-icon-badge {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            width: 36px;
+                            height: 36px;
+                            background: rgba(0, 240, 255, 0.1);
+                            border: 1px solid rgba(0, 240, 255, 0.3);
+                            border-radius: 6px;
+                            font-size: 17px;
+                            transition: all 0.3s ease;
+                        }
+
+                        .profile-box:hover .profile-icon-badge {
+                            background: rgba(0, 240, 255, 0.25);
+                            border-color: #00f0ff;
+                            box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+                        }
+
+                        .profile-name {
+                            font-size: 20px;
+                            font-weight: 300;
+                            letter-spacing: 2px;
+                            color: rgba(255, 255, 255, 0.7);
+                            transition: all 0.3s ease;
                         }
 
                         .profile-box:hover .profile-name {
@@ -92,45 +120,66 @@
                             animation: textPulse 2s infinite ease-in-out;
                         }
 
+                        .profile-launch-badge {
+                            font-size: 11px;
+                            font-weight: 700;
+                            letter-spacing: 2px;
+                            color: #00f0ff;
+                            opacity: 0;
+                            transform: translateX(-10px);
+                            transition: all 0.3s ease;
+                            margin-left: 8px;
+                        }
+
+                        .profile-box:hover .profile-launch-badge {
+                            opacity: 0.9;
+                            transform: translateX(0);
+                        }
+
+                        /* Small discreet action tray on the far right */
                         .profile-actions {
                             display: flex;
-                            gap: 12px;
-                            opacity: 0;
-                            transition: opacity 0.3s ease, transform 0.3s ease;
-                            transform: translateX(15px);
-                            z-index: 2;
+                            align-items: center;
+                            gap: 6px;
+                            z-index: 3;
+                            padding-left: 12px;
+                            border-left: 1px solid rgba(255, 255, 255, 0.1);
+                            opacity: 0.45;
+                            transition: opacity 0.2s ease;
                         }
 
                         .profile-box:hover .profile-actions {
                             opacity: 1;
-                            transform: translateX(0);
                         }
 
-                        .ethereal-btn {
-                            padding: 8px 16px;
-                            background: rgba(0, 0, 0, 0.3);
-                            border: 1px solid rgba(255, 255, 255, 0.1);
-                            color: rgba(255, 255, 255, 0.5);
+                        .ethereal-mini-btn {
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            padding: 4px 8px;
+                            background: rgba(0, 0, 0, 0.4);
+                            border: 1px solid rgba(255, 255, 255, 0.15);
+                            color: rgba(255, 255, 255, 0.6);
                             cursor: pointer;
                             border-radius: 4px;
-                            font-size: 11px;
-                            font-weight: bold;
-                            letter-spacing: 2px;
+                            font-size: 10px;
+                            font-weight: 600;
+                            letter-spacing: 1px;
                             transition: all 0.2s ease;
                         }
 
-                        .ethereal-btn.rename:hover {
-                            background: rgba(255, 255, 0, 0.15);
-                            border-color: rgba(255, 255, 0, 0.6);
-                            color: #ff0;
-                            box-shadow: 0 0 15px rgba(255, 255, 0, 0.3);
+                        .ethereal-mini-btn.rename:hover {
+                            background: rgba(234, 179, 8, 0.2);
+                            border-color: #eab308;
+                            color: #facc15;
+                            box-shadow: 0 0 10px rgba(234, 179, 8, 0.4);
                         }
 
-                        .ethereal-btn.delete:hover {
-                            background: rgba(255, 0, 0, 0.15);
-                            border-color: rgba(255, 0, 0, 0.6);
-                            color: #f00;
-                            box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+                        .ethereal-mini-btn.delete:hover {
+                            background: rgba(239, 68, 68, 0.2);
+                            border-color: #ef4444;
+                            color: #f87171;
+                            box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
                         }
                     </style>
                     `;
@@ -138,10 +187,14 @@
                         data.profiles.forEach(p => {
                             html += `
                             <div class="profile-box" onclick="window.startGameWithProfile('${p}')">
-                                <span class="profile-name">${p}</span>
-                                <div class="profile-actions">
-                                    <button class="ethereal-btn rename" onclick="event.stopPropagation(); window.promptRenameProfile('${p}')">RENAME</button>
-                                    <button class="ethereal-btn delete" onclick="event.stopPropagation(); window.deleteProfile('${p}')">DELETE</button>
+                                <div class="profile-main-click">
+                                    <span class="profile-icon-badge">👤</span>
+                                    <span class="profile-name">${p}</span>
+                                    <span class="profile-launch-badge">SELECT ❯</span>
+                                </div>
+                                <div class="profile-actions" onclick="event.stopPropagation()">
+                                    <button class="ethereal-mini-btn rename" title="Rename Pilot" onclick="event.stopPropagation(); window.promptRenameProfile('${p}')">✎ RENAME</button>
+                                    <button class="ethereal-mini-btn delete" title="Delete Profile" onclick="event.stopPropagation(); window.deleteProfile('${p}')">✕ DEL</button>
                                 </div>
                             </div>`;
                         });
