@@ -31,7 +31,7 @@ const _targetWorldPos = new THREE.Vector3();
                 // --- W / S Throttle Speed Controls (W = Accelerate, S = Decelerate) ---
                 let _throttle = gameMechanicsConfig.throttleAccel !== undefined ? gameMechanicsConfig.throttleAccel : 50;
                 if (_throttle > 100) _throttle = 100;
-                const throttleMult = (_throttle / 100) * 2.5;
+                const throttleMult = (_throttle / 100) * 5.0;
                 const accelRate = 2.46 * throttleMult * dtFactor; 
 
                 if (keys.KeyW) targetSpeed = Math.min(targetSpeed + accelRate, maxSpeedCap);
