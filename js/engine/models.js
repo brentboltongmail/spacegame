@@ -250,12 +250,12 @@
                     const frontDoorGeo = new THREE.PlaneGeometry(doorWidth / 2, rectH, 2, 2);
                     
                     const leftFrontDoor = new THREE.Mesh(frontDoorGeo, frontDoorWallMat);
-                    leftFrontDoor.position.set(-doorWidth / 4, centerY, entranceZ + 0.01);
+                    leftFrontDoor.position.set(-doorWidth / 4, centerY, entranceZ - 0.03);
                     leftFrontDoor.layers.set(1);
                     leftFrontDoor.userData.noDeform = true;
                     
                     const rightFrontDoor = new THREE.Mesh(frontDoorGeo, frontDoorWallMat);
-                    rightFrontDoor.position.set(doorWidth / 4, centerY, entranceZ + 0.01);
+                    rightFrontDoor.position.set(doorWidth / 4, centerY, entranceZ - 0.03);
                     rightFrontDoor.layers.set(1);
                     rightFrontDoor.userData.noDeform = true;
                     
