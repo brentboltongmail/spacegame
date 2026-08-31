@@ -396,8 +396,7 @@
                 console.error("initProfileScreen is not defined");
             }
 
-            // Auto-start Mission 1 instead of Free Roam / Mission 3
-            startMission1();
+            // Auto-start Mission 1 will be called by startGameWithProfile once the 3D scene is loaded.
 
             let hasEnteredFullscreen = false;
             let userExitedFullscreen = false;
@@ -529,6 +528,7 @@
         let mission1Active = false;
         let mission1Stage = 0;
 
+        window.startMission1 = startMission1;
         function startMission1() {
             window.mission3Active = false;
             window.isMission3Active = false;

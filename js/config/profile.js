@@ -91,6 +91,9 @@
             if (typeof updateEngineAudio === 'function' && typeof audioCtx !== 'undefined' && audioCtx) {
                 updateEngineAudio(typeof currentSpeed !== 'undefined' ? currentSpeed / maxSpeedCap : 0, typeof cameraMode !== 'undefined' ? cameraMode === 0 : false);
             }
+            if (typeof window.startMission1 === 'function') {
+                window.startMission1();
+            }
         };
 
         async function loadProfileFromServer(username) {

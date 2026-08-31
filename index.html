@@ -44,14 +44,14 @@
                     <option value="commander_vance">Commander Vance (commander_vance)</option>
                 </select>
             </div>
-            <button class="btn-reset-layout" onclick="resetAllBoxPositions()">✨ Reset Layout</button>
-            <button class="btn-reset-layout" onclick="openOptionsModal()">⚙️ Options</button>
-            <button class="btn-reset-layout" onclick="window.open('debug_ship.html', '_blank')">🛠️ Debug Ship</button>
-            <button class="btn-reset-layout" style="background: rgba(0, 240, 255, 0.2); border-color: #00f0ff; color: #00f0ff; font-weight: 700; box-shadow: 0 0 10px rgba(0, 240, 255, 0.35);" onclick="window.open('audiobook.html', '_blank')">🎧 Audiobook</button>
+            <button class="btn-reset-layout" onclick="resetAllBoxPositions()">Reset Layout</button>
+            <button class="btn-reset-layout" onclick="openOptionsModal()">Options</button>
+            <button class="btn-reset-layout" onclick="window.open('debug_ship.html', '_blank')">Debug Ship</button>
+            <button class="btn-reset-layout" style="background: rgba(0, 240, 255, 0.2); border-color: #00f0ff; color: #00f0ff; font-weight: 700; box-shadow: 0 0 10px rgba(0, 240, 255, 0.35);" onclick="window.open('audiobook.html', '_blank')">Audiobook</button>
             <nav class="nav-tabs">
 
-                <button class="tab-btn" onclick="switchTab('story')">📖 Narrative & Campaign</button>
-                <button class="tab-btn" onclick="switchTab('ships')">🛸 Ship Classes & War</button>
+                <button class="tab-btn" onclick="switchTab('story')">Narrative & Campaign</button>
+                <button class="tab-btn" onclick="switchTab('ships')">Ship Classes & War</button>
             </nav>
         </div>
     </header>
@@ -239,8 +239,8 @@
                 <div class="blackout-title">SOL SECTOR SEVERED</div>
                 <div class="blackout-subtitle">Kaylen Vance's Void Interceptor has crossed the threshold into the unknown...</div>
                 <div id="blackout-actions" style="margin-top: 36px; display: flex; gap: 16px; opacity: 0; transition: opacity 1.2s ease 2.5s;">
-                    <button class="sim-btn" style="border-color: rgba(168, 85, 247, 0.8); color: #c084fc; font-weight: 700; padding: 12px 24px; font-size: 0.95rem;" onclick="startTitanGateCinematic()">🔄 Replay Cinematic</button>
-                    <button class="sim-btn" style="background: linear-gradient(135deg, rgba(0, 240, 255, 0.4), rgba(168, 85, 247, 0.4)); border-color: #00f0ff; color: #fff; font-weight: 800; padding: 12px 28px; font-size: 0.95rem;" onclick="stopTitanGateCinematic()">🚀 Continue</button>
+                    <button class="sim-btn" style="border-color: rgba(168, 85, 247, 0.8); color: #c084fc; font-weight: 700; padding: 12px 24px; font-size: 0.95rem;" onclick="startTitanGateCinematic()">Replay Cinematic</button>
+                    <button class="sim-btn" style="background: linear-gradient(135deg, rgba(0, 240, 255, 0.4), rgba(168, 85, 247, 0.4)); border-color: #00f0ff; color: #fff; font-weight: 800; padding: 12px 28px; font-size: 0.95rem;" onclick="stopTitanGateCinematic()">Continue</button>
                 </div>
             </div>
 
@@ -254,8 +254,8 @@
                         Kaylen's void interceptor plunged through the wormhole. His gamble paid off and somehow his amulet seems to have almost known what he was thinking and closed the gate. The Sol System is saved from the armada for now, but Kaylen has been hurled across slipspace into the unknown...
                     </p>
                     <div style="display: flex; justify-content: center; gap: 14px;">
-                        <button class="sim-btn" style="border-color: rgba(168, 85, 247, 0.7); color: #c084fc; font-weight: 700; padding: 10px 20px;" onclick="startTitanGateCinematic()">🔄 Replay Cinematic</button>
-                        <button class="sim-btn" style="background: linear-gradient(135deg, rgba(0, 240, 255, 0.4), rgba(168, 85, 247, 0.4)); border-color: #00f0ff; color: #fff; font-weight: 800; padding: 10px 24px;" onclick="closeCinematicEndModal()">🚀 Continue</button>
+                        <button class="sim-btn" style="border-color: rgba(168, 85, 247, 0.7); color: #c084fc; font-weight: 700; padding: 10px 20px;" onclick="startTitanGateCinematic()">Replay Cinematic</button>
+                        <button class="sim-btn" style="background: linear-gradient(135deg, rgba(0, 240, 255, 0.4), rgba(168, 85, 247, 0.4)); border-color: #00f0ff; color: #fff; font-weight: 800; padding: 10px 24px;" onclick="closeCinematicEndModal()">Continue</button>
                     </div>
                 </div>
             </div>
@@ -303,9 +303,9 @@
 
                     <!-- Action Controls -->
                     <div class="debrief-actions">
-                        <button class="sim-btn btn-secondary" onclick="toggleTacticalArmoryDrawer()">⚙️ Tactical Armory</button>
-                        <button class="sim-btn btn-replay" onclick="startTitanGateCinematic()">🔄 Replay Cutscene</button>
-                        <button class="sim-btn btn-primary" onclick="scrambleNextMission()">🚀 SCRAMBLE NEXT MISSION</button>
+                        <button class="sim-btn btn-secondary" onclick="toggleTacticalArmoryDrawer()">Tactical Armory</button>
+                        <button class="sim-btn btn-replay" onclick="startTitanGateCinematic()">Replay Cutscene</button>
+                        <button class="sim-btn btn-primary" onclick="scrambleNextMission()">SCRAMBLE NEXT MISSION</button>
                     </div>
                 </div>
             </div>
@@ -313,7 +313,7 @@
             <!-- Slide-Out Tactical Armory & Briefing Drawer -->
             <div id="tactical-armory-drawer" class="tactical-armory-drawer" style="display: none;">
                 <div class="drawer-header">
-                    <h3>⚙️ FLIGHT DECK ARMORY & PRE-FLIGHT CHECK</h3>
+                    <h3>FLIGHT DECK ARMORY & PRE-FLIGHT CHECK</h3>
                     <button class="drawer-close-btn" onclick="toggleTacticalArmoryDrawer()">✕</button>
                 </div>
                 <div class="drawer-content">
@@ -628,7 +628,7 @@
                     <!-- Module 3: Ion Thruster Nacelles -->
                     <div class="module-upgrade-card">
                         <div>
-                            <div style="font-family: Orbitron; font-weight: 700; color: #fff;">🚀 Ion Thruster Nacelles</div>
+                            <div style="font-family: Orbitron; font-weight: 700; color: #fff;">Ion Thruster Nacelles</div>
                             <div style="font-size: 0.8rem; color: #94a3b8;">Increases top flight speed & acceleration (+15%)</div>
                             <div id="lbl-mod-thrusters" style="font-size: 0.75rem; color: var(--accent-cyan); margin-top: 4px;">Level 3 / 5</div>
                         </div>
@@ -683,7 +683,7 @@
                         📡 SYSTEM OBJECT LEGEND
                     </div>
                     <div class="legend-item" onclick="focusMapObject('player')">
-                        <span style="color: #00f0ff; font-weight: 700;">🛸 Void Interceptor</span>
+                        <span style="color: #00f0ff; font-weight: 700;">Void Interceptor</span>
                         <span style="color: #94a3b8;">PLAYER</span>
                     </div>
                     <div class="legend-item" onclick="focusMapObject('sun')">
@@ -728,7 +728,7 @@
         <div id="options-modal">
             <div class="modal-header">
                 <div class="modal-title-group">
-                    <h1>⚙️ SYSTEM OPTIONS & CONTROLS EDITOR</h1>
+                    <h1>SYSTEM OPTIONS & CONTROLS EDITOR</h1>
                     <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Adjust master volume levels and rebind flight keyboard controls</div>
                 </div>
                 <button class="sim-btn" onclick="closeOptionsModal()" style="font-size: 1rem; padding: 10px 24px; background: linear-gradient(135deg, #0284c7, #00f0ff); color: #000; font-weight: 700; border: none; cursor: pointer; border-radius: 8px;">
@@ -753,7 +753,7 @@
 
                     <div class="volume-slider-group">
                         <div class="slider-header">
-                            <span>🚀 Engine Sound FX</span>
+                            <span>Engine Sound FX</span>
                             <span id="lbl-vol-engine">80%</span>
                         </div>
                         <input type="range" id="slider-vol-engine" min="0" max="100" value="80" oninput="updateAudioVolumes()">
@@ -794,7 +794,7 @@
 
                     <div class="volume-slider-group">
                         <div class="slider-header">
-                            <span>🔄 Ship Roll Speed</span>
+                            <span>Ship Roll Speed</span>
                             <span id="lbl-set-roll">50%</span>
                         </div>
                         <input type="range" id="slider-set-roll" min="10" max="100" value="50" oninput="updateGameSettings()">
@@ -819,7 +819,7 @@
 
                     <div class="volume-slider-group">
                         <div class="slider-header">
-                            <span>🚀 Throttle Response</span>
+                            <span>Throttle Response</span>
                             <span id="lbl-set-throttle">50%</span>
                         </div>
                         <input type="range" id="slider-set-throttle" min="10" max="100" value="50" oninput="updateGameSettings()">
@@ -866,7 +866,7 @@
 
                     <div class="volume-slider-group">
                         <div class="slider-header">
-                            <span>🛸 Enemy Fighter Speed</span>
+                            <span>Enemy Fighter Speed</span>
                             <span id="lbl-set-enemy-speed">50%</span>
                         </div>
                         <input type="range" id="slider-set-enemy-speed" min="10" max="150" value="50" step="1" oninput="updateGameSettings()">
