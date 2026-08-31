@@ -23,7 +23,7 @@
                             display: flex;
                             justify-content: space-between;
                             align-items: center;
-                            padding: 14px 20px;
+                            padding: 16px 24px;
                             background: rgba(8, 12, 24, 0.6);
                             border: 1px solid rgba(0, 240, 255, 0.2);
                             border-radius: 8px;
@@ -77,11 +77,11 @@
                             transform: translateX(100%);
                         }
 
-                        /* Main clickable area taking up ~90% of the box */
+                        /* Main clickable profile area */
                         .profile-main-click {
                             display: flex;
                             align-items: center;
-                            gap: 14px;
+                            gap: 16px;
                             flex: 1;
                             z-index: 2;
                             cursor: pointer;
@@ -91,12 +91,12 @@
                             display: flex;
                             align-items: center;
                             justify-content: center;
-                            width: 36px;
-                            height: 36px;
+                            width: 38px;
+                            height: 38px;
                             background: rgba(0, 240, 255, 0.1);
                             border: 1px solid rgba(0, 240, 255, 0.3);
                             border-radius: 6px;
-                            font-size: 17px;
+                            font-size: 18px;
                             transition: all 0.3s ease;
                         }
 
@@ -107,10 +107,10 @@
                         }
 
                         .profile-name {
-                            font-size: 20px;
+                            font-size: 21px;
                             font-weight: 300;
                             letter-spacing: 2px;
-                            color: rgba(255, 255, 255, 0.7);
+                            color: rgba(255, 255, 255, 0.75);
                             transition: all 0.3s ease;
                         }
 
@@ -120,46 +120,34 @@
                             animation: textPulse 2s infinite ease-in-out;
                         }
 
-                        .profile-launch-badge {
-                            font-size: 11px;
-                            font-weight: 700;
-                            letter-spacing: 2px;
-                            color: #00f0ff;
-                            opacity: 0;
-                            transform: translateX(-10px);
-                            transition: all 0.3s ease;
-                            margin-left: 8px;
-                        }
-
-                        .profile-box:hover .profile-launch-badge {
-                            opacity: 0.9;
-                            transform: translateX(0);
-                        }
-
-                        /* Small discreet action tray on the far right */
+                        /* Actions appear off to the right strictly on hover */
                         .profile-actions {
                             display: flex;
                             align-items: center;
-                            gap: 6px;
+                            gap: 8px;
                             z-index: 3;
-                            padding-left: 12px;
-                            border-left: 1px solid rgba(255, 255, 255, 0.1);
-                            opacity: 0.45;
-                            transition: opacity 0.2s ease;
+                            padding-left: 14px;
+                            border-left: 1px solid rgba(255, 255, 255, 0.12);
+                            opacity: 0;
+                            pointer-events: none;
+                            transform: translateX(10px);
+                            transition: opacity 0.25s ease, transform 0.25s ease;
                         }
 
                         .profile-box:hover .profile-actions {
                             opacity: 1;
+                            pointer-events: auto;
+                            transform: translateX(0);
                         }
 
                         .ethereal-mini-btn {
                             display: inline-flex;
                             align-items: center;
                             justify-content: center;
-                            padding: 4px 8px;
-                            background: rgba(0, 0, 0, 0.4);
-                            border: 1px solid rgba(255, 255, 255, 0.15);
-                            color: rgba(255, 255, 255, 0.6);
+                            padding: 5px 10px;
+                            background: rgba(0, 0, 0, 0.5);
+                            border: 1px solid rgba(255, 255, 255, 0.18);
+                            color: rgba(255, 255, 255, 0.65);
                             cursor: pointer;
                             border-radius: 4px;
                             font-size: 10px;
@@ -169,14 +157,14 @@
                         }
 
                         .ethereal-mini-btn.rename:hover {
-                            background: rgba(234, 179, 8, 0.2);
+                            background: rgba(234, 179, 8, 0.25);
                             border-color: #eab308;
                             color: #facc15;
                             box-shadow: 0 0 10px rgba(234, 179, 8, 0.4);
                         }
 
                         .ethereal-mini-btn.delete:hover {
-                            background: rgba(239, 68, 68, 0.2);
+                            background: rgba(239, 68, 68, 0.25);
                             border-color: #ef4444;
                             color: #f87171;
                             box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
@@ -190,11 +178,10 @@
                                 <div class="profile-main-click">
                                     <span class="profile-icon-badge">👤</span>
                                     <span class="profile-name">${p}</span>
-                                    <span class="profile-launch-badge">SELECT ❯</span>
                                 </div>
                                 <div class="profile-actions" onclick="event.stopPropagation()">
                                     <button class="ethereal-mini-btn rename" title="Rename Pilot" onclick="event.stopPropagation(); window.promptRenameProfile('${p}')">✎ RENAME</button>
-                                    <button class="ethereal-mini-btn delete" title="Delete Profile" onclick="event.stopPropagation(); window.deleteProfile('${p}')">✕ DEL</button>
+                                    <button class="ethereal-mini-btn delete" title="Delete Profile" onclick="event.stopPropagation(); window.deleteProfile('${p}')">✕ DELETE</button>
                                 </div>
                             </div>`;
                         });
