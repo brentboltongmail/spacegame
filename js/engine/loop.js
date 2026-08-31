@@ -553,8 +553,8 @@ const _targetWorldPos = new THREE.Vector3();
 
             // Apply camera lag to the roll as well (lerp camera.up smoothly to ship's local up vector)
             const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
-            if (cameraMode === 0) {
-                // In Cockpit View, keep orientation locked 1:1 with cockpit frame
+            if (cameraMode === 0 || (typeof isLandingSequenceActive !== 'undefined' && isLandingSequenceActive)) {
+                // In Cockpit View OR during landing, keep orientation locked 1:1 with cockpit frame / perfectly smooth
                 camera.up.copy(localUp);
             } else {
                 // In Third-Person (Close/Far) & Cinematic modes, apply smooth roll lag
@@ -562,7 +562,11 @@ const _targetWorldPos = new THREE.Vector3();
                 camera.up.lerp(localUp, rollLerp).normalize();
             }
 
-            camera.position.lerp(targetCamPos, cameraMode === 3 ? 0.08 : dynamicLerp);
+            if (typeof isLandingSequenceActive !== 'undefined' && isLandingSequenceActive) {
+                camera.position.copy(targetCamPos);
+            } else {
+                camera.position.lerp(targetCamPos, cameraMode === 3 ? 0.08 : dynamicLerp);
+            }
             camera.lookAt(targetLookAtPos);
             camera.updateMatrixWorld(); // Force matrix update so 2D UI projections have zero frame lag
 

@@ -71,7 +71,7 @@
     },
     "hud-shield-card": {
       "x": -25,
-      "y": 34
+      "y": 56
     },
     "hud-action-bar-card": {
       "x": -47,
@@ -95,7 +95,7 @@
     },
     "hud-camera-card": {
       "x": 85,
-      "y": 1034
+      "y": 1011
     }
   },
   "settings": {
