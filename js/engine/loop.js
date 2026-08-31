@@ -1100,7 +1100,7 @@ const _targetWorldPos = new THREE.Vector3();
 
                             playerCredits += 500;
                             const credDisp = document.getElementById('hangar-credits-display');
-                            if (credDisp) credDisp.innerText = `${playerCredits.toLocaleString()} SC`;
+                            if (credDisp) credDisp.innerText = `${playerCredits.toLocaleString()}`;
                             showToast("💥 TARGET DESTROYED! +500 SC AWARDED!");
 
                             setTimeout(() => {
@@ -1161,7 +1161,7 @@ const _targetWorldPos = new THREE.Vector3();
                                 
                                 playerCredits += 25000;
                                 const credDisp = document.getElementById('hangar-credits-display');
-                                if (credDisp) credDisp.innerText = `${playerCredits.toLocaleString()} SC`;
+                                if (credDisp) credDisp.innerText = `${playerCredits.toLocaleString()}`;
                                 // removed toast line
                             }
                             break;

@@ -543,17 +543,19 @@
         <!-- Player Profile & 3D Ship Upgrade Modal Overlay (ESC Key Toggle) -->
         <div id="ship-upgrade-modal">
             <div class="modal-header">
-                <div class="modal-title-group">
-                    <h1>Player Profile</h1>
-                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Press <kbd style="background: rgba(0,240,255,0.2); border: 1px solid #00f0ff; color: #00f0ff; padding: 2px 6px;">ESC</kbd> or click Resume Flight to unpause & return</div>
+                <div class="modal-title-group" style="display: flex; align-items: center; gap: 24px;">
+                    <div>
+                        <h1>Player Profile</h1>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Press <kbd style="background: rgba(0,240,255,0.2); border: 1px solid #00f0ff; color: #00f0ff; padding: 2px 6px;">ESC</kbd> or click Resume Flight to unpause & return</div>
+                    </div>
+                    <div style="font-size: 1.1rem; font-family: Orbitron; color: var(--accent-gold); font-weight: 700; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); padding: 8px 18px; border-radius: 8px;">
+                        💰 CREDITS: <span id="hangar-credits-display">125,000</span>
+                    </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 14px;">
                     <button class="sim-btn" onclick="openOptionsModal()" style="font-size: 0.95rem; padding: 9px 20px; background: rgba(15, 23, 42, 0.85); color: #00f0ff; border: 1px solid #00f0ff; font-weight: 700; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
                         ⚙️ OPTIONS
                     </button>
-                    <div style="font-size: 1.1rem; font-family: Orbitron; color: var(--accent-gold); font-weight: 700; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); padding: 8px 18px; border-radius: 8px;">
-                        💰 CREDITS: <span id="hangar-credits-display">125,000 SC</span>
-                    </div>
                     <button class="sim-btn" onclick="togglePauseUpgradeModal()" style="font-size: 1rem; padding: 10px 24px; background: linear-gradient(135deg, #0284c7, #00f0ff); color: #000; font-weight: 700; border: none; cursor: pointer; border-radius: 8px;">
                         🚀 Resume Flight
                     </button>

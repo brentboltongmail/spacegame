@@ -143,7 +143,7 @@
 
             // Update Credits UI
             const credDisp = document.getElementById('hangar-credits-display');
-            if (credDisp) credDisp.innerText = `${playerCredits.toLocaleString()} SC`;
+            if (credDisp) credDisp.innerText = `${playerCredits.toLocaleString()}`;
 
             const lbl = document.getElementById(`lbl-mod-${modKey}`);
             if (lbl) {
