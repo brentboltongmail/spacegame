@@ -19,15 +19,25 @@
                     const data = await res.json();
                     let html = `
                     <style>
+                        .profile-row {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            position: relative;
+                            margin-bottom: 12px;
+                            width: 100%;
+                        }
+
                         .profile-box {
                             display: flex;
-                            justify-content: space-between;
                             align-items: center;
-                            padding: 16px 24px;
-                            background: rgba(8, 12, 24, 0.6);
-                            border: 1px solid rgba(0, 240, 255, 0.2);
+                            justify-content: flex-start;
+                            gap: 16px;
+                            width: 320px;
+                            padding: 14px 22px;
+                            background: rgba(8, 12, 24, 0.65);
+                            border: 1px solid rgba(0, 240, 255, 0.22);
                             border-radius: 8px;
-                            margin-bottom: 12px;
                             cursor: pointer;
                             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
                             box-shadow: 0 0 10px rgba(0, 240, 255, 0.0);
@@ -69,7 +79,7 @@
                         }
 
                         .profile-box:hover {
-                            background: rgba(12, 24, 48, 0.8);
+                            background: rgba(12, 24, 48, 0.85);
                             animation: energyPulse 2s infinite ease-in-out;
                         }
 
@@ -77,27 +87,18 @@
                             transform: translateX(100%);
                         }
 
-                        /* Main clickable profile area */
-                        .profile-main-click {
-                            display: flex;
-                            align-items: center;
-                            gap: 16px;
-                            flex: 1;
-                            z-index: 2;
-                            cursor: pointer;
-                        }
-
                         .profile-icon-badge {
                             display: flex;
                             align-items: center;
                             justify-content: center;
-                            width: 38px;
-                            height: 38px;
+                            width: 36px;
+                            height: 36px;
                             background: rgba(0, 240, 255, 0.1);
                             border: 1px solid rgba(0, 240, 255, 0.3);
                             border-radius: 6px;
                             font-size: 18px;
                             transition: all 0.3s ease;
+                            z-index: 2;
                         }
 
                         .profile-box:hover .profile-icon-badge {
@@ -112,6 +113,7 @@
                             letter-spacing: 2px;
                             color: rgba(255, 255, 255, 0.75);
                             transition: all 0.3s ease;
+                            z-index: 2;
                         }
 
                         .profile-box:hover .profile-name {
@@ -120,68 +122,70 @@
                             animation: textPulse 2s infinite ease-in-out;
                         }
 
-                        /* Actions appear off to the right strictly on hover */
-                        .profile-actions {
+                        /* Actions floating strictly off to the right outside the profile box */
+                        .profile-side-actions {
+                            position: absolute;
+                            left: calc(50% + 175px);
                             display: flex;
                             align-items: center;
                             gap: 8px;
-                            z-index: 3;
-                            padding-left: 14px;
-                            border-left: 1px solid rgba(255, 255, 255, 0.12);
                             opacity: 0;
                             pointer-events: none;
-                            transform: translateX(10px);
+                            transform: translateX(-6px);
                             transition: opacity 0.25s ease, transform 0.25s ease;
+                            white-space: nowrap;
                         }
 
-                        .profile-box:hover .profile-actions {
+                        .profile-row:hover .profile-side-actions {
                             opacity: 1;
                             pointer-events: auto;
                             transform: translateX(0);
                         }
 
-                        .ethereal-mini-btn {
+                        .ethereal-side-btn {
                             display: inline-flex;
                             align-items: center;
                             justify-content: center;
-                            padding: 5px 10px;
-                            background: rgba(0, 0, 0, 0.5);
-                            border: 1px solid rgba(255, 255, 255, 0.18);
-                            color: rgba(255, 255, 255, 0.65);
+                            padding: 6px 12px;
+                            background: rgba(8, 12, 24, 0.85);
+                            border: 1px solid rgba(255, 255, 255, 0.2);
+                            color: rgba(255, 255, 255, 0.75);
                             cursor: pointer;
-                            border-radius: 4px;
-                            font-size: 10px;
-                            font-weight: 600;
+                            border-radius: 6px;
+                            font-size: 11px;
+                            font-weight: 700;
                             letter-spacing: 1px;
                             transition: all 0.2s ease;
+                            backdrop-filter: blur(4px);
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
                         }
 
-                        .ethereal-mini-btn.rename:hover {
+                        .ethereal-side-btn.rename:hover {
                             background: rgba(234, 179, 8, 0.25);
                             border-color: #eab308;
                             color: #facc15;
-                            box-shadow: 0 0 10px rgba(234, 179, 8, 0.4);
+                            box-shadow: 0 0 12px rgba(234, 179, 8, 0.45);
                         }
 
-                        .ethereal-mini-btn.delete:hover {
+                        .ethereal-side-btn.delete:hover {
                             background: rgba(239, 68, 68, 0.25);
                             border-color: #ef4444;
                             color: #f87171;
-                            box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+                            box-shadow: 0 0 12px rgba(239, 68, 68, 0.45);
                         }
                     </style>
                     `;
                     if (data.profiles && data.profiles.length > 0) {
                         data.profiles.forEach(p => {
                             html += `
-                            <div class="profile-box" onclick="window.startGameWithProfile('${p}')">
-                                <div class="profile-main-click">
+                            <div class="profile-row">
+                                <div class="profile-box" onclick="window.startGameWithProfile('${p}')">
                                     <span class="profile-icon-badge">👤</span>
                                     <span class="profile-name">${p}</span>
                                 </div>
-                                <div class="profile-actions" onclick="event.stopPropagation()">
-                                    <button class="ethereal-mini-btn rename" title="Rename Pilot" onclick="event.stopPropagation(); window.promptRenameProfile('${p}')">✎ RENAME</button>
-                                    <button class="ethereal-mini-btn delete" title="Delete Profile" onclick="event.stopPropagation(); window.deleteProfile('${p}')">✕ DELETE</button>
+                                <div class="profile-side-actions">
+                                    <button class="ethereal-side-btn rename" title="Rename Pilot" onclick="window.promptRenameProfile('${p}')">✎ RENAME</button>
+                                    <button class="ethereal-side-btn delete" title="Delete Profile" onclick="window.deleteProfile('${p}')">✕ DELETE</button>
                                 </div>
                             </div>`;
                         });
