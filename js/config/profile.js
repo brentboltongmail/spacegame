@@ -46,10 +46,30 @@
                             pointer-events: none;
                         }
 
+                        @keyframes energyPulse {
+                            0% {
+                                box-shadow: 0 0 15px rgba(0, 240, 255, 0.2), inset 0 0 10px rgba(0, 240, 255, 0.1);
+                                border-color: rgba(0, 240, 255, 0.5);
+                            }
+                            50% {
+                                box-shadow: 0 0 35px rgba(0, 240, 255, 0.6), inset 0 0 20px rgba(0, 240, 255, 0.3);
+                                border-color: rgba(0, 240, 255, 1.0);
+                            }
+                            100% {
+                                box-shadow: 0 0 15px rgba(0, 240, 255, 0.2), inset 0 0 10px rgba(0, 240, 255, 0.1);
+                                border-color: rgba(0, 240, 255, 0.5);
+                            }
+                        }
+
+                        @keyframes textPulse {
+                            0% { text-shadow: 0 0 10px #00f0ff, 0 0 20px rgba(0, 240, 255, 0.4); }
+                            50% { text-shadow: 0 0 20px #00f0ff, 0 0 40px #00f0ff, 0 0 60px rgba(0, 240, 255, 0.8); }
+                            100% { text-shadow: 0 0 10px #00f0ff, 0 0 20px rgba(0, 240, 255, 0.4); }
+                        }
+
                         .profile-box:hover {
                             background: rgba(12, 24, 48, 0.7);
-                            border: 1px solid rgba(0, 240, 255, 0.6);
-                            box-shadow: 0 0 25px rgba(0, 240, 255, 0.3), inset 0 0 15px rgba(0, 240, 255, 0.15);
+                            animation: energyPulse 2s infinite ease-in-out;
                         }
 
                         .profile-box:hover::after {
@@ -68,8 +88,8 @@
 
                         .profile-box:hover .profile-name {
                             color: #fff;
-                            text-shadow: 0 0 12px #00f0ff, 0 0 24px #00f0ff, 0 0 36px rgba(0, 240, 255, 0.5);
                             font-weight: 500;
+                            animation: textPulse 2s infinite ease-in-out;
                         }
 
                         .profile-actions {
