@@ -98,7 +98,7 @@
                             <div title="Toggle camera view"><kbd>C</kbd> Camera</div>
                             <div title="Auto-Pilot: lock flight straight to free mouse cursor"><kbd>L</kbd> Auto-Pilot</div>
                             <div title="Open 3D Tactical System Star Map"><kbd>M</kbd> 3D Map</div>
-                            <div title="Pause flight & open Pilot Profile"><kbd>ESC</kbd> Hangar</div>
+                            <div title="Pause flight & open Player Profile"><kbd>ESC</kbd> Profile</div>
                         </div>
                     </div>
 
@@ -540,11 +540,11 @@
             </div>
         </section>
 
-        <!-- Pilot Profile & 3D Ship Upgrade Hangar Modal Overlay (ESC Key Toggle) -->
+        <!-- Player Profile & 3D Ship Upgrade Modal Overlay (ESC Key Toggle) -->
         <div id="ship-upgrade-modal">
             <div class="modal-header">
                 <div class="modal-title-group">
-                    <h1>Hanger</h1>
+                    <h1>Player Profile</h1>
                     <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Press <kbd style="background: rgba(0,240,255,0.2); border: 1px solid #00f0ff; color: #00f0ff; padding: 2px 6px;">ESC</kbd> or click Resume Flight to unpause & return</div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 14px;">
@@ -587,6 +587,9 @@
                             <div style="font-size: 1.2rem; font-family: Orbitron; font-weight: 700; color: #fff;">Pilot Apex</div>
                             <div style="font-size: 0.8rem; color: var(--accent-gold);">Rank: Elite Interceptor Ace</div>
                         </div>
+                        <button class="sim-btn" onclick="location.reload()" style="font-size: 0.85rem; padding: 6px 12px; background: rgba(15, 23, 42, 0.85); color: #00f0ff; border: 1px solid #00f0ff; border-radius: 4px; cursor: pointer;">
+                            SWITCH PROFILE
+                        </button>
                     </div>
 
                     <div style="font-family: Orbitron; font-size: 1rem; color: var(--accent-cyan); margin-top: 6px; border-bottom: 1px solid rgba(0,240,255,0.2); padding-bottom: 6px;">

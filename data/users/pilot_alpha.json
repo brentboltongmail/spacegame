@@ -4,6 +4,48 @@
     "hud-card": {
       "x": 10,
       "y": 20
+    },
+    "hud-camera-card": {
+      "x": 85,
+      "y": 803
+    },
+    "hud-radar-card": {
+      "x": 25,
+      "y": -20
+    },
+    "hud-shield-card": {
+      "x": -25,
+      "y": 85
+    },
+    "hud-controls-card": {
+      "x": -24,
+      "y": -32
+    },
+    "hud-top-target-card": {
+      "x": 10,
+      "y": -75
+    },
+    "drag-sector-objective": {
+      "x": 24,
+      "y": -32
     }
+  },
+  "settings": {
+    "platform": "mac"
+  },
+  "keyBindings": {
+    "KeyW": "KeyW",
+    "KeyS": "KeyS",
+    "KeyA": "KeyA",
+    "KeyD": "KeyD",
+    "PitchUp": "ArrowUp",
+    "PitchDown": "ArrowDown",
+    "YawLeft": "ArrowLeft",
+    "YawRight": "ArrowRight",
+    "Space": "Space",
+    "KeyM": "KeyM",
+    "KeyL": "KeyL",
+    "KeyC": "KeyC",
+    "Escape": "Escape"
   }
 }

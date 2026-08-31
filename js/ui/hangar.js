@@ -116,7 +116,7 @@
                 requestAnimationFrame(() => {
                     resizeHangarViewport();
                 });
-                showToast("⏸️ GAME PAUSED — PILOT PROFILE & SHIP UPGRADE HANGAR");
+                showToast("⏸️ GAME PAUSED — PLAYER PROFILE");
             } else {
                 if (modal) modal.style.display = 'none';
                 showToast("▶️ GAME RESUMED — SPACEFLIGHT ACTIVE");
