@@ -152,10 +152,9 @@
                 const initialLeft = rect.left - currentX;
                 
                 const minAllowedY = headerBoundary - initialTop;
-                // Extremely lenient bottom clamp to prevent artificial push-up on window resize
-                const maxAllowedY = window.innerHeight - initialTop + 1000; 
+                const maxAllowedY = Math.max(minAllowedY, window.innerHeight - initialTop - rect.height);
                 const minAllowedX = -initialLeft;
-                const maxAllowedX = window.innerWidth - initialLeft - 30;
+                const maxAllowedX = Math.max(minAllowedX, window.innerWidth - initialLeft - rect.width);
 
                 let changed = false;
 
@@ -287,10 +286,9 @@
                     currentX = moveX - startX;
                     currentY = moveY - startY;
 
-                                        // Enforce top and bottom boundaries
+                    // Enforce top and bottom boundaries
                     const minAllowedY = headerBoundary - initialTop;
-                    // Allow dragging slightly off-screen at the bottom so user isn't blocked by bounding rect
-                    const maxAllowedY = window.innerHeight - initialTop - 30;
+                    const maxAllowedY = Math.max(minAllowedY, window.innerHeight - initialTop - rect.height);
                     if (currentY < minAllowedY) {
                         currentY = minAllowedY;
                     } else if (currentY > maxAllowedY) {
