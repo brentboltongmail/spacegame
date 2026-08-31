@@ -1,5 +1,5 @@
 {
-  "username": "brent",
+  "username": "bolton",
   "boxPositions": {
     "hud-camera-card": {
       "x": 85,
@@ -50,15 +50,15 @@
     "playerHp": 100,
     "shieldPercent": 100,
     "shipPosition": {
-      "x": 76081.32834855794,
-      "y": -675.146424607586,
-      "z": -54062.47752751027
+      "x": 80378.2799399264,
+      "y": -772.4186089826735,
+      "z": -46669.50159957173
     },
     "shipQuaternion": {
-      "x": 0.18104391832528072,
-      "y": -0.9498883565277828,
-      "z": -0.07000351408296371,
-      "w": 0.24501983141455447
+      "x": 0,
+      "y": 0.16248703451832874,
+      "z": 0,
+      "w": -0.9867106787774416
     },
     "mission1": {
       "active": true,
@@ -112,5 +112,8 @@
     "KeyL": "KeyL",
     "KeyC": "KeyC",
     "Escape": "Escape"
+  },
+  "minimizedBoxes": {
+    "drag-sector-objective": false
   }
 }

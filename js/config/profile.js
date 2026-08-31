@@ -223,6 +223,29 @@
             } catch (e) { console.error("Error creating profile", e); }
         };
 
+        // Global Enter handler for profile selection screen
+        document.addEventListener('keydown', (e) => {
+            const screen = document.getElementById('profile-selection-screen');
+            if (!screen || screen.style.display === 'none') return;
+            
+            // Do not override if custom modal dialog is open
+            if (document.querySelector('div[style*="z-index: 10001"]') || document.querySelector('div[style*="z-index:10001"]')) return;
+
+            if (e.key === 'Enter') {
+                const input = document.getElementById('new-profile-name');
+                if (input && input.value.trim().length > 0) {
+                    e.preventDefault();
+                    window.createNewProfile();
+                } else {
+                    const profileBoxes = document.querySelectorAll('.profile-box');
+                    if (profileBoxes.length === 1) {
+                        e.preventDefault();
+                        profileBoxes[0].click();
+                    }
+                }
+            }
+        });
+
         function showCustomModal(title, text, inputPlaceholder, inputValue, confirmText, confirmColor, onConfirm) {
             const overlay = document.createElement('div');
             overlay.style.position = 'absolute';
@@ -248,7 +271,7 @@
             html += `<p style="color: rgba(255,255,255,0.7); margin-bottom: 25px;">${text}</p>`;
             
             if (inputPlaceholder !== null) {
-                html += `<input type="text" id="custom-modal-input" placeholder="${inputPlaceholder}" value="${inputValue}" style="width: 100%; padding: 12px; margin-bottom: 25px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 16px; border-radius: 4px; box-sizing: border-box; text-align: center; outline: none;">`;
+                html += `<input type="text" id="custom-modal-input" placeholder="${inputPlaceholder}" value="${inputValue || ''}" style="width: 100%; padding: 12px; margin-bottom: 25px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 16px; border-radius: 4px; box-sizing: border-box; text-align: center; outline: none;">`;
             }
             
             html += `<div style="display: flex; gap: 15px; justify-content: center;">
@@ -260,28 +283,48 @@
             overlay.appendChild(box);
             document.body.appendChild(overlay);
             
-            if (inputPlaceholder !== null) {
-                box.querySelector('#custom-modal-input').focus();
-            }
-            
-            const close = () => { if(overlay.parentNode) overlay.parentNode.removeChild(overlay); };
-            
             const cancelBtn = box.querySelector('#custom-modal-cancel');
             cancelBtn.onmouseover = () => cancelBtn.style.background = 'rgba(255,255,255,0.1)';
             cancelBtn.onmouseout = () => cancelBtn.style.background = 'transparent';
-            cancelBtn.onclick = close;
             
             const confirmBtn = box.querySelector('#custom-modal-confirm');
             confirmBtn.onmouseover = () => { confirmBtn.style.background = `${confirmColor}50`; confirmBtn.style.boxShadow = `0 0 15px ${confirmColor}80`; };
             confirmBtn.onmouseout = () => { confirmBtn.style.background = `${confirmColor}30`; confirmBtn.style.boxShadow = 'none'; };
+            
+            const close = () => { 
+                window.removeEventListener('keydown', handleKey);
+                if (overlay.parentNode) overlay.parentNode.removeChild(overlay); 
+            };
+            
+            const handleKey = (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    confirmBtn.click();
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    cancelBtn.click();
+                }
+            };
+            window.addEventListener('keydown', handleKey);
+
+            cancelBtn.onclick = close;
             confirmBtn.onclick = () => {
                 let val = null;
-                if (inputPlaceholder !== null) {
-                    val = box.querySelector('#custom-modal-input').value;
+                const inputEl = box.querySelector('#custom-modal-input');
+                if (inputEl) {
+                    val = inputEl.value;
                 }
                 close();
                 onConfirm(val);
             };
+
+            const inputEl = box.querySelector('#custom-modal-input');
+            if (inputEl) {
+                inputEl.focus();
+                inputEl.select();
+            }
         }
 
         window.deleteProfile = function(name) {
