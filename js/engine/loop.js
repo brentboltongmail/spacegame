@@ -1,4 +1,5 @@
 const _targetWorldPos = new THREE.Vector3();
+        const _lockedTargetPos = new THREE.Vector3();
         const _targetBBox = new THREE.Box3();
         const _targetSizeVec = new THREE.Vector3();
 
@@ -957,18 +958,21 @@ const _targetWorldPos = new THREE.Vector3();
             
             if (typeof capitalShips !== 'undefined') {
                 capitalShips.forEach(cap => {
-                    if (!cap || cap.userData.isDead || cap.userData.hp <= 0) return;
+                    if (!cap || !cap.visible || cap.userData.isDead || cap.userData.hp <= 0) return;
                     const toCap = cap.position.clone().sub(playerShip.position);
                     const distToCap = toCap.length();
                     if (distToCap > 0) {
                         const dot = toCap.clone().normalize().dot(fwdDir);
-                        // Capitals are huge, lower dot tolerance so you can target them easier
-                        if (distToCap < closestDist && dot > 0.95) {
+                        if (distToCap < closestDist && dot > 0.99) {
                             closestDist = distToCap;
                             closestEnemy = cap;
                         }
                     }
                 });
+            }
+
+            if (closestEnemy) {
+                closestEnemy.getWorldPosition(_lockedTargetPos);
             }
 
             // --- 🎯 ALL VISIBLE ENEMIES 3D RED CORNER BRACKET BOX UPDATER ---
@@ -1057,13 +1061,13 @@ const _targetWorldPos = new THREE.Vector3();
 
                 _prevPos.copy(laser.position);
 
-                // Zero-Allocation Aim Assist toward exact world target center
+                // Zero-Allocation Aim Assist toward exact locked target center
                 if (closestEnemy && closestEnemy.userData && closestEnemy.userData.hp > 0 && laser.userData.velocity) {
-                    _toTarget.subVectors(_targetWorldPos, laser.position).normalize();
+                    _toTarget.subVectors(_lockedTargetPos, laser.position).normalize();
                     const speed = laser.userData.velocity.length();
                     _curDir.copy(laser.userData.velocity).normalize();
-                    if (_curDir.dot(_toTarget) > 0.4) {
-                        _curDir.lerp(_toTarget, 0.12).normalize();
+                    if (_curDir.dot(_toTarget) > 0.6) {
+                        _curDir.lerp(_toTarget, 0.08).normalize();
                         laser.userData.velocity.copy(_curDir).multiplyScalar(speed);
                         laser.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), _curDir);
                     }
@@ -1140,7 +1144,7 @@ const _targetWorldPos = new THREE.Vector3();
                         if (!cap.userData || cap.userData.isDead || cap.userData.hp <= 0) continue;
 
                         const segDist = pointToSegmentDistance(cap.position, _prevPos, _currentPos);
-                        if (segDist < 550) { // Capital ships are huge
+                        if (segDist < 200) { // Capital ship hull collision boundary
                             hitEnemy = true;
                             spawnLaserImpactSparks(_currentPos);
                             playLaserImpactAudio();
