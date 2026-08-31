@@ -834,7 +834,7 @@ const _targetWorldPos = new THREE.Vector3();
 
             // --- 🚀 AUTHENTIC TACTICAL SPACE FIGHTER FLIGHT ENGINE ---
             let closestEnemy = null;
-            let closestDist = 3000; // Weapon max range: 3000 Units / 3.0 KM
+            let closestDist = 1200; // Weapon lock range: 1,200 Units / 1.2 KM
             const fwdDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
             const playerVel = fwdDir.clone().negate().multiplyScalar(currentSpeed);
 
@@ -903,22 +903,24 @@ const _targetWorldPos = new THREE.Vector3();
                                 e.userData.breakawayTargetQuat = null;
                             }
 
-                            // Rhythmic Plasma Cannon Bursts when in lead alignment (< 25 degrees)
+                            // Rhythmic Plasma Cannon Bursts when in lead alignment (< 25 degrees) and in effective range (< 1400 units)
                             const currentFwd = new THREE.Vector3(0, 0, -1).applyQuaternion(e.quaternion);
                             const aimAngle = currentFwd.angleTo(leadDir);
-                            if (dist < 4000 && aimAngle < 0.44) {
+                            if (dist < 1400 && aimAngle < 0.44) {
                                 e.userData.lastFireTime = e.userData.lastFireTime || 0;
                                 if (Date.now() - e.userData.lastFireTime > 900 + Math.random() * 600) {
                                     e.userData.lastFireTime = Date.now();
                                     const eLaser = getPooledEnemyLaserBolt();
                                     if (eLaser) {
                                         eLaser.visible = true;
+                                        eLaser.scale.set(1, 1, 1);
                                         eLaser.quaternion.copy(e.quaternion);
                                         const side = (e.userData.burstCount % 2 === 0) ? -2.4 : 2.4;
                                         e.userData.burstCount++;
                                         const offset = new THREE.Vector3(side, -0.1, -2.4).applyQuaternion(e.quaternion);
                                         eLaser.position.copy(e.position).add(offset);
                                         eLaser.userData.prevPos.copy(eLaser.position);
+                                        eLaser.userData.distanceTraveled = 0;
                                         eLaser.userData.velocity.copy(currentFwd).multiplyScalar(16);
                                         if (!enemyLaserProjectiles.includes(eLaser)) enemyLaserProjectiles.push(eLaser);
                                     }
@@ -1067,6 +1069,19 @@ const _targetWorldPos = new THREE.Vector3();
                     }
                 }
 
+                const stepDist = laser.userData.velocity ? laser.userData.velocity.length() : 12;
+                laser.userData.distanceTraveled = (laser.userData.distanceTraveled || 0) + stepDist;
+
+                // Smooth laser dissipation over the final third of its range (700 to 1100 units)
+                const maxPlayerRange = 1100;
+                const playerFadeStart = 700;
+                if (laser.userData.distanceTraveled > playerFadeStart) {
+                    const pFade = Math.max(0.01, 1.0 - ((laser.userData.distanceTraveled - playerFadeStart) / (maxPlayerRange - playerFadeStart)));
+                    laser.scale.set(pFade, pFade, pFade);
+                } else {
+                    laser.scale.set(1, 1, 1);
+                }
+
                 if (laser.userData.velocity) {
                     laser.position.add(laser.userData.velocity);
                 } else {
@@ -1169,7 +1184,7 @@ const _targetWorldPos = new THREE.Vector3();
                     }
                 }
 
-                if (hitEnemy || laser.position.distanceTo(playerShip.position) > 3000) {
+                if (hitEnemy || laser.userData.distanceTraveled >= maxPlayerRange) {
                     laser.visible = false;
                     laser.userData.active = false;
                     laserProjectiles.splice(i, 1);
@@ -1183,6 +1198,19 @@ const _targetWorldPos = new THREE.Vector3();
                     if (laser) laser.visible = false;
                     enemyLaserProjectiles.splice(i, 1);
                     continue;
+                }
+
+                const eStepDist = laser.userData.velocity ? laser.userData.velocity.length() : 16;
+                laser.userData.distanceTraveled = (laser.userData.distanceTraveled || 0) + eStepDist;
+
+                // Smooth enemy laser dissipation over the final third of its range (700 to 1100 units)
+                const maxEnemyRange = 1100;
+                const enemyFadeStart = 700;
+                if (laser.userData.distanceTraveled > enemyFadeStart) {
+                    const eFade = Math.max(0.01, 1.0 - ((laser.userData.distanceTraveled - enemyFadeStart) / (maxEnemyRange - enemyFadeStart)));
+                    laser.scale.set(eFade, eFade, eFade);
+                } else {
+                    laser.scale.set(1, 1, 1);
                 }
 
                 laser.position.add(laser.userData.velocity);
@@ -1246,8 +1274,8 @@ const _targetWorldPos = new THREE.Vector3();
                     }
                 }
 
-                // Remove laser if hit or went too far
-                if (hitPlayer || laser.position.distanceTo(playerShip.position) > 3000) {
+                // Remove laser if hit or reached max range
+                if (hitPlayer || laser.userData.distanceTraveled >= maxEnemyRange) {
                     laser.visible = false;
                     laser.userData.active = false;
                     enemyLaserProjectiles.splice(i, 1);

@@ -121,18 +121,22 @@
 
             if (laserL) {
                 laserL.visible = true;
+                laserL.scale.set(1, 1, 1);
                 laserL.quaternion.copy(playerShip.quaternion);
                 laserL.position.copy(playerShip.position).add(_offsetL);
                 laserL.userData.prevPos.copy(laserL.position);
+                laserL.userData.distanceTraveled = 0;
                 laserL.userData.velocity.copy(_fwdDir).multiplyScalar(12 + currentSpeed * 0.012);
                 if (!laserProjectiles.includes(laserL)) laserProjectiles.push(laserL);
             }
 
             if (laserR) {
                 laserR.visible = true;
+                laserR.scale.set(1, 1, 1);
                 laserR.quaternion.copy(playerShip.quaternion);
                 laserR.position.copy(playerShip.position).add(_offsetR);
                 laserR.userData.prevPos.copy(laserR.position);
+                laserR.userData.distanceTraveled = 0;
                 laserR.userData.velocity.copy(_fwdDir).multiplyScalar(12 + currentSpeed * 0.012);
                 if (!laserProjectiles.includes(laserR)) laserProjectiles.push(laserR);
             }
