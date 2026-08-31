@@ -81,28 +81,6 @@
             clonedShip.quaternion.set(0, 0, 0, 1);
             upgradeHangarShip.add(clonedShip);
 
-            // Extra background parked ships
-            const extra1 = playerShip.clone(true);
-            extra1.visible = true;
-            extra1.quaternion.set(0, 0, 0, 1);
-            extra1.position.set(-3.5, 0, -4);
-            extra1.rotation.set(0, Math.PI / 4, 0);
-            upgradeHangarShip.add(extra1);
-
-            const extra2 = playerShip.clone(true);
-            extra2.visible = true;
-            extra2.quaternion.set(0, 0, 0, 1);
-            extra2.position.set(3.5, 0, -4);
-            extra2.rotation.set(0, -Math.PI / 4, 0);
-            upgradeHangarShip.add(extra2);
-
-            const extra3 = playerShip.clone(true);
-            extra3.visible = true;
-            extra3.quaternion.set(0, 0, 0, 1);
-            extra3.position.set(0, 0, -8);
-            extra3.rotation.set(0, Math.PI, 0);
-            upgradeHangarShip.add(extra3);
-
             if (hangarShieldMesh) upgradeHangarShip.add(hangarShieldMesh);
         }
 
