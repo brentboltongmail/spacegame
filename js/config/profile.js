@@ -32,10 +32,10 @@
                             display: flex;
                             align-items: center;
                             justify-content: space-between;
-                            width: 400px;
-                            padding: 16px 24px;
-                            background: rgba(8, 12, 24, 0.65);
-                            border: 1px solid rgba(0, 240, 255, 0.22);
+                            width: 560px;
+                            padding: 18px 28px;
+                            background: rgba(8, 12, 24, 0.7);
+                            border: 1px solid rgba(0, 240, 255, 0.25);
                             border-radius: 8px;
                             cursor: pointer;
                             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -87,10 +87,10 @@
                         }
 
                         .profile-name {
-                            font-size: 21px;
+                            font-size: 22px;
                             font-weight: 400;
                             letter-spacing: 2px;
-                            color: rgba(255, 255, 255, 0.8);
+                            color: rgba(255, 255, 255, 0.85);
                             transition: all 0.3s ease;
                             z-index: 2;
                         }
@@ -104,12 +104,12 @@
                         .profile-mission-badge {
                             display: inline-flex;
                             align-items: center;
-                            padding: 4px 12px;
+                            padding: 5px 14px;
                             background: rgba(0, 240, 255, 0.1);
                             border: 1px solid rgba(0, 240, 255, 0.35);
                             border-radius: 4px;
                             color: #00f0ff;
-                            font-size: 11px;
+                            font-size: 12px;
                             font-weight: 700;
                             letter-spacing: 1.5px;
                             transition: all 0.3s ease;
@@ -128,7 +128,7 @@
                         /* Actions floating strictly off to the right outside the profile box */
                         .profile-side-actions {
                             position: absolute;
-                            left: calc(50% + 215px);
+                            left: calc(50% + 295px);
                             display: flex;
                             align-items: center;
                             gap: 8px;
