@@ -1905,8 +1905,13 @@ const _targetWorldPos = new THREE.Vector3();
             
             if (hangerModel.userData.leftFrontDoor && hangerModel.userData.rightFrontDoor) {
                 let targetDoorT = 0; // 0 = closed, 1 = open
-                // Open if landing phase is active (2 to 5 or 7), OR if player is inside/near the hangar
-                if ((typeof isLandingSequenceActive !== 'undefined' && isLandingSequenceActive && ((landingPhase >= 2 && landingPhase < 6) || landingPhase === 7)) || (typeof window.inHangerZone !== 'undefined' && window.inHangerZone)) {
+                // Open if landing phase is active (2 to 5 or 7), OR if player is flying manually inside the hangar (not landing sequence)
+                const isAutopilotActive = (typeof isLandingSequenceActive !== 'undefined' && isLandingSequenceActive);
+                if (isAutopilotActive) {
+                    if ((landingPhase >= 2 && landingPhase < 6) || landingPhase === 7) {
+                        targetDoorT = 1;
+                    }
+                } else if (typeof window.inHangerZone !== 'undefined' && window.inHangerZone) {
                     targetDoorT = 1;
                 }
                 
@@ -2053,7 +2058,14 @@ const _targetWorldPos = new THREE.Vector3();
                         const targetRot = new THREE.Quaternion().setFromRotationMatrix(
                             new THREE.Matrix4().lookAt(playerShip.position, lookTarget, new THREE.Vector3(0, 1, 0))
                         );
-                        playerShip.quaternion.slerp(targetRot, 0.15 * dtFactor);
+                        
+                        // Blend smoothly into the spline path during the first 5% of the curve,
+                        // then perfectly lock to the tangent to eliminate all wobbling/shaking.
+                        if (prog < 0.05) {
+                            playerShip.quaternion.slerp(targetRot, 0.2 * dtFactor);
+                        } else {
+                            playerShip.quaternion.copy(targetRot);
+                        }
                     }
                 } else {
                     // Final vertical descent: gracefully lock into the final parking orientation
