@@ -242,16 +242,20 @@
                     const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, color: 0x1a1a1a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
                     
                     // 1.5 Front Blast Doors (Dynamic)
+                    const frontDoorWallTex = wallTex.clone();
+                    frontDoorWallTex.needsUpdate = true;
+                    setupTiledTex(frontDoorWallTex, 2, 1);
+                    const frontDoorWallMat = new THREE.MeshStandardMaterial({ map: frontDoorWallTex, color: 0x1a1a1a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
+
                     const doorWidth = 2.7; // Wider to fully cover the hexagonal bulging walls
                     const frontDoorGeo = new THREE.PlaneGeometry(doorWidth / 2, rectH, 2, 2);
                     
-                    // Use doorMat instead of wallMat so it uses the blast doors texture and tiles 2x1
-                    const leftFrontDoor = new THREE.Mesh(frontDoorGeo, doorMat);
+                    const leftFrontDoor = new THREE.Mesh(frontDoorGeo, frontDoorWallMat);
                     leftFrontDoor.position.set(-doorWidth / 4, centerY, entranceZ + 0.01);
                     leftFrontDoor.layers.set(1);
                     leftFrontDoor.userData.noDeform = true;
                     
-                    const rightFrontDoor = new THREE.Mesh(frontDoorGeo, doorMat);
+                    const rightFrontDoor = new THREE.Mesh(frontDoorGeo, frontDoorWallMat);
                     rightFrontDoor.position.set(doorWidth / 4, centerY, entranceZ + 0.01);
                     rightFrontDoor.layers.set(1);
                     rightFrontDoor.userData.noDeform = true;
