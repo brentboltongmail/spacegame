@@ -242,8 +242,7 @@
                     const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, color: 0x1a1a1a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
                     
                     // 1.5 Front Blast Doors (Dynamic)
-                    const frontDoorWallTex = wallTex.clone();
-                    frontDoorWallTex.needsUpdate = true;
+                    const frontDoorWallTex = texLoader.load('data/textures/hangar_wall.jpg');
                     setupTiledTex(frontDoorWallTex, 2, 1);
                     const frontDoorWallMat = new THREE.MeshStandardMaterial({ map: frontDoorWallTex, color: 0x1a1a1a, side: THREE.DoubleSide, metalness: 0.1, roughness: 0.9 });
 
