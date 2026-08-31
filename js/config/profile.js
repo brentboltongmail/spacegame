@@ -173,30 +173,114 @@
             } catch (e) { console.error("Error creating profile", e); }
         };
 
-        window.deleteProfile = async function(name) {
-            if (!confirm(`Are you sure you want to delete profile '${name}'?`)) return;
-            try {
-                await fetch(`/api/profile?user=${encodeURIComponent(name)}`, { method: 'DELETE' });
-                renderProfileList();
-            } catch (e) { console.error("Error deleting profile", e); }
+        function showCustomModal(title, text, inputPlaceholder, inputValue, confirmText, confirmColor, onConfirm) {
+            const overlay = document.createElement('div');
+            overlay.style.position = 'absolute';
+            overlay.style.top = '0'; overlay.style.left = '0';
+            overlay.style.width = '100%'; overlay.style.height = '100%';
+            overlay.style.background = 'rgba(0,0,0,0.85)';
+            overlay.style.zIndex = '10001';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            
+            const box = document.createElement('div');
+            box.style.background = 'linear-gradient(135deg, rgba(12,24,48,0.95), rgba(8,12,24,0.95))';
+            box.style.border = `1px solid ${confirmColor}`;
+            box.style.borderRadius = '8px';
+            box.style.padding = '30px';
+            box.style.minWidth = '350px';
+            box.style.boxShadow = `0 0 20px ${confirmColor}40`;
+            box.style.textAlign = 'center';
+            box.style.fontFamily = 'sans-serif';
+            
+            let html = `<h2 style="color: ${confirmColor}; margin-top: 0; letter-spacing: 2px;">${title}</h2>`;
+            html += `<p style="color: rgba(255,255,255,0.7); margin-bottom: 25px;">${text}</p>`;
+            
+            if (inputPlaceholder !== null) {
+                html += `<input type="text" id="custom-modal-input" placeholder="${inputPlaceholder}" value="${inputValue}" style="width: 100%; padding: 12px; margin-bottom: 25px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 16px; border-radius: 4px; box-sizing: border-box; text-align: center; outline: none;">`;
+            }
+            
+            html += `<div style="display: flex; gap: 15px; justify-content: center;">
+                <button id="custom-modal-cancel" style="padding: 10px 20px; background: transparent; border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 4px; cursor: pointer; font-weight: bold; transition: all 0.2s;">CANCEL</button>
+                <button id="custom-modal-confirm" style="padding: 10px 20px; background: ${confirmColor}30; border: 1px solid ${confirmColor}; color: ${confirmColor}; border-radius: 4px; cursor: pointer; font-weight: bold; transition: all 0.2s;">${confirmText}</button>
+            </div>`;
+            
+            box.innerHTML = html;
+            overlay.appendChild(box);
+            document.body.appendChild(overlay);
+            
+            if (inputPlaceholder !== null) {
+                box.querySelector('#custom-modal-input').focus();
+            }
+            
+            const close = () => { if(overlay.parentNode) overlay.parentNode.removeChild(overlay); };
+            
+            const cancelBtn = box.querySelector('#custom-modal-cancel');
+            cancelBtn.onmouseover = () => cancelBtn.style.background = 'rgba(255,255,255,0.1)';
+            cancelBtn.onmouseout = () => cancelBtn.style.background = 'transparent';
+            cancelBtn.onclick = close;
+            
+            const confirmBtn = box.querySelector('#custom-modal-confirm');
+            confirmBtn.onmouseover = () => { confirmBtn.style.background = `${confirmColor}50`; confirmBtn.style.boxShadow = `0 0 15px ${confirmColor}80`; };
+            confirmBtn.onmouseout = () => { confirmBtn.style.background = `${confirmColor}30`; confirmBtn.style.boxShadow = 'none'; };
+            confirmBtn.onclick = () => {
+                let val = null;
+                if (inputPlaceholder !== null) {
+                    val = box.querySelector('#custom-modal-input').value;
+                }
+                close();
+                onConfirm(val);
+            };
+        }
+
+        window.deleteProfile = function(name) {
+            showCustomModal(
+                'PURGE PROFILE',
+                `Are you sure you want to permanently delete '${name}'?`,
+                null, null,
+                'DELETE', '#ff3b5c',
+                async () => {
+                    try {
+                        await fetch(`/api/profile?user=${encodeURIComponent(name)}`, { method: 'DELETE' });
+                        renderProfileList();
+                    } catch (e) { console.error("Error deleting profile", e); }
+                }
+            );
         };
 
-        window.promptRenameProfile = async function(oldName) {
-            const newName = prompt(`Enter new name for profile '${oldName}':`, oldName);
-            if (!newName || newName.trim() === '' || newName === oldName) return;
-            try {
-                await fetch('/api/rename_profile', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ old_username: oldName, new_username: newName.trim() })
-                });
-                renderProfileList();
-            } catch (e) { console.error("Error renaming profile", e); }
+        window.promptRenameProfile = function(oldName) {
+            showCustomModal(
+                'RENAME PROFILE',
+                `Enter new designation for '${oldName}':`,
+                'New profile name', oldName,
+                'RENAME', '#eab308',
+                async (newName) => {
+                    if (!newName || newName.trim() === '' || newName === oldName) return;
+                    try {
+                        await fetch('/api/rename_profile', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ old_username: oldName, new_username: newName.trim() })
+                        });
+                        renderProfileList();
+                    } catch (e) { console.error("Error renaming profile", e); }
+                }
+            );
         };
 
         window.startGameWithProfile = async function(name) {
             const screen = document.getElementById('profile-selection-screen');
             if (screen) screen.style.display = 'none';
+            
+            // Attempt auto-fullscreen as this counts as a user interaction (click event)
+            try {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen().catch(e => console.log("Fullscreen prevented:", e));
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                }
+            } catch(e) {}
             
             await loadProfileFromServer(name);
             
