@@ -22,6 +22,7 @@ This document serves as a high-level map of the `spacegame` modular architecture
 ## 2. Initialization & Setup
 *   init3DSimulator() - Sets up the entire Three.js scene, camera, renderer, and triggers world generation.
 *   initDraggableBoxes() / setupDragEvents() - Logic for draggable HUD cards and syncing states to server.py via fetch.
+*   saveCurrentGameState() / restoreGameState() - Profile state persistence engine storing active mission, exact ring clearance checkpoints, drone destroy counts, player coordinates, hull/shield status, credits, and hangar upgrades per user profile.
 *   switchTab(tabId) - Handles navigation between the main DOM UI tabs.
 
 ## 3. World Generation (Three.js)

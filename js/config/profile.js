@@ -339,10 +339,185 @@
             if (typeof updateEngineAudio === 'function' && typeof audioCtx !== 'undefined' && audioCtx) {
                 updateEngineAudio(typeof currentSpeed !== 'undefined' ? currentSpeed / maxSpeedCap : 0, typeof cameraMode !== 'undefined' ? cameraMode === 0 : false);
             }
-            if (typeof window.startMission1 === 'function') {
+            
+            // Restore exact saved game state from profile
+            if (typeof window.restoreGameState === 'function') {
+                window.restoreGameState();
+            } else if (typeof window.startMission1 === 'function') {
                 window.startMission1();
             }
         };
+
+        window.saveCurrentGameState = function() {
+            if (!currentProfile) return;
+            if (!currentProfile.progress) currentProfile.progress = {};
+
+            let activeMission = "Mission 1";
+            if (typeof window.mission3Active !== 'undefined' && (window.mission3Active || window.isMission3Active)) {
+                activeMission = "Mission 3";
+            } else if (typeof window.mission2Active !== 'undefined' && window.mission2Active) {
+                activeMission = "Mission 2";
+            } else if (typeof mission1Active !== 'undefined' && mission1Active) {
+                activeMission = "Mission 1";
+            } else if (currentProfile.progress.currentMission) {
+                activeMission = currentProfile.progress.currentMission;
+            }
+
+            const clearedRings = (typeof mission1Rings !== 'undefined' && Array.isArray(mission1Rings) && mission1Rings.length > 0)
+                ? mission1Rings.map(r => !!(r && r.userData && r.userData.cleared))
+                : (currentProfile.progress.mission1?.clearedRings || []);
+
+            const upgradesData = {};
+            if (typeof shipUpgrades !== 'undefined') {
+                for (const k in shipUpgrades) {
+                    upgradesData[k] = { level: shipUpgrades[k].level, cost: shipUpgrades[k].cost };
+                }
+            }
+
+            currentProfile.progress = {
+                currentMission: activeMission,
+                playerCredits: (typeof playerCredits !== 'undefined') ? playerCredits : 125000,
+                playerHp: (typeof playerHp !== 'undefined') ? playerHp : 100,
+                shieldPercent: (typeof shieldPercent !== 'undefined') ? shieldPercent : 100,
+                shipPosition: (typeof playerShip !== 'undefined' && playerShip && playerShip.position) ? {
+                    x: playerShip.position.x,
+                    y: playerShip.position.y,
+                    z: playerShip.position.z
+                } : (currentProfile.progress?.shipPosition || null),
+                shipQuaternion: (typeof playerShip !== 'undefined' && playerShip && playerShip.quaternion) ? {
+                    x: playerShip.quaternion.x,
+                    y: playerShip.quaternion.y,
+                    z: playerShip.quaternion.z,
+                    w: playerShip.quaternion.w
+                } : (currentProfile.progress?.shipQuaternion || null),
+                mission1: {
+                    active: typeof mission1Active !== 'undefined' ? mission1Active : false,
+                    stage: typeof mission1Stage !== 'undefined' ? mission1Stage : 0,
+                    enemiesDestroyed: typeof mission1EnemiesDestroyed !== 'undefined' ? mission1EnemiesDestroyed : 0,
+                    clearedRings: clearedRings
+                },
+                mission2: {
+                    active: typeof window.mission2Active !== 'undefined' ? window.mission2Active : false,
+                    stage: typeof window.mission2Stage !== 'undefined' ? window.mission2Stage : 0,
+                    enemiesDestroyed: typeof window.mission2EnemiesDestroyed !== 'undefined' ? window.mission2EnemiesDestroyed : 0
+                },
+                mission3: {
+                    active: (typeof window.mission3Active !== 'undefined' && window.mission3Active) || (typeof window.isMission3Active !== 'undefined' && window.isMission3Active)
+                },
+                upgrades: upgradesData
+            };
+
+            saveProfileToServerSilent();
+        };
+
+        window.restoreGameState = function() {
+            if (!currentProfile || !currentProfile.progress) {
+                if (typeof window.startMission1 === 'function') window.startMission1();
+                return;
+            }
+            const prog = currentProfile.progress;
+
+            // 1. Restore Player Credits
+            if (typeof prog.playerCredits === 'number') {
+                playerCredits = prog.playerCredits;
+                const credDisp = document.getElementById('hangar-credits-display');
+                if (credDisp) credDisp.innerText = `${playerCredits.toLocaleString()}`;
+            }
+
+            // 2. Restore Hull & Shield
+            if (typeof prog.playerHp === 'number' && prog.playerHp > 0) {
+                playerHp = prog.playerHp;
+            }
+            if (typeof prog.shieldPercent === 'number') {
+                shieldPercent = prog.shieldPercent;
+            }
+
+            // 3. Restore Hangar Upgrades
+            if (prog.upgrades && typeof shipUpgrades !== 'undefined') {
+                for (const k in prog.upgrades) {
+                    if (shipUpgrades[k]) {
+                        shipUpgrades[k].level = prog.upgrades[k].level || shipUpgrades[k].level;
+                        shipUpgrades[k].cost = prog.upgrades[k].cost || shipUpgrades[k].cost;
+                        const lbl = document.getElementById(`lbl-mod-${k}`);
+                        if (lbl) {
+                            lbl.innerText = shipUpgrades[k].level >= shipUpgrades[k].maxLevel ? `Level ${shipUpgrades[k].level} / 5 [MAXED]` : `Level ${shipUpgrades[k].level} / 5`;
+                            if (shipUpgrades[k].level >= shipUpgrades[k].maxLevel) lbl.style.color = 'var(--accent-gold)';
+                        }
+                        const btn = document.getElementById(`btn-mod-${k}`);
+                        if (btn) {
+                            if (shipUpgrades[k].level >= shipUpgrades[k].maxLevel) {
+                                btn.innerText = 'MAX LEVEL';
+                                btn.disabled = true;
+                                btn.style.opacity = '0.5';
+                            } else {
+                                btn.innerText = `Upgrade (${shipUpgrades[k].cost.toLocaleString()} SC)`;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 4. Restore Active Mission & Position
+            const targetMission = prog.currentMission || 'Mission 1';
+
+            if (targetMission === 'Mission 3') {
+                if (typeof window.startMission3 === 'function') {
+                    window.startMission3();
+                }
+                if (prog.shipPosition && typeof playerShip !== 'undefined' && playerShip) {
+                    playerShip.position.set(prog.shipPosition.x, prog.shipPosition.y, prog.shipPosition.z);
+                    if (prog.shipQuaternion) {
+                        playerShip.quaternion.set(prog.shipQuaternion.x, prog.shipQuaternion.y, prog.shipQuaternion.z, prog.shipQuaternion.w);
+                    }
+                }
+            } else if (targetMission === 'Mission 2') {
+                if (typeof startMission2 === 'function') {
+                    startMission2();
+                    if (prog.mission2) {
+                        window.mission2Stage = prog.mission2.stage || 0;
+                        window.mission2EnemiesDestroyed = prog.mission2.enemiesDestroyed || 0;
+                    }
+                    if (prog.shipPosition && typeof playerShip !== 'undefined' && playerShip) {
+                        playerShip.position.set(prog.shipPosition.x, prog.shipPosition.y, prog.shipPosition.z);
+                        if (prog.shipQuaternion) {
+                            playerShip.quaternion.set(prog.shipQuaternion.x, prog.shipQuaternion.y, prog.shipQuaternion.z, prog.shipQuaternion.w);
+                        }
+                    }
+                }
+            } else {
+                // Mission 1
+                if (typeof window.startMission1 === 'function') {
+                    window.startMission1({
+                        stage: prog.mission1?.stage || 0,
+                        enemiesDestroyed: prog.mission1?.enemiesDestroyed || 0,
+                        clearedRings: prog.mission1?.clearedRings || [],
+                        hasSavedPos: !!prog.shipPosition
+                    });
+                    if (prog.shipPosition && typeof playerShip !== 'undefined' && playerShip) {
+                        playerShip.position.set(prog.shipPosition.x, prog.shipPosition.y, prog.shipPosition.z);
+                        if (prog.shipQuaternion) {
+                            playerShip.quaternion.set(prog.shipQuaternion.x, prog.shipQuaternion.y, prog.shipQuaternion.z, prog.shipQuaternion.w);
+                        }
+                    }
+                    if (typeof checkMission1Progress === 'function') {
+                        checkMission1Progress();
+                    }
+                }
+            }
+        };
+
+        // Auto-save game state every 5 seconds while active
+        setInterval(() => {
+            if (typeof isGamePaused !== 'undefined' && !isGamePaused && currentUsername && typeof window.saveCurrentGameState === 'function') {
+                window.saveCurrentGameState();
+            }
+        }, 5000);
+
+        window.addEventListener('beforeunload', () => {
+            if (typeof window.saveCurrentGameState === 'function') {
+                window.saveCurrentGameState();
+            }
+        });
 
         async function loadProfileFromServer(username) {
             currentUsername = username || 'pilot_1';

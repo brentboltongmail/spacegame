@@ -529,13 +529,13 @@
         let mission1Stage = 0;
 
         window.startMission1 = startMission1;
-        function startMission1() {
+        function startMission1(restoreProgress = null) {
             window.mission3Active = false;
             window.isMission3Active = false;
             if (typeof enemyShips !== 'undefined') {
                 for (let i = enemyShips.length - 1; i >= 0; i--) {
                     const e = enemyShips[i];
-                    if (e && e.userData && e.userData.isAsteroidPirate) {
+                    if (e && e.userData && (e.userData.isAsteroidPirate || e.userData.isMissionDrone)) {
                         if (e.parent) e.parent.remove(e);
                         enemyShips.splice(i, 1);
                     }
@@ -549,9 +549,9 @@
                 capitalShip = null;
             }
             if (typeof fleetEmergenceActive !== 'undefined') fleetEmergenceActive = false;
-            if (mission1Active) return;
             mission1Active = true;
-            mission1Stage = 0;
+            mission1Stage = (restoreProgress && restoreProgress.stage !== undefined) ? restoreProgress.stage : 0;
+            mission1EnemiesDestroyed = (restoreProgress && restoreProgress.enemiesDestroyed !== undefined) ? restoreProgress.enemiesDestroyed : 0;
             
             // Cleanup old rings if any
             if (typeof mission1Rings !== 'undefined') {
@@ -561,17 +561,21 @@
             }
             mission1Rings = [];
 
-            // Start just outside the Crest Hanger, looking at the hanger
-            playerShip.position.set(theCrestStation.position.x + 800, theCrestStation.position.y, theCrestStation.position.z);
-            playerShip.rotation.set(0, 0, 0);
-            playerShip.quaternion.set(0, 0, 0, 1);
-            playerShip.lookAt(theCrestStation.position);
-            playerShip.rotateY(Math.PI); // 180-degree rotation so cockpit faces the hanger!
-            targetSpeed = 0;
-            currentSpeed = 0;
+            // Start just outside the Crest Hanger, looking at the hanger (unless restoring saved position)
+            if (!restoreProgress || !restoreProgress.hasSavedPos) {
+                if (typeof playerShip !== 'undefined' && playerShip && typeof theCrestStation !== 'undefined' && theCrestStation) {
+                    playerShip.position.set(theCrestStation.position.x + 800, theCrestStation.position.y, theCrestStation.position.z);
+                    playerShip.rotation.set(0, 0, 0);
+                    playerShip.quaternion.set(0, 0, 0, 1);
+                    playerShip.lookAt(theCrestStation.position);
+                    playerShip.rotateY(Math.PI); // 180-degree rotation so cockpit faces the hanger!
+                    targetSpeed = 0;
+                    currentSpeed = 0;
+                }
+            }
             
             // Snap camera instantly to player
-            if (camera) {
+            if (camera && typeof playerShip !== 'undefined' && playerShip) {
                 const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
                 camera.up.copy(localUp);
                 const initCamOffset = new THREE.Vector3(0, 6.0, 22.0).applyQuaternion(playerShip.quaternion);
@@ -594,44 +598,56 @@
             
             mission1Enemies = [];
             ringPos.forEach((pos, i) => {
-                const ringMat = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
+                const isCleared = (restoreProgress && restoreProgress.clearedRings && restoreProgress.clearedRings[i]);
+                const ringMat = new THREE.MeshBasicMaterial({ 
+                    color: isCleared ? 0x10b981 : 0xff0000, 
+                    transparent: true, 
+                    opacity: isCleared ? 0.2 : 0.5, 
+                    side: THREE.DoubleSide 
+                });
                 const ring = new THREE.Mesh(ringGeo, ringMat);
                 ring.position.set(pos.x, pos.y, pos.z);
                 // Orient rings sequentially along the patrol course down around Saturn
                 const nextTargetPos = (i < ringPos.length - 1) ? ringPos[i+1] : {x: 72060, y: 214, z: -81280};
                 ring.lookAt(nextTargetPos.x, nextTargetPos.y, nextTargetPos.z); 
                 
-                ring.userData = { cleared: false };
+                ring.userData = { cleared: !!isCleared };
                 scene.add(ring);
                 mission1Rings.push(ring);
                 
-                // Spawn target drones near each orbital ring checkpoint
-                const offsets = [
-                    { x: -600, y: 200, z: 200 },
-                    { x: 600, y: -200, z: 200 }
-                ];
-                
-                for (let e = 0; e < 2; e++) {
-                    const enemy = createEnemyInterceptorMesh();
-                    enemy.position.set(pos.x + offsets[e].x, pos.y + offsets[e].y, pos.z + offsets[e].z);
-                    enemy.lookAt(playerShip.position);
-                    enemy.userData.hp = 100;
-                    enemy.userData.maxHp = 100;
-                    scene.add(enemy);
-                    enemyShips.push(enemy);
-                    mission1Enemies.push(enemy);
+                // Spawn target drones near each orbital ring checkpoint if not yet cleared
+                if (!isCleared) {
+                    const offsets = [
+                        { x: -600, y: 200, z: 200 },
+                        { x: 600, y: -200, z: 200 }
+                    ];
+                    
+                    for (let e = 0; e < 2; e++) {
+                        const enemy = createEnemyInterceptorMesh();
+                        enemy.position.set(pos.x + offsets[e].x, pos.y + offsets[e].y, pos.z + offsets[e].z);
+                        enemy.lookAt(playerShip.position);
+                        enemy.userData.hp = 100;
+                        enemy.userData.maxHp = 100;
+                        enemy.userData.isMissionDrone = true;
+                        scene.add(enemy);
+                        enemyShips.push(enemy);
+                        mission1Enemies.push(enemy);
+                    }
                 }
             });
             
-            showCommsTransmission("ELIAS VANCE", "Alright, kid. Let's see if those stabilizer tweaks I made hold up. Fly around Saturn, clear all 4 training rings down around the planet, and shoot down the target drones near the rings.", 9000, "audio/cinematics/mission_1/mission1_01_elias.mp3");
-            
+            const initialCleared = mission1Rings.filter(r => r.userData.cleared).length;
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
             if (sec) sec.innerText = "MISSION 1: ROUTINE PATROL";
-            if (obj) obj.innerText = "Fly around Saturn, clear 4 training rings, and destroy 3 drones (0/4 Rings, 0/3 Enemies).";
-            showToast("🎯 NEW OBJECTIVE: Clear Saturn Orbital Training Rings");
+            if (obj) obj.innerText = `Fly around Saturn, clear 4 training rings, and destroy 3 drones (${initialCleared}/4 Rings, ${Math.min(mission1EnemiesDestroyed, 3)}/3 Enemies).`;
             
-            // (Collision check is now safely handled in the high-framerate animate() loop to prevent skipping)
+            if (!restoreProgress) {
+                showCommsTransmission("ELIAS VANCE", "Alright, kid. Let's see if those stabilizer tweaks I made hold up. Fly around Saturn, clear all 4 training rings down around the planet, and shoot down the target drones near the rings.", 9000, "audio/cinematics/mission_1/mission1_01_elias.mp3");
+                showToast("🎯 NEW OBJECTIVE: Clear Saturn Orbital Training Rings");
+            } else {
+                showToast(`💾 RESUMED MISSION 1: ${initialCleared}/4 Rings Cleared`);
+            }
         }
         
         function checkMission1Progress() {
@@ -667,6 +683,11 @@
                         
                         const newClearedCount = mission1Rings.filter(r => r.userData.cleared).length;
                         showToast(`Ring ${newClearedCount}/${totalRings} cleared.`, "var(--accent-cyan)");
+
+                        // Instantly auto-save progress in the profile!
+                        if (typeof window.saveCurrentGameState === 'function') {
+                            window.saveCurrentGameState();
+                        }
                         
                         // Remind the player if they still need to kill drones
                         if (newClearedCount === totalRings && enemiesDestroyed < 3) {
@@ -691,6 +712,11 @@
                 if (obj) obj.innerText = `Fly around Saturn, clear ${totalRings} training rings, and destroy 3 drones (${totalRings}/${totalRings} Rings, 3/3 Enemies).`;
                 
                 showCommsTransmission("KAYLEN VANCE", "Copy that, old man. Controls are stiff, but responsive. Rings and drones cleared.", 5000, "audio/cinematics/mission_1/mission1_02_kaylen.mp3");
+                
+                if (typeof window.saveCurrentGameState === 'function') {
+                    window.saveCurrentGameState();
+                }
+
                 setTimeout(() => {
                     if (!mission1Active) return;
                     showCommsTransmission("ELIAS VANCE", "Good. Now dock back at The Crest.", 5000, "audio/cinematics/mission_1/mission1_03_elias.mp3");
@@ -698,6 +724,9 @@
                     if (obj) obj.innerText = "Return and dock back at The Crest.";
                     showToast("🎯 NEW OBJECTIVE: Dock at The Crest");
                     mission1Stage = 5; // Ready to check distance to Crest
+                    if (typeof window.saveCurrentGameState === 'function') {
+                        window.saveCurrentGameState();
+                    }
                 }, 6000);
             } else if (mission1Stage === 5) {
                 // Check distance to The Crest to trigger docking completion inside the hanger bay
@@ -715,6 +744,10 @@
                     showCommsTransmission("CREST FLIGHT DECK", "Magnetic locks engaged. Welcome home, Vance. Initiating maintenance cycle.", 5000);
                     showToast("⚓ MAGNETIC LOCK ENGAGED: DOCKED AT THE CREST");
                     
+                    if (typeof window.saveCurrentGameState === 'function') {
+                        window.saveCurrentGameState();
+                    }
+
                     setTimeout(() => {
                         showToast("🎯 MISSION 1 COMPLETE");
                         setTimeout(() => {

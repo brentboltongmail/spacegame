@@ -175,5 +175,8 @@
             }
 
             showToast(`✨ UPGRADED ${mod.name.toUpperCase()} TO LEVEL ${mod.level}!`);
+            if (typeof window.saveCurrentGameState === 'function') {
+                window.saveCurrentGameState();
+            }
         }
 
