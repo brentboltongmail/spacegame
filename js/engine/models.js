@@ -806,13 +806,217 @@
         let skullRaiderTemplate = null;
         const pendingSkullRaiderShips = [];
 
+        function createSkullRaiderTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024;
+            canvas.height = 1024;
+            const ctx = canvas.getContext('2d');
+
+            // 1. Dark weathered gunmetal & carbon iron hull plating
+            const baseGrad = ctx.createLinearGradient(0, 0, 1024, 1024);
+            baseGrad.addColorStop(0.0, '#1c1a19');
+            baseGrad.addColorStop(0.3, '#2a2725');
+            baseGrad.addColorStop(0.7, '#201e1d');
+            baseGrad.addColorStop(1.0, '#161514');
+            ctx.fillStyle = baseGrad;
+            ctx.fillRect(0, 0, 1024, 1024);
+
+            // 2. Heavy industrial panel plating grid with bevels
+            const panels = [
+                { x: 30, y: 30, w: 450, h: 280, color: '#252220' },
+                { x: 520, y: 30, w: 470, h: 280, color: '#2e2b28' },
+                { x: 30, y: 340, w: 280, h: 360, color: '#23201e' },
+                { x: 340, y: 340, w: 340, h: 360, color: '#322e2a' },
+                { x: 710, y: 340, w: 280, h: 360, color: '#282522' },
+                { x: 30, y: 730, w: 450, h: 260, color: '#2b2825' },
+                { x: 520, y: 730, w: 470, h: 260, color: '#22201d' }
+            ];
+
+            panels.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.w, p.h);
+
+                // Panel seam highlight & shadow border
+                ctx.strokeStyle = 'rgba(70, 65, 60, 0.7)';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(p.x, p.y, p.w, p.h);
+
+                ctx.strokeStyle = 'rgba(10, 9, 8, 0.9)';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(p.x - 2, p.y - 2, p.w + 4, p.h + 4);
+
+                // Rivets along borders
+                ctx.fillStyle = '#4a4540';
+                for (let rx = p.x + 15; rx < p.x + p.w; rx += 35) {
+                    ctx.beginPath(); ctx.arc(rx, p.y + 8, 2, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(rx, p.y + p.h - 8, 2, 0, Math.PI * 2); ctx.fill();
+                }
+                for (let ry = p.y + 15; ry < p.y + p.h; ry += 35) {
+                    ctx.beginPath(); ctx.arc(p.x + 8, ry, 2, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(p.x + p.w - 8, ry, 2, 0, Math.PI * 2); ctx.fill();
+                }
+            });
+
+            // 3. Noise, Scratches & Rust Oxidation Patches
+            const imgData = ctx.getImageData(0, 0, 1024, 1024);
+            const data = imgData.data;
+            for (let i = 0; i < data.length; i += 4) {
+                const noise = (Math.random() - 0.5) * 28;
+                data[i] = Math.min(255, Math.max(0, data[i] + noise));
+                data[i+1] = Math.min(255, Math.max(0, data[i+1] + noise * 0.8));
+                data[i+2] = Math.min(255, Math.max(0, data[i+2] + noise * 0.6));
+            }
+            ctx.putImageData(imgData, 0, 0);
+
+            // 4. Rust & Scratched Weathering
+            for (let r = 0; r < 24; r++) {
+                const rx = Math.random() * 1024;
+                const ry = Math.random() * 1024;
+                const rw = 40 + Math.random() * 120;
+                const rh = 15 + Math.random() * 60;
+                const rustGrad = ctx.createRadialGradient(rx, ry, 5, rx, ry, rw);
+                rustGrad.addColorStop(0, 'rgba(120, 55, 20, 0.45)');
+                rustGrad.addColorStop(0.6, 'rgba(80, 35, 15, 0.25)');
+                rustGrad.addColorStop(1, 'rgba(40, 20, 10, 0)');
+                ctx.fillStyle = rustGrad;
+                ctx.beginPath();
+                ctx.ellipse(rx, ry, rw, rh, Math.random() * Math.PI, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Scratch marks
+            ctx.strokeStyle = 'rgba(180, 175, 170, 0.35)';
+            ctx.lineWidth = 1.2;
+            for (let s = 0; s < 45; s++) {
+                const sx = Math.random() * 1024;
+                const sy = Math.random() * 1024;
+                const len = 15 + Math.random() * 45;
+                const ang = Math.random() * Math.PI * 2;
+                ctx.beginPath();
+                ctx.moveTo(sx, sy);
+                ctx.lineTo(sx + Math.cos(ang) * len, sy + Math.sin(ang) * len);
+                ctx.stroke();
+            }
+
+            // 5. Aggressive Pirate War Stripes & Decals (Crimson & Hazard Orange)
+            ctx.save();
+            ctx.fillStyle = '#b91c1c'; // Crimson war stripe
+            ctx.beginPath();
+            ctx.moveTo(180, 80); ctx.lineTo(320, 80); ctx.lineTo(260, 300); ctx.lineTo(120, 300);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#ea580c'; // Vibrant orange hazard accent
+            ctx.beginPath();
+            ctx.moveTo(330, 80); ctx.lineTo(370, 80); ctx.lineTo(310, 300); ctx.lineTo(270, 300);
+            ctx.closePath();
+            ctx.fill();
+
+            // Symmetric right wing stripes
+            ctx.fillStyle = '#b91c1c';
+            ctx.beginPath();
+            ctx.moveTo(844, 80); ctx.lineTo(704, 80); ctx.lineTo(764, 300); ctx.lineTo(904, 300);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#ea580c';
+            ctx.beginPath();
+            ctx.moveTo(694, 80); ctx.lineTo(654, 80); ctx.lineTo(714, 300); ctx.lineTo(754, 300);
+            ctx.closePath();
+            ctx.fill();
+
+            // Stylized Pirate Skull Insignia on center plate
+            ctx.fillStyle = '#cbd5e1';
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 3;
+            // Cranium
+            ctx.beginPath();
+            ctx.arc(512, 480, 48, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            // Jaw
+            ctx.fillRect(490, 520, 44, 28);
+            ctx.strokeRect(490, 520, 44, 28);
+            // Eye sockets
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath(); ctx.ellipse(494, 485, 14, 18, 0.2, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(530, 485, 14, 18, -0.2, 0, Math.PI * 2); ctx.fill();
+            // Nose cavity
+            ctx.beginPath();
+            ctx.moveTo(512, 502); ctx.lineTo(506, 516); ctx.lineTo(518, 516);
+            ctx.closePath();
+            ctx.fill();
+            // Teeth slits
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(500, 524); ctx.lineTo(500, 544);
+            ctx.moveTo(512, 524); ctx.lineTo(512, 544);
+            ctx.moveTo(524, 524); ctx.lineTo(524, 544);
+            ctx.stroke();
+
+            // Crossbones behind skull
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 10;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(430, 410); ctx.lineTo(594, 574);
+            ctx.moveTo(594, 410); ctx.lineTo(430, 574);
+            ctx.stroke();
+
+            ctx.restore();
+
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.wrapS = THREE.RepeatWrapping;
+            tex.wrapT = THREE.RepeatWrapping;
+            return tex;
+        }
+
+        function createSkullRaiderBumpTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#808080';
+            ctx.fillRect(0, 0, 512, 512);
+
+            // Panel seams as deep lines
+            ctx.strokeStyle = '#202020';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(15, 15, 230, 140);
+            ctx.strokeRect(260, 15, 235, 140);
+            ctx.strokeRect(15, 170, 140, 180);
+            ctx.strokeRect(170, 170, 170, 180);
+            ctx.strokeRect(355, 170, 140, 180);
+            ctx.strokeRect(15, 365, 230, 130);
+            ctx.strokeRect(260, 365, 235, 130);
+
+            // Rivets as raised dots
+            ctx.fillStyle = '#ffffff';
+            for (let x = 20; x < 500; x += 30) {
+                ctx.beginPath(); ctx.arc(x, 20, 2, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(x, 490, 2, 0, Math.PI * 2); ctx.fill();
+            }
+
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.wrapS = THREE.RepeatWrapping;
+            tex.wrapT = THREE.RepeatWrapping;
+            return tex;
+        }
+
         function loadSkullRaiderModel() {
+            const pirateTexture = createSkullRaiderTexture();
+            const pirateBump = createSkullRaiderBumpTexture();
+
             const gltfLoader = new THREE.GLTFLoader();
             gltfLoader.load('fbx/Meshy_AI_Skull_Raider_Starship_0831032805_texture.glb?v=' + Date.now(), function(gltf) {
                 const model = gltf.scene;
 
-                // Enforce solid double-sided opaque materials
+                // Enforce solid double-sided opaque materials with dark weathered pirate hull
                 const maxAniso = (typeof renderer !== 'undefined' && renderer.capabilities) ? renderer.capabilities.getMaxAnisotropy() : 16;
+                pirateTexture.anisotropy = maxAniso;
+                pirateTexture.generateMipmaps = true;
+
                 model.traverse(function(child) {
                     if (child.isMesh && child.material) {
                         const mats = Array.isArray(child.material) ? child.material : [child.material];
@@ -822,9 +1026,16 @@
                             mat.depthWrite = true;
                             mat.depthTest = true;
                             mat.side = THREE.DoubleSide;
-                            mat.metalness = THREE.MathUtils.clamp(mat.metalness || 0.6, 0.4, 0.8);
-                            mat.roughness = THREE.MathUtils.clamp(mat.roughness || 0.5, 0.3, 0.7);
-                            mat.envMapIntensity = 1.0;
+
+                            // Dark weathered steel with rust & war paint
+                            mat.color.setHex(0xffffff);
+                            mat.map = mat.map || pirateTexture;
+                            mat.bumpMap = pirateBump;
+                            mat.bumpScale = 0.08;
+                            mat.metalness = 0.75;
+                            mat.roughness = 0.42;
+                            mat.envMapIntensity = 1.4;
+
                             if (mat.map) {
                                 mat.map.anisotropy = maxAniso;
                                 mat.map.generateMipmaps = true;

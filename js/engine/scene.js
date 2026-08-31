@@ -724,27 +724,30 @@
             const pos = geo.attributes.position;
             const uvs = geo.attributes.uv;
             const v = new THREE.Vector3();
+            const dir = new THREE.Vector3();
 
             for (let i = 0; i < pos.count; i++) {
                 v.fromBufferAttribute(pos, i);
+                dir.copy(v).normalize();
                 
-                // Doubled multi-frequency jagged noise layers
-                const n1 = Math.sin(v.x * 3.8) * Math.cos(v.y * 4.4) * Math.sin(v.z * 3.2);
-                const n2 = Math.sin(v.x * 9.0 + v.y * 9.0 + v.z * 9.0) * 0.35;
-                const n3 = Math.cos(v.x * 15.0 - v.z * 15.0) * 0.18;
+                // Low-dynamic-range harmonic noise layers for a natural, solid, rocky asteroid shape
+                // 1. Broad oblong lobe asymmetry (subtle ±8%)
+                const n1 = Math.sin(dir.x * 2.2 + 0.4) * Math.cos(dir.y * 1.8) * Math.sin(dir.z * 1.6) * 0.08;
+                // 2. Medium rock facet undulation (subtle ±4%)
+                const n2 = Math.sin(dir.x * 4.5 + dir.y * 4.5 + dir.z * 4.5) * 0.04;
+                // 3. Fine rocky surface facet (subtle ±2%)
+                const n3 = Math.cos(dir.x * 8.0 - dir.z * 8.0) * 0.02;
+                // 4. Gentle shallow crater depression (max 3%)
+                const crater = Math.pow(Math.max(0, Math.sin(dir.x * 3.5 + dir.y * 3.5)), 3) * 0.03;
                 
-                // Deep jagged crater indentations
-                const crater1 = Math.pow(Math.sin(v.x * 5.5 + v.y * 5.5), 2) * 0.38;
-                const crater2 = Math.pow(Math.cos(v.y * 7.0 + v.z * 7.0), 2) * 0.28;
-                
-                // Asymmetric oblong stretching factor per vertex
-                const jaggedScale = 1.0 + (n1 * 0.65 + n2 + n3) - (crater1 + crater2);
-                v.multiplyScalar(Math.max(0.25, jaggedScale));
+                // Tight dynamic range variation (strictly clamped between 0.88 and 1.12)
+                const smoothScale = THREE.MathUtils.clamp(1.0 + n1 + n2 + n3 - crater, 0.88, 1.12);
+                v.multiplyScalar(smoothScale);
                 pos.setXYZ(i, v.x, v.y, v.z);
 
-                // Multi-scale randomized texture UV mapping variety
+                // Natural texture UV mapping variety without extreme stretching
                 if (uvs) {
-                    const texScale = 1.0 + Math.abs(Math.sin(v.x * 8.0) * 2.5);
+                    const texScale = 1.0 + Math.abs(Math.sin(dir.x * 3.0) * 0.35);
                     uvs.setXY(i, uvs.getX(i) * texScale, uvs.getY(i) * texScale);
                 }
             }
