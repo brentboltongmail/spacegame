@@ -294,6 +294,7 @@
             createTheCrestStation();
             loadVoidInterceptorModel();
             loadDominionFighterModel();
+            loadSkullRaiderModel();
             createPlayerShip();
             createCapitalShip();
             createWormholeGate();

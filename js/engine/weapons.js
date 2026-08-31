@@ -287,7 +287,105 @@
 
             return enemyGroup;
         }
+        
+        function createPirateShipMesh() {
+            const enemyGroup = new THREE.Group();
+            const meshContainer = new THREE.Group();
+            enemyGroup.add(meshContainer);
 
+            // Procedural Fallback Hull (while GLB is loading)
+            const fallbackGeo = new THREE.ConeGeometry(2.0, 5.0, 4);
+            fallbackGeo.rotateX(Math.PI / 2);
+            const fallbackMat = new THREE.MeshStandardMaterial({
+                color: 0x2e2520, // Dark brownish grey for pirates
+                roughness: 0.8,
+                metalness: 0.5
+            });
+            const fallbackMesh = new THREE.Mesh(fallbackGeo, fallbackMat);
+            fallbackMesh.name = "skullRaiderFallbackHull";
+            meshContainer.add(fallbackMesh);
+
+            const engineLights = [];
+            enemyGroup.userData = {
+                hp: 30, // Default pirate HP, overridden in interactions.js
+                maxHp: 30,
+                name: "Skull Raider",
+                flashTimer: 0,
+                engineLights: engineLights,
+                isEvil: true,
+                isPirate: true,
+                meshContainer: meshContainer
+            };
+
+            const glowColor = 0xffa500; // Orange thrust for pirates
+            const engineGlowMat = new THREE.MeshBasicMaterial({
+                color: glowColor,
+                transparent: true,
+                opacity: 0.95
+            });
+            const engineCoreMat = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.98
+            });
+            const engineHaloMat = new THREE.MeshBasicMaterial({
+                color: 0xff4500,
+                transparent: true,
+                opacity: 0.4,
+                blending: THREE.AdditiveBlending,
+                side: THREE.DoubleSide
+            });
+
+            // Dual engines for pirate ships
+            const enginePositions = [
+                { x: -1.5, y: 0.0, z: 4.0, r: 0.6 },
+                { x:  1.5, y: 0.0, z: 4.0, r: 0.6 }
+            ];
+
+            enginePositions.forEach(eng => {
+                const engGroup = new THREE.Group();
+                engGroup.position.set(eng.x, eng.y, eng.z);
+
+                const cavityGeo = new THREE.CylinderGeometry(eng.r * 0.85, eng.r * 0.95, 0.45, 16, 1, true);
+                const cavityMat = new THREE.MeshBasicMaterial({
+                    color: 0x883300,
+                    side: THREE.BackSide,
+                    transparent: true,
+                    opacity: 0.85
+                });
+                const cavity = new THREE.Mesh(cavityGeo, cavityMat);
+                cavity.rotation.x = Math.PI / 2;
+                cavity.position.z = -0.22;
+                engGroup.add(cavity);
+
+                const diskGeo = new THREE.CircleGeometry(eng.r * 0.90, 24);
+                const disk = new THREE.Mesh(diskGeo, engineGlowMat);
+                disk.position.z = 0.02;
+                engGroup.add(disk);
+
+                const coreGeo = new THREE.CircleGeometry(eng.r * 0.45, 24);
+                const core = new THREE.Mesh(coreGeo, engineCoreMat);
+                core.position.z = 0.03;
+                engGroup.add(core);
+
+                const haloGeo = new THREE.RingGeometry(eng.r * 0.85, eng.r * 1.25, 24);
+                const halo = new THREE.Mesh(haloGeo, engineHaloMat);
+                halo.position.z = 0.04;
+                engGroup.add(halo);
+
+                enemyGroup.add(engGroup);
+            });
+
+            if (typeof skullRaiderTemplate !== 'undefined' && skullRaiderTemplate) {
+                if (typeof attachSkullRaiderModel === 'function') {
+                    attachSkullRaiderModel(enemyGroup);
+                }
+            } else if (typeof pendingSkullRaiderShips !== 'undefined') {
+                pendingSkullRaiderShips.push(enemyGroup);
+            }
+
+            return enemyGroup;
+        }
 
         let explosionParticles = [];
 

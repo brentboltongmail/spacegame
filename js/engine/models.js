@@ -802,6 +802,75 @@
             shipGroup.userData.meshContainer.add(cloned);
         }
 
+        // --- SKULL RAIDER GLB MODEL & MATERIAL MANAGEMENT ---
+        let skullRaiderTemplate = null;
+        const pendingSkullRaiderShips = [];
+
+        function loadSkullRaiderModel() {
+            const gltfLoader = new THREE.GLTFLoader();
+            gltfLoader.load('fbx/Meshy_AI_Skull_Raider_Starship_0831032805_texture.glb?v=' + Date.now(), function(gltf) {
+                const model = gltf.scene;
+
+                // Enforce solid double-sided opaque materials
+                const maxAniso = (typeof renderer !== 'undefined' && renderer.capabilities) ? renderer.capabilities.getMaxAnisotropy() : 16;
+                model.traverse(function(child) {
+                    if (child.isMesh && child.material) {
+                        const mats = Array.isArray(child.material) ? child.material : [child.material];
+                        mats.forEach(mat => {
+                            mat.transparent = false;
+                            mat.opacity = 1.0;
+                            mat.depthWrite = true;
+                            mat.depthTest = true;
+                            mat.side = THREE.DoubleSide;
+                            mat.metalness = THREE.MathUtils.clamp(mat.metalness || 0.6, 0.4, 0.8);
+                            mat.roughness = THREE.MathUtils.clamp(mat.roughness || 0.5, 0.3, 0.7);
+                            mat.envMapIntensity = 1.0;
+                            if (mat.map) {
+                                mat.map.anisotropy = maxAniso;
+                                mat.map.generateMipmaps = true;
+                                mat.map.minFilter = THREE.LinearMipmapLinearFilter;
+                                mat.map.magFilter = THREE.LinearFilter;
+                                mat.map.needsUpdate = true;
+                            }
+                            mat.needsUpdate = true;
+                        });
+                    }
+                });
+
+                const box = new THREE.Box3().setFromObject(model);
+                const size = new THREE.Vector3();
+                box.getSize(size);
+                const center = new THREE.Vector3();
+                box.getCenter(center);
+
+                // Rotate and scale model
+                const targetScale = 12.0 / (size.x || 1);
+                model.scale.set(targetScale, targetScale, targetScale);
+                model.rotation.set(0, -Math.PI / 2, 0);
+                model.position.set(center.z * targetScale, -center.y * targetScale, -center.x * targetScale);
+
+                skullRaiderTemplate = model;
+
+                pendingSkullRaiderShips.forEach(shipGroup => {
+                    attachSkullRaiderModel(shipGroup);
+                });
+                pendingSkullRaiderShips.length = 0;
+
+                console.log("[SKULL RAIDER] GLB Model & Textures Loaded Successfully for Pirate Swarms!");
+            }, undefined, function(err) {
+                console.error("[SKULL RAIDER GLB ERROR]", err);
+            });
+        }
+
+        function attachSkullRaiderModel(shipGroup) {
+            if (!skullRaiderTemplate || !shipGroup.userData || !shipGroup.userData.meshContainer) return;
+            while (shipGroup.userData.meshContainer.children.length > 0) {
+                shipGroup.userData.meshContainer.remove(shipGroup.userData.meshContainer.children[0]);
+            }
+            const cloned = skullRaiderTemplate.clone(true);
+            shipGroup.userData.meshContainer.add(cloned);
+        }
+
         // --- DOMINION FIGHTER GLB MODEL & MATERIAL MANAGEMENT ---
         let dominionFighterTemplate = null;
         const pendingDominionFighterShips = [];

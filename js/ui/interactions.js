@@ -812,8 +812,8 @@
             
             // Spawn Pirates
             for(let i=0; i<10; i++) {
-                if (typeof createEnemyInterceptorMesh === 'function') {
-                    const pirate = createEnemyInterceptorMesh();
+                if (typeof createPirateShipMesh === 'function') {
+                    const pirate = createPirateShipMesh();
                     pirate.position.set(
                         101000 + (Math.random() - 0.5) * 4000,
                         (Math.random() - 0.5) * 2000,

@@ -1714,7 +1714,7 @@ const _targetWorldPos = new THREE.Vector3();
         }
 
         function maintainAsteroidPiratePatrol() {
-            if (!spacePlanet || typeof enemyShips === 'undefined' || typeof createEnemyInterceptorMesh !== 'function') return;
+            if (!spacePlanet || typeof enemyShips === 'undefined' || typeof createPirateShipMesh !== 'function') return;
 
             // Only spawn/maintain pirate belt patrols during Mission 3
             if (!window.mission3Active && !window.isMission3Active) return;
@@ -1731,7 +1731,7 @@ const _targetWorldPos = new THREE.Vector3();
                 : new THREE.Vector3(100000, 0, 100000);
 
             for (let k = 0; k < needed; k++) {
-                const pirate = createEnemyInterceptorMesh();
+                const pirate = createPirateShipMesh();
                 
                 // Spawn at a random position inside the 300% expanded pirate asteroid field
                 const px = fieldCenter.x + (Math.random() - 0.5) * 38000;
