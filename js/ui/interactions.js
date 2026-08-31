@@ -541,6 +541,14 @@
                     }
                 }
             }
+            if (typeof capitalShips !== 'undefined' && capitalShips.length > 0) {
+                capitalShips.forEach(ship => {
+                    if (ship.parent) ship.parent.remove(ship);
+                });
+                capitalShips = [];
+                capitalShip = null;
+            }
+            if (typeof fleetEmergenceActive !== 'undefined') fleetEmergenceActive = false;
             if (mission1Active) return;
             mission1Active = true;
             mission1Stage = 0;
@@ -741,6 +749,14 @@
                     }
                 }
             }
+            if (typeof capitalShips !== 'undefined' && capitalShips.length > 0) {
+                capitalShips.forEach(ship => {
+                    if (ship.parent) ship.parent.remove(ship);
+                });
+                capitalShips = [];
+                capitalShip = null;
+            }
+            if (typeof fleetEmergenceActive !== 'undefined') fleetEmergenceActive = false;
             if (window.mission2Active) return;
             window.mission2Active = true;
             window.mission2Stage = 0;

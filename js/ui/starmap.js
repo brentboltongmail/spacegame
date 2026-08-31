@@ -275,7 +275,7 @@
                 if (mapGateMesh.visible) setRelativeMapPos(mapGateMesh, ancientGoldenGate);
             }
             
-            if (mapDreadGroup && capitalShips.length > 0) {
+            if (mapDreadGroup && typeof capitalShips !== 'undefined' && capitalShips.length > 0) {
                 while (mapDreadGroup.children.length < capitalShips.length) {
                     const dreadIconGeo = new THREE.BoxGeometry(9.5, 4.2, 22);
                     const dreadIconMat = new THREE.MeshBasicMaterial({ color: 0xff1e38 });
@@ -293,11 +293,18 @@
                     const cs = capitalShips[i];
                     const md = mapDreadGroup.children[i];
                     if (cs && md) {
-                        md.visible = cs.visible;
+                        md.visible = !!cs.visible;
                         md.userData.label = cs.userData.name || "Dominion Dreadnought";
                         setRelativeMapPos(md, cs);
                         md.quaternion.copy(cs.quaternion);
                     }
+                }
+            } else if (mapDreadGroup && mapDreadGroup.children.length > 0) {
+                while (mapDreadGroup.children.length > 0) {
+                    const child = mapDreadGroup.children[mapDreadGroup.children.length - 1];
+                    mapDreadGroup.remove(child);
+                    if (child.geometry) child.geometry.dispose();
+                    if (child.material) child.material.dispose();
                 }
             }
             
@@ -340,13 +347,21 @@
                 mapRaycaster.setFromCamera(mapMouse, mapCamera);
                 
                 const interactables = [];
-                if (mapPlayerMesh) interactables.push(mapPlayerMesh);
-                if (mapPlanetMesh) interactables.push(mapPlanetMesh);
-                if (mapTitanMesh) interactables.push(mapTitanMesh);
-                if (mapSunMesh) interactables.push(mapSunMesh);
-                if (mapGateMesh) interactables.push(mapGateMesh);
-                if (mapDreadGroup) interactables.push(...mapDreadGroup.children);
-                if (mapEnemyGroup) interactables.push(...mapEnemyGroup.children);
+                if (mapPlayerMesh && mapPlayerMesh.visible) interactables.push(mapPlayerMesh);
+                if (mapPlanetMesh && mapPlanetMesh.visible) interactables.push(mapPlanetMesh);
+                if (mapTitanMesh && mapTitanMesh.visible) interactables.push(mapTitanMesh);
+                if (mapSunMesh && mapSunMesh.visible) interactables.push(mapSunMesh);
+                if (mapGateMesh && mapGateMesh.visible) interactables.push(mapGateMesh);
+                if (mapDreadGroup) {
+                    mapDreadGroup.children.forEach(c => {
+                        if (c && c.visible) interactables.push(c);
+                    });
+                }
+                if (mapEnemyGroup) {
+                    mapEnemyGroup.children.forEach(c => {
+                        if (c && c.visible) interactables.push(c);
+                    });
+                }
                 
                 const intersects = mapRaycaster.intersectObjects(interactables, false);
                 const tooltip = document.getElementById('map-tooltip');

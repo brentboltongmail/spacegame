@@ -1613,7 +1613,7 @@
         }
 
         function createCapitalShip() {
-            // Load Dominion Capital Ship GLB Model template once, then instantiate all 5 fleet capital ships
+            // Load Dominion Capital Ship GLB Model template once (ships will be instantiated upon hyperspace emergence)
             const gltfLoader = new THREE.GLTFLoader();
             gltfLoader.load('fbx/dominion_capital_ship.glb?v=' + Date.now(), function(gltf) {
                 const model = gltf.scene;
@@ -1657,7 +1657,31 @@
 
                 dominionCapitalShipTemplate = model;
 
-                // Populate template for all 5 fleet capital ships
+                // Populate template for any active fleet capital ships if already spawned
+                if (capitalShips && capitalShips.length > 0) {
+                    capitalShips.forEach(ship => {
+                        if (ship.userData && ship.userData.meshContainer && ship.userData.meshContainer.children.length === 0) {
+                            const cloned = dominionCapitalShipTemplate.clone(true);
+                            const s = (ship.userData.scale || 1200) / 1200;
+                            cloned.scale.multiplyScalar(s);
+                            ship.userData.meshContainer.add(cloned);
+                        }
+                    });
+                }
+
+                console.log("[DOMINION FLEET] Capital Dreadnought GLB Model Templated Successfully!");
+            }, undefined, function(err) {
+                console.error("[DOMINION CAPITAL SHIP GLB ERROR]", err);
+            });
+        }
+
+        function spawnDominionCapitalFleet() {
+            if (capitalShips && capitalShips.length > 0) return;
+
+            capitalShips = DOMINION_FLEET_CONFIG.map(cfg => buildSingleCapitalShip(cfg));
+            capitalShip = capitalShips[2]; // Lead Flagship 'Iron Sovereign' (center)
+
+            if (dominionCapitalShipTemplate) {
                 capitalShips.forEach(ship => {
                     if (ship.userData && ship.userData.meshContainer && ship.userData.meshContainer.children.length === 0) {
                         const cloned = dominionCapitalShipTemplate.clone(true);
@@ -1666,18 +1690,9 @@
                         ship.userData.meshContainer.add(cloned);
                     }
                 });
+            }
 
-                console.log("[DOMINION FLEET] 5 Capital Dreadnoughts Initialized & Templated with GLB!");
-            }, undefined, function(err) {
-                console.error("[DOMINION CAPITAL SHIP GLB ERROR]", err);
-            });
-
-            // Instantiate the 5 Dominion Capital Ships in battle line formation
-            capitalShips = DOMINION_FLEET_CONFIG.map(cfg => buildSingleCapitalShip(cfg));
-            capitalShip = capitalShips[2]; // Lead Flagship 'Iron Sovereign' (center)
-
-            // Automatic fleet emergence is disabled here (triggered manually after Mission 1)
-            // triggerDominionFleetHyperspaceEmergence();
+            initCapitalShipSpinalBeams();
         }
 
         function launchFightersFromCapitalShip(ship, count = 3) {
@@ -1706,6 +1721,12 @@
         function triggerDominionFleetHyperspaceEmergence() {
             window.mission3Active = true;
             window.isMission3Active = true;
+
+            // Instantiate the 5 Dominion Capital Ships if not yet spawned
+            if (!capitalShips || capitalShips.length === 0) {
+                spawnDominionCapitalFleet();
+            }
+
             fleetEmergenceStartTime = performance.now();
             fleetEmergenceActive = true;
 
