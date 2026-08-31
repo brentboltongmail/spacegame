@@ -31,10 +31,9 @@
                         .profile-box {
                             display: flex;
                             align-items: center;
-                            justify-content: flex-start;
-                            gap: 16px;
-                            width: 320px;
-                            padding: 14px 22px;
+                            justify-content: space-between;
+                            width: 400px;
+                            padding: 16px 24px;
                             background: rgba(8, 12, 24, 0.65);
                             border: 1px solid rgba(0, 240, 255, 0.22);
                             border-radius: 8px;
@@ -87,31 +86,11 @@
                             transform: translateX(100%);
                         }
 
-                        .profile-icon-badge {
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            width: 36px;
-                            height: 36px;
-                            background: rgba(0, 240, 255, 0.1);
-                            border: 1px solid rgba(0, 240, 255, 0.3);
-                            border-radius: 6px;
-                            font-size: 18px;
-                            transition: all 0.3s ease;
-                            z-index: 2;
-                        }
-
-                        .profile-box:hover .profile-icon-badge {
-                            background: rgba(0, 240, 255, 0.25);
-                            border-color: #00f0ff;
-                            box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
-                        }
-
                         .profile-name {
                             font-size: 21px;
-                            font-weight: 300;
+                            font-weight: 400;
                             letter-spacing: 2px;
-                            color: rgba(255, 255, 255, 0.75);
+                            color: rgba(255, 255, 255, 0.8);
                             transition: all 0.3s ease;
                             z-index: 2;
                         }
@@ -122,10 +101,34 @@
                             animation: textPulse 2s infinite ease-in-out;
                         }
 
+                        .profile-mission-badge {
+                            display: inline-flex;
+                            align-items: center;
+                            padding: 4px 12px;
+                            background: rgba(0, 240, 255, 0.1);
+                            border: 1px solid rgba(0, 240, 255, 0.35);
+                            border-radius: 4px;
+                            color: #00f0ff;
+                            font-size: 11px;
+                            font-weight: 700;
+                            letter-spacing: 1.5px;
+                            transition: all 0.3s ease;
+                            z-index: 2;
+                            box-shadow: 0 0 8px rgba(0, 240, 255, 0.15);
+                            text-transform: uppercase;
+                        }
+
+                        .profile-box:hover .profile-mission-badge {
+                            background: rgba(0, 240, 255, 0.25);
+                            border-color: #00f0ff;
+                            box-shadow: 0 0 14px rgba(0, 240, 255, 0.5);
+                            color: #fff;
+                        }
+
                         /* Actions floating strictly off to the right outside the profile box */
                         .profile-side-actions {
                             position: absolute;
-                            left: calc(50% + 175px);
+                            left: calc(50% + 215px);
                             display: flex;
                             align-items: center;
                             gap: 8px;
@@ -177,15 +180,17 @@
                     `;
                     if (data.profiles && data.profiles.length > 0) {
                         data.profiles.forEach(p => {
+                            const pName = (typeof p === 'object' && p.name) ? p.name : p;
+                            const pMission = (typeof p === 'object' && p.mission) ? p.mission : 'Mission 1';
                             html += `
                             <div class="profile-row">
-                                <div class="profile-box" onclick="window.startGameWithProfile('${p}')">
-                                    <span class="profile-icon-badge">👤</span>
-                                    <span class="profile-name">${p}</span>
+                                <div class="profile-box" onclick="window.startGameWithProfile('${pName}')">
+                                    <span class="profile-name">${pName}</span>
+                                    <span class="profile-mission-badge">${pMission}</span>
                                 </div>
                                 <div class="profile-side-actions">
-                                    <button class="ethereal-side-btn rename" title="Rename Pilot" onclick="window.promptRenameProfile('${p}')">✎ RENAME</button>
-                                    <button class="ethereal-side-btn delete" title="Delete Profile" onclick="window.deleteProfile('${p}')">✕ DELETE</button>
+                                    <button class="ethereal-side-btn rename" title="Rename Pilot" onclick="window.promptRenameProfile('${pName}')">✎ RENAME</button>
+                                    <button class="ethereal-side-btn delete" title="Delete Profile" onclick="window.deleteProfile('${pName}')">✕ DELETE</button>
                                 </div>
                             </div>`;
                         });

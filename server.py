@@ -80,7 +80,17 @@ class AstraGameRequestHandler(http.server.SimpleHTTPRequestHandler):
             profiles = []
             if DATA_DIR.exists():
                 for f in DATA_DIR.glob('*.json'):
-                    profiles.append(f.stem)
+                    p_name = f.stem
+                    p_mission = "Mission 1"
+                    try:
+                        with open(f, 'r', encoding='utf-8') as pf:
+                            p_data = json.load(pf)
+                            prog = p_data.get('progress', {})
+                            if isinstance(prog, dict):
+                                p_mission = prog.get('currentMission') or prog.get('mission') or f"Mission {prog.get('act', 1)}"
+                    except Exception:
+                        pass
+                    profiles.append({"name": p_name, "mission": p_mission})
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
