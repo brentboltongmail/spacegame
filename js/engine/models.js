@@ -244,12 +244,14 @@
                     // 1.5 Front Blast Doors (Dynamic)
                     const doorWidth = 2.7; // Wider to fully cover the hexagonal bulging walls
                     const frontDoorGeo = new THREE.PlaneGeometry(doorWidth / 2, rectH, 2, 2);
-                    const leftFrontDoor = new THREE.Mesh(frontDoorGeo, wallMat);
+                    
+                    // Use doorMat instead of wallMat so it uses the blast doors texture and tiles 2x1
+                    const leftFrontDoor = new THREE.Mesh(frontDoorGeo, doorMat);
                     leftFrontDoor.position.set(-doorWidth / 4, centerY, entranceZ + 0.01);
                     leftFrontDoor.layers.set(1);
                     leftFrontDoor.userData.noDeform = true;
                     
-                    const rightFrontDoor = new THREE.Mesh(frontDoorGeo, wallMat);
+                    const rightFrontDoor = new THREE.Mesh(frontDoorGeo, doorMat);
                     rightFrontDoor.position.set(doorWidth / 4, centerY, entranceZ + 0.01);
                     rightFrontDoor.layers.set(1);
                     rightFrontDoor.userData.noDeform = true;
