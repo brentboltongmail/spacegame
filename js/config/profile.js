@@ -1,6 +1,7 @@
         // --- USER PROFILE & SERVER PERSISTENCE ---
-        let currentUsername = 'pilot_1';
-        let currentProfile = { username: 'pilot_1', boxPositions: {}, settings: {}, progress: {} };
+        let currentUsername = '';
+        let currentProfile = null;
+        let isGameSessionActive = false;
 
         async function initProfileScreen() {
             const screen = document.getElementById('profile-selection-screen');
@@ -292,6 +293,11 @@
                 async () => {
                     try {
                         await fetch(`/api/profile?user=${encodeURIComponent(name)}`, { method: 'DELETE' });
+                        if (currentUsername === name) {
+                            currentUsername = '';
+                            currentProfile = null;
+                            isGameSessionActive = false;
+                        }
                         renderProfileList();
                     } catch (e) { console.error("Error deleting profile", e); }
                 }
@@ -307,11 +313,17 @@
                 async (newName) => {
                     if (!newName || newName.trim() === '' || newName === oldName) return;
                     try {
-                        await fetch('/api/rename_profile', {
+                        const res = await fetch('/api/rename_profile', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ old_username: oldName, new_username: newName.trim() })
                         });
+                        if (res.ok) {
+                            if (currentUsername === oldName) {
+                                currentUsername = newName.trim();
+                                if (currentProfile) currentProfile.username = newName.trim();
+                            }
+                        }
                         renderProfileList();
                     } catch (e) { console.error("Error renaming profile", e); }
                 }
@@ -319,6 +331,7 @@
         };
 
         window.startGameWithProfile = async function(name) {
+            isGameSessionActive = true;
             const screen = document.getElementById('profile-selection-screen');
             if (screen) screen.style.display = 'none';
             
@@ -349,7 +362,7 @@
         };
 
         window.saveCurrentGameState = function() {
-            if (!currentProfile) return;
+            if (!isGameSessionActive || !currentUsername || !currentProfile) return;
             if (!currentProfile.progress) currentProfile.progress = {};
 
             let activeMission = "Mission 1";
@@ -506,21 +519,22 @@
             }
         };
 
-        // Auto-save game state every 5 seconds while active
+        // Auto-save game state every 5 seconds while active session
         setInterval(() => {
-            if (typeof isGamePaused !== 'undefined' && !isGamePaused && currentUsername && typeof window.saveCurrentGameState === 'function') {
+            if (isGameSessionActive && typeof isGamePaused !== 'undefined' && !isGamePaused && currentUsername && typeof window.saveCurrentGameState === 'function') {
                 window.saveCurrentGameState();
             }
         }, 5000);
 
         window.addEventListener('beforeunload', () => {
-            if (typeof window.saveCurrentGameState === 'function') {
+            if (isGameSessionActive && typeof window.saveCurrentGameState === 'function') {
                 window.saveCurrentGameState();
             }
         });
 
         async function loadProfileFromServer(username) {
-            currentUsername = username || 'pilot_1';
+            if (!username) return;
+            currentUsername = username;
             try {
                 const res = await fetch(`/api/profile?user=${encodeURIComponent(currentUsername)}`);
                 if (res.ok) {
@@ -594,6 +608,7 @@
         }
 
         async function saveProfileToServerSilent() {
+            if (!isGameSessionActive || !currentUsername) return;
             if (!currentProfile) currentProfile = { username: currentUsername, boxPositions: {} };
             currentProfile.username = currentUsername;
 
@@ -609,6 +624,7 @@
         }
 
         async function switchUserProfile(newUsername) {
+            isGameSessionActive = true;
             await loadProfileFromServer(newUsername);
             showToast(`Loaded User Profile: ${newUsername}`);
         }

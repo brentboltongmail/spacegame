@@ -1,5 +1,5 @@
 {
-  "username": "boltono",
+  "username": "brent",
   "boxPositions": {
     "hud-camera-card": {
       "x": 85,
@@ -44,7 +44,60 @@
     "flashOnHit": false,
     "platform": "windows"
   },
-  "progress": {},
+  "progress": {
+    "currentMission": "Mission 1",
+    "playerCredits": 126000,
+    "playerHp": 100,
+    "shieldPercent": 100,
+    "shipPosition": {
+      "x": 76081.32834855794,
+      "y": -675.146424607586,
+      "z": -54062.47752751027
+    },
+    "shipQuaternion": {
+      "x": 0.18104391832528072,
+      "y": -0.9498883565277828,
+      "z": -0.07000351408296371,
+      "w": 0.24501983141455447
+    },
+    "mission1": {
+      "active": true,
+      "stage": 0,
+      "enemiesDestroyed": 2,
+      "clearedRings": [
+        true,
+        false,
+        false,
+        false
+      ]
+    },
+    "mission2": {
+      "active": false,
+      "stage": 0,
+      "enemiesDestroyed": 0
+    },
+    "mission3": {
+      "active": false
+    },
+    "upgrades": {
+      "blasters": {
+        "level": 3,
+        "cost": 15000
+      },
+      "shields": {
+        "level": 4,
+        "cost": 22000
+      },
+      "thrusters": {
+        "level": 3,
+        "cost": 18000
+      },
+      "sensors": {
+        "level": 4,
+        "cost": 12000
+      }
+    }
+  },
   "keyBindings": {
     "KeyW": "KeyW",
     "KeyS": "KeyS",
