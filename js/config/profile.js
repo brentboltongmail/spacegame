@@ -17,21 +17,116 @@
                 const res = await fetch('/api/profiles');
                 if (res.ok) {
                     const data = await res.json();
-                    let html = '';
+                    let html = `
+                    <style>
+                        .profile-box {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            padding: 15px 25px;
+                            background: rgba(8, 12, 24, 0.5);
+                            border: 1px solid rgba(0, 240, 255, 0.15);
+                            border-radius: 6px;
+                            margin-bottom: 12px;
+                            cursor: pointer;
+                            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+                            box-shadow: 0 0 10px rgba(0, 240, 255, 0.0);
+                            position: relative;
+                            overflow: hidden;
+                        }
+
+                        .profile-box::after {
+                            content: '';
+                            position: absolute;
+                            top: -50%; left: -50%; right: -50%; bottom: -50%;
+                            background: linear-gradient(45deg, transparent 40%, rgba(0, 240, 255, 0.1) 50%, transparent 60%);
+                            transform: translateX(-100%);
+                            transition: transform 0.6s ease;
+                            z-index: 1;
+                            pointer-events: none;
+                        }
+
+                        .profile-box:hover {
+                            background: rgba(12, 24, 48, 0.7);
+                            border: 1px solid rgba(0, 240, 255, 0.6);
+                            box-shadow: 0 0 25px rgba(0, 240, 255, 0.3), inset 0 0 15px rgba(0, 240, 255, 0.15);
+                        }
+
+                        .profile-box:hover::after {
+                            transform: translateX(100%);
+                        }
+
+                        .profile-name {
+                            font-size: 22px;
+                            font-weight: 300;
+                            letter-spacing: 3px;
+                            color: rgba(255, 255, 255, 0.6);
+                            transition: all 0.3s ease;
+                            z-index: 2;
+                            text-shadow: 0 0 0px transparent;
+                        }
+
+                        .profile-box:hover .profile-name {
+                            color: #fff;
+                            text-shadow: 0 0 12px #00f0ff, 0 0 24px #00f0ff, 0 0 36px rgba(0, 240, 255, 0.5);
+                            font-weight: 500;
+                        }
+
+                        .profile-actions {
+                            display: flex;
+                            gap: 12px;
+                            opacity: 0;
+                            transition: opacity 0.3s ease, transform 0.3s ease;
+                            transform: translateX(15px);
+                            z-index: 2;
+                        }
+
+                        .profile-box:hover .profile-actions {
+                            opacity: 1;
+                            transform: translateX(0);
+                        }
+
+                        .ethereal-btn {
+                            padding: 8px 16px;
+                            background: rgba(0, 0, 0, 0.3);
+                            border: 1px solid rgba(255, 255, 255, 0.1);
+                            color: rgba(255, 255, 255, 0.5);
+                            cursor: pointer;
+                            border-radius: 4px;
+                            font-size: 11px;
+                            font-weight: bold;
+                            letter-spacing: 2px;
+                            transition: all 0.2s ease;
+                        }
+
+                        .ethereal-btn.rename:hover {
+                            background: rgba(255, 255, 0, 0.15);
+                            border-color: rgba(255, 255, 0, 0.6);
+                            color: #ff0;
+                            box-shadow: 0 0 15px rgba(255, 255, 0, 0.3);
+                        }
+
+                        .ethereal-btn.delete:hover {
+                            background: rgba(255, 0, 0, 0.15);
+                            border-color: rgba(255, 0, 0, 0.6);
+                            color: #f00;
+                            box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+                        }
+                    </style>
+                    `;
                     if (data.profiles && data.profiles.length > 0) {
                         data.profiles.forEach(p => {
                             html += `
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,240,255,0.3); border-radius: 4px;">
-                                <span style="font-size: 18px; font-weight: bold; color: #fff;">${p}</span>
-                                <div style="display: flex; gap: 8px;">
-                                    <button onclick="window.startGameWithProfile('${p}')" style="padding: 6px 12px; background: rgba(0, 255, 0, 0.2); border: 1px solid #0f0; color: #0f0; cursor: pointer; border-radius: 3px;">LOAD</button>
-                                    <button onclick="window.promptRenameProfile('${p}')" style="padding: 6px 12px; background: rgba(255, 255, 0, 0.2); border: 1px solid #ff0; color: #ff0; cursor: pointer; border-radius: 3px;">RENAME</button>
-                                    <button onclick="window.deleteProfile('${p}')" style="padding: 6px 12px; background: rgba(255, 0, 0, 0.2); border: 1px solid #f00; color: #f00; cursor: pointer; border-radius: 3px;">DELETE</button>
+                            <div class="profile-box" onclick="window.startGameWithProfile('${p}')">
+                                <span class="profile-name">${p}</span>
+                                <div class="profile-actions">
+                                    <button class="ethereal-btn rename" onclick="event.stopPropagation(); window.promptRenameProfile('${p}')">RENAME</button>
+                                    <button class="ethereal-btn delete" onclick="event.stopPropagation(); window.deleteProfile('${p}')">DELETE</button>
                                 </div>
                             </div>`;
                         });
                     } else {
-                        html = '<div style="color: #888; font-style: italic; text-align: center;">No profiles found.</div>';
+                        html += '<div style="color: #888; font-style: italic; text-align: center; margin-top: 20px;">No pilot profiles found in the databanks...</div>';
                     }
                     list.innerHTML = html;
                 }
