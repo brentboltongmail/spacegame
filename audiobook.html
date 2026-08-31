@@ -490,11 +490,11 @@
 
                 <div class="controls-row">
                     <div class="btn-group">
-                        <button class="ctrl-btn" onclick="prevAct()">⏮ PREV ACT</button>
-                        <button class="ctrl-btn" onclick="skipTime(-15)">⏪ -15s</button>
-                        <button class="play-main-btn" id="playPauseBtn" onclick="togglePlay()">▶ PLAY</button>
-                        <button class="ctrl-btn" onclick="skipTime(15)">+15s ⏩</button>
-                        <button class="ctrl-btn" onclick="nextAct()">NEXT ACT ⏭</button>
+                        <button class="ctrl-btn" onclick="prevAct()">PREV ACT</button>
+                        <button class="ctrl-btn" onclick="skipTime(-15)">-15s</button>
+                        <button class="play-main-btn" id="playPauseBtn" onclick="togglePlay()">PLAY</button>
+                        <button class="ctrl-btn" onclick="skipTime(15)">+15s</button>
+                        <button class="ctrl-btn" onclick="nextAct()">NEXT ACT</button>
                     </div>
 
                     <div class="btn-group">
@@ -511,8 +511,8 @@
                     <div class="art-overlay">
                         <div class="art-counter" id="artCounter">IMAGE 1 / 10</div>
                         <div class="art-nav-arrows">
-                            <button class="art-arrow-btn" onclick="prevImage()">❮</button>
-                            <button class="art-arrow-btn" onclick="nextImage()">❯</button>
+                            <button class="art-arrow-btn" onclick="prevImage()"></button>
+                            <button class="art-arrow-btn" onclick="nextImage()"></button>
                         </div>
                     </div>
                 </div>
@@ -883,7 +883,7 @@
         }
 
         function updatePlayButton() {
-            playPauseBtn.innerHTML = isPlaying ? '⏸ PAUSE' : '▶ PLAY';
+            playPauseBtn.innerHTML = isPlaying ? 'PAUSE' : 'PLAY';
             playPauseBtn.style.background = isPlaying ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'linear-gradient(135deg, #00f0ff, #0284c7)';
         }
 

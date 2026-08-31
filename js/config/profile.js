@@ -102,6 +102,8 @@
                 const res = await fetch(`/api/profile?user=${encodeURIComponent(currentUsername)}`);
                 if (res.ok) {
                     currentProfile = await res.json();
+                    const nameEl = document.getElementById('active-pilot-name');
+                    if (nameEl) nameEl.innerText = currentProfile.username || currentUsername;
                     if (currentProfile.settings) {
                         const set = currentProfile.settings;
                         if (set.masterVol !== undefined) document.getElementById('slider-vol-master').value = set.masterVol;
