@@ -1,0 +1,23 @@
+{
+  "username": "test",
+  "boxPositions": {},
+  "settings": {
+    "masterVol": 70,
+    "engineVol": 80,
+    "firingVol": 85,
+    "musicVol": 60,
+    "rollSpeed": 50,
+    "turnSpeed": 50,
+    "cameraLag": 80,
+    "throttleAccel": 50,
+    "toastDuration": 5,
+    "shieldRegenMult": 33,
+    "hullRegenMult": 33,
+    "enemyDamageMult": 20,
+    "enemySpeedMult": 50,
+    "playerDamageMult": 20,
+    "flashOnHit": false,
+    "platform": "mac"
+  },
+  "progress": {}
+}
