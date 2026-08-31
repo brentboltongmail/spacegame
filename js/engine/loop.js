@@ -1519,7 +1519,7 @@ const _targetWorldPos = new THREE.Vector3();
                         pMesh.userData = {
                             velocity: vel,
                             age: 1.0 - t,
-                            maxAge: 16 + Math.floor(Math.random() * 6)
+                            maxAge: 6 + Math.floor(Math.random() * 3) // Reduced by 60%
                         };
 
                         scene.add(pMesh);
