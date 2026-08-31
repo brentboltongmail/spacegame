@@ -1905,13 +1905,19 @@ const _targetWorldPos = new THREE.Vector3();
             
             if (hangerModel.userData.leftFrontDoor && hangerModel.userData.rightFrontDoor) {
                 let targetDoorT = 0; // 0 = closed, 1 = open
-                // Open if landing phase is active (2 to 5 or 7), OR if player is flying manually inside the hangar (not landing sequence)
+                let shouldOpen = false;
                 const isAutopilotActive = (typeof isLandingSequenceActive !== 'undefined' && isLandingSequenceActive);
+                
                 if (isAutopilotActive) {
-                    if ((landingPhase >= 2 && landingPhase < 6) || landingPhase === 7) {
-                        targetDoorT = 1;
-                    }
+                    if (landingPhase > 2 && landingPhase < 6) shouldOpen = true;
+                    if (landingPhase === 7) shouldOpen = true;
+                    // Delay blast doors until the ship is further along the landing spline (approx Z=6)
+                    if (landingPhase === 2 && hangerModel.userData.landingProgress > 0.45) shouldOpen = true;
                 } else if (typeof window.inHangerZone !== 'undefined' && window.inHangerZone) {
+                    shouldOpen = true;
+                }
+                
+                if (shouldOpen) {
                     targetDoorT = 1;
                 }
                 
