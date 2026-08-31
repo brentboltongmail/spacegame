@@ -1,0 +1,63 @@
+{
+  "username": "boltono",
+  "boxPositions": {
+    "hud-camera-card": {
+      "x": 85,
+      "y": 1025
+    },
+    "hud-radar-card": {
+      "x": 25,
+      "y": -13
+    },
+    "drag-sector-objective": {
+      "x": 23,
+      "y": -32
+    },
+    "hud-top-target-card": {
+      "x": -2,
+      "y": -75
+    },
+    "hud-controls-card": {
+      "x": -24,
+      "y": -32
+    },
+    "hud-shield-card": {
+      "x": -25,
+      "y": 85
+    }
+  },
+  "settings": {
+    "masterVol": 70,
+    "engineVol": 80,
+    "firingVol": 85,
+    "musicVol": 60,
+    "rollSpeed": 50,
+    "turnSpeed": 50,
+    "cameraLag": 80,
+    "throttleAccel": 50,
+    "toastDuration": 5,
+    "shieldRegenMult": 33,
+    "hullRegenMult": 33,
+    "enemyDamageMult": 20,
+    "enemySpeedMult": 50,
+    "playerDamageMult": 20,
+    "flashOnHit": false,
+    "platform": "windows"
+  },
+  "progress": {},
+  "keyBindings": {
+    "KeyW": "KeyW",
+    "KeyS": "KeyS",
+    "KeyA": "KeyA",
+    "KeyD": "KeyD",
+    "PitchUp": "ArrowUp",
+    "PitchDown": "ArrowDown",
+    "YawLeft": "ArrowLeft",
+    "YawRight": "ArrowRight",
+    "Space": "Space",
+    "KeyM": "KeyM",
+    "KeyL": "KeyL",
+    "KeyC": "KeyC",
+    "Escape": "Escape"
+  }
+}
