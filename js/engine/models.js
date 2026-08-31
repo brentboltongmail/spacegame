@@ -134,7 +134,7 @@
                     // Reduce Y height by 40% (0.25 * 0.6 = 0.15)
                     hangerModel.scale.set(0.035, 0.025, 0.10);
                     // Move it closer to center (X=0.20) and raise it up to touch bottom of ring (Y=0)
-                    hangerModel.position.set(0.58, 0.18, 0);
+                    hangerModel.position.set(0.67, 0.15, 0);
                     // Rotate the hanger so its opening faces outward from the center
                     hangerModel.rotation.y = Math.PI / 2;
 
