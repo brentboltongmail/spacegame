@@ -524,9 +524,11 @@
         // ==========================================
         let mission1Rings = [];
         let mission1Enemies = [];
+        window.mission1Enemies = mission1Enemies;
         let mission1EnemiesDestroyed = 0;
         window.mission1EnemiesDestroyed = 0;
         let mission1Active = false;
+        window.mission1Active = false;
         let mission1Stage = 0;
 
         window.startMission1 = startMission1;
@@ -551,6 +553,7 @@
             }
             if (typeof fleetEmergenceActive !== 'undefined') fleetEmergenceActive = false;
             mission1Active = true;
+            window.mission1Active = true;
             mission1Stage = (restoreProgress && restoreProgress.stage !== undefined) ? restoreProgress.stage : 0;
             mission1EnemiesDestroyed = (restoreProgress && restoreProgress.enemiesDestroyed !== undefined) ? restoreProgress.enemiesDestroyed : 0;
             window.mission1EnemiesDestroyed = mission1EnemiesDestroyed;
@@ -563,8 +566,13 @@
             }
             mission1Rings = [];
 
-            // Start just outside the Crest Hanger, looking at the hanger (unless restoring saved position)
-            if (!restoreProgress || !restoreProgress.hasSavedPos) {
+            // Restore exact saved ship position & rotation if available, otherwise start outside Crest Hangar
+            if (restoreProgress && restoreProgress.hasSavedPos && restoreProgress.shipPosition && typeof playerShip !== 'undefined' && playerShip) {
+                playerShip.position.set(restoreProgress.shipPosition.x, restoreProgress.shipPosition.y, restoreProgress.shipPosition.z);
+                if (restoreProgress.shipQuaternion) {
+                    playerShip.quaternion.set(restoreProgress.shipQuaternion.x, restoreProgress.shipQuaternion.y, restoreProgress.shipQuaternion.z, restoreProgress.shipQuaternion.w);
+                }
+            } else if (!restoreProgress || !restoreProgress.hasSavedPos) {
                 if (typeof playerShip !== 'undefined' && playerShip && typeof theCrestStation !== 'undefined' && theCrestStation) {
                     playerShip.position.set(theCrestStation.position.x + 800, theCrestStation.position.y, theCrestStation.position.z);
                     playerShip.rotation.set(0, 0, 0);
@@ -599,6 +607,7 @@
             const ringGeo = new THREE.TorusGeometry(1000, 25, 16, 100);
             
             mission1Enemies = [];
+            window.mission1Enemies = mission1Enemies;
             ringPos.forEach((pos, i) => {
                 const isCleared = (restoreProgress && restoreProgress.clearedRings && restoreProgress.clearedRings[i]);
                 const ringMat = new THREE.MeshBasicMaterial({ 
@@ -619,7 +628,7 @@
             });
 
             // Spawn target drones (either restore exact saved positions/health or default ring positions)
-            if (restoreProgress && Array.isArray(restoreProgress.enemies) && restoreProgress.enemies.length > 0) {
+            if (restoreProgress && Array.isArray(restoreProgress.enemies)) {
                 restoreProgress.enemies.forEach(savedE => {
                     const enemy = createEnemyInterceptorMesh();
                     enemy.position.set(savedE.x, savedE.y, savedE.z);
@@ -671,15 +680,70 @@
             } else {
                 showToast(`💾 RESUMED MISSION 1: ${initialCleared}/4 Rings, ${Math.min(mission1EnemiesDestroyed, 3)}/3 Enemies Cleared`);
             }
+
+            // Ensure at least 2 enemies are actively hunting the player immediately upon start/resume
+            maintainMission1Enemies();
         }
+
+        function maintainMission1Enemies() {
+            if ((!mission1Active && !window.mission1Active) || mission1Stage >= 4) return;
+            if (typeof playerShip === 'undefined' || !playerShip || typeof scene === 'undefined' || !scene) return;
+            if (typeof createEnemyInterceptorMesh !== 'function') return;
+
+            if (typeof mission1Enemies === 'undefined' || !Array.isArray(mission1Enemies)) {
+                mission1Enemies = [];
+                window.mission1Enemies = mission1Enemies;
+            }
+
+            // Filter down to only alive drones currently attached to scene
+            const aliveDrones = mission1Enemies.filter(e => e && e.parent && e.userData && e.userData.hp > 0);
+            const needed = 2 - aliveDrones.length;
+
+            if (needed > 0) {
+                for (let k = 0; k < needed; k++) {
+                    const enemy = createEnemyInterceptorMesh();
+                    const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
+                    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(playerShip.quaternion);
+                    const up = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
+                    
+                    const sideOffset = ((k % 2 === 0 ? 1 : -1) * (500 + Math.random() * 400));
+                    const upOffset = (Math.random() - 0.5) * 300;
+                    const spawnDist = 1800 + Math.random() * 700;
+                    
+                    enemy.position.copy(playerShip.position)
+                        .addScaledVector(fwd, spawnDist)
+                        .addScaledVector(right, sideOffset)
+                        .addScaledVector(up, upOffset);
+                    
+                    enemy.lookAt(playerShip.position);
+                    enemy.userData.hp = 100;
+                    enemy.userData.maxHp = 100;
+                    enemy.userData.isMissionDrone = true;
+                    scene.add(enemy);
+                    if (typeof enemyShips !== 'undefined') enemyShips.push(enemy);
+                    mission1Enemies.push(enemy);
+                    if (typeof window.mission1Enemies !== 'undefined' && Array.isArray(window.mission1Enemies) && window.mission1Enemies !== mission1Enemies) {
+                        window.mission1Enemies.push(enemy);
+                    }
+                }
+            }
+        }
+        window.maintainMission1Enemies = maintainMission1Enemies;
+
+        // Check every 5 seconds to guarantee at least 2 enemies in Mission 1
+        setInterval(() => {
+            if ((mission1Active || window.mission1Active) && mission1Stage < 4) {
+                maintainMission1Enemies();
+            }
+        }, 5000);
         
         function checkMission1Progress() {
-            if (!mission1Active) return;
+            if (!mission1Active && !window.mission1Active) return;
             
             // Only skip checking rings/enemies if we're past stage 3
             if (mission1Stage >= 6) return;
             
-            const enemiesDestroyed = (typeof mission1EnemiesDestroyed !== 'undefined') ? mission1EnemiesDestroyed : (window.mission1EnemiesDestroyed || 0);
+            const enemiesDestroyed = (typeof window.mission1EnemiesDestroyed !== 'undefined') ? window.mission1EnemiesDestroyed : ((typeof mission1EnemiesDestroyed !== 'undefined') ? mission1EnemiesDestroyed : 0);
             
             const clearedRings = mission1Rings.filter(r => r.userData.cleared).length;
             const totalRings = mission1Rings.length || 4;
@@ -825,8 +889,13 @@
             window.mission2Enemies = [];
             window.mission2Asteroids = [];
             
-            // Teleport player to Ceres if not restoring a saved position
-            if (!restoreProgress || !restoreProgress.hasSavedPos) {
+            // Restore saved position or teleport player to Ceres
+            if (restoreProgress && restoreProgress.hasSavedPos && restoreProgress.shipPosition && typeof playerShip !== 'undefined' && playerShip) {
+                playerShip.position.set(restoreProgress.shipPosition.x, restoreProgress.shipPosition.y, restoreProgress.shipPosition.z);
+                if (restoreProgress.shipQuaternion) {
+                    playerShip.quaternion.set(restoreProgress.shipQuaternion.x, restoreProgress.shipQuaternion.y, restoreProgress.shipQuaternion.z, restoreProgress.shipQuaternion.w);
+                }
+            } else if (!restoreProgress || !restoreProgress.hasSavedPos) {
                 if (typeof camera !== 'undefined' && typeof playerShip !== 'undefined') {
                     camera.position.set(100000, 0, 100000);
                     playerShip.position.copy(camera.position);
@@ -884,7 +953,7 @@
             scene.add(window.mission2Freighter);
             
             // Spawn Pirates (either restore saved positions or spawn new)
-            if (restoreProgress && Array.isArray(restoreProgress.enemies) && restoreProgress.enemies.length > 0) {
+            if (restoreProgress && Array.isArray(restoreProgress.enemies)) {
                 restoreProgress.enemies.forEach(savedE => {
                     if (typeof createPirateShipMesh === 'function') {
                         const pirate = createPirateShipMesh();

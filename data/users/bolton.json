@@ -52,20 +52,20 @@
     "landingPhase": 0,
     "isLandingSequenceActive": false,
     "inHangerZone": false,
-    "stationRotationY": 0,
+    "stationRotationY": 2.079749999999669,
     "shipPosition": {
-      "x": 80960,
-      "y": -886,
-      "z": -46080
+      "x": 29289.514978925487,
+      "y": 36135.6449959057,
+      "z": -107943.7002524203
     },
     "shipQuaternion": {
-      "x": 0,
-      "y": 0.7071067811865476,
-      "z": 0,
-      "w": 0.7071067811865475
+      "x": 0.09559781864579688,
+      "y": 0.9255483438558871,
+      "z": 0.034770425764160055,
+      "w": -0.3647085654985056
     },
     "mission1": {
-      "active": false,
+      "active": true,
       "stage": 0,
       "enemiesDestroyed": 0,
       "clearedRings": [

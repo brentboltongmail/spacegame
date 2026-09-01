@@ -1122,6 +1122,45 @@ const _targetWorldPos = new THREE.Vector3();
                             if (credDisp) credDisp.innerText = `${playerCredits.toLocaleString()}`;
                             showToast("💥 TARGET DESTROYED! +500 SC AWARDED!");
 
+                            // Mission 1 enemy tracking
+                            if ((typeof mission1Active !== 'undefined' && mission1Active) || (typeof window.mission1Active !== 'undefined' && window.mission1Active)) {
+                                if (enemy.userData && (enemy.userData.isMissionDrone || !enemy.userData.isAsteroidPirate)) {
+                                    window.mission1EnemiesDestroyed = (window.mission1EnemiesDestroyed || 0) + 1;
+                                    if (typeof mission1EnemiesDestroyed !== 'undefined') {
+                                        mission1EnemiesDestroyed = window.mission1EnemiesDestroyed;
+                                    }
+                                    if (typeof mission1Enemies !== 'undefined' && Array.isArray(mission1Enemies)) {
+                                        const mIdx = mission1Enemies.indexOf(enemy);
+                                        if (mIdx !== -1) mission1Enemies.splice(mIdx, 1);
+                                    }
+                                    if (typeof window.mission1Enemies !== 'undefined' && Array.isArray(window.mission1Enemies)) {
+                                        const mIdx = window.mission1Enemies.indexOf(enemy);
+                                        if (mIdx !== -1) window.mission1Enemies.splice(mIdx, 1);
+                                    }
+                                    if (typeof checkMission1Progress === 'function') {
+                                        checkMission1Progress();
+                                    }
+                                    if (typeof window.maintainMission1Enemies === 'function') {
+                                        window.maintainMission1Enemies();
+                                    }
+                                    if (typeof window.saveCurrentGameState === 'function') {
+                                        window.saveCurrentGameState();
+                                    }
+                                }
+                            }
+
+                            // Mission 2 enemy tracking
+                            if (typeof window.mission2Active !== 'undefined' && window.mission2Active) {
+                                if (enemy.userData && enemy.userData.isPirate) {
+                                    if (typeof window.checkMission2Progress === 'function') {
+                                        window.checkMission2Progress();
+                                    }
+                                    if (typeof window.saveCurrentGameState === 'function') {
+                                        window.saveCurrentGameState();
+                                    }
+                                }
+                            }
+
                             setTimeout(() => {
                                 const livingEnemies = enemyShips.filter(e => e && e.userData && e.userData.hp > 0);
                                 if (livingEnemies.length < 12 && playerShip && capitalShips && capitalShips.length > 0) {

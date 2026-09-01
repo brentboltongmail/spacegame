@@ -480,6 +480,8 @@
                 isLandingSequenceActive: (typeof isLandingSequenceActive !== 'undefined') ? isLandingSequenceActive : false,
                 inHangerZone: (typeof window.inHangerZone !== 'undefined') ? !!window.inHangerZone : false,
                 stationRotationY: (typeof theCrestStation !== 'undefined' && theCrestStation) ? theCrestStation.rotation.y : 0,
+                currentSpeed: (typeof currentSpeed !== 'undefined') ? currentSpeed : 0,
+                targetSpeed: (typeof targetSpeed !== 'undefined') ? targetSpeed : 0,
                 shipPosition: (typeof playerShip !== 'undefined' && playerShip && playerShip.position) ? {
                     x: playerShip.position.x,
                     y: playerShip.position.y,
@@ -492,9 +494,9 @@
                     w: playerShip.quaternion.w
                 } : (currentProfile.progress?.shipQuaternion || null),
                 mission1: {
-                    active: typeof mission1Active !== 'undefined' ? mission1Active : false,
+                    active: (typeof mission1Active !== 'undefined' ? mission1Active : (typeof window.mission1Active !== 'undefined' ? window.mission1Active : false)),
                     stage: typeof mission1Stage !== 'undefined' ? mission1Stage : 0,
-                    enemiesDestroyed: typeof mission1EnemiesDestroyed !== 'undefined' ? mission1EnemiesDestroyed : (window.mission1EnemiesDestroyed || 0),
+                    enemiesDestroyed: (typeof window.mission1EnemiesDestroyed !== 'undefined') ? window.mission1EnemiesDestroyed : ((typeof mission1EnemiesDestroyed !== 'undefined') ? mission1EnemiesDestroyed : 0),
                     clearedRings: clearedRings,
                     enemies: mission1EnemiesData
                 },
@@ -571,17 +573,10 @@
             // 4. Restore Active Mission & Position
             const targetMission = prog.currentMission || 'Mission 1';
 
-            // Check if docked in hangar or if saved position is inside the Crest Station structure
-            const isDocked = (prog.landingPhase === 6 || prog.isDocked === true);
-            let isInsideStation = false;
-            if (prog.shipPosition && typeof theCrestStation !== 'undefined' && theCrestStation && theCrestStation.position) {
-                const pVec = new THREE.Vector3(prog.shipPosition.x, prog.shipPosition.y, prog.shipPosition.z);
-                if (pVec.distanceTo(theCrestStation.position) < 950) {
-                    isInsideStation = true;
-                }
-            }
+            // Check if docked in hangar
+            const isDocked = (prog.landingPhase === 6 || prog.isDocked === true || prog.inHangerZone === true);
 
-            if (isDocked || isInsideStation) {
+            if (isDocked) {
                 landingPhase = 6;
                 isLandingSequenceActive = true;
                 window.inHangerZone = true;
@@ -610,7 +605,7 @@
                 if (typeof window.startMission3 === 'function') {
                     window.startMission3();
                 }
-                if (!isDocked && !isInsideStation && prog.shipPosition && typeof playerShip !== 'undefined' && playerShip) {
+                if (!isDocked && prog.shipPosition && typeof playerShip !== 'undefined' && playerShip) {
                     playerShip.position.set(prog.shipPosition.x, prog.shipPosition.y, prog.shipPosition.z);
                     if (prog.shipQuaternion) {
                         playerShip.quaternion.set(prog.shipQuaternion.x, prog.shipQuaternion.y, prog.shipQuaternion.z, prog.shipQuaternion.w);
@@ -621,9 +616,12 @@
                     startMission2({
                         stage: prog.mission2?.stage || 0,
                         enemiesDestroyed: prog.mission2?.enemiesDestroyed || 0,
-                        enemies: prog.mission2?.enemies || null
+                        enemies: prog.mission2?.enemies !== undefined ? prog.mission2.enemies : null,
+                        hasSavedPos: (!isDocked && !!prog.shipPosition),
+                        shipPosition: prog.shipPosition,
+                        shipQuaternion: prog.shipQuaternion
                     });
-                    if (!isDocked && !isInsideStation && prog.shipPosition && typeof playerShip !== 'undefined' && playerShip) {
+                    if (!isDocked && prog.shipPosition && typeof playerShip !== 'undefined' && playerShip) {
                         playerShip.position.set(prog.shipPosition.x, prog.shipPosition.y, prog.shipPosition.z);
                         if (prog.shipQuaternion) {
                             playerShip.quaternion.set(prog.shipQuaternion.x, prog.shipQuaternion.y, prog.shipQuaternion.z, prog.shipQuaternion.w);
@@ -635,12 +633,14 @@
                 if (typeof window.startMission1 === 'function') {
                     window.startMission1({
                         stage: prog.mission1?.stage || 0,
-                        enemiesDestroyed: prog.mission1?.enemiesDestroyed || 0,
+                        enemiesDestroyed: (typeof prog.mission1?.enemiesDestroyed === 'number') ? prog.mission1.enemiesDestroyed : 0,
                         clearedRings: prog.mission1?.clearedRings || [],
-                        enemies: prog.mission1?.enemies || null,
-                        hasSavedPos: (!isDocked && !isInsideStation && !!prog.shipPosition)
+                        enemies: prog.mission1?.enemies !== undefined ? prog.mission1.enemies : null,
+                        hasSavedPos: (!isDocked && !!prog.shipPosition),
+                        shipPosition: prog.shipPosition,
+                        shipQuaternion: prog.shipQuaternion
                     });
-                    if (!isDocked && !isInsideStation && prog.shipPosition && typeof playerShip !== 'undefined' && playerShip) {
+                    if (!isDocked && prog.shipPosition && typeof playerShip !== 'undefined' && playerShip) {
                         playerShip.position.set(prog.shipPosition.x, prog.shipPosition.y, prog.shipPosition.z);
                         if (prog.shipQuaternion) {
                             playerShip.quaternion.set(prog.shipQuaternion.x, prog.shipQuaternion.y, prog.shipQuaternion.z, prog.shipQuaternion.w);
@@ -650,6 +650,12 @@
                         checkMission1Progress();
                     }
                 }
+            }
+
+            // Restore speed if saved
+            if (!isDocked) {
+                if (typeof prog.currentSpeed === 'number') currentSpeed = prog.currentSpeed;
+                if (typeof prog.targetSpeed === 'number') targetSpeed = prog.targetSpeed;
             }
 
             // Update camera to follow playerShip accurately
@@ -673,6 +679,12 @@
 
         window.addEventListener('beforeunload', () => {
             if (isGameSessionActive && typeof window.saveCurrentGameState === 'function') {
+                window.saveCurrentGameState();
+            }
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden' && isGameSessionActive && typeof window.saveCurrentGameState === 'function') {
                 window.saveCurrentGameState();
             }
         });
@@ -761,7 +773,8 @@
                 await fetch('/api/profile', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(currentProfile)
+                    body: JSON.stringify(currentProfile),
+                    keepalive: true
                 });
             } catch (e) {
                 console.error("Silent server save failed:", e);
