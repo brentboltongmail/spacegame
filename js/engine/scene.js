@@ -214,11 +214,11 @@
 
             const crosshair = document.querySelector('.hud-center-crosshair');
             if (crosshair) {
-                crosshair.style.opacity = (cameraMode === 0) ? '0.85' : '0';
+                crosshair.style.opacity = (cameraMode === 0) ? '0.6' : '0';
             }
             const lockZone = document.getElementById('target-lock-zone');
             if (lockZone) {
-                lockZone.style.opacity = (cameraMode === 0) ? '0.85' : '0';
+                lockZone.style.opacity = (cameraMode === 0) ? '0.6' : '0';
             }
         }
 
@@ -309,9 +309,9 @@
             initEnemyTargetBoxPool(45);
 
             const crosshair = document.querySelector('.hud-center-crosshair');
-            if (crosshair) crosshair.style.opacity = (cameraMode === 0) ? '0.85' : '0';
+            if (crosshair) crosshair.style.opacity = (cameraMode === 0) ? '0.6' : '0';
             const lockZone = document.getElementById('target-lock-zone');
-            if (lockZone) lockZone.style.opacity = (cameraMode === 0) ? '0.85' : '0';
+            if (lockZone) lockZone.style.opacity = (cameraMode === 0) ? '0.6' : '0';
 
             updateCameraViewUI();
             initTacticalMap3D();
