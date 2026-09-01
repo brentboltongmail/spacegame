@@ -810,19 +810,7 @@
                 explosionParticles.push(spark);
             }
 
-            // 7. Expanding Fiery Shockwave Ring
-            if (typeof sharedRingGeo !== 'undefined' && typeof sharedRingMat !== 'undefined') {
-                const shockwave = new THREE.Mesh(sharedRingGeo, sharedRingMat.clone());
-                shockwave.material.color.setHex(0xffaa22);
-                shockwave.position.copy(pos);
-                shockwave.rotation.set(Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2);
-                shockwave.userData.isShockwave = true;
-                shockwave.userData.expandRate = 0.55;
-                scene.add(shockwave);
-                explosionParticles.push(shockwave);
-            }
-
-            // 8. Cinema-Grade Booming Explosion Sound Effect
+            // 7. Cinema-Grade Booming Explosion Sound Effect
             playExplosionAudio();
         }
 
