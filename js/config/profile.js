@@ -3,6 +3,16 @@
         let currentProfile = null;
         let isGameSessionActive = false;
 
+        const DEFAULT_BOX_POSITIONS = {
+            "hud-camera-card": { "x": -140, "y": 949 },
+            "hud-radar-card": { "x": 25, "y": 85 },
+            "drag-sector-objective": { "x": 24, "y": -32 },
+            "hud-top-target-card": { "x": -16, "y": -75 },
+            "hud-controls-card": { "x": -24, "y": -32 },
+            "hud-shield-card": { "x": -25, "y": 85 }
+        };
+        window.DEFAULT_BOX_POSITIONS = DEFAULT_BOX_POSITIONS;
+
         async function initProfileScreen() {
             const screen = document.getElementById('profile-selection-screen');
             if (screen) screen.style.display = 'flex';
@@ -211,12 +221,17 @@
             const name = input.value.trim();
             if (!name) return;
             
-            // Just saving an empty profile via POST /api/profile
+            // Save new profile with default window layout positions via POST /api/profile
             try {
                 await fetch('/api/profile', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: name, boxPositions: {}, settings: {}, progress: {} })
+                    body: JSON.stringify({ 
+                        username: name, 
+                        boxPositions: JSON.parse(JSON.stringify(DEFAULT_BOX_POSITIONS)), 
+                        settings: {}, 
+                        progress: {} 
+                    })
                 });
                 input.value = '';
                 renderProfileList();
@@ -696,6 +711,9 @@
                 const res = await fetch(`/api/profile?user=${encodeURIComponent(currentUsername)}`);
                 if (res.ok) {
                     currentProfile = await res.json();
+                    if (!currentProfile.boxPositions || Object.keys(currentProfile.boxPositions).length === 0) {
+                        currentProfile.boxPositions = JSON.parse(JSON.stringify(DEFAULT_BOX_POSITIONS));
+                    }
                     const nameEl = document.getElementById('active-pilot-name');
                     if (nameEl) nameEl.innerText = currentProfile.username || currentUsername;
                     if (currentProfile.settings) {
@@ -766,7 +784,7 @@
 
         async function saveProfileToServerSilent() {
             if (!isGameSessionActive || !currentUsername) return;
-            if (!currentProfile) currentProfile = { username: currentUsername, boxPositions: {} };
+            if (!currentProfile) currentProfile = { username: currentUsername, boxPositions: JSON.parse(JSON.stringify(DEFAULT_BOX_POSITIONS)) };
             currentProfile.username = currentUsername;
 
             try {
@@ -788,11 +806,19 @@
         }
 
         function resetAllBoxPositions() {
-            if (currentProfile) currentProfile.boxPositions = {};
+            if (currentProfile) currentProfile.boxPositions = JSON.parse(JSON.stringify(DEFAULT_BOX_POSITIONS));
             document.querySelectorAll('.draggable-box').forEach(box => {
-                box.style.transform = 'none';
-                delete box.dataset.dragX;
-                delete box.dataset.dragY;
+                const dragId = box.dataset.dragId || box.id;
+                if (DEFAULT_BOX_POSITIONS && DEFAULT_BOX_POSITIONS[dragId]) {
+                    const { x, y } = DEFAULT_BOX_POSITIONS[dragId];
+                    box.dataset.dragX = x;
+                    box.dataset.dragY = y;
+                    box.style.transform = `translate(${x}px, ${y}px)`;
+                } else {
+                    box.style.transform = 'none';
+                    delete box.dataset.dragX;
+                    delete box.dataset.dragY;
+                }
             });
             setTimeout(() => clampAllWindowPositions(), 50);
             saveProfileToServerSilent();
@@ -906,8 +932,9 @@
 
                 // Restore saved position & minimize state for current profile
                 if (currentProfile) {
-                    if (currentProfile.boxPositions && currentProfile.boxPositions[dragId]) {
-                        const { x, y } = currentProfile.boxPositions[dragId];
+                    const savedPos = (currentProfile.boxPositions && currentProfile.boxPositions[dragId]) || (DEFAULT_BOX_POSITIONS && DEFAULT_BOX_POSITIONS[dragId]);
+                    if (savedPos) {
+                        const { x, y } = savedPos;
                         box.dataset.dragX = x;
                         box.dataset.dragY = y;
                         box.style.transform = `translate(${x}px, ${y}px)`;

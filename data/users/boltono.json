@@ -49,22 +49,22 @@
     "playerCredits": 129500,
     "playerHp": 100,
     "shieldPercent": 100,
-    "landingPhase": 0,
-    "isLandingSequenceActive": false,
+    "landingPhase": 1.8,
+    "isLandingSequenceActive": true,
     "inHangerZone": false,
-    "stationRotationY": 16.658250000034034,
-    "currentSpeed": 1.9829578915386174e-175,
-    "targetSpeed": 0,
+    "stationRotationY": 17.586500000038466,
+    "currentSpeed": 260.0000000000003,
+    "targetSpeed": 260,
     "shipPosition": {
-      "x": 80211.14553391251,
-      "y": -1751.0325644663008,
-      "z": -48722.54047388709
+      "x": 80351.27038625367,
+      "y": -1718.5477210654606,
+      "z": -45429.71553030839
     },
     "shipQuaternion": {
-      "x": -0.11044565929405789,
-      "y": 0.47863427403974357,
-      "z": 0.5478381820275513,
-      "w": 0.6771885367980589
+      "x": -0.0519441783162232,
+      "y": 0.9324177651848318,
+      "z": -0.3251264814100498,
+      "w": -0.14896873696415802
     },
     "mission1": {
       "active": true,

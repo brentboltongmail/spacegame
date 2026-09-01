@@ -19,6 +19,15 @@ DATA_DIR = BASE_DIR / "data" / "users"
 # Ensure user data directory exists
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
+DEFAULT_BOX_POSITIONS = {
+    "hud-camera-card": {"x": -140, "y": 949},
+    "hud-radar-card": {"x": 25, "y": 85},
+    "drag-sector-objective": {"x": 24, "y": -32},
+    "hud-top-target-card": {"x": -16, "y": -75},
+    "hud-controls-card": {"x": -24, "y": -32},
+    "hud-shield-card": {"x": -25, "y": 85}
+}
+
 class AstraGameRequestHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
         # Enable CORS for local testing
@@ -59,12 +68,14 @@ class AstraGameRequestHandler(http.server.SimpleHTTPRequestHandler):
                 try:
                     with open(user_file, 'r', encoding='utf-8') as f:
                         profile_data = json.load(f)
+                        if not profile_data.get("boxPositions"):
+                            profile_data["boxPositions"] = DEFAULT_BOX_POSITIONS
                 except Exception as e:
-                    profile_data = {"username": clean_username, "boxPositions": {}, "settings": {}, "progress": {}}
+                    profile_data = {"username": clean_username, "boxPositions": DEFAULT_BOX_POSITIONS, "settings": {}, "progress": {}}
             else:
                 profile_data = {
                     "username": clean_username,
-                    "boxPositions": {},
+                    "boxPositions": DEFAULT_BOX_POSITIONS,
                     "settings": {"controls": "mouse_follow", "maxSpeed": 500},
                     "progress": {"act": 1, "sector": "SOL OUTER RIM"}
                 }
