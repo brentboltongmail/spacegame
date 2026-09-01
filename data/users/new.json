@@ -1,0 +1,221 @@
+{
+  "username": "new",
+  "boxPositions": {
+    "hud-camera-card": {
+      "x": -140,
+      "y": 949
+    },
+    "hud-radar-card": {
+      "x": 25,
+      "y": 85
+    },
+    "drag-sector-objective": {
+      "x": 24,
+      "y": -32
+    },
+    "hud-top-target-card": {
+      "x": -16,
+      "y": -75
+    },
+    "hud-controls-card": {
+      "x": -24,
+      "y": -32
+    },
+    "hud-shield-card": {
+      "x": -25,
+      "y": 85
+    }
+  },
+  "settings": {
+    "masterVol": 70,
+    "engineVol": 80,
+    "firingVol": 85,
+    "musicVol": 60,
+    "rollSpeed": 50,
+    "turnSpeed": 50,
+    "cameraLag": 80,
+    "throttleAccel": 50,
+    "toastDuration": 5,
+    "shieldRegenMult": 33,
+    "hullRegenMult": 33,
+    "enemyDamageMult": 20,
+    "enemySpeedMult": 50,
+    "playerDamageMult": 20,
+    "flashOnHit": false,
+    "platform": "mac"
+  },
+  "progress": {
+    "currentMission": "Mission 1",
+    "playerCredits": 125000,
+    "playerHp": 100,
+    "shieldPercent": 100,
+    "landingPhase": 0,
+    "isLandingSequenceActive": false,
+    "inHangerZone": false,
+    "stationRotationY": 0.5894999999999887,
+    "currentSpeed": 0,
+    "targetSpeed": 0,
+    "shipPosition": {
+      "x": 80960,
+      "y": -886,
+      "z": -46080
+    },
+    "shipQuaternion": {
+      "x": -0.1770545248489669,
+      "y": 0.4122628888632496,
+      "z": 0.3841737558398975,
+      "w": 0.8069086261904117
+    },
+    "mission1": {
+      "active": true,
+      "stage": 0,
+      "enemiesDestroyed": 0,
+      "clearedRings": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "enemies": [
+        {
+          "x": 75050.51311796361,
+          "y": -268.6331367808458,
+          "z": -53244.986085403696,
+          "qx": -0.09774142600135709,
+          "qy": -0.935589046316393,
+          "qz": 0,
+          "qw": 0.33929301504157644,
+          "hp": 100,
+          "maxHp": 100,
+          "isMissionDrone": true
+        },
+        {
+          "x": 76478.87079293007,
+          "y": -615.311521217224,
+          "z": -53405.53097706911,
+          "qx": -0.0580324198100725,
+          "qy": -0.9607012922649998,
+          "qz": 0,
+          "qw": 0.27145029985495905,
+          "hp": 100,
+          "maxHp": 100,
+          "isMissionDrone": true
+        },
+        {
+          "x": 60161.682584208924,
+          "y": 95.0390135789505,
+          "z": -71397.39348495673,
+          "qx": 0.00038746085055839835,
+          "qy": -0.7645943109426678,
+          "qz": -0.014962159005750968,
+          "qw": 0.6443380505186038,
+          "hp": 100,
+          "maxHp": 100,
+          "isMissionDrone": true
+        },
+        {
+          "x": 61350.08919314863,
+          "y": -303.0166429753758,
+          "z": -71404.46580869055,
+          "qx": 0.00036802089985962127,
+          "qy": -0.7739494098767382,
+          "qz": -0.009093051303419674,
+          "qw": 0.6331820369610094,
+          "hp": 100,
+          "maxHp": 100,
+          "isMissionDrone": true
+        },
+        {
+          "x": 57093.43050969859,
+          "y": 395.7095715938928,
+          "z": -89446.57596594,
+          "qx": 0.0014972962146406921,
+          "qy": -0.8194617056472642,
+          "qz": -0.012856859131370788,
+          "qw": 0.5729877592541025,
+          "hp": 100,
+          "maxHp": 100,
+          "isMissionDrone": true
+        },
+        {
+          "x": 58285.91154028319,
+          "y": -2.9900231536401023,
+          "z": -89453.2272974339,
+          "qx": 0.0011397447951271198,
+          "qy": -0.8256133383637493,
+          "qz": -0.0089478875019203,
+          "qw": 0.564164206421283,
+          "hp": 100,
+          "maxHp": 100,
+          "isMissionDrone": true
+        },
+        {
+          "x": 76974.87188153777,
+          "y": 595.2509972033761,
+          "z": -97604.66608621091,
+          "qx": 0.004625222854962116,
+          "qy": -0.9219629875398895,
+          "qz": -0.013560395314895146,
+          "qw": 0.38701288428034897,
+          "hp": 100,
+          "maxHp": 100,
+          "isMissionDrone": true
+        },
+        {
+          "x": 78170.47027820714,
+          "y": 196.52407028755098,
+          "z": -97614.51699803,
+          "qx": 0.0034996969910098107,
+          "qy": -0.9264202698586204,
+          "qz": -0.009884960754503722,
+          "qw": 0.3763449524930073,
+          "hp": 100,
+          "maxHp": 100,
+          "isMissionDrone": true
+        }
+      ]
+    },
+    "mission2": {
+      "active": false,
+      "stage": 0,
+      "enemiesDestroyed": 0,
+      "enemies": []
+    },
+    "mission3": {
+      "active": false
+    },
+    "upgrades": {
+      "blasters": {
+        "level": 3,
+        "cost": 15000
+      },
+      "shields": {
+        "level": 4,
+        "cost": 22000
+      },
+      "thrusters": {
+        "level": 3,
+        "cost": 18000
+      },
+      "sensors": {
+        "level": 4,
+        "cost": 12000
+      }
+    }
+  },
+  "keyBindings": {
+    "KeyW": "KeyW",
+    "KeyS": "KeyS",
+    "KeyA": "KeyA",
+    "KeyD": "KeyD",
+    "PitchUp": "ArrowUp",
+    "PitchDown": "ArrowDown",
+    "YawLeft": "ArrowLeft",
+    "YawRight": "ArrowRight",
+    "Space": "Space",
+    "KeyM": "KeyM",
+    "KeyL": "KeyL",
+    "KeyC": "KeyC",
+    "Escape": "Escape"
+  }
+}

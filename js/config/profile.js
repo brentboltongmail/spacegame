@@ -13,6 +13,29 @@
         };
         window.DEFAULT_BOX_POSITIONS = DEFAULT_BOX_POSITIONS;
 
+        const DEFAULT_NEW_PROFILE_PROGRESS = {
+            currentMission: "Mission 1",
+            playerCredits: 125000,
+            playerHp: 100,
+            shieldPercent: 100,
+            landingPhase: 6,
+            isLandingSequenceActive: true,
+            inHangerZone: true,
+            isDocked: true,
+            currentSpeed: 0,
+            targetSpeed: 0,
+            mission1: {
+                active: true,
+                stage: 0,
+                enemiesDestroyed: 0,
+                clearedRings: [false, false, false, false],
+                enemies: []
+            },
+            mission2: { active: false, stage: 0, enemiesDestroyed: 0, enemies: [] },
+            mission3: { active: false }
+        };
+        window.DEFAULT_NEW_PROFILE_PROGRESS = DEFAULT_NEW_PROFILE_PROGRESS;
+
         async function initProfileScreen() {
             const screen = document.getElementById('profile-selection-screen');
             if (screen) screen.style.display = 'flex';
@@ -221,7 +244,7 @@
             const name = input.value.trim();
             if (!name) return;
             
-            // Save new profile with default window layout positions via POST /api/profile
+            // Save new profile with default window layout positions and docked in Crest Hangar via POST /api/profile
             try {
                 await fetch('/api/profile', {
                     method: 'POST',
@@ -230,7 +253,7 @@
                         username: name, 
                         boxPositions: JSON.parse(JSON.stringify(DEFAULT_BOX_POSITIONS)), 
                         settings: {}, 
-                        progress: {} 
+                        progress: JSON.parse(JSON.stringify(DEFAULT_NEW_PROFILE_PROGRESS)) 
                     })
                 });
                 input.value = '';
@@ -713,6 +736,9 @@
                     currentProfile = await res.json();
                     if (!currentProfile.boxPositions || Object.keys(currentProfile.boxPositions).length === 0) {
                         currentProfile.boxPositions = JSON.parse(JSON.stringify(DEFAULT_BOX_POSITIONS));
+                    }
+                    if (!currentProfile.progress || Object.keys(currentProfile.progress).length === 0) {
+                        currentProfile.progress = JSON.parse(JSON.stringify(DEFAULT_NEW_PROFILE_PROGRESS));
                     }
                     const nameEl = document.getElementById('active-pilot-name');
                     if (nameEl) nameEl.innerText = currentProfile.username || currentUsername;

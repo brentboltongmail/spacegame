@@ -566,12 +566,28 @@
             }
             mission1Rings = [];
 
-            // Restore exact saved ship position & rotation if available, otherwise start outside Crest Hangar
+            // Restore exact saved ship position & rotation if available, otherwise check if docked inside Crest Hangar
             if (restoreProgress && restoreProgress.hasSavedPos && restoreProgress.shipPosition && typeof playerShip !== 'undefined' && playerShip) {
                 playerShip.position.set(restoreProgress.shipPosition.x, restoreProgress.shipPosition.y, restoreProgress.shipPosition.z);
                 if (restoreProgress.shipQuaternion) {
                     playerShip.quaternion.set(restoreProgress.shipQuaternion.x, restoreProgress.shipQuaternion.y, restoreProgress.shipQuaternion.z, restoreProgress.shipQuaternion.w);
                 }
+            } else if (typeof landingPhase !== 'undefined' && landingPhase === 6) {
+                // Docked inside Crest Hangar
+                if (theCrestStation && theCrestStation.userData.hangerModel && typeof playerShip !== 'undefined' && playerShip) {
+                    const hangerModel = theCrestStation.userData.hangerModel;
+                    hangerModel.updateMatrixWorld(true);
+                    const landWP = new THREE.Vector3(-0.55, -0.38, 0.75).applyMatrix4(hangerModel.matrixWorld);
+                    const outwardQuat = hangerModel.getWorldQuaternion(new THREE.Quaternion()).multiply(
+                        new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI)
+                    );
+                    playerShip.position.copy(landWP);
+                    playerShip.quaternion.copy(outwardQuat);
+                }
+                const launchBtn = document.getElementById('btn-ready-launch');
+                if (launchBtn) launchBtn.style.display = 'block';
+                targetSpeed = 0;
+                currentSpeed = 0;
             } else if (!restoreProgress || !restoreProgress.hasSavedPos) {
                 if (typeof playerShip !== 'undefined' && playerShip && typeof theCrestStation !== 'undefined' && theCrestStation) {
                     playerShip.position.set(theCrestStation.position.x + 800, theCrestStation.position.y, theCrestStation.position.z);

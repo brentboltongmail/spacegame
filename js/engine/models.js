@@ -1415,12 +1415,25 @@
             playerShieldBubble.visible = false;
             playerShip.add(playerShieldBubble);
 
-            // Position Void Interceptor just outside the Crest Hanger, looking at the hanger
-            playerShip.position.set(theCrestStation.position.x + 800, theCrestStation.position.y, theCrestStation.position.z);
-            playerShip.rotation.set(0, 0, 0);
-            playerShip.quaternion.set(0, 0, 0, 1);
-            playerShip.lookAt(theCrestStation.position);
-            playerShip.rotateY(Math.PI); // 180-degree rotation so cockpit faces the hanger!
+            // Position Void Interceptor inside Crest Hangar if docked, or outside looking at hangar
+            if (typeof landingPhase !== 'undefined' && landingPhase === 6 && theCrestStation && theCrestStation.userData.hangerModel) {
+                const hangerModel = theCrestStation.userData.hangerModel;
+                hangerModel.updateMatrixWorld(true);
+                const landWP = new THREE.Vector3(-0.55, -0.38, 0.75).applyMatrix4(hangerModel.matrixWorld);
+                const outwardQuat = hangerModel.getWorldQuaternion(new THREE.Quaternion()).multiply(
+                    new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI)
+                );
+                playerShip.position.copy(landWP);
+                playerShip.quaternion.copy(outwardQuat);
+                const launchBtn = document.getElementById('btn-ready-launch');
+                if (launchBtn) launchBtn.style.display = 'block';
+            } else {
+                playerShip.position.set(theCrestStation.position.x + 800, theCrestStation.position.y, theCrestStation.position.z);
+                playerShip.rotation.set(0, 0, 0);
+                playerShip.quaternion.set(0, 0, 0, 1);
+                playerShip.lookAt(theCrestStation.position);
+                playerShip.rotateY(Math.PI); // 180-degree rotation so cockpit faces the hanger!
+            }
             scene.add(playerShip);
 
             if (camera) {

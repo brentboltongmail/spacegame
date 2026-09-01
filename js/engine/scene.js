@@ -20,10 +20,11 @@
         let currentSpeed = 0;
         let isWormholeActive = false;
         
-        let isLandingSequenceActive = false;
-        let landingPhase = 0;
+        let isLandingSequenceActive = true;
+        let landingPhase = 6;
         let landingStartTime = 0;
         let landingApproachWaypoint = null;
+        window.inHangerZone = true;
         // --- TITAN EXCAVATION, HUGE GOLDEN RING & PURPLE TRACTOR EXTRACTION GLOBALS ---
         let titanExcavationSite = null;
         let titanExcavationCraterMesh = null;

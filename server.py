@@ -28,6 +28,28 @@ DEFAULT_BOX_POSITIONS = {
     "hud-shield-card": {"x": -25, "y": 85}
 }
 
+DEFAULT_PROGRESS = {
+    "currentMission": "Mission 1",
+    "playerCredits": 125000,
+    "playerHp": 100,
+    "shieldPercent": 100,
+    "landingPhase": 6,
+    "isLandingSequenceActive": True,
+    "inHangerZone": True,
+    "isDocked": True,
+    "currentSpeed": 0,
+    "targetSpeed": 0,
+    "mission1": {
+        "active": True,
+        "stage": 0,
+        "enemiesDestroyed": 0,
+        "clearedRings": [False, False, False, False],
+        "enemies": []
+    },
+    "mission2": {"active": False, "stage": 0, "enemiesDestroyed": 0, "enemies": []},
+    "mission3": {"active": False}
+}
+
 class AstraGameRequestHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
         # Enable CORS for local testing
@@ -70,14 +92,16 @@ class AstraGameRequestHandler(http.server.SimpleHTTPRequestHandler):
                         profile_data = json.load(f)
                         if not profile_data.get("boxPositions"):
                             profile_data["boxPositions"] = DEFAULT_BOX_POSITIONS
+                        if not profile_data.get("progress"):
+                            profile_data["progress"] = DEFAULT_PROGRESS
                 except Exception as e:
-                    profile_data = {"username": clean_username, "boxPositions": DEFAULT_BOX_POSITIONS, "settings": {}, "progress": {}}
+                    profile_data = {"username": clean_username, "boxPositions": DEFAULT_BOX_POSITIONS, "settings": {}, "progress": DEFAULT_PROGRESS}
             else:
                 profile_data = {
                     "username": clean_username,
                     "boxPositions": DEFAULT_BOX_POSITIONS,
                     "settings": {"controls": "mouse_follow", "maxSpeed": 500},
-                    "progress": {"act": 1, "sector": "SOL OUTER RIM"}
+                    "progress": DEFAULT_PROGRESS
                 }
 
             self.send_response(200)

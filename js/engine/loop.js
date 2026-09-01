@@ -2348,8 +2348,9 @@ const _targetWorldPos = new THREE.Vector3();
                 const isAutopilotActive = (typeof isLandingSequenceActive !== 'undefined' && isLandingSequenceActive);
                 
                 if (isAutopilotActive) {
-                    if (landingPhase >= 1 && landingPhase <= 6) shouldOpen = true;
+                    if (landingPhase >= 1 && landingPhase < 6) shouldOpen = true;
                     if (landingPhase === 7) shouldOpen = true;
+                    if (landingPhase === 6) shouldOpen = false;
                 } else if (typeof window.inHangerZone !== 'undefined' && window.inHangerZone) {
                     shouldOpen = true;
                 }
