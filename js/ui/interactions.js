@@ -525,6 +525,7 @@
         let mission1Rings = [];
         let mission1Enemies = [];
         let mission1EnemiesDestroyed = 0;
+        window.mission1EnemiesDestroyed = 0;
         let mission1Active = false;
         let mission1Stage = 0;
 
@@ -552,6 +553,7 @@
             mission1Active = true;
             mission1Stage = (restoreProgress && restoreProgress.stage !== undefined) ? restoreProgress.stage : 0;
             mission1EnemiesDestroyed = (restoreProgress && restoreProgress.enemiesDestroyed !== undefined) ? restoreProgress.enemiesDestroyed : 0;
+            window.mission1EnemiesDestroyed = mission1EnemiesDestroyed;
             
             // Cleanup old rings if any
             if (typeof mission1Rings !== 'undefined') {
@@ -614,27 +616,48 @@
                 ring.userData = { cleared: !!isCleared };
                 scene.add(ring);
                 mission1Rings.push(ring);
-                
-                // Spawn target drones near each orbital ring checkpoint if not yet cleared
-                if (!isCleared) {
-                    const offsets = [
-                        { x: -600, y: 200, z: 200 },
-                        { x: 600, y: -200, z: 200 }
-                    ];
-                    
-                    for (let e = 0; e < 2; e++) {
-                        const enemy = createEnemyInterceptorMesh();
-                        enemy.position.set(pos.x + offsets[e].x, pos.y + offsets[e].y, pos.z + offsets[e].z);
-                        enemy.lookAt(playerShip.position);
-                        enemy.userData.hp = 100;
-                        enemy.userData.maxHp = 100;
-                        enemy.userData.isMissionDrone = true;
-                        scene.add(enemy);
-                        enemyShips.push(enemy);
-                        mission1Enemies.push(enemy);
-                    }
-                }
             });
+
+            // Spawn target drones (either restore exact saved positions/health or default ring positions)
+            if (restoreProgress && Array.isArray(restoreProgress.enemies) && restoreProgress.enemies.length > 0) {
+                restoreProgress.enemies.forEach(savedE => {
+                    const enemy = createEnemyInterceptorMesh();
+                    enemy.position.set(savedE.x, savedE.y, savedE.z);
+                    if (savedE.qx !== undefined) {
+                        enemy.quaternion.set(savedE.qx, savedE.qy, savedE.qz, savedE.qw);
+                    } else if (typeof playerShip !== 'undefined' && playerShip) {
+                        enemy.lookAt(playerShip.position);
+                    }
+                    enemy.userData.hp = savedE.hp !== undefined ? savedE.hp : 100;
+                    enemy.userData.maxHp = savedE.maxHp || 100;
+                    enemy.userData.isMissionDrone = true;
+                    scene.add(enemy);
+                    enemyShips.push(enemy);
+                    mission1Enemies.push(enemy);
+                });
+            } else {
+                ringPos.forEach((pos, i) => {
+                    const isCleared = (restoreProgress && restoreProgress.clearedRings && restoreProgress.clearedRings[i]);
+                    if (!isCleared) {
+                        const offsets = [
+                            { x: -600, y: 200, z: 200 },
+                            { x: 600, y: -200, z: 200 }
+                        ];
+                        
+                        for (let e = 0; e < 2; e++) {
+                            const enemy = createEnemyInterceptorMesh();
+                            enemy.position.set(pos.x + offsets[e].x, pos.y + offsets[e].y, pos.z + offsets[e].z);
+                            enemy.lookAt(playerShip.position);
+                            enemy.userData.hp = 100;
+                            enemy.userData.maxHp = 100;
+                            enemy.userData.isMissionDrone = true;
+                            scene.add(enemy);
+                            enemyShips.push(enemy);
+                            mission1Enemies.push(enemy);
+                        }
+                    }
+                });
+            }
             
             const initialCleared = mission1Rings.filter(r => r.userData.cleared).length;
             const sec = document.getElementById('hud-sector');
@@ -646,7 +669,7 @@
                 showCommsTransmission("ELIAS VANCE", "Alright, kid. Let's see if those stabilizer tweaks I made hold up. Fly around Saturn, clear all 4 training rings down around the planet, and shoot down the target drones near the rings.", 9000, "audio/cinematics/mission_1/mission1_01_elias.mp3");
                 showToast("🎯 NEW OBJECTIVE: Clear Saturn Orbital Training Rings");
             } else {
-                showToast(`💾 RESUMED MISSION 1: ${initialCleared}/4 Rings Cleared`);
+                showToast(`💾 RESUMED MISSION 1: ${initialCleared}/4 Rings, ${Math.min(mission1EnemiesDestroyed, 3)}/3 Enemies Cleared`);
             }
         }
         
@@ -656,8 +679,7 @@
             // Only skip checking rings/enemies if we're past stage 3
             if (mission1Stage >= 6) return;
             
-            let enemiesDestroyed = mission1Enemies.filter(e => e.userData.hp <= 0).length;
-            mission1EnemiesDestroyed = enemiesDestroyed;
+            const enemiesDestroyed = (typeof mission1EnemiesDestroyed !== 'undefined') ? mission1EnemiesDestroyed : (window.mission1EnemiesDestroyed || 0);
             
             const clearedRings = mission1Rings.filter(r => r.userData.cleared).length;
             const totalRings = mission1Rings.length || 4;
@@ -770,7 +792,7 @@
         window.mission2EnemiesDestroyed = 0;
         window.mission2Freighter = null;
 
-        function startMission2() {
+        function startMission2(restoreProgress = null) {
             window.mission3Active = false;
             window.isMission3Active = false;
             if (typeof enemyShips !== 'undefined') {
@@ -790,10 +812,10 @@
                 capitalShip = null;
             }
             if (typeof fleetEmergenceActive !== 'undefined') fleetEmergenceActive = false;
-            if (window.mission2Active) return;
+            if (window.mission2Active && !restoreProgress) return;
             window.mission2Active = true;
-            window.mission2Stage = 0;
-            window.mission2EnemiesDestroyed = 0;
+            window.mission2Stage = (restoreProgress && restoreProgress.stage !== undefined) ? restoreProgress.stage : 0;
+            window.mission2EnemiesDestroyed = (restoreProgress && restoreProgress.enemiesDestroyed !== undefined) ? restoreProgress.enemiesDestroyed : 0;
             
             // Clean up old stuff
             window.mission2Enemies.forEach(e => { if (e.parent) e.parent.remove(e); });
@@ -803,13 +825,15 @@
             window.mission2Enemies = [];
             window.mission2Asteroids = [];
             
-            // Teleport player to Ceres
-            if (typeof camera !== 'undefined' && typeof playerShip !== 'undefined') {
-                camera.position.set(100000, 0, 100000);
-                playerShip.position.copy(camera.position);
-                if (typeof currentSpeed !== 'undefined') {
-                    currentSpeed = 0;
-                    targetSpeed = 0;
+            // Teleport player to Ceres if not restoring a saved position
+            if (!restoreProgress || !restoreProgress.hasSavedPos) {
+                if (typeof camera !== 'undefined' && typeof playerShip !== 'undefined') {
+                    camera.position.set(100000, 0, 100000);
+                    playerShip.position.copy(camera.position);
+                    if (typeof currentSpeed !== 'undefined') {
+                        currentSpeed = 0;
+                        targetSpeed = 0;
+                    }
                 }
             }
             
@@ -859,24 +883,44 @@
             window.mission2Freighter.position.set(101000, 0, 99000);
             scene.add(window.mission2Freighter);
             
-            // Spawn Pirates
-            for(let i=0; i<10; i++) {
-                if (typeof createPirateShipMesh === 'function') {
-                    const pirate = createPirateShipMesh();
-                    pirate.position.set(
-                        101000 + (Math.random() - 0.5) * 4000,
-                        (Math.random() - 0.5) * 2000,
-                        99000 + (Math.random() - 0.5) * 4000
-                    );
-                    // Customize pirate stats
-                    pirate.userData.hp = 30; // Unshielded
-                    pirate.userData.maxHp = 30;
-                    pirate.userData.speed = 4.5; // Fast
-                    pirate.userData.isPirate = true;
-                    
-                    scene.add(pirate);
-                    if (typeof enemyShips !== 'undefined') enemyShips.push(pirate);
-                    window.mission2Enemies.push(pirate);
+            // Spawn Pirates (either restore saved positions or spawn new)
+            if (restoreProgress && Array.isArray(restoreProgress.enemies) && restoreProgress.enemies.length > 0) {
+                restoreProgress.enemies.forEach(savedE => {
+                    if (typeof createPirateShipMesh === 'function') {
+                        const pirate = createPirateShipMesh();
+                        pirate.position.set(savedE.x, savedE.y, savedE.z);
+                        if (savedE.qx !== undefined) {
+                            pirate.quaternion.set(savedE.qx, savedE.qy, savedE.qz, savedE.qw);
+                        }
+                        pirate.userData.hp = savedE.hp !== undefined ? savedE.hp : 30;
+                        pirate.userData.maxHp = savedE.maxHp || 30;
+                        pirate.userData.speed = savedE.speed || 4.5;
+                        pirate.userData.isPirate = true;
+                        
+                        scene.add(pirate);
+                        if (typeof enemyShips !== 'undefined') enemyShips.push(pirate);
+                        window.mission2Enemies.push(pirate);
+                    }
+                });
+            } else {
+                for(let i=0; i<10; i++) {
+                    if (typeof createPirateShipMesh === 'function') {
+                        const pirate = createPirateShipMesh();
+                        pirate.position.set(
+                            101000 + (Math.random() - 0.5) * 4000,
+                            (Math.random() - 0.5) * 2000,
+                            99000 + (Math.random() - 0.5) * 4000
+                        );
+                        // Customize pirate stats
+                        pirate.userData.hp = 30; // Unshielded
+                        pirate.userData.maxHp = 30;
+                        pirate.userData.speed = 4.5; // Fast
+                        pirate.userData.isPirate = true;
+                        
+                        scene.add(pirate);
+                        if (typeof enemyShips !== 'undefined') enemyShips.push(pirate);
+                        window.mission2Enemies.push(pirate);
+                    }
                 }
             }
             

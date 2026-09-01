@@ -393,66 +393,152 @@
 
         let explosionParticles = [];
 
+        // Procedural Fire, Smoke & Spark Textures for Hyper-Realistic Explosions
+        let cachedFirePuffTexture = null;
+        let cachedSmokePuffTexture = null;
+        let cachedSparkTexture = null;
+        let cachedShrapnelGeo = null;
+
+        function getFirePuffTexture() {
+            if (cachedFirePuffTexture) return cachedFirePuffTexture;
+            const canvas = document.createElement('canvas');
+            canvas.width = 128;
+            canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            
+            // Multi-stop fire radial gradient (White-hot core -> golden yellow -> fiery orange -> dark burnt edge)
+            const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+            grad.addColorStop(0.0, 'rgba(255, 255, 255, 1.0)');
+            grad.addColorStop(0.15, 'rgba(255, 235, 140, 0.95)');
+            grad.addColorStop(0.38, 'rgba(255, 130, 20, 0.85)');
+            grad.addColorStop(0.65, 'rgba(220, 45, 0, 0.50)');
+            grad.addColorStop(0.85, 'rgba(90, 15, 0, 0.15)');
+            grad.addColorStop(1.0, 'rgba(0, 0, 0, 0.0)');
+            
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 128, 128);
+
+            // Add organic flame turbulence along edges
+            const imgData = ctx.getImageData(0, 0, 128, 128);
+            const data = imgData.data;
+            for (let y = 0; y < 128; y++) {
+                for (let x = 0; x < 128; x++) {
+                    const idx = (y * 128 + x) * 4;
+                    const dx = (x - 64) / 64;
+                    const dy = (y - 64) / 64;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist > 0.15 && dist < 1.0) {
+                        const noise = Math.sin(x * 0.22) * Math.cos(y * 0.22) * 0.16 + Math.sin(x * 0.45 + y * 0.35) * 0.10;
+                        const factor = Math.max(0, Math.min(1, 1.0 - (dist + noise)));
+                        data[idx + 3] = Math.floor(data[idx + 3] * factor);
+                    }
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+
+            cachedFirePuffTexture = new THREE.CanvasTexture(canvas);
+            return cachedFirePuffTexture;
+        }
+
+        function getSmokePuffTexture() {
+            if (cachedSmokePuffTexture) return cachedSmokePuffTexture;
+            const canvas = document.createElement('canvas');
+            canvas.width = 128;
+            canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            
+            const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+            grad.addColorStop(0.0, 'rgba(70, 60, 55, 0.7)');
+            grad.addColorStop(0.35, 'rgba(45, 38, 34, 0.5)');
+            grad.addColorStop(0.70, 'rgba(25, 20, 18, 0.25)');
+            grad.addColorStop(1.0, 'rgba(0, 0, 0, 0.0)');
+            
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 128, 128);
+
+            cachedSmokePuffTexture = new THREE.CanvasTexture(canvas);
+            return cachedSmokePuffTexture;
+        }
+
+        function getSparkTexture() {
+            if (cachedSparkTexture) return cachedSparkTexture;
+            const canvas = document.createElement('canvas');
+            canvas.width = 64;
+            canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            
+            const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+            grad.addColorStop(0.0, 'rgba(255, 255, 255, 1.0)');
+            grad.addColorStop(0.25, 'rgba(255, 220, 100, 0.9)');
+            grad.addColorStop(0.60, 'rgba(255, 90, 0, 0.5)');
+            grad.addColorStop(1.0, 'rgba(0, 0, 0, 0.0)');
+            
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 64, 64);
+
+            cachedSparkTexture = new THREE.CanvasTexture(canvas);
+            return cachedSparkTexture;
+        }
+
+        function getShrapnelGeometry() {
+            if (!cachedShrapnelGeo) {
+                cachedShrapnelGeo = new THREE.DodecahedronGeometry(1.0, 0);
+            }
+            return cachedShrapnelGeo;
+        }
+
         function spawnLaserImpactSparks(pos) {
+            const sparkTex = getSparkTexture();
             for (let i = 0; i < 10; i++) {
-                const pMat = sharedExpColors[i % sharedExpColors.length];
-                const p = new THREE.Mesh(sharedExpParticleGeo, pMat);
-                p.position.copy(pos);
-                p.scale.set(0.5, 0.5, 0.5);
-                p.userData.vel = new THREE.Vector3(
-                    (Math.random() - 0.5) * 8,
-                    (Math.random() - 0.5) * 8,
-                    (Math.random() - 0.5) * 8
-                );
-                p.userData.life = 0.8;
-                scene.add(p);
-                explosionParticles.push(p);
+                const mat = new THREE.SpriteMaterial({
+                    map: sparkTex,
+                    color: 0xffd066,
+                    transparent: true,
+                    opacity: 1.0,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false
+                });
+                const spark = new THREE.Sprite(mat);
+                spark.position.copy(pos);
+                spark.scale.set(3, 3, 3);
+                spark.userData = {
+                    isSpark: true,
+                    vel: new THREE.Vector3(
+                        (Math.random() - 0.5) * 45,
+                        (Math.random() - 0.5) * 45,
+                        (Math.random() - 0.5) * 45
+                    ),
+                    life: 0.5 + Math.random() * 0.3
+                };
+                scene.add(spark);
+                explosionParticles.push(spark);
             }
         }
 
         // Shared Geometries & Materials for Zero-Allocation Explosion FX
         const sharedExpParticleGeo = new THREE.SphereGeometry(0.5, 8, 8);
         const sharedExpColors = [
-            new THREE.MeshBasicMaterial({ color: 0xfbbf24 }),
-            new THREE.MeshBasicMaterial({ color: 0xf97316 }),
-            new THREE.MeshBasicMaterial({ color: 0xef4444 }),
-            new THREE.MeshBasicMaterial({ color: 0x00f0ff }),
-            new THREE.MeshBasicMaterial({ color: 0xffffff })
+            new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending }),
+            new THREE.MeshBasicMaterial({ color: 0xffe680, transparent: true, opacity: 0.90, blending: THREE.AdditiveBlending }),
+            new THREE.MeshBasicMaterial({ color: 0xff7700, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending }),
+            new THREE.MeshBasicMaterial({ color: 0xdd2200, transparent: true, opacity: 0.75, blending: THREE.AdditiveBlending }),
+            new THREE.MeshBasicMaterial({ color: 0x332211, transparent: true, opacity: 0.60 })
         ];
 
         const sharedRingGeo = new THREE.RingGeometry(1, 4, 128);
         sharedRingGeo.rotateX(Math.PI / 2);
-        const sharedRingMat = new THREE.MeshBasicMaterial({ color: 0xf97316, side: THREE.DoubleSide, transparent: true, opacity: 1.0 });
+        const sharedRingMat = new THREE.MeshBasicMaterial({ color: 0xf97316, side: THREE.DoubleSide, transparent: true, opacity: 1.0, blending: THREE.AdditiveBlending });
 
-function createEpicPlayerDeathExplosion(pos) {
-            // Massive scale explosion for player death
-            for (let i = 0; i < 800; i++) {
-                const pMat = sharedExpColors[i % sharedExpColors.length];
-                const p = new THREE.Mesh(sharedExpParticleGeo, pMat);
-                p.position.copy(pos);
-                
-                const scale = 2.0 + Math.random() * 4.0;
-                p.scale.set(scale, scale, scale);
-                
-                const velMag = 150 + Math.random() * 100;
-                p.userData.vel = new THREE.Vector3(
-                    (Math.random() - 0.5) * velMag,
-                    (Math.random() - 0.5) * velMag,
-                    (Math.random() - 0.5) * velMag
-                );
-                // Last much longer
-                p.userData.life = 3.0;
-                p.userData.isDeathParticle = true;
-                scene.add(p);
-                explosionParticles.push(p);
-            }
+        function createEpicPlayerDeathExplosion(pos) {
+            // Trigger massive real fiery detonation
+            createFieryExplosionFX(pos);
 
-            // Multiple giant shockwaves
-            for (let i = 0; i < 6; i++) {
+            // Secondary multiple exploding shockwaves
+            for (let i = 0; i < 4; i++) {
                 setTimeout(() => {
                     const shockwave = new THREE.Mesh(sharedRingGeo, sharedRingMat.clone());
-                    const colorChoices = [0xf97316, 0xef4444, 0xfbbf24, 0xffffff];
-                    shockwave.material.color.setHex(colorChoices[Math.floor(Math.random() * colorChoices.length)]);
+                    const colorChoices = [0xffffff, 0xffaa22, 0xff4400];
+                    shockwave.material.color.setHex(colorChoices[i % colorChoices.length]);
                     shockwave.position.copy(pos);
                     shockwave.rotation.set(Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2);
                     shockwave.userData.isShockwave = true;
@@ -460,7 +546,7 @@ function createEpicPlayerDeathExplosion(pos) {
                     scene.add(shockwave);
                     explosionParticles.push(shockwave);
                     playExplosionAudio();
-                }, i * 350);
+                }, i * 300);
             }
             
             // --- 20 ROUNDS OF AWESOME SHIP FRACTURING ---
@@ -532,47 +618,199 @@ function createEpicPlayerDeathExplosion(pos) {
         }
 
         function createFieryExplosionFX(pos) {
-            // Randomize explosion attributes for realism
-            const particleCount = 200 + Math.floor(Math.random() * 200); // Massive increase: 200 to 400 particles!
-            const overallScale = 0.5 + Math.random() * 1.0;
-            const overallVelocity = 0.5 + Math.random() * 1.0;
+            const fireTex = getFirePuffTexture();
+            const smokeTex = getSmokePuffTexture();
+            const sparkTex = getSparkTexture();
+            const shrapnelGeo = getShrapnelGeometry();
 
-            // 1. Fiery Plasma Shrapnel Debris Particles
-            for (let i = 0; i < particleCount; i++) {
-                const pMat = sharedExpColors[i % sharedExpColors.length];
-                const p = new THREE.Mesh(sharedExpParticleGeo, pMat);
-                p.position.copy(pos);
-                
-                const scale = (1.2 + Math.random() * 2.0) * overallScale;
-                p.scale.set(scale, scale, scale);
-                
-                const velMag = 55 * overallVelocity;
-                p.userData.vel = new THREE.Vector3(
-                    (Math.random() - 0.5) * velMag,
-                    (Math.random() - 0.5) * velMag,
-                    (Math.random() - 0.5) * velMag
-                );
-                p.userData.life = 1.0;
-                scene.add(p);
-                explosionParticles.push(p);
+            // 1. Blinding Incandescent Flash Point Light
+            if (typeof scene !== 'undefined') {
+                const expLight = new THREE.PointLight(0xff8822, 9.0, 2200);
+                expLight.position.copy(pos);
+                expLight.userData = {
+                    isExpLight: true,
+                    life: 1.0,
+                    maxLife: 0.35,
+                    baseIntensity: 9.0
+                };
+                scene.add(expLight);
+                explosionParticles.push(expLight);
             }
 
-            // 2. Giant Expanding Shockwave Ring (Solid Mesh)
-            const shockwave = new THREE.Mesh(sharedRingGeo, sharedRingMat.clone());
-            // Randomize shockwave color to orange, red, or yellow
-            const colorChoices = [0xf97316, 0xef4444, 0xfbbf24, 0xffffff];
-            shockwave.material.color.setHex(colorChoices[Math.floor(Math.random() * colorChoices.length)]);
-            shockwave.position.copy(pos);
-            
-            // Randomize shockwave angle
-            shockwave.rotation.set(Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2);
-            
-            shockwave.userData.isShockwave = true;
-            shockwave.userData.life = 1.0;
-            scene.add(shockwave);
-            explosionParticles.push(shockwave);
+            // 2. Central Incandescent Core Flash (Fast expanding white-hot fireball)
+            for (let i = 0; i < 3; i++) {
+                const coreMat = new THREE.SpriteMaterial({
+                    map: fireTex,
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 1.0,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false
+                });
+                const core = new THREE.Sprite(coreMat);
+                core.position.copy(pos);
+                const initScale = 20 + i * 15;
+                core.scale.set(initScale, initScale, initScale);
+                core.userData = {
+                    isFirePuff: true,
+                    isCore: true,
+                    vel: new THREE.Vector3(
+                        (Math.random() - 0.5) * 10,
+                        (Math.random() - 0.5) * 10,
+                        (Math.random() - 0.5) * 10
+                    ),
+                    expandRate: 1.2,
+                    rotSpeed: (Math.random() - 0.5) * 0.1,
+                    life: 1.0,
+                    decayRate: 0.045,
+                    maxOpacity: 1.0
+                };
+                scene.add(core);
+                explosionParticles.push(core);
+            }
 
-            // 3. ElevenLabs-Style Cinema-Grade Booming Explosion Sound Effect
+            // 3. Billowing Roaring Flame Puffs (20-28 expanding turbulent fireballs)
+            const flamePuffCount = 22 + Math.floor(Math.random() * 8);
+            for (let i = 0; i < flamePuffCount; i++) {
+                const flameMat = new THREE.SpriteMaterial({
+                    map: fireTex,
+                    color: 0xfff4cc,
+                    transparent: true,
+                    opacity: 0.95,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false
+                });
+                const flame = new THREE.Sprite(flameMat);
+                flame.position.copy(pos);
+                const initScale = 14 + Math.random() * 16;
+                flame.scale.set(initScale, initScale, initScale);
+
+                const dir = new THREE.Vector3(
+                    (Math.random() - 0.5) * 2,
+                    (Math.random() - 0.5) * 2,
+                    (Math.random() - 0.5) * 2
+                ).normalize();
+                const speed = 25 + Math.random() * 55;
+
+                flame.userData = {
+                    isFirePuff: true,
+                    vel: dir.multiplyScalar(speed),
+                    expandRate: 0.45 + Math.random() * 0.45,
+                    rotSpeed: (Math.random() - 0.5) * 0.06,
+                    life: 1.0,
+                    decayRate: 0.012 + Math.random() * 0.008,
+                    maxOpacity: 0.95
+                };
+                scene.add(flame);
+                explosionParticles.push(flame);
+            }
+
+            // 4. Dark Rolling Carbon Smoke Plumes (10-16 smoke billows)
+            const smokePuffCount = 12 + Math.floor(Math.random() * 6);
+            for (let i = 0; i < smokePuffCount; i++) {
+                const smokeMat = new THREE.SpriteMaterial({
+                    map: smokeTex,
+                    color: 0x332a24,
+                    transparent: true,
+                    opacity: 0.65,
+                    depthWrite: false
+                });
+                const smoke = new THREE.Sprite(smokeMat);
+                smoke.position.copy(pos);
+                const initScale = 18 + Math.random() * 20;
+                smoke.scale.set(initScale, initScale, initScale);
+
+                const dir = new THREE.Vector3(
+                    (Math.random() - 0.5) * 2,
+                    (Math.random() - 0.5) * 2,
+                    (Math.random() - 0.5) * 2
+                ).normalize();
+                const speed = 12 + Math.random() * 30;
+
+                smoke.userData = {
+                    isSmokePuff: true,
+                    vel: dir.multiplyScalar(speed),
+                    expandRate: 0.35 + Math.random() * 0.35,
+                    rotSpeed: (Math.random() - 0.5) * 0.03,
+                    life: 1.0,
+                    decayRate: 0.007 + Math.random() * 0.005,
+                    maxOpacity: 0.65
+                };
+                scene.add(smoke);
+                explosionParticles.push(smoke);
+            }
+
+            // 5. Superheated Molten Hull Shrapnel Chunks (14-22 tumbling faceted metal shards)
+            const shrapnelCount = 16 + Math.floor(Math.random() * 8);
+            for (let i = 0; i < shrapnelCount; i++) {
+                const mat = new THREE.MeshStandardMaterial({
+                    color: 0x1a1a1a,
+                    roughness: 0.7,
+                    metalness: 0.8,
+                    emissive: new THREE.Color(0xff4400),
+                    emissiveIntensity: 3.5
+                });
+                const shard = new THREE.Mesh(shrapnelGeo, mat);
+                shard.position.copy(pos);
+                const s = 1.0 + Math.random() * 2.5;
+                shard.scale.set(s * (0.5 + Math.random()), s * (0.3 + Math.random()), s * (0.5 + Math.random()));
+
+                const dir = new THREE.Vector3(
+                    (Math.random() - 0.5) * 2,
+                    (Math.random() - 0.5) * 2,
+                    (Math.random() - 0.5) * 2
+                ).normalize();
+                const speed = 60 + Math.random() * 110;
+
+                shard.userData = {
+                    isShrapnel: true,
+                    vel: dir.multiplyScalar(speed),
+                    rotVel: new THREE.Vector3(
+                        (Math.random() - 0.5) * 0.35,
+                        (Math.random() - 0.5) * 0.35,
+                        (Math.random() - 0.5) * 0.35
+                    ),
+                    life: 1.0,
+                    decayRate: 0.009 + Math.random() * 0.006
+                };
+                scene.add(shard);
+                explosionParticles.push(shard);
+            }
+
+            // 6. High-Velocity Sparks & Embers (40-60 fast needle embers)
+            const sparkCount = 40 + Math.floor(Math.random() * 20);
+            for (let i = 0; i < sparkCount; i++) {
+                const mat = new THREE.SpriteMaterial({
+                    map: sparkTex,
+                    color: 0xffe680,
+                    transparent: true,
+                    opacity: 1.0,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false
+                });
+                const spark = new THREE.Sprite(mat);
+                spark.position.copy(pos);
+                const s = 4.0 + Math.random() * 5.0;
+                spark.scale.set(s, s, s);
+
+                const dir = new THREE.Vector3(
+                    (Math.random() - 0.5) * 2,
+                    (Math.random() - 0.5) * 2,
+                    (Math.random() - 0.5) * 2
+                ).normalize();
+                const speed = 75 + Math.random() * 130;
+
+                spark.userData = {
+                    isSpark: true,
+                    vel: dir.multiplyScalar(speed),
+                    life: 1.0,
+                    decayRate: 0.016 + Math.random() * 0.014
+                };
+                scene.add(spark);
+                explosionParticles.push(spark);
+            }
+
+            // 7. Cinema-Grade Booming Explosion Sound Effect
             playExplosionAudio();
         }
 

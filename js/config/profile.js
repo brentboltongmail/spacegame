@@ -430,6 +430,47 @@
                 }
             }
 
+            const mission1EnemiesData = [];
+            if (typeof mission1Enemies !== 'undefined' && Array.isArray(mission1Enemies)) {
+                mission1Enemies.forEach(e => {
+                    if (e && e.userData && e.userData.hp > 0 && e.position) {
+                        mission1EnemiesData.push({
+                            x: e.position.x,
+                            y: e.position.y,
+                            z: e.position.z,
+                            qx: e.quaternion.x,
+                            qy: e.quaternion.y,
+                            qz: e.quaternion.z,
+                            qw: e.quaternion.w,
+                            hp: e.userData.hp,
+                            maxHp: e.userData.maxHp || 100,
+                            isMissionDrone: true
+                        });
+                    }
+                });
+            }
+
+            const mission2EnemiesData = [];
+            if (typeof window.mission2Enemies !== 'undefined' && Array.isArray(window.mission2Enemies)) {
+                window.mission2Enemies.forEach(e => {
+                    if (e && e.userData && e.userData.hp > 0 && e.position) {
+                        mission2EnemiesData.push({
+                            x: e.position.x,
+                            y: e.position.y,
+                            z: e.position.z,
+                            qx: e.quaternion.x,
+                            qy: e.quaternion.y,
+                            qz: e.quaternion.z,
+                            qw: e.quaternion.w,
+                            hp: e.userData.hp,
+                            maxHp: e.userData.maxHp || 30,
+                            speed: e.userData.speed || 4.5,
+                            isPirate: true
+                        });
+                    }
+                });
+            }
+
             currentProfile.progress = {
                 currentMission: activeMission,
                 playerCredits: (typeof playerCredits !== 'undefined') ? playerCredits : 125000,
@@ -453,13 +494,15 @@
                 mission1: {
                     active: typeof mission1Active !== 'undefined' ? mission1Active : false,
                     stage: typeof mission1Stage !== 'undefined' ? mission1Stage : 0,
-                    enemiesDestroyed: typeof mission1EnemiesDestroyed !== 'undefined' ? mission1EnemiesDestroyed : 0,
-                    clearedRings: clearedRings
+                    enemiesDestroyed: typeof mission1EnemiesDestroyed !== 'undefined' ? mission1EnemiesDestroyed : (window.mission1EnemiesDestroyed || 0),
+                    clearedRings: clearedRings,
+                    enemies: mission1EnemiesData
                 },
                 mission2: {
                     active: typeof window.mission2Active !== 'undefined' ? window.mission2Active : false,
                     stage: typeof window.mission2Stage !== 'undefined' ? window.mission2Stage : 0,
-                    enemiesDestroyed: typeof window.mission2EnemiesDestroyed !== 'undefined' ? window.mission2EnemiesDestroyed : 0
+                    enemiesDestroyed: typeof window.mission2EnemiesDestroyed !== 'undefined' ? window.mission2EnemiesDestroyed : 0,
+                    enemies: mission2EnemiesData
                 },
                 mission3: {
                     active: (typeof window.mission3Active !== 'undefined' && window.mission3Active) || (typeof window.isMission3Active !== 'undefined' && window.isMission3Active)
@@ -575,11 +618,11 @@
                 }
             } else if (targetMission === 'Mission 2') {
                 if (typeof startMission2 === 'function') {
-                    startMission2();
-                    if (prog.mission2) {
-                        window.mission2Stage = prog.mission2.stage || 0;
-                        window.mission2EnemiesDestroyed = prog.mission2.enemiesDestroyed || 0;
-                    }
+                    startMission2({
+                        stage: prog.mission2?.stage || 0,
+                        enemiesDestroyed: prog.mission2?.enemiesDestroyed || 0,
+                        enemies: prog.mission2?.enemies || null
+                    });
                     if (!isDocked && !isInsideStation && prog.shipPosition && typeof playerShip !== 'undefined' && playerShip) {
                         playerShip.position.set(prog.shipPosition.x, prog.shipPosition.y, prog.shipPosition.z);
                         if (prog.shipQuaternion) {
@@ -594,6 +637,7 @@
                         stage: prog.mission1?.stage || 0,
                         enemiesDestroyed: prog.mission1?.enemiesDestroyed || 0,
                         clearedRings: prog.mission1?.clearedRings || [],
+                        enemies: prog.mission1?.enemies || null,
                         hasSavedPos: (!isDocked && !isInsideStation && !!prog.shipPosition)
                     });
                     if (!isDocked && !isInsideStation && prog.shipPosition && typeof playerShip !== 'undefined' && playerShip) {

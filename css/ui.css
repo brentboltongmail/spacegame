@@ -268,38 +268,39 @@
             top: 50% !important;
             left: 50% !important;
             transform: translate(-50%, -50%) !important;
-            width: 44px;
-            height: 44px;
-            border: 2px solid rgba(0, 240, 255, 0.9);
+            width: 36px;
+            height: 36px;
+            border: 1px solid rgba(0, 240, 255, 0.35);
             border-radius: 50%;
             pointer-events: none;
             z-index: 1000;
-            box-shadow: 0 0 18px rgba(0, 240, 255, 0.8), inset 0 0 10px rgba(0, 240, 255, 0.4);
+            box-shadow: 0 0 6px rgba(0, 240, 255, 0.2), inset 0 0 4px rgba(0, 240, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
             transition: opacity 0.2s ease;
+            opacity: 0.35;
         }
 
         .hud-center-crosshair::before {
             content: '';
             position: absolute;
-            width: 6px;
-            height: 6px;
-            background: var(--accent-gold);
+            width: 4px;
+            height: 4px;
+            background: rgba(251, 191, 36, 0.5);
             border-radius: 50%;
-            box-shadow: 0 0 12px var(--accent-gold);
+            box-shadow: 0 0 4px rgba(251, 191, 36, 0.3);
         }
 
         .hud-center-crosshair::after {
             content: '';
             position: absolute;
-            width: 58px;
-            height: 58px;
-            border-left: 2px solid var(--accent-cyan);
-            border-right: 2px solid var(--accent-cyan);
-            opacity: 0.85;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+            width: 46px;
+            height: 46px;
+            border-left: 1px solid rgba(0, 240, 255, 0.3);
+            border-right: 1px solid rgba(0, 240, 255, 0.3);
+            opacity: 0.4;
+            box-shadow: none;
         }
 
         .target-lock-box {
@@ -380,20 +381,20 @@
 
         .crosshair-line-v {
             position: absolute;
-            width: 2px;
-            height: 80px;
-            background: var(--accent-cyan);
-            box-shadow: 0 0 8px var(--accent-cyan);
-            opacity: 0.7;
+            width: 1px;
+            height: 48px;
+            background: rgba(0, 240, 255, 0.3);
+            box-shadow: none;
+            opacity: 0.35;
         }
 
         .crosshair-line-h {
             position: absolute;
-            height: 2px;
-            width: 80px;
-            background: var(--accent-cyan);
-            box-shadow: 0 0 8px var(--accent-cyan);
-            opacity: 0.7;
+            height: 1px;
+            width: 48px;
+            background: rgba(0, 240, 255, 0.3);
+            box-shadow: none;
+            opacity: 0.35;
         }
 
         .hud-action-bar {

@@ -1267,14 +1267,12 @@ const _targetWorldPos = new THREE.Vector3();
                             speedElem.innerText = `HULL CRITICAL: ${Math.floor(playerHp)}%`;
                             speedElem.style.color = '#ff3b5c';
                             setTimeout(() => { 
-                                if (speedElem && playerHp > 0) speedElem.style.color = '#00f0ff'; 
-                            }, 500);
-                        }
-                        if (playerHp <= 0 && !isFlightLocked) {
-                            isFlightLocked = true;
-                            showToast("CRITICAL HULL FAILURE - SHIP DESTROYED");
-                            createEpicPlayerDeathExplosion(playerShip.position);
-                        }
+                if (playerShip && playerShip.visible) {
+                    const distToPlayer = laser.position.distanceTo(playerShip.position);
+                    if (distToPlayer < 12) { // 12 unit hit radius for player ship
+                        hitPlayer = true;
+                        takeDamage(10);
+                        createFieryExplosionFX(laser.position);
                     }
                 }
 
@@ -1286,24 +1284,21 @@ const _targetWorldPos = new THREE.Vector3();
                 }
             }
 
-            // --- ANIMATE & DECAY EXPLOSION & SPARK PARTICLES (DOUBLED DURATION & EXPANSION) ---
-            // HARD CAP: Prevent browser hangs by aggressively culling old particles if the simulation gets overloaded
-            while (explosionParticles.length > 800) {
+            // --- ANIMATE & DECAY REALISTIC EXPLOSION & FIRE PARTICLES ---
+            const dtFactor = timeDelta * 60;
+            while (explosionParticles.length > 900) {
                 const oldP = explosionParticles.shift();
-                if (oldP && !oldP.userData.isShipDebris) { // Never delete the actual debris meshes early!
+                if (oldP && !oldP.userData.isShipDebris) {
                     scene.remove(oldP);
                     if (oldP.geometry && oldP.geometry !== sharedExpParticleGeo && oldP.geometry !== sharedRingGeo) {
                         oldP.geometry.dispose();
                     }
                     if (oldP.material && !sharedExpColors.includes(oldP.material) && oldP.material !== sharedRingMat) {
-                        // Some shockwaves clone the sharedRingMat in createEpicPlayerDeathExplosion!
-                        // "const shockwave = new THREE.Mesh(sharedRingGeo, sharedRingMat.clone());"
-                        // If it's cloned, it's not in the array and not strictly sharedRingMat, so we CAN dispose it.
                         oldP.material.dispose();
                     }
                 } else if (oldP) {
-                    explosionParticles.push(oldP); // Put debris back at the end
-                    break; // Stop culling if we hit debris
+                    explosionParticles.push(oldP);
+                    break;
                 }
             }
 
@@ -1311,51 +1306,160 @@ const _targetWorldPos = new THREE.Vector3();
                 const p = explosionParticles[i];
                 if (!p) continue;
 
-                if (p.userData.isShockwave) {
-                    if (p.userData.isDeathShockwave) {
-                        p.scale.addScalar(0.4);
-                        if (p.material) p.material.opacity -= 0.003; // Slower fade for epic explosion
-                    } else {
-                        p.scale.addScalar(0.25); // Reduced from 0.475 for smaller max radius
-                        if (p.material) p.material.opacity -= 0.012; // Increased decay rate to fade out earlier
+                // 1. Dynamic Explosion Point Light
+                if (p.userData.isExpLight) {
+                    p.userData.life -= 0.05 * dtFactor;
+                    p.intensity = Math.max(0, (p.userData.baseIntensity || 9.0) * (p.userData.life / (p.userData.maxLife || 0.35)));
+                    if (p.userData.life <= 0) {
+                        scene.remove(p);
+                        explosionParticles.splice(i, 1);
+                        continue;
                     }
-                } else if (p.userData.isShipDebris) {
-                    // Epic Debris Physics
-                    p.position.addScaledVector(p.userData.vel, timeDelta * 60 * 0.08);
-                    p.userData.vel.multiplyScalar(0.98); // Drag
-                    p.rotation.x += p.userData.rotVel.x * timeDelta * 60;
-                    p.rotation.y += p.userData.rotVel.y * timeDelta * 60;
-                    p.rotation.z += p.userData.rotVel.z * timeDelta * 60;
-                    
-                    // Cooling down the superheated metal and shrinking
+                }
+                // 2. Realistic Billowing Fire Puffs
+                else if (p.userData.isFirePuff) {
+                    if (p.userData.vel) {
+                        p.position.addScaledVector(p.userData.vel, dtFactor * 0.08);
+                        p.userData.vel.multiplyScalar(0.96);
+                    }
+                    p.scale.addScalar((p.userData.expandRate || 0.5) * dtFactor);
+                    if (p.material) {
+                        p.material.rotation += (p.userData.rotSpeed || 0.03) * dtFactor;
+                        
+                        // Fire temperature cooling color ramp
+                        const life = p.userData.life;
+                        if (life > 0.65) {
+                            p.material.color.setHex(0xffffff); // Incandescent white-hot
+                        } else if (life > 0.40) {
+                            p.material.color.setHex(0xff9900); // Blazing solar orange
+                        } else if (life > 0.20) {
+                            p.material.color.setHex(0xcc2900); // Deep fiery ember
+                        } else {
+                            p.material.color.setHex(0x551100); // Charred ash / cooling soot
+                        }
+                        p.material.opacity = Math.max(0, life * (p.userData.maxOpacity || 0.95));
+                    }
+                    p.userData.life -= (p.userData.decayRate || 0.015) * dtFactor;
+                    if (p.userData.life <= 0) {
+                        scene.remove(p);
+                        if (p.material) p.material.dispose();
+                        explosionParticles.splice(i, 1);
+                        continue;
+                    }
+                }
+                // 3. Dark Rolling Smoke Plumes
+                else if (p.userData.isSmokePuff) {
+                    if (p.userData.vel) {
+                        p.position.addScaledVector(p.userData.vel, dtFactor * 0.08);
+                        p.userData.vel.multiplyScalar(0.97);
+                    }
+                    p.scale.addScalar((p.userData.expandRate || 0.35) * dtFactor);
+                    if (p.material) {
+                        p.material.rotation += (p.userData.rotSpeed || 0.02) * dtFactor;
+                        p.material.opacity = Math.max(0, p.userData.life * (p.userData.maxOpacity || 0.65));
+                    }
+                    p.userData.life -= (p.userData.decayRate || 0.008) * dtFactor;
+                    if (p.userData.life <= 0) {
+                        scene.remove(p);
+                        if (p.material) p.material.dispose();
+                        explosionParticles.splice(i, 1);
+                        continue;
+                    }
+                }
+                // 4. Molten Hull Shrapnel Shards
+                else if (p.userData.isShrapnel) {
+                    if (p.userData.vel) {
+                        p.position.addScaledVector(p.userData.vel, dtFactor * 0.08);
+                        p.userData.vel.multiplyScalar(0.99);
+                    }
+                    if (p.userData.rotVel) {
+                        p.rotation.x += p.userData.rotVel.x * dtFactor;
+                        p.rotation.y += p.userData.rotVel.y * dtFactor;
+                        p.rotation.z += p.userData.rotVel.z * dtFactor;
+                    }
                     if (p.material && p.material.emissive) {
-                        p.material.emissiveIntensity = Math.max(0, p.material.emissiveIntensity - 0.01);
+                        p.material.emissiveIntensity = Math.max(0, p.userData.life * 3.5);
+                    }
+                    p.userData.life -= (p.userData.decayRate || 0.01) * dtFactor;
+                    if (p.userData.life <= 0) {
+                        scene.remove(p);
+                        if (p.material) p.material.dispose();
+                        explosionParticles.splice(i, 1);
+                        continue;
+                    }
+                }
+                // 5. High-Velocity Sparks & Embers
+                else if (p.userData.isSpark) {
+                    if (p.userData.vel) {
+                        p.position.addScaledVector(p.userData.vel, dtFactor * 0.08);
+                        p.userData.vel.multiplyScalar(0.97);
+                    }
+                    p.scale.multiplyScalar(0.985);
+                    if (p.material) {
+                        p.material.opacity = Math.max(0, p.userData.life);
+                    }
+                    p.userData.life -= (p.userData.decayRate || 0.02) * dtFactor;
+                    if (p.userData.life <= 0) {
+                        scene.remove(p);
+                        if (p.material) p.material.dispose();
+                        explosionParticles.splice(i, 1);
+                        continue;
+                    }
+                }
+                // 6. Expanding Shockwave Rings
+                else if (p.userData.isShockwave) {
+                    if (p.userData.isDeathShockwave) {
+                        p.scale.addScalar(0.4 * dtFactor);
+                        if (p.material) p.material.opacity -= 0.003 * dtFactor;
+                    } else {
+                        p.scale.addScalar(0.35 * dtFactor);
+                        if (p.material) p.material.opacity -= 0.015 * dtFactor;
+                    }
+                    if (p.material && p.material.opacity <= 0) {
+                        scene.remove(p);
+                        if (p.material && p.material !== sharedRingMat) p.material.dispose();
+                        explosionParticles.splice(i, 1);
+                        continue;
+                    }
+                }
+                // 7. Epic Ship Debris (Fractured player ship / capital fragments)
+                else if (p.userData.isShipDebris) {
+                    p.position.addScaledVector(p.userData.vel, dtFactor * 0.08);
+                    p.userData.vel.multiplyScalar(0.98);
+                    p.rotation.x += p.userData.rotVel.x * dtFactor;
+                    p.rotation.y += p.userData.rotVel.y * dtFactor;
+                    p.rotation.z += p.userData.rotVel.z * dtFactor;
+                    
+                    if (p.material && p.material.emissive) {
+                        p.material.emissiveIntensity = Math.max(0, p.material.emissiveIntensity - 0.01 * dtFactor);
                     }
                     if (p.userData.life < 1.5) {
                         p.scale.multiplyScalar(0.95);
                     }
                     
-                    // Random micro-explosions and fiery trails
                     if (Math.random() < 0.005 * p.userData.life) {
                         spawnLaserImpactSparks(p.position);
                     }
                     if (Math.random() < 0.0002 * p.userData.life) {
-                        createFieryExplosionFX(p.position); // Secondary explosions!
+                        createFieryExplosionFX(p.position);
                     }
-                } else if (p.userData.vel) {
-                    p.position.addScaledVector(p.userData.vel, timeDelta * 60 * 0.08);
+                    p.userData.life -= 0.003 * dtFactor;
+                    if (p.userData.life <= 0) {
+                        scene.remove(p);
+                        explosionParticles.splice(i, 1);
+                        continue;
+                    }
+                }
+                // Fallback for legacy particles
+                else if (p.userData.vel) {
+                    p.position.addScaledVector(p.userData.vel, dtFactor * 0.08);
                     p.userData.vel.multiplyScalar(0.99);
                     p.scale.multiplyScalar(0.9925);
-                }
-
-                if (p.userData.isDeathParticle) {
-                    p.userData.life = (p.userData.life || 1.0) - 0.003;
-                } else {
-                    p.userData.life = (p.userData.life || 1.0) - 0.007;
-                }
-                if (p.userData.life <= 0 || (p.material && p.material.opacity <= 0)) {
-                    scene.remove(p);
-                    explosionParticles.splice(i, 1);
+                    p.userData.life = (p.userData.life || 1.0) - 0.007 * dtFactor;
+                    if (p.userData.life <= 0 || (p.material && p.material.opacity <= 0)) {
+                        scene.remove(p);
+                        explosionParticles.splice(i, 1);
+                    }
                 }
             }
 
