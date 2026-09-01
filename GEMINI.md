@@ -1,34 +1,11 @@
-# ðŸŒŒ Workspace Rules & Directives for Solaris Horizon: Emergence
+# Global Rules
 
-## ðŸ“Œ Automatic Git Commit & Push Rule
-- **Mandatory Action**: After making any code, HTML, asset, documentation, or configuration changes, ALWAYS execute `git add -A`, `git commit -m "<descriptive message>"`, and `git push` to ensure all changes are committed and pushed to remote `origin/main`.
+## Git Version Control
+- **Always Commit and Push**: At the end of every change or completed task in any repository, automatically stage the changes (`git add`), write a clear descriptive commit message (`git commit -m "..."`), and push the commits to the remote repository (`git push`).
 
-## ðŸ“Œ Server Process Rules
-- Do NOT launch background server daemons inside Antigravity unless explicitly requested by the user. The user launches the server via taskbar shortcut or `restart_server.bat`.
-
-## ðŸ“Œ UI & Layout Rules
-- All HUD cards, panels, radar displays, and stats boxes MUST include a thin accent drag handle bar (`.drag-handle-bar`) at the top allowing the user to drag them freely around the screen.
-- Box drag positions MUST be silently synced per user to `data/users/<username>.json` without showing popups or toasts.
-
-## 📌 Codebase Index Rule
-- **Mandatory Action**: After making structural changes or adding new major systems, ALWAYS update docs/codebase_index.md to reflect the new architecture layout.
-
-## 📌 3D Asset & GLB Optimization Pipeline
-- **Mandatory Action for Any Added/Modified GLBs**:
-  - Whenever new `.glb` models are added or modified in `fbx/` or anywhere in the project, NEVER leave raw unoptimized multi-million polygon meshes in the active game.
-  - ALWAYS run `python scripts/optimize_glb.py <path_to_glb>` (or `python scripts/optimize_glb.py --all`) to optimize them.
-  - The pipeline automatically applies:
-    1. **Boundary Preservation (`preserve_border=True`, `aggressiveness=3`)**: Prevents detached hull panels, gaps, or holes; maintains 100% solid watertight shapes.
-    2. **KDTree Nearest-Surface UV Projection**: Preserves 100% full PBR textures (diffuse, metallic, roughness, normal maps, emissive) with sub-millimeter UV alignment.
-    3. **Target Triangle Ceilings**: Fighters (~150k), Interceptors (~180k), Capitals (~220k), Stations (~350k) to ensure rock-solid 60+ FPS rendering across all scenes and swarms.
-
-
-## 📌 Dialogue & Audio Rule
-- **Mandatory Action**: All dialogue in the game should use the ElevenLabs API to generate audio. Keep the voices chosen for characters consistent throughout the codebase (e.g. check docs or existing files for voice mappings).
-
-## 📌 Player Ship Spawn Location Rule
-- **Mandatory Action for Repositioning the Player's Ship**: When asked to move or adjust the player's starting spawn location, you MUST update the initialization coordinates in all THREE of the following files simultaneously:
-  1. `js/engine/models.js` (inside `createPlayerShip()`)
-  2. `js/ui/interactions.js` (inside mission reset functions like `startMission1()`)
-  3. `js/engine/weapons.js` (inside `resetSimView()`)
-- **Note**: Ensure that `playerShip.position.set(...)`, `playerShip.lookAt(...)`, and `playerShip.rotateY(...)` are updated together as a unified block so the ship mesh and camera orientation stay perfectly aligned.
+## Three.js & 3D Coordinate Orientation Rules
+- **Three.js Right-Handed System & Forward Vector (-Z)**: Always remember that Three.js uses a right-handed coordinate system where the standard forward/facing vector is **negative Z (`(0, 0, -1)`)**, NOT positive Z.
+  - `Object3D.lookAt()` and cameras always point the local **`-Z` axis** toward the target.
+  - Directional meshes (arrows, chevrons, cones, vehicle noses, pointers, projectiles) must always be modeled or pre-rotated so that their forward/pointed tip faces **`-Z`** in local space.
+  - 2D shapes (`THREE.Shape`) drawn in the XY plane have their forward tip along `+Y`; rotating by `+Math.PI / 2` around the X-axis maps `+Y` to **`-Z` (forward)**.
+  - Geographical navigation: $+X = \text{East}$, $-X = \text{West}$, $-Z = \text{North}$, $+Z = \text{South}$. True compass heading is $\text{atan2}(\Delta \text{East}, \Delta \text{North}) = \text{atan2}(\Delta X, -\Delta Z)$.
