@@ -630,7 +630,7 @@
             // Spawn target drones (either restore exact saved positions/health or default ring positions)
             if (restoreProgress && Array.isArray(restoreProgress.enemies)) {
                 restoreProgress.enemies.forEach(savedE => {
-                    const enemy = createEnemyInterceptorMesh();
+                    const enemy = createPirateShipMesh();
                     enemy.position.set(savedE.x, savedE.y, savedE.z);
                     if (savedE.qx !== undefined) {
                         enemy.quaternion.set(savedE.qx, savedE.qy, savedE.qz, savedE.qw);
@@ -639,7 +639,9 @@
                     }
                     enemy.userData.hp = savedE.hp !== undefined ? savedE.hp : 100;
                     enemy.userData.maxHp = savedE.maxHp || 100;
+                    enemy.userData.name = "Skull Raider";
                     enemy.userData.isMissionDrone = true;
+                    enemy.userData.isPirate = true;
                     scene.add(enemy);
                     enemyShips.push(enemy);
                     mission1Enemies.push(enemy);
@@ -654,12 +656,14 @@
                         ];
                         
                         for (let e = 0; e < 2; e++) {
-                            const enemy = createEnemyInterceptorMesh();
+                            const enemy = createPirateShipMesh();
                             enemy.position.set(pos.x + offsets[e].x, pos.y + offsets[e].y, pos.z + offsets[e].z);
                             enemy.lookAt(playerShip.position);
                             enemy.userData.hp = 100;
                             enemy.userData.maxHp = 100;
+                            enemy.userData.name = "Skull Raider";
                             enemy.userData.isMissionDrone = true;
+                            enemy.userData.isPirate = true;
                             scene.add(enemy);
                             enemyShips.push(enemy);
                             mission1Enemies.push(enemy);
@@ -688,7 +692,7 @@
         function maintainMission1Enemies() {
             if ((!mission1Active && !window.mission1Active) || mission1Stage >= 4) return;
             if (typeof playerShip === 'undefined' || !playerShip || typeof scene === 'undefined' || !scene) return;
-            if (typeof createEnemyInterceptorMesh !== 'function') return;
+            if (typeof createPirateShipMesh !== 'function') return;
 
             if (typeof mission1Enemies === 'undefined' || !Array.isArray(mission1Enemies)) {
                 mission1Enemies = [];
@@ -701,7 +705,7 @@
 
             if (needed > 0) {
                 for (let k = 0; k < needed; k++) {
-                    const enemy = createEnemyInterceptorMesh();
+                    const enemy = createPirateShipMesh();
                     const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
                     const right = new THREE.Vector3(1, 0, 0).applyQuaternion(playerShip.quaternion);
                     const up = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
@@ -718,7 +722,9 @@
                     enemy.lookAt(playerShip.position);
                     enemy.userData.hp = 100;
                     enemy.userData.maxHp = 100;
+                    enemy.userData.name = "Skull Raider";
                     enemy.userData.isMissionDrone = true;
+                    enemy.userData.isPirate = true;
                     scene.add(enemy);
                     if (typeof enemyShips !== 'undefined') enemyShips.push(enemy);
                     mission1Enemies.push(enemy);
@@ -847,7 +853,7 @@
         }
 
         // ==========================================
-        // MISSION 2: PIRATE AMBUSH AT CERES
+        // MISSION 2: PIRATE AMBUSH IN ASTEROID BELT
         // ==========================================
         window.mission2Active = false;
         window.mission2Stage = 0;
@@ -889,7 +895,7 @@
             window.mission2Enemies = [];
             window.mission2Asteroids = [];
             
-            // Restore saved position or teleport player to Ceres
+            // Restore saved position or teleport player to Asteroid Belt
             if (restoreProgress && restoreProgress.hasSavedPos && restoreProgress.shipPosition && typeof playerShip !== 'undefined' && playerShip) {
                 playerShip.position.set(restoreProgress.shipPosition.x, restoreProgress.shipPosition.y, restoreProgress.shipPosition.z);
                 if (restoreProgress.shipQuaternion) {
@@ -944,14 +950,6 @@
                 window.mission2Asteroids.push(ast);
             }
             
-            // Spawn Freighter
-            const frtGeo = new THREE.CylinderGeometry(80, 80, 600, 16);
-            const frtMat = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.6 });
-            window.mission2Freighter = new THREE.Mesh(frtGeo, frtMat);
-            window.mission2Freighter.rotation.z = Math.PI / 2;
-            window.mission2Freighter.position.set(101000, 0, 99000);
-            scene.add(window.mission2Freighter);
-            
             // Spawn Pirates (either restore saved positions or spawn new)
             if (restoreProgress && Array.isArray(restoreProgress.enemies)) {
                 restoreProgress.enemies.forEach(savedE => {
@@ -995,17 +993,17 @@
             
             // Update UI
             const sec = document.getElementById('hud-sector');
-            if (sec) sec.innerText = "MISSION 2: PIRATE AMBUSH";
+            if (sec) sec.innerText = "MISSION 2: ASTEROID BELT PATROL";
             const obj = document.getElementById('hud-objective');
-            if (obj) obj.innerText = "Investigate the Freighter at Ceres";
+            if (obj) obj.innerText = `Patrol the Asteroid Belt and destroy 10 pirate raiders (${window.mission2EnemiesDestroyed}/10 Enemies).`;
             
-            showCommsTransmission("EDF COMMAND", "Vance, you have unauthorized contacts in sector 4. Run 'em off.", 6000);
+            showCommsTransmission("EDF COMMAND", "Vance, we've detected unauthorized pirate raiders operating in the Asteroid Belt. Hunt them down and secure the sector.", 6000);
             
             setTimeout(() => {
-                showCommsTransmission("KAYLEN VANCE", "They've got jury-rigged weapons. It's a trap!", 5000);
+                showCommsTransmission("KAYLEN VANCE", "Contacts confirmed in the asteroid field. Engaging hostile pirate raiders!", 5000);
                 if (window.mission2Active && window.mission2Stage === 0) {
                     const obj2 = document.getElementById('hud-objective');
-                    if (obj2) obj2.innerText = `Destroy 10 pirate drones without colliding with the asteroids (0/10 Enemies).`;
+                    if (obj2) obj2.innerText = `Destroy 10 pirate raiders without colliding with the asteroids (${window.mission2EnemiesDestroyed}/10 Enemies).`;
                 }
             }, 6000);
         }
@@ -1019,7 +1017,7 @@
 
             const obj = document.getElementById('hud-objective');
             if (obj && window.mission2EnemiesDestroyed < 10) {
-                obj.innerText = `Destroy 10 pirate drones without colliding with the asteroids (${window.mission2EnemiesDestroyed}/10 Enemies).`;
+                obj.innerText = `Destroy 10 pirate raiders without colliding with the asteroids (${window.mission2EnemiesDestroyed}/10 Enemies).`;
             }
 
             // Asteroid Collision

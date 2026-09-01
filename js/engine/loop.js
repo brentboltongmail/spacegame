@@ -1913,9 +1913,7 @@ const _targetWorldPos = new THREE.Vector3();
             const needed = 5 - activePirates.length;
             if (needed <= 0) return;
 
-            const fieldCenter = (typeof window.mission2Freighter !== 'undefined' && window.mission2Freighter && window.mission2Freighter.position) 
-                ? window.mission2Freighter.position.clone() 
-                : new THREE.Vector3(100000, 0, 100000);
+            const fieldCenter = new THREE.Vector3(100000, 0, 100000);
 
             for (let k = 0; k < needed; k++) {
                 const pirate = createPirateShipMesh();
@@ -2161,13 +2159,34 @@ const _targetWorldPos = new THREE.Vector3();
                 }
             }
 
-            // 3. Mission 2 Ceres Freighter Phase
+            // 3. Mission 2 Asteroid Belt / Pirate Patrol Phase
             if (typeof window.mission2Active !== 'undefined' && window.mission2Active) {
-                if (window.mission2Stage === 0 && window.mission2Freighter && window.mission2Freighter.position) {
-                    return {
-                        position: window.mission2Freighter.position,
-                        name: "CERES FREIGHTER"
-                    };
+                if (window.mission2Stage === 0) {
+                    let nearestPirate = null;
+                    let minPirateDist = Infinity;
+                    if (typeof window.mission2Enemies !== 'undefined' && Array.isArray(window.mission2Enemies)) {
+                        for (let i = 0; i < window.mission2Enemies.length; i++) {
+                            const p = window.mission2Enemies[i];
+                            if (p && p.position && p.userData && p.userData.hp > 0 && p.parent) {
+                                const dist = playerShip.position.distanceTo(p.position);
+                                if (dist < minPirateDist) {
+                                    minPirateDist = dist;
+                                    nearestPirate = p;
+                                }
+                            }
+                        }
+                    }
+                    if (nearestPirate && minPirateDist < 8000) {
+                        return {
+                            position: nearestPirate.position,
+                            name: "PIRATE RAIDER"
+                        };
+                    } else {
+                        return {
+                            position: new THREE.Vector3(100000, 0, 100000),
+                            name: "ASTEROID BELT"
+                        };
+                    }
                 }
             }
 
