@@ -1267,12 +1267,14 @@ const _targetWorldPos = new THREE.Vector3();
                             speedElem.innerText = `HULL CRITICAL: ${Math.floor(playerHp)}%`;
                             speedElem.style.color = '#ff3b5c';
                             setTimeout(() => { 
-                if (playerShip && playerShip.visible) {
-                    const distToPlayer = laser.position.distanceTo(playerShip.position);
-                    if (distToPlayer < 12) { // 12 unit hit radius for player ship
-                        hitPlayer = true;
-                        takeDamage(10);
-                        createFieryExplosionFX(laser.position);
+                                if (speedElem && playerHp > 0) speedElem.style.color = '#00f0ff'; 
+                            }, 500);
+                        }
+                        if (playerHp <= 0 && !isFlightLocked) {
+                            isFlightLocked = true;
+                            showToast("CRITICAL HULL FAILURE - SHIP DESTROYED");
+                            createEpicPlayerDeathExplosion(playerShip.position);
+                        }
                     }
                 }
 
