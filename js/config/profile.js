@@ -758,6 +758,7 @@
                         if (set.shieldRegenMult !== undefined) document.getElementById('slider-set-shield-regen').value = set.shieldRegenMult;
                         if (set.hullRegenMult !== undefined) document.getElementById('slider-set-hull-regen').value = set.hullRegenMult;
                         if (set.enemyDamageMult !== undefined) document.getElementById('slider-set-enemy-dmg').value = set.enemyDamageMult;
+                        if (set.enemySpeedMult !== undefined) document.getElementById('slider-set-enemy-speed').value = set.enemySpeedMult;
                         if (set.playerDamageMult !== undefined) document.getElementById('slider-set-player-dmg').value = set.playerDamageMult;
                         if (set.flashOnHit !== undefined) {
                             const chk = document.getElementById('chk-flash-on-hit');

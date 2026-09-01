@@ -842,9 +842,9 @@ const _targetWorldPos = new THREE.Vector3();
             const fwdDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
             const playerVel = fwdDir.clone().negate().multiplyScalar(currentSpeed);
 
-            // Calculate dynamic enemy speed multiplier from options menu
+            // Calculate dynamic enemy speed multiplier from options menu (Default: 50%)
             let _eSpeedVal = (typeof gameMechanicsConfig !== 'undefined' && gameMechanicsConfig.enemySpeedMult !== undefined) ? gameMechanicsConfig.enemySpeedMult : 50;
-            const enemySpeedMult = Math.max(0.5, _eSpeedVal / 50.0);
+            const enemySpeedMult = Math.max(0.1, _eSpeedVal / 50.0);
 
             enemyShips.forEach(e => {
                 if (e.userData && e.userData.hp > 0 && playerShip) {
@@ -859,7 +859,7 @@ const _targetWorldPos = new THREE.Vector3();
                         e.userData.burstCount = e.userData.burstCount || 0;
 
                         // Fast agile turn rate (0.045 rad/frame ~ 2.7 rad/s) for responsive dogfighting
-                        const enemyTurnRate = 0.045 * enemySpeedMult * dtFactor;
+                        const enemyTurnRate = 0.045 * Math.min(1.5, Math.max(0.5, enemySpeedMult)) * dtFactor;
 
                         if (e.userData.attackState === 'breakaway') {
                             // Quick tactical evasive jink/pass (0.6 - 1.2s)
@@ -874,7 +874,7 @@ const _targetWorldPos = new THREE.Vector3();
                             }
 
                             e.quaternion.rotateTowards(e.userData.breakawayTargetQuat, enemyTurnRate * 1.2);
-                            e.translateZ(-4.5 * enemySpeedMult * dtFactor);
+                            e.translateZ(-2.25 * enemySpeedMult * dtFactor);
 
                             if (e.userData.breakawayTimer <= 0 || dist > 1400) {
                                 e.userData.attackState = 'intercept';
@@ -894,8 +894,8 @@ const _targetWorldPos = new THREE.Vector3();
                             const targetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), leadDir);
                             e.quaternion.rotateTowards(targetQuat, enemyTurnRate);
 
-                            // Dynamic combat throttle (accelerate to close gap, match dogfight speed)
-                            const combatThrottle = Math.max(3.2, Math.min(7.5, 3.2 + (dist / 1200))) * enemySpeedMult * dtFactor;
+                            // Dynamic combat throttle (reduced by 50% per user request)
+                            const combatThrottle = Math.max(1.6, Math.min(3.75, 1.6 + (dist / 2400))) * enemySpeedMult * dtFactor;
                             e.translateZ(-combatThrottle);
 
                             // Close-quarters jink only if dangerously close (< 180 units)
@@ -941,7 +941,7 @@ const _targetWorldPos = new THREE.Vector3();
                         }
                     } else {
                         // Patrol cruise around planetary sector
-                        e.translateZ(-2.5 * enemySpeedMult * dtFactor);
+                        e.translateZ(-1.25 * enemySpeedMult * dtFactor);
                         e.rotateY(0.003 * dtFactor);
                     }
 
