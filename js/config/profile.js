@@ -216,15 +216,16 @@
                         data.profiles.forEach(p => {
                             const pName = (typeof p === 'object' && p.name) ? p.name : p;
                             const pMission = (typeof p === 'object' && p.mission) ? p.mission : 'Mission 1';
+                            const escapedName = String(pName).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
                             html += `
                             <div class="profile-row">
-                                <div class="profile-box" onclick="window.startGameWithProfile('${pName}')">
+                                <div class="profile-box" onclick="window.startGameWithProfile('${escapedName}')">
                                     <span class="profile-name">${pName}</span>
                                     <span class="profile-mission-badge">${pMission}</span>
                                 </div>
                                 <div class="profile-side-actions">
-                                    <button class="ethereal-side-btn rename" title="Rename Pilot" onclick="window.promptRenameProfile('${pName}')">✎ RENAME</button>
-                                    <button class="ethereal-side-btn delete" title="Delete Profile" onclick="window.deleteProfile('${pName}')">✕ DELETE</button>
+                                    <button class="ethereal-side-btn rename" title="Rename Pilot" onclick="window.promptRenameProfile('${escapedName}')">✎ RENAME</button>
+                                    <button class="ethereal-side-btn delete" title="Delete Profile" onclick="window.deleteProfile('${escapedName}')">✕ DELETE</button>
                                 </div>
                             </div>`;
                         });

@@ -1,0 +1,149 @@
+{
+  "username": "newagain",
+  "boxPositions": {
+    "hud-camera-card": {
+      "x": -140,
+      "y": 949
+    },
+    "hud-radar-card": {
+      "x": 25,
+      "y": 85
+    },
+    "drag-sector-objective": {
+      "x": 24,
+      "y": -32
+    },
+    "hud-top-target-card": {
+      "x": -16,
+      "y": -75
+    },
+    "hud-controls-card": {
+      "x": -24,
+      "y": -32
+    },
+    "hud-shield-card": {
+      "x": -25,
+      "y": 85
+    }
+  },
+  "settings": {
+    "masterVol": 70,
+    "engineVol": 80,
+    "firingVol": 85,
+    "musicVol": 60,
+    "rollSpeed": 50,
+    "turnSpeed": 50,
+    "cameraLag": 80,
+    "throttleAccel": 50,
+    "toastDuration": 5,
+    "shieldRegenMult": 33,
+    "hullRegenMult": 33,
+    "enemyDamageMult": 20,
+    "enemySpeedMult": 50,
+    "playerDamageMult": 20,
+    "flashOnHit": false,
+    "platform": "mac"
+  },
+  "progress": {
+    "currentMission": "Mission 1",
+    "playerCredits": 125000,
+    "playerHp": 100,
+    "shieldPercent": 100,
+    "landingPhase": 0,
+    "isLandingSequenceActive": false,
+    "inHangerZone": false,
+    "stationRotationY": 0.41774999999996787,
+    "currentSpeed": 1.0061032568224325e-40,
+    "targetSpeed": 0,
+    "shipPosition": {
+      "x": 81000.36278592316,
+      "y": -817.2543009533504,
+      "z": -46360.28574735929
+    },
+    "shipQuaternion": {
+      "x": -0.6041454381330567,
+      "y": 0.6579938437821128,
+      "z": 0.42993724539480405,
+      "w": 0.1311730008431463
+    },
+    "mission1": {
+      "active": true,
+      "stage": 0,
+      "enemiesDestroyed": 0,
+      "clearedRings": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "enemies": [
+        {
+          "x": 80418.25874408375,
+          "y": -817.944189394325,
+          "z": -46379.083720594914,
+          "qx": 0.0008514534891500636,
+          "qy": -0.7184270499913002,
+          "qz": 0,
+          "qw": 0.695601789005573,
+          "hp": 100,
+          "maxHp": 100,
+          "isMissionDrone": true
+        },
+        {
+          "x": 80152.9846297661,
+          "y": -798.6072042290897,
+          "z": -46045.58735947148,
+          "qx": -0.012560698516459985,
+          "qy": -0.5707945695951306,
+          "qz": 0,
+          "qw": 0.8209968259216891,
+          "hp": 100,
+          "maxHp": 100,
+          "isMissionDrone": true
+        }
+      ]
+    },
+    "mission2": {
+      "active": false,
+      "stage": 0,
+      "enemiesDestroyed": 0,
+      "enemies": []
+    },
+    "mission3": {
+      "active": false
+    },
+    "upgrades": {
+      "blasters": {
+        "level": 3,
+        "cost": 15000
+      },
+      "shields": {
+        "level": 4,
+        "cost": 22000
+      },
+      "thrusters": {
+        "level": 3,
+        "cost": 18000
+      },
+      "sensors": {
+        "level": 4,
+        "cost": 12000
+      }
+    }
+  },
+  "keyBindings": {
+    "KeyW": "KeyW",
+    "KeyS": "KeyS",
+    "KeyA": "KeyA",
+    "KeyD": "KeyD",
+    "PitchUp": "ArrowUp",
+    "PitchDown": "ArrowDown",
+    "YawLeft": "ArrowLeft",
+    "YawRight": "ArrowRight",
+    "Space": "Space",
+    "KeyM": "KeyM",
+    "KeyL": "KeyL",
+    "KeyC": "KeyC",
+    "Escape": "Escape"
+  }
+}

@@ -50,6 +50,33 @@ DEFAULT_PROGRESS = {
     "mission3": {"active": False}
 }
 
+def get_user_file(username: str) -> Path:
+    # Allow alphanumeric, spaces, underscores, hyphens, and dots, while stripping forbidden filesystem characters
+    safe_name = "".join(c for c in username.strip() if c not in r'/\:*?"<>|').strip()
+    if not safe_name:
+        safe_name = 'default_user'
+    
+    # 1. Exact match
+    exact_file = DATA_DIR / f"{safe_name}.json"
+    if exact_file.exists():
+        return exact_file
+
+    # 2. Case-insensitive / space-normalized match
+    target_norm = safe_name.lower().replace('_', ' ').replace('-', ' ').strip()
+    if DATA_DIR.exists():
+        for f in DATA_DIR.glob('*.json'):
+            if f.stem.lower() == safe_name.lower() or f.stem.lower().replace('_', ' ').replace('-', ' ').strip() == target_norm:
+                return f
+            try:
+                with open(f, 'r', encoding='utf-8') as jf:
+                    data = json.load(jf)
+                    if data.get('username', '').lower().strip() == username.lower().strip():
+                        return f
+            except Exception:
+                pass
+
+    return exact_file
+
 class AstraGameRequestHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
         # Enable CORS for local testing
@@ -80,11 +107,8 @@ class AstraGameRequestHandler(http.server.SimpleHTTPRequestHandler):
         # Handle API Profile Load Endpoint
         if parsed_path.path == '/api/profile':
             query_params = urllib.parse.parse_qs(parsed_path.query)
-            username = query_params.get('user', ['default_user'])[0]
-            # Sanitize username
-            clean_username = "".join(c for c in username if c.isalnum() or c in ('_', '-')).lower() or 'default_user'
-            
-            user_file = DATA_DIR / f"{clean_username}.json"
+            username = query_params.get('user', ['default_user'])[0].strip() or 'default_user'
+            user_file = get_user_file(username)
             
             if user_file.exists():
                 try:
@@ -95,10 +119,10 @@ class AstraGameRequestHandler(http.server.SimpleHTTPRequestHandler):
                         if not profile_data.get("progress"):
                             profile_data["progress"] = DEFAULT_PROGRESS
                 except Exception as e:
-                    profile_data = {"username": clean_username, "boxPositions": DEFAULT_BOX_POSITIONS, "settings": {}, "progress": DEFAULT_PROGRESS}
+                    profile_data = {"username": username, "boxPositions": DEFAULT_BOX_POSITIONS, "settings": {}, "progress": DEFAULT_PROGRESS}
             else:
                 profile_data = {
-                    "username": clean_username,
+                    "username": username,
                     "boxPositions": DEFAULT_BOX_POSITIONS,
                     "settings": {"controls": "mouse_follow", "maxSpeed": 500},
                     "progress": DEFAULT_PROGRESS
@@ -120,6 +144,8 @@ class AstraGameRequestHandler(http.server.SimpleHTTPRequestHandler):
                     try:
                         with open(f, 'r', encoding='utf-8') as pf:
                             p_data = json.load(pf)
+                            if p_data.get('username'):
+                                p_name = p_data.get('username')
                             prog = p_data.get('progress', {})
                             if isinstance(prog, dict):
                                 p_mission = prog.get('currentMission') or prog.get('mission') or f"Mission {prog.get('act', 1)}"
@@ -165,14 +191,12 @@ class AstraGameRequestHandler(http.server.SimpleHTTPRequestHandler):
             
             try:
                 data = json.loads(post_body.decode('utf-8'))
-                username = data.get('username', 'default_user')
-                clean_username = "".join(c for c in username if c.isalnum() or c in ('_', '-')).lower() or 'default_user'
-                
-                user_file = DATA_DIR / f"{clean_username}.json"
+                username = str(data.get('username', 'default_user')).strip() or 'default_user'
+                user_file = get_user_file(username)
                 with open(user_file, 'w', encoding='utf-8') as f:
                     json.dump(data, f, indent=2)
                 
-                response = {"status": "success", "message": f"Profile saved for {clean_username}", "username": clean_username}
+                response = {"status": "success", "message": f"Profile saved for {username}", "username": username}
                 self.send_response(200)
             except Exception as e:
                 response = {"status": "error", "message": str(e)}
@@ -189,25 +213,24 @@ class AstraGameRequestHandler(http.server.SimpleHTTPRequestHandler):
             post_body = self.rfile.read(content_length)
             try:
                 data = json.loads(post_body.decode('utf-8'))
-                old_user = data.get('old_username', '')
-                new_user = data.get('new_username', '')
-                clean_old = "".join(c for c in old_user if c.isalnum() or c in ('_', '-')).lower()
-                clean_new = "".join(c for c in new_user if c.isalnum() or c in ('_', '-')).lower()
+                old_user = str(data.get('old_username', '')).strip()
+                new_user = str(data.get('new_username', '')).strip()
                 
-                if clean_old and clean_new:
-                    old_file = DATA_DIR / f"{clean_old}.json"
-                    new_file = DATA_DIR / f"{clean_new}.json"
+                if old_user and new_user:
+                    old_file = get_user_file(old_user)
+                    safe_new = "".join(c for c in new_user if c not in r'/\:*?"<>|').strip() or 'default_user'
+                    new_file = DATA_DIR / f"{safe_new}.json"
                     
                     if old_file.exists():
-                        # Read old file, update internal username, save as new, delete old
                         with open(old_file, 'r', encoding='utf-8') as f:
                             profile_data = json.load(f)
-                        profile_data['username'] = clean_new
+                        profile_data['username'] = new_user
                         with open(new_file, 'w', encoding='utf-8') as f:
                             json.dump(profile_data, f, indent=2)
-                        old_file.unlink()
+                        if old_file != new_file and old_file.exists():
+                            old_file.unlink()
                         
-                        response = {"status": "success", "username": clean_new}
+                        response = {"status": "success", "username": new_user}
                         self.send_response(200)
                     else:
                         response = {"status": "error", "message": "Profile not found"}
@@ -232,11 +255,10 @@ class AstraGameRequestHandler(http.server.SimpleHTTPRequestHandler):
         # Handle API Profile Delete Endpoint
         if parsed_path.path == '/api/profile':
             query_params = urllib.parse.parse_qs(parsed_path.query)
-            username = query_params.get('user', [''])[0]
-            clean_username = "".join(c for c in username if c.isalnum() or c in ('_', '-')).lower()
+            username = query_params.get('user', [''])[0].strip()
             
-            if clean_username:
-                user_file = DATA_DIR / f"{clean_username}.json"
+            if username:
+                user_file = get_user_file(username)
                 if user_file.exists():
                     user_file.unlink()
                 self.send_response(200)
