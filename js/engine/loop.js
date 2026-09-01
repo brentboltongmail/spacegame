@@ -160,6 +160,9 @@ const _targetWorldPos = new THREE.Vector3();
             
             updateBlastDoors(dtFactor);
 
+            const preMovementPos = playerShip.position.clone();
+            const preMovementQuat = playerShip.quaternion.clone();
+
             if (isLandingSequenceActive && theCrestStation && theCrestStation.userData.hangerModel) {
                 updateLandingSequence(dtFactor);
             } else {
@@ -197,8 +200,8 @@ const _targetWorldPos = new THREE.Vector3();
                 const moveDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
                 frameDisplacement = moveDir.clone().multiplyScalar(currentSpeed * 0.0064 * dtFactor);
             }
-            const oldPos = playerShip.position.clone();
-            const oldQuat = playerShip.quaternion.clone();
+            const oldPos = preMovementPos;
+            const oldQuat = preMovementQuat;
             playerShip.position.add(frameDisplacement);
 
             // Prevent clipping into planet (Smooth sliding atmospheric repulsor buffer)
@@ -2325,10 +2328,8 @@ const _targetWorldPos = new THREE.Vector3();
                 const isAutopilotActive = (typeof isLandingSequenceActive !== 'undefined' && isLandingSequenceActive);
                 
                 if (isAutopilotActive) {
-                    if (landingPhase > 2 && landingPhase < 6) shouldOpen = true;
+                    if (landingPhase >= 1 && landingPhase <= 6) shouldOpen = true;
                     if (landingPhase === 7) shouldOpen = true;
-                    // Delay blast doors until the ship is further along the landing spline (approx Z=6)
-                    if (landingPhase === 2 && hangerModel.userData.landingProgress > 0.45) shouldOpen = true;
                 } else if (typeof window.inHangerZone !== 'undefined' && window.inHangerZone) {
                     shouldOpen = true;
                 }
@@ -2342,10 +2343,10 @@ const _targetWorldPos = new THREE.Vector3();
                 }
                 
                 if (hangerModel.userData.doorT < targetDoorT) {
-                    hangerModel.userData.doorT += 0.00375 * dtFactor;
+                    hangerModel.userData.doorT += 0.008 * dtFactor;
                     if (hangerModel.userData.doorT > targetDoorT) hangerModel.userData.doorT = targetDoorT;
                 } else if (hangerModel.userData.doorT > targetDoorT) {
-                    hangerModel.userData.doorT -= 0.00375 * dtFactor;
+                    hangerModel.userData.doorT -= 0.008 * dtFactor;
                     if (hangerModel.userData.doorT < targetDoorT) hangerModel.userData.doorT = targetDoorT;
                 }
                 
@@ -2366,23 +2367,18 @@ const _targetWorldPos = new THREE.Vector3();
             if (!theCrestStation || !theCrestStation.userData.hangerModel) return;
             const hangerModel = theCrestStation.userData.hangerModel;
             
-            const outerWP = new THREE.Vector3(0, -0.18, 12.0).applyMatrix4(hangerModel.matrixWorld);
-            const approachWP = new THREE.Vector3(0, -0.18, 3.0).applyMatrix4(hangerModel.matrixWorld);
-            const entryWP = new THREE.Vector3(0, -0.18, 0.5).applyMatrix4(hangerModel.matrixWorld);
-            const hoverWP = new THREE.Vector3(-0.55, -0.18, 0.75).applyMatrix4(hangerModel.matrixWorld);
+            const outerWP = new THREE.Vector3(0, -0.18, 15.0).applyMatrix4(hangerModel.matrixWorld);
             const landWP = new THREE.Vector3(-0.55, -0.38, 0.75).applyMatrix4(hangerModel.matrixWorld);
             
-            // In THREE.js, objects look down their local -Z axis.
-            // If the hangar door is at local +Z, looking INTO the hangar means looking towards -Z.
-            // So inward is hangerModel's native rotation.
-            // Parked ships should face outward (+Z), which requires a 180 degree rotation.
-            const inwardQuat = hangerModel.getWorldQuaternion(new THREE.Quaternion());
+            // In THREE.js, objects look down local -Z axis.
+            // Parked ships face outward (+Z), which requires a 180 degree rotation.
             const outwardQuat = hangerModel.getWorldQuaternion(new THREE.Quaternion()).multiply(
-                new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), Math.PI)
+                new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI)
             );
+            const stationUp = new THREE.Vector3(0, 1, 0).transformDirection(hangerModel.matrixWorld).normalize();
             
             if (landingPhase === 1) {
-                targetSpeed = 0;
+                targetSpeed = 260; // Engage active engine cruise burn
                 
                 const dirToOuter = outerWP.clone().sub(playerShip.position).normalize();
                 const toStation = theCrestStation.position.clone().sub(playerShip.position);
@@ -2402,39 +2398,48 @@ const _targetWorldPos = new THREE.Vector3();
             }
             
             if (landingPhase === 1.5) {
+                targetSpeed = 260;
                 const toNav = landingApproachWaypoint.clone().sub(playerShip.position);
-                if (toNav.length() > 50) {
+                const dist = toNav.length();
+                if (dist > 30) {
                     const dir = toNav.normalize();
-                    playerShip.position.add(dir.multiplyScalar(125 * 0.0064 * dtFactor));
+                    playerShip.position.add(dir.multiplyScalar(250 * 0.0064 * dtFactor));
                     const targetRot = new THREE.Quaternion().setFromRotationMatrix(
-                        new THREE.Matrix4().lookAt(playerShip.position, landingApproachWaypoint, new THREE.Vector3(0, 1, 0))
+                        new THREE.Matrix4().lookAt(playerShip.position, landingApproachWaypoint, stationUp)
                     );
-                    playerShip.quaternion.slerp(targetRot, 0.03 * dtFactor);
+                    playerShip.quaternion.slerp(targetRot, Math.min(1.0, 0.08 * dtFactor));
                 } else {
                     landingPhase = 1.8;
                 }
             } else if (landingPhase === 1.8) {
+                targetSpeed = 260;
                 const toOuter = outerWP.clone().sub(playerShip.position);
-                if (toOuter.length() > 50) {
+                const dist = toOuter.length();
+                if (dist > 20) {
                     const dir = toOuter.normalize();
-                    playerShip.position.add(dir.multiplyScalar(125 * 0.0064 * dtFactor));
+                    playerShip.position.add(dir.multiplyScalar(250 * 0.0064 * dtFactor));
                     const targetRot = new THREE.Quaternion().setFromRotationMatrix(
-                        new THREE.Matrix4().lookAt(playerShip.position, outerWP, new THREE.Vector3(0, 1, 0))
+                        new THREE.Matrix4().lookAt(playerShip.position, outerWP, stationUp)
                     );
-                    playerShip.quaternion.slerp(targetRot, 0.03 * dtFactor);
+                    playerShip.quaternion.slerp(targetRot, Math.min(1.0, 0.08 * dtFactor));
                 } else {
                     landingPhase = 2;
                 }
             } else if (landingPhase === 2) {
                 if (!hangerModel.userData.landingCurve) {
                     const pts = [
-                        new THREE.Vector3(0, -0.18, 12.0),
-                        new THREE.Vector3(0, -0.18, 5.0),
-                        new THREE.Vector3(0, -0.18, 1.0),
-                        new THREE.Vector3(-0.1, -0.18, -0.5),
-                        new THREE.Vector3(-0.55, -0.18, -0.5),
-                        new THREE.Vector3(-0.55, -0.18, 0.75),
-                        new THREE.Vector3(-0.55, -0.38, 0.75)
+                        new THREE.Vector3( 0.00, -0.18, 15.00),
+                        new THREE.Vector3( 0.00, -0.18,  8.00),
+                        new THREE.Vector3( 0.00, -0.18,  3.50),
+                        new THREE.Vector3( 0.00, -0.18,  1.00), // Crossing entrance aperture
+                        new THREE.Vector3(-0.02, -0.18,  0.30), // Gentle lead-in
+                        new THREE.Vector3(-0.12, -0.18, -0.20), // Wide smooth arc
+                        new THREE.Vector3(-0.30, -0.19, -0.45), // Turn apex in deep bay
+                        new THREE.Vector3(-0.48, -0.20, -0.30), // Rounding toward pad
+                        new THREE.Vector3(-0.55, -0.22,  0.05), // Aligning with pad axis
+                        new THREE.Vector3(-0.55, -0.26,  0.45), // Pad straight approach
+                        new THREE.Vector3(-0.55, -0.32,  0.68), // Flare hover
+                        new THREE.Vector3(-0.55, -0.38,  0.75)  // Touchdown on pad
                     ];
                     hangerModel.userData.landingCurve = new THREE.CatmullRomCurve3(pts);
                     hangerModel.userData.landingCurve.curveType = 'centripetal';
@@ -2445,72 +2450,101 @@ const _targetWorldPos = new THREE.Vector3();
                     hangerModel.userData.landingOffset = playerShip.position.clone().sub(startPos);
                 }
                 
-                // Uniform arc-length speed - eliminates the weird speed up!
-                let speed = 0.001; 
-                if (hangerModel.userData.landingProgress > 0.8) speed = 0.0005;
-                if (hangerModel.userData.landingProgress > 0.95) speed = 0.00025; // smooth landing
+                let prog = hangerModel.userData.landingProgress;
+                
+                // Dynamic landing throttle simulation
+                if (prog < 0.40) {
+                    targetSpeed = 240 - prog * 150; // Cruise approach
+                } else if (prog < 0.70) {
+                    targetSpeed = 180 - (prog - 0.40) * 200; // Entering bay & curving
+                } else if (prog < 0.90) {
+                    targetSpeed = 120 - (prog - 0.70) * 350; // Lining up with pad
+                } else {
+                    targetSpeed = Math.max(8, 50 - (prog - 0.90) * 420); // Hover flare & touchdown
+                }
+                
+                // Speed along spline (2x faster than previous baseline, with smooth deceleration curve)
+                let speed = 0.0024;
+                if (prog > 0.65) {
+                    const tCurve = (prog - 0.65) / 0.25;
+                    speed = 0.0024 - Math.min(1.0, tCurve) * 0.0012;
+                }
+                if (prog > 0.90) {
+                    const tFlare = (prog - 0.90) / 0.10;
+                    speed = 0.0012 - Math.min(1.0, tFlare) * 0.0006;
+                }
                 
                 hangerModel.userData.landingProgress += speed * dtFactor;
-                let prog = hangerModel.userData.landingProgress;
-                if (prog >= 1.0) prog = 1.0;
+                prog = Math.min(1.0, hangerModel.userData.landingProgress);
                 
-                // Use getPointAt for uniform speed along the curve
+                // Evaluate smooth spline position in World Space
                 const localPos = hangerModel.userData.landingCurve.getPointAt(prog);
                 const worldPos = localPos.clone().applyMatrix4(hangerModel.matrixWorld);
                 
-                // Decay the offset smoothly to 0 over the first second
-                hangerModel.userData.landingOffset.lerp(new THREE.Vector3(0,0,0), 0.05 * dtFactor);
+                // Smoothly decay initial offset without tugging
+                hangerModel.userData.landingOffset.lerp(new THREE.Vector3(0, 0, 0), Math.min(1.0, 0.08 * dtFactor));
                 
-                // Set absolute position exactly to avoid physics jitter
+                // Position ship exactly on the smooth spline
                 playerShip.position.copy(worldPos).add(hangerModel.userData.landingOffset);
                 
-                // For rotation, look slightly ahead using getTangentAt
-                let lookAhead = prog + 0.02;
-                if (lookAhead > 1.0) lookAhead = 1.0;
+                // Compute continuous look-ahead tangent
+                const lookAhead = Math.min(1.0, prog + 0.02);
+                const localTangent = hangerModel.userData.landingCurve.getTangentAt(lookAhead);
                 
-                if (prog < 0.9) {
-                    const localTangent = hangerModel.userData.landingCurve.getTangentAt(lookAhead);
-                    localTangent.y = 0; // Keep ship level during approach
+                if (localTangent.lengthSq() > 0.0001) {
+                    localTangent.normalize();
+                    const worldTangent = localTangent.clone().transformDirection(hangerModel.matrixWorld).normalize();
+                    const lookTarget = playerShip.position.clone().add(worldTangent);
                     
-                    if (localTangent.lengthSq() > 0.001) {
-                        localTangent.normalize();
-                        const worldTangent = localTangent.transformDirection(hangerModel.matrixWorld);
-                        const lookTarget = playerShip.position.clone().add(worldTangent);
-                        
-                        const targetRot = new THREE.Quaternion().setFromRotationMatrix(
-                            new THREE.Matrix4().lookAt(playerShip.position, lookTarget, new THREE.Vector3(0, 1, 0))
-                        );
-                        
-                        // Blend smoothly into the spline path during the first 5% of the curve,
-                        // then perfectly lock to the tangent to eliminate all wobbling/shaking.
-                        if (prog < 0.05) {
-                            playerShip.quaternion.slerp(targetRot, 0.2 * dtFactor);
-                        } else {
-                            playerShip.quaternion.copy(targetRot);
-                        }
+                    const targetRot = new THREE.Quaternion().setFromRotationMatrix(
+                        new THREE.Matrix4().lookAt(playerShip.position, lookTarget, stationUp)
+                    );
+                    
+                    // Aerodynamic banking into turn based on curvature
+                    const nextLookAhead = Math.min(1.0, prog + 0.05);
+                    const nextTangent = hangerModel.userData.landingCurve.getTangentAt(nextLookAhead);
+                    const turnRateVal = (localTangent.x * nextTangent.z - localTangent.z * nextTangent.x);
+                    
+                    let bankMult = 1.0;
+                    if (prog > 0.75) bankMult = Math.max(0, 1.0 - (prog - 0.75) / 0.15);
+                    const bankAngle = Math.max(-0.35, Math.min(0.35, turnRateVal * 5.0 * bankMult));
+                    const bankQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), bankAngle);
+                    targetRot.multiply(bankQuat);
+                    
+                    // Smoothstep blend into pad parking orientation over final descent (prog 0.70 to 1.0)
+                    if (prog >= 0.70) {
+                        const blend = Math.min(1.0, (prog - 0.70) / 0.28);
+                        const smoothBlend = blend * blend * (3 - 2 * blend); // C1/C2 smoothstep
+                        targetRot.slerp(outwardQuat, smoothBlend);
                     }
-                } else {
-                    // Final vertical descent: gracefully lock into the final parking orientation
-                    playerShip.quaternion.slerp(outwardQuat, 0.1 * dtFactor);
+                    
+                    playerShip.quaternion.slerp(targetRot, Math.min(1.0, 0.14 * dtFactor));
                 }
                 
                 if (prog >= 1.0) {
                     landingPhase = 6;
-                    // Ensure perfectly placed
+                    targetSpeed = 0;
+                    currentSpeed = 0;
                     playerShip.position.copy(worldPos);
                     playerShip.quaternion.copy(outwardQuat);
-                    showToast("🛬 LANDING COMPLETE. WELCOME TO THE CREST.");
+                    const launchBtn = document.getElementById('btn-ready-launch');
+                    if (launchBtn) launchBtn.style.display = 'block';
+                    window.inHangerZone = true;
+                    showToast("🛬 DOCKING COMPLETE. WELCOME TO THE CREST.");
                 }
             } else if (landingPhase === 6) {
+                targetSpeed = 0;
                 playerShip.position.copy(landWP);
                 playerShip.quaternion.copy(outwardQuat);
             } else if (landingPhase === 7) {
+                targetSpeed = 0;
                 playerShip.position.copy(landWP);
                 playerShip.quaternion.copy(outwardQuat);
                 
                 if (hangerModel.userData.doorT >= 1) {
                     isLandingSequenceActive = false;
                     landingPhase = 0;
+                    hangerModel.userData.landingCurve = null;
                     showToast("🚀 BLAST DOORS OPEN. YOU HAVE FLIGHT CONTROL.");
                 }
             }

@@ -171,6 +171,11 @@
             landingPhase = 1;
             landingStartTime = performance.now();
             
+            if (theCrestStation && theCrestStation.userData && theCrestStation.userData.hangerModel) {
+                theCrestStation.userData.hangerModel.userData.landingCurve = null;
+                theCrestStation.userData.hangerModel.userData.landingProgress = 0;
+            }
+            
             const btn = document.getElementById('btn-request-landing');
             if (btn) btn.style.display = 'none';
             

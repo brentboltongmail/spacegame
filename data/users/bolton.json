@@ -46,28 +46,30 @@
   },
   "progress": {
     "currentMission": "Mission 1",
-    "playerCredits": 125000,
+    "playerCredits": 127000,
     "playerHp": 100,
     "shieldPercent": 100,
-    "landingPhase": 0,
-    "isLandingSequenceActive": false,
+    "landingPhase": 2,
+    "isLandingSequenceActive": true,
     "inHangerZone": false,
-    "stationRotationY": 2.079749999999669,
+    "stationRotationY": 4.883749999999956,
+    "currentSpeed": 4.261474331245541e-113,
+    "targetSpeed": 0,
     "shipPosition": {
-      "x": 29289.514978925487,
-      "y": 36135.6449959057,
-      "z": -107943.7002524203
+      "x": 80376.77322954196,
+      "y": -768.9227758482142,
+      "z": -44821.16383110975
     },
     "shipQuaternion": {
-      "x": 0.09559781864579688,
-      "y": 0.9255483438558871,
-      "z": 0.034770425764160055,
-      "w": -0.3647085654985056
+      "x": 0,
+      "y": 0.08551344514269507,
+      "z": 0,
+      "w": 0.9963370166263157
     },
     "mission1": {
       "active": true,
-      "stage": 0,
-      "enemiesDestroyed": 0,
+      "stage": 5,
+      "enemiesDestroyed": 4,
       "clearedRings": [
         true,
         true,
