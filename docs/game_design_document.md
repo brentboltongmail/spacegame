@@ -1,7 +1,7 @@
 # 🌌 Game Design Document: Solaris Horizon: Emergence (3D Space Action RPG)
 
 > **Project Concept**: Action-Packed 3D Space Warfare & Exploration Game  
-> **Key Themes**: High-Speed Dogfighting, Capital Ship Subsystem Combat, Ancient Precursor Wormholes, Adopted Earth Pilot -> Royal Heir Mystery
+> **Key Themes**: High-Speed Dogfighting, Capital Ship Subsystem Combat, Ancient Wormholes, Adopted Earth Pilot -> Royal Heir Mystery
 
 ![Solaris Horizon Concept Artwork](file:///d:/github/spacegame/docs/images/solaris_horizon_concept.jpg)
 
@@ -13,7 +13,7 @@
 |---|---------------------|--------------|---------|
 | 1 | **Solaris Horizon: Emergence** *(Selected)* | Sci-Fi Narrative + Action | *"An Earth cadet. An ancient crown. A galaxy at war."* |
 | 2 | **Starbound Scion: Void Vanguard** | High-Octane Space Fleet Warfare | *"Burn through the wormhole. Claim your birthright."* |
-| 3 | **Wormhole Genesis: Royal Blood** | Precursor Exploration & Combat | *"Beyond the rift lies a forgotten empire."* |
+| 3 | **Wormhole Genesis: Royal Blood** | Ancient Exploration & Combat | *"Beyond the rift lies a forgotten empire."* |
 | 4 | **Chronicles of Aythelgard: The Lost Sovereign** | Epic Space Opera RPG | *"Adopted on Earth. Destined for the Stars."* |
 | 5 | **Solaris Drift: Sovereign Lineage** | Space Simulator & Dogfighting | *"Command small fighters. Strike Titan dreadnoughts."* |
 | 6 | **Event Horizon: Reclaim** | Pure Action & Tactical Fleet War | *"Fight through the rift. Destroy the usurpers."* |
@@ -28,14 +28,14 @@
 
 ### The Protagonist's Origins
 - **Name**: Lieutenant Kaylen Vance (Callsign: *"Apex"*)
-- **Background**: Raised on Mars by an adoptive parent, Elias (a retired Earth Defense Force mechanic). His only heirloom is a glowing precursor artifact (the Royal Star Key) found in his escape pod as an infant.
+- **Background**: Raised on Mars by an adoptive parent, Elias (a retired Earth Defense Force mechanic). His only heirloom is a glowing ancient artifact (the Royal Star Key) found in his escape pod as an infant.
 - **The Twist**: He is not human. He is the last bloodline heir to **House Vanguard**, the ruling sovereign house of the distant *Sovereign Reach*, which was overthrown 20 years ago by an aggressive military junta known as **The Iron Dominion**.
 
-![Precursor Civilization & Royal Lineage Concept Artwork](file:///d:/github/spacegame/docs/images/precursor_ruins_concept.jpg)
+![Ancient Civilization & Royal Lineage Concept Artwork](file:///d:/github/spacegame/docs/images/ancient_ruins_concept.jpg)
 
 ### Narrative Pacing (Low Politics, High Action)
 - **Act I — Sol Defense (Tutorial & Hook)**: You pilot standard Earth Space Force fighters defending asteroid mining routes. An unknown alien warship attacks; your pendant reacts and activates an ancient dormant wormhole gate, pulling your squadron through.
-- **Act II — The Uncharted Frontier (Exploration & Mercenary Arc)**: Stranded thousands of lightyears away, you work for independent stations—taking dogfight bounties, raiding pirate convoys, and upgrading your ship. Ancient Precursor ruins recognize your genetic code, unlocking ship abilities and revealing your royal identity.
+- **Act II — The Uncharted Frontier (Exploration & Mercenary Arc)**: Stranded thousands of lightyears away, you work for independent stations—taking dogfight bounties, raiding pirate convoys, and upgrading your ship. Ancient ruins recognize your genetic code, unlocking ship abilities and revealing your royal identity.
 - **Act III — The Sovereign Restoration (Fleet Warfare)**: Uniting broken planetary houses, commanding fleet engagements, disabling giant enemy dreadnought turrets, and launching a strike on your ancestral homeworld to stop an invasion of Earth.
 
 ---
@@ -53,7 +53,7 @@
 
 ### Pillar 3: Wormhole Gate System
 - **Stable Wormholes**: Connect main star sectors as strategic jump gates (chokepoints guarded by orbital space stations).
-- **Unstable Wormholes**: Dynamic spatial anomalies that lead to hidden precursor ruins, rare ship blueprints, or alien mini-boss encounters.
+- **Unstable Wormholes**: Dynamic spatial anomalies that lead to hidden ancient ruins, rare ship blueprints, or alien mini-boss encounters.
 
 ![Orbital Station & Wormhole Highway Docking Concept Artwork](file:///d:/github/spacegame/docs/images/wormhole_highway_concept.jpg)
 
@@ -66,7 +66,7 @@
 | **Void Interceptor** | Scout / Dogfighter | ⭐⭐⭐⭐⭐ | ⭐⭐ | Pulse Plasma Cannons | Fast strafing, dogfighting |
 | **Heavy Strike Fighter** | Anti-Bomber / Raider | ⭐⭐⭐⭐ | ⭐⭐⭐ | Heavy Auto-cannons & Lock Torpedoes | Subsystem disabling |
 | **Gunship Corvette** | Convoy Escort | ⭐⭐⭐ | ⭐⭐⭐⭐ | Dual Turrets & Flak Missiles | Heavy firepower support |
-| **Royal Battlecruiser** | Fleet Flagship | ⭐ | ⭐⭐⭐⭐⭐ | Precursor Lance Beams & Broadside Batteries | Tactical command & orbital siege |
+| **Royal Battlecruiser** | Fleet Flagship | ⭐ | ⭐⭐⭐⭐⭐ | Ancient Lance Beams & Broadside Batteries | Tactical command & orbital siege |
 | **Dominion Fighter** | Heavy Interceptor / Strike Craft | ⭐⭐⭐⭐ | ⭐⭐⭐ | Twin Crimson Laser Beams & Plasma Lightning | High-threat dogfighting & energy disruption |
 
 ### Ship Class Visual Showcase

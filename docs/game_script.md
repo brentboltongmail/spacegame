@@ -42,7 +42,7 @@ A routine scan of an ore freighter turns deadly when starvation-crazed miners la
 **Voices:** Kaylen Vance (`Liam` / `TX3LPaxmHKxFdv7VOQHJ`), Elias Vance (`Bill` / `pqHfZKP75CvOlQylNhV4`)
 
 **Scene / Cinematic:** 
-A massive spatial distortion rips open above Titan. The Iron Dominion fleet drops out of slipspace, vaporizing the methane crust to reveal an ancient moon-sized Precursor Wormhole Gate. The defense platform *The Crest* tears apart. In the final cinematic sequence, Kaylen locks his controls forward and dives through the singularity to close the gate from the inside.
+A massive spatial distortion rips open above Titan. The Iron Dominion fleet drops out of slipspace, vaporizing the methane crust to reveal an ancient moon-sized Ancient Wormhole Gate. The defense platform *The Crest* tears apart. In the final cinematic sequence, Kaylen locks his controls forward and dives through the singularity to close the gate from the inside.
 
 **Cinematic Dialogue & Comms Sequence:**
 *   **Elias (Hyper-wave Comms):** *"Kaylen! Kaylen, do you read me?! The long-range sensors on Mars just went red—The Crest is gone from the grid! Report in, kid!"*
@@ -58,7 +58,7 @@ A massive spatial distortion rips open above Titan. The Iron Dominion fleet drop
 
 **Gameplay Mechanics:**
 *   **Challenge:** Survive. The player must dodge massive dark-energy beams and weave through the debris of destroyed EDF cruisers.
-*   **Completion:** Survive for 3 minutes until the gate activates. Transition into the hands-free cinematic dive through the Precursor Wormhole into the Sovereign Reach.
+*   **Completion:** Survive for 3 minutes until the gate activates. Transition into the hands-free cinematic dive through the Ancient Wormhole into the Sovereign Reach.
 
 ---
 
@@ -114,13 +114,13 @@ A distress signal lures the crew into a dense, sensor-jamming nebula. It’s a t
 
 ### Mission 8: The Ancient Cache
 **Location:** Uncharted Gas Giant
-**Ship:** Void Interceptor (Unlocking Precursor Tech)
+**Ship:** Void Interceptor (Unlocking Ancient Tech)
 
 **Scene / Cinematic:** 
-The pendant pulses violently, leading the crew into a gas giant where they find a dormant precursor ring. Kaylen's ship is upgraded with the "Blink" drive.
+The pendant pulses violently, leading the crew into a gas giant where they find a dormant ancient ring. Kaylen's ship is upgraded with the "Blink" drive.
 
 **Dialogue:**
-*   **Lyra:** "That architecture... it's Precursor. How did you find it?"
+*   **Lyra:** "That architecture... it's Ancient. How did you find it?"
 *   **Kaylen:** "It didn't hide from me. It called to me."
 
 **Gameplay Mechanics:**

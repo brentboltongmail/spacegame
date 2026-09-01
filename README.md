@@ -13,9 +13,9 @@ An action-packed 3D space warfare, exploration, and flight simulation game.
 **Solaris Horizon: Emergence** combines high-speed 6-DOF fighter dogfighting, massive capital ship fleet warfare, and a wormhole highway network with a deep narrative.
 
 ### 📖 Story Premise
-You start as a fighter pilot for the **United Earth Space Force (UESF)** patrolling outer Sol system mining corridors. Raised on an orbital colony by an adoptive parent with only an unknown titanium-crystal pendant, your life changes when a rogue alien attack triggers a dormant **Precursor Wormhole Gate**.
+You start as a fighter pilot for the **United Earth Space Force (UESF)** patrolling outer Sol system mining corridors. Raised on an orbital colony by an adoptive parent with only an unknown titanium-crystal pendant, your life changes when a rogue alien attack triggers a dormant **Ancient Wormhole Gate**.
 
-Pulled thousands of lightyears away into the **Sovereign Reach**, precursor ruins recognize your genetic signature: you are the last surviving bloodline heir to **House Aythelgard**, overthrown 20 years ago by an aggressive military junta known as **The Iron Dominion**.
+Pulled thousands of lightyears away into the **Sovereign Reach**, ancient ruins recognize your genetic signature: you are the last surviving bloodline heir to **House Aythelgard**, overthrown 20 years ago by an aggressive military junta known as **The Iron Dominion**.
 
 ---
 
@@ -23,7 +23,7 @@ Pulled thousands of lightyears away into the **Sovereign Reach**, precursor ruin
 
 - **6-DOF Dogfighting**: High-speed maneuvering, afterburner boosting, pulse plasma blasters, and energy routing (*Weapons vs. Shields vs. Engines*).
 - **Capital Ship Fleet Warfare**: Dogfight around colossal Titan Battlecruisers, disabling subsystem turrets and shield generators.
-- **Wormhole Highway Network**: Transit between star sectors via stable jump gates or explore unstable anomalies containing precursor relics.
+- **Wormhole Highway Network**: Transit between star sectors via stable jump gates or explore unstable anomalies containing ancient relics.
 - **Action Pacing**: Low politics, high-octane space combat, mission briefings, and fleet command operations.
 
 ---

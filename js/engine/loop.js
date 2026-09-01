@@ -81,7 +81,7 @@ const _targetWorldPos = new THREE.Vector3();
             const totalYaw = Math.max(-1.0, Math.min(1.0, -mouseXEff + arrowYaw));
 
             if (isTitanCinematicActive && ancientGoldenGate) {
-                // In cinematic mode, guide ship smoothly toward and through the Ancient Precursor Gate center
+                // In cinematic mode, guide ship smoothly toward and through the Ancient Gate center
                 const gateCenter = ancientGoldenGate.position.clone();
                 const holdingThresholdZ = -44200; // 400 units in front of gate center (-44600)
                 
@@ -2039,7 +2039,7 @@ const _targetWorldPos = new THREE.Vector3();
                 }
             }
 
-            // Draw Ancient Precursor Golden Gate Blip (Radiant Gold - only when revealed)
+            // Draw Ancient Golden Gate Blip (Radiant Gold - only when revealed)
             if (ancientGoldenGate && ancientGoldenGate.visible && ancientGoldenGate.position) {
                 drawBlip(ancientGoldenGate.position, '#fbbf24');
             }
@@ -2185,14 +2185,14 @@ const _targetWorldPos = new THREE.Vector3();
                 }
             }
 
-            // 4. Mission 3 Precursor Gate Phase (Hide once arrived near the gate)
+            // 4. Mission 3 Ancient Gate Phase (Hide once arrived near the gate)
             if (typeof ancientGoldenGate !== 'undefined' && ancientGoldenGate && ancientGoldenGate.visible && ancientGoldenGate.position) {
                 if (typeof window.mission3Active !== 'undefined' && window.mission3Active) {
                     const distToGate = playerShip.position.distanceTo(ancientGoldenGate.position);
                     if (distToGate > 3500) {
                         return {
                             position: ancientGoldenGate.position,
-                            name: "PRECURSOR GATE"
+                            name: "ANCIENT GATE"
                         };
                     }
                 }

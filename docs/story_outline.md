@@ -58,7 +58,7 @@ He locks onto a Dominion fighter, his railguns spooling up. He squeezes the trig
 
 ![Act 1 Scene 7](./images/concept_art/act1/act1_scene7_1787218990558.jpg)
 
-Beneath him, the precursor ring beneath Titan activates. It bursts through the boiling ice in a halo of violet light. The energy output creates a gravitational shear that reaches all the way to The Crest. Through his canopy, Kaylen watches in horror as the orbital platform begins tearing apart. Steel bulkheads groan and buckle, habitation rings snap off like cheap toys, and atmosphere vents violently into the void in freezing geysers. Thousands of EDF personnel, comrades he shared coffee and jokes with, are carried out into the vacuum, their silhouettes tumbling into the dark.
+Beneath him, the ancient ring beneath Titan activates. It bursts through the boiling ice in a halo of violet light. The energy output creates a gravitational shear that reaches all the way to The Crest. Through his canopy, Kaylen watches in horror as the orbital platform begins tearing apart. Steel bulkheads groan and buckle, habitation rings snap off like cheap toys, and atmosphere vents violently into the void in freezing geysers. Thousands of EDF personnel, comrades he shared coffee and jokes with, are carried out into the vacuum, their silhouettes tumbling into the dark.
 
 Seeing his squadron decimated, the station falling, and the collapsing gravity well of the active wormhole threatening to swallow the sector, Kaylen makes a suicidal decision. He realizes Earth's only hope of survival is to close the gate from the inside before the bulk of the Dominion armada can cross the threshold. The dreadnoughts are already maneuvering toward the rift, preparing to bring their planet-cracking weapons to bear on Earth.
 
@@ -97,7 +97,7 @@ Just as the edges of his vision began to darken, a violent jolt rocked the Inter
 
 ![Act 2 Scene 2](./images/concept_art/act2/act2_scene2_1787218897262.jpg)
 
-He awoke hours later in the sterile medical bay of the scavenger ship, his wounds hastily patched. When he staggered to the observation deck, the sight before him stole the breath he had regained. The salvage vessel was docking at an independent outpost known as 'The Rust Haven'. It wasn't a space station; it was the hollowed-out carcass of a precursor dreadnought, a leviathan of metal suspended in cosmic dust.
+He awoke hours later in the sterile medical bay of the scavenger ship, his wounds hastily patched. When he staggered to the observation deck, the sight before him stole the breath he had regained. The salvage vessel was docking at an independent outpost known as 'The Rust Haven'. It wasn't a space station; it was the hollowed-out carcass of a ancient dreadnought, a leviathan of metal suspended in cosmic dust.
 
 The Rust Haven was a chaotic hive of scum and villainy, built into the ribbed infrastructure of the ancient warship. It was a neon-lit maze of cantinas, chop shops, and black markets. Armed local warlords rubbed shoulders with disgraced politicians in the shadows, while synthetic units traded encrypted data drives for coolant. The air in the hangar bays tasted of sulfur, synthehol, and the static charge of unshielded plasma cutters.
 
@@ -131,12 +131,12 @@ Together, they transformed the battered Void Interceptor into a masterpiece of e
 
 It was during one of these salvage runs that the pendant Kaylen had carried since infancy awoke. The ancient metal began reacting to the environment, pulsing with a rhythmic glow when they approached uncharted coordinates. It acted as a cosmic tuning fork, vibrating with intensity, leading Kaylen away from the trade lanes and into the darkest corners of the sector. 
 
-The pendant guided them to ancient wormhole gates hidden within the cores of dead moons and buried within the crushing atmospheres of gas giants. These precursor structures had laid dormant for millions of years, vast rings of obsidian metal that defied the pressure of their environments. 
+The pendant guided them to ancient wormhole gates hidden within the cores of dead moons and buried within the crushing atmospheres of gas giants. These ancient structures had laid dormant for millions of years, vast rings of obsidian metal that defied the pressure of their environments. 
 
 
 ![Act 2 Scene 7](./images/concept_art/act2/act2_scene7_1787218980430.jpg)
 
-When Kaylen placed the glowing pendant into the central console of the first gate they found, the structure hummed to life, recognizing a genetic signature he didn't know he possessed. The gate didn't open a wormhole; instead, it unlocked a cache of dormant precursor technology, granting Kaylen's ship abilities that defied standard physics and far exceeded anything Earth's engineers had ever dreamed of.
+When Kaylen placed the glowing pendant into the central console of the first gate they found, the structure hummed to life, recognizing a genetic signature he didn't know he possessed. The gate didn't open a wormhole; instead, it unlocked a cache of dormant ancient technology, granting Kaylen's ship abilities that defied standard physics and far exceeded anything Earth's engineers had ever dreamed of.
 
 With Kayl and Jax's help, they integrated a teleportation drive into the Interceptor. In combat, it allowed Kaylen to blink across the battlefield. He could jump behind pursuing enemy fighters during a high-speed dogfight, bypassing their shields and causing them to fire upon their own wingmen in the confusion. The sensation of the blink was nauseating—a plunge into a dimension of light and screaming silence—but the tactical advantage was absolute.
 
@@ -152,7 +152,7 @@ However, secrets in the Verdant Reach were currency, and currency never stayed h
 
 ![Act 2 Scene 9](./images/concept_art/act2/act2_scene9_1787219008505.jpg)
 
-This newfound fame was a double-edged sword. It drew the unwanted attention of local warlords who saw Kaylen not as a savior, but as a walking payday. Bounties were placed on his head, leading to constant ambushes and betrayals by former clients. But the warlords were the least of his concerns. The ripples of his precursor technology had reached the dark corners of the galaxy, alerting the very empire he had fled.
+This newfound fame was a double-edged sword. It drew the unwanted attention of local warlords who saw Kaylen not as a savior, but as a walking payday. Bounties were placed on his head, leading to constant ambushes and betrayals by former clients. But the warlords were the least of his concerns. The ripples of his ancient technology had reached the dark corners of the galaxy, alerting the very empire he had fled.
 
 The Iron Dominion had arrived in the Reach. They immediately recognized the energy signatures of the forbidden technology Kaylen wielded. Regent Vaylen, the Dominion's dictator, dispatched his hunter-killer squadrons—fanatical pilots flying dark-energy strike craft—to capture Kaylen dead or alive.
 
@@ -194,7 +194,7 @@ It was a woman, clad in regal armor of white and gold. The resemblance was preci
 
 ![Act 3 Scene 4](./images/concept_art/act3/act3_scene4.jpg)
 
-Her voice, carrying the weight of a dying civilization, echoed directly into his helmet. The message she delivered tore down the foundation of his existence. She identified the glowing pendant around his neck as the **Royal Star Key of House Vanguard**—the ancestral bio-cipher of the throne that commanded the precursor gate network. He was not a human orphan scraped from the gutters of a Martian slum. He was the last surviving blood heir to House Vanguard, the benevolent rulers of the Sovereign Reach. 
+Her voice, carrying the weight of a dying civilization, echoed directly into his helmet. The message she delivered tore down the foundation of his existence. She identified the glowing pendant around his neck as the **Royal Star Key of House Vanguard**—the ancestral bio-cipher of the throne that commanded the ancient gate network. He was not a human orphan scraped from the gutters of a Martian slum. He was the last surviving blood heir to House Vanguard, the benevolent rulers of the Sovereign Reach. 
 
 For centuries, his bloodline had maintained an age of peace and scientific enlightenment, unifying the stars before the darkness fell. The holographic queen detailed the tragedy that had wiped his family from the annals of history. Twenty years ago, the grand Vanguard palaces had burned in a treacherous coup. 
 
@@ -270,7 +270,7 @@ From his command dais, Kaylen issues tactical orders to armadas of plasma dreadn
 
 ![Act 4 Scene 3](./images/concept_art/act4/act4_scene3_1787218905067.jpg)
 
-Yet, despite the grand scale of his new role, the soul of a pilot still burns within him. Kaylen refuses to be a commander who merely watches from the safety of a citadel. *The Crown of Vanguard* features a rapid-launch tube that allows him to jump into the cockpit of his modified **Void Interceptor Mk-II**, retrofitted with royal gold armor plating and precursor phase drives. Mid-battle, when a flank begins to crumble or a crucial objective must be secured, he launches from the hangar bays, transitioning from macro-tactics to the visceral reality of deep-space combat.
+Yet, despite the grand scale of his new role, the soul of a pilot still burns within him. Kaylen refuses to be a commander who merely watches from the safety of a citadel. *The Crown of Vanguard* features a rapid-launch tube that allows him to jump into the cockpit of his modified **Void Interceptor Mk-II**, retrofitted with royal gold armor plating and ancient phase drives. Mid-battle, when a flank begins to crumble or a crucial objective must be secured, he launches from the hangar bays, transitioning from macro-tactics to the visceral reality of deep-space combat.
 
 The combat scale expands drastically, dwarfing the skirmishes of his mercenary days. Kaylen is thrust into fleet engagements that defy comprehension. He coordinates artillery strikes that streak through the void, manages shield walls that ripple with energy as they absorb Dominion salvos, and dives headlong through the crossfire of hundreds of warships. 
 
@@ -346,7 +346,7 @@ Under Regent Vaylen’s brutal martial law, the skies have been choked with indu
 
 A planetary blockade encircles the ecumenopolis—a suffocating ring of jagged dreadnoughts, fortified minefields, and orbital weapon platforms bristling with plasma cannons. It is the largest defensive grid Kaylen has ever faced, a testament to the desperation of a crumbling regime. Vaylen has pulled every remaining loyalist ship back to the homeworld, fortifying his position for a final stand. 
 
-Within his personal command fortress—a citadel of black iron that pierces the smog layer and anchors the primary ancient gate network in orbit—Regent Vaylen has descended into madness. Realizing his grip on the sector is slipping and that the "Lost Scion" has come to exact vengeance, Vaylen abandons any pretense of tactical retreat. Driven by a volatile mix of paranoia, malice, and wounded pride, he powers up the precursor ring suspended above his citadel. 
+Within his personal command fortress—a citadel of black iron that pierces the smog layer and anchors the primary ancient gate network in orbit—Regent Vaylen has descended into madness. Realizing his grip on the sector is slipping and that the "Lost Scion" has come to exact vengeance, Vaylen abandons any pretense of tactical retreat. Driven by a volatile mix of paranoia, malice, and wounded pride, he powers up the ancient ring suspended above his citadel. 
 
 
 ![Act 5 Scene 3](./images/concept_art/act5/act5_scene3_1787218915147.jpg)

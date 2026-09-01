@@ -1157,7 +1157,7 @@
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
             if (sec) sec.innerText = "SECTOR 02 — UNKNOWN VOID BOUNDARY";
-            if (obj) obj.innerText = "Intercept Precursor Vanguard Patrols in Deep Slipspace";
+            if (obj) obj.innerText = "Intercept Ancient Vanguard Patrols in Deep Slipspace";
 
             if (typeof targetSpeed !== 'undefined') targetSpeed = 600;
             if (typeof currentSpeed !== 'undefined') currentSpeed = 400;

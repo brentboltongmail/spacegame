@@ -964,9 +964,9 @@
             currentSpeed = 50;
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
-            if (sec) sec.innerText = "ANCIENT PRECURSOR GOLDEN RING";
+            if (sec) sec.innerText = "ANCIENT GOLDEN RING";
             if (obj) obj.innerText = "Investigate the moon-sized Golden Wormhole Gate pulled into orbit by purple tractor beams";
-            showToast("Approaching Ancient Precursor Golden Ring Gate in Titan Orbit!");
+            showToast("Approaching Ancient Golden Ring Gate in Titan Orbit!");
         }
 
         function triggerWormholeJump() {
@@ -1056,7 +1056,7 @@
                 text: "Oh no... The Crest!! NOOO!!",
                 audioSrc: "audio/cinematics/titan_gate/titan_arrival_04_kaylen.mp3"
             },
-            // --- PART B: MARS COMMS & PRECURSOR RIFT DIVE ---
+            // --- PART B: MARS COMMS & ANCIENT RIFT DIVE ---
             {
                 id: "titan_gate_01_elias",
                 speaker: "ELIAS VANCE",
@@ -1401,7 +1401,7 @@
             const sec = document.getElementById('hud-sector');
             const obj = document.getElementById('hud-objective');
             if (sec) sec.innerText = "OVERDRIVE ENGAGED — SLIPSPACE THRESHOLD";
-            if (obj) obj.innerText = "⚡ PENETRATING THE ANCIENT PRECURSOR SINGULARITY...";
+            if (obj) obj.innerText = "⚡ PENETRATING THE ANCIENT SINGULARITY...";
 
             showToast("⚡ OVERDRIVE ENGAGED — ENTERING SLIPSPACE SINGULARITY!");
         }

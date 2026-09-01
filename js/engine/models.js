@@ -2130,11 +2130,11 @@
                 titanLightningBolts.push(lLine);
             }
 
-            // 2. Colossal Moon-Sized Ancient Precursor Golden Gate Ring
+            // 2. Colossal Moon-Sized Ancient Golden Gate Ring
             ancientGoldenGate = new THREE.Group();
-            ancientGoldenGate.name = "AncientPrecursorGoldenGate";
+            ancientGoldenGate.name = "AncientGoldenGate";
 
-            // A. Colossal Golden Torus Ring (Outer Precursor Monolith Hull)
+            // A. Colossal Golden Torus Ring (Outer Ancient Monolith Hull)
             const ringGeo = new THREE.TorusGeometry(320, 24, 24, 96);
             ringGeo.rotateX(Math.PI / 2);
             const ringMat = new THREE.MeshStandardMaterial({
@@ -2165,7 +2165,7 @@
                 const pylonGroup = new THREE.Group();
                 const angle = (i / 12) * Math.PI * 2;
 
-                // Tapered golden precursor obelisk
+                // Tapered golden ancient obelisk
                 const obeliskGeo = new THREE.CylinderGeometry(5, 14, 90, 6);
                 const obeliskMat = new THREE.MeshStandardMaterial({
                     color: 0xd97706,
@@ -2284,7 +2284,7 @@
             const counterData = [];
 
             const spiralColorPalette2 = [
-                new THREE.Color(0xfbbf24), // Precursor Gold
+                new THREE.Color(0xfbbf24), // Ancient Gold
                 new THREE.Color(0xfde047), // Solar Gold
                 new THREE.Color(0xf59e0b), // Deep Amber Gold
                 new THREE.Color(0x00f0ff), // Electric Cyan
@@ -2337,7 +2337,7 @@
             goldenGateTunnelPoints.userData = { pData: counterData };
             goldenGateVortexGroup.add(goldenGateTunnelPoints);
 
-            // 3. Peripheral Precursor Boundary Corona (6,000 Dense Particles in 2D Ring Plane)
+            // 3. Peripheral Ancient Boundary Corona (6,000 Dense Particles in 2D Ring Plane)
             const borderCount = 6000;
             const borderGeo = new THREE.BufferGeometry();
             const borderPositions = new Float32Array(borderCount * 3);
@@ -2422,7 +2422,7 @@
             ancientGoldenGate.position.copy(craterWorld);
             ancientGoldenGate.quaternion.copy(titanExcavationSite.getWorldQuaternion(new THREE.Quaternion()));
 
-            console.log("[TITAN EXCAVATION] Huge Golden Precursor Gate (Buried Under Ice) & Excavation Crater Initialized on Titan!");
+            console.log("[TITAN EXCAVATION] Huge Golden Ancient Gate (Buried Under Ice) & Excavation Crater Initialized on Titan!");
             initCapitalShipSpinalBeams();
         }
 
@@ -2530,7 +2530,7 @@
                 goldenRingLiftProgress = 1.0;
                 if (ancientGoldenGate) ancientGoldenGate.visible = true;
                 if (titanIceCrustMesh) titanIceCrustMesh.visible = false;
-                showToast("🌀 GOLDEN PRECURSOR GATE IN SPACE — TRACTOR BEAMS DISENGAGED — SLIPSPACE VORTEX OPEN!");
+                showToast("🌀 GOLDEN ANCIENT GATE IN SPACE — TRACTOR BEAMS DISENGAGED — SLIPSPACE VORTEX OPEN!");
             } else {
                 titanExcavationPhase = 'BOMBARDMENT';
                 isTitanExcavationStarted = true;
@@ -2621,7 +2621,7 @@
             } else if (elapsedExcavation >= 10.0 && elapsedExcavation < 12.0) {
                 if (titanExcavationPhase !== 'GATE_REVEALED') {
                     titanExcavationPhase = 'GATE_REVEALED';
-                    showToast("❄️ ICE CRUST MELTED! BOMBARDMENT CEASED — HUGE GOLDEN PRECURSOR GATE REVEALED!");
+                    showToast("❄️ ICE CRUST MELTED! BOMBARDMENT CEASED — HUGE GOLDEN ANCIENT GATE REVEALED!");
                 }
                 isBombardmentFiring = false; // SHUT OFF GOLD BEAMS
                 isTractorFiring = false;     // TRACTOR NOT ACTIVE YET
@@ -2782,7 +2782,7 @@
                 // 18.5s+: EXPLOSION TOTALLY GONE — STATION SHATTERED AND DESTROYED
                 if (theCrestState !== 'DESTROYED') {
                     theCrestState = 'DESTROYED';
-                    showToast("💥 THE CREST DESTROYED — PRECURSOR GATE EXTRACTION REACHING CRITICAL SLIPSPACE VELOCITY!");
+                    showToast("💥 THE CREST DESTROYED — ANCIENT GATE EXTRACTION REACHING CRITICAL SLIPSPACE VELOCITY!");
                 }
                 if (theCrestModelOriginal) theCrestModelOriginal.visible = false;
                 if (theCrestExplosionLight) theCrestExplosionLight.intensity = 0;
@@ -2806,7 +2806,7 @@
                 }
             }
 
-            // Trigger Titan Precursor Wormhole Gate Cinematic at 33.5s (when gate reaches space)
+            // Trigger Titan Ancient Wormhole Gate Cinematic at 33.5s (when gate reaches space)
             if (elapsedExcavation >= 33.5 && !isTitanCinematicActive && !hasTitanCinematicPlayed) {
                 hasTitanCinematicPlayed = true;
                 startTitanGateCinematic();
@@ -3071,7 +3071,7 @@
                         bData.flare.material.color.setHex(0x9333ea);  // Deep Purple Ventral Flare
                     } else if (isTractorFiring) {
                         bData.core.material.color.setHex(0xffffff);   // Brilliant White Core
-                        bData.plasma.material.color.setHex(0xfbbf24); // Radiant Amber Precursor Gold
+                        bData.plasma.material.color.setHex(0xfbbf24); // Radiant Amber Ancient Gold
                         bData.cage.material.color.setHex(0xfef08a);   // Luminous Solar Gold Cage
                         bData.flare.material.color.setHex(0xf59e0b);  // Amber Gold Ventral Flare
                     }

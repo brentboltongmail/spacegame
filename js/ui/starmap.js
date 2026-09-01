@@ -131,12 +131,12 @@
             mapSunMesh.position.set(3000, 1600, 2000); // 750000, 400000, 500000 * 0.004
             mapGroup.add(mapSunMesh);
 
-            // 4. Ancient Precursor Golden Gate
+            // 4. Ancient Golden Gate
             const gateIconGeo = new THREE.TorusGeometry(3.8, 0.9, 16, 32);
             gateIconGeo.rotateX(Math.PI / 2);
             const gateIconMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
             mapGateMesh = new THREE.Mesh(gateIconGeo, gateIconMat);
-            mapGateMesh.userData = { label: "Ancient Precursor Golden Gate" };
+            mapGateMesh.userData = { label: "Ancient Golden Gate" };
             mapGroup.add(mapGateMesh);
 
             // 5. Dominion Capital Fleet Group

@@ -27,11 +27,11 @@
         "use_speaker_boost": true
       }
     },
-    "precursor_ai": {
-      "name": "Precursor AI / Queen Althea",
+    "ancient_ai": {
+      "name": "Ancient AI / Queen Althea",
       "voice_id": "EXAVITQu4vr4xnSDxMaL",
       "voice_name": "Sarah",
-      "role": "Ancestral Royal Hologram / Precursor Construct",
+      "role": "Ancestral Royal Hologram / Ancient Construct",
       "description": "Mature, regal, enigmatic female voice of House Vanguard.",
       "settings": {
         "stability": 0.6,
