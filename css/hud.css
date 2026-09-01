@@ -74,9 +74,9 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 40px;
-            height: 40px;
-            border: 1px dashed rgba(0, 240, 255, 0.5);
+            width: 36px;
+            height: 36px;
+            border: 1.5px solid rgba(0, 240, 255, 0.85);
             border-radius: 50%;
             display: flex;
             align-items: center;

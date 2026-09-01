@@ -1,0 +1,184 @@
+{
+  "username": "boltono",
+  "boxPositions": {},
+  "settings": {
+    "masterVol": 70,
+    "engineVol": 80,
+    "firingVol": 85,
+    "musicVol": 60,
+    "rollSpeed": 50,
+    "turnSpeed": 50,
+    "cameraLag": 80,
+    "throttleAccel": 50,
+    "toastDuration": 5,
+    "shieldRegenMult": 33,
+    "hullRegenMult": 33,
+    "enemyDamageMult": 20,
+    "enemySpeedMult": 50,
+    "playerDamageMult": 20,
+    "flashOnHit": false,
+    "platform": "mac"
+  },
+  "progress": {
+    "currentMission": "Mission 1",
+    "playerCredits": 125500,
+    "playerHp": 100,
+    "shieldPercent": 100,
+    "landingPhase": 0,
+    "isLandingSequenceActive": false,
+    "inHangerZone": false,
+    "stationRotationY": 12.005625000011818,
+    "currentSpeed": 135.23849997495077,
+    "targetSpeed": 135.23850000000002,
+    "shipPosition": {
+      "x": 80779.7168050212,
+      "y": -1134.9029601755246,
+      "z": -46214.98981180979
+    },
+    "shipQuaternion": {
+      "x": -0.14093556497142104,
+      "y": 0.8288300402856379,
+      "z": 0.37558711949540885,
+      "w": 0.39001570034534633
+    },
+    "mission1": {
+      "active": true,
+      "stage": 0,
+      "enemiesDestroyed": 1,
+      "clearedRings": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "enemies": [
+        {
+          "x": 81047.9038717651,
+          "y": -555.2390974061619,
+          "z": -46457.90203593916,
+          "qx": -0.9012266809186086,
+          "qy": 0.41124071955212527,
+          "qz": 0,
+          "qw": 0.13664384429119916,
+          "hp": 100,
+          "maxHp": 100,
+          "isMissionDrone": true
+        },
+        {
+          "x": 59969.084373235826,
+          "y": 102.63344723841499,
+          "z": -71568.12534242976,
+          "qx": -0.0072990722870958855,
+          "qy": -0.9863176615351075,
+          "qz": -0.013066746793748061,
+          "qw": 0.16417507184811242,
+          "hp": 100,
+          "maxHp": 100,
+          "isMissionDrone": true
+        },
+        {
+          "x": 61162.500701276855,
+          "y": -298.3986712644343,
+          "z": -71580.7903546347,
+          "qx": -0.004321908435005581,
+          "qy": -0.9886732914640891,
+          "qz": -0.008008753265572429,
+          "qw": 0.14980755563266007,
+          "hp": 100,
+          "maxHp": 100,
+          "isMissionDrone": true
+        },
+        {
+          "x": 56934.51522756707,
+          "y": 402.27749400596633,
+          "z": -89649.07018548343,
+          "qx": -0.005270559717217758,
+          "qy": -0.9971132233901787,
+          "qz": -0.011822094693648953,
+          "qw": 0.07481763841676108,
+          "hp": 100,
+          "maxHp": 100,
+          "isMissionDrone": true
+        },
+        {
+          "x": 58131.369212750644,
+          "y": 1.587198099020966,
+          "z": -89659.13220629848,
+          "qx": -0.003584091798192799,
+          "qy": -0.9979033297224593,
+          "qz": -0.00827755972054586,
+          "qw": 0.06409041129810172,
+          "hp": 100,
+          "maxHp": 100,
+          "isMissionDrone": true
+        },
+        {
+          "x": 76913.7240280518,
+          "y": 602.5209196797739,
+          "z": -97854.6844889124,
+          "qx": -0.0029390794701201046,
+          "qy": -0.9904081327083706,
+          "qz": -0.014022796419498922,
+          "qw": -0.1374279944478462,
+          "hp": 100,
+          "maxHp": 100,
+          "isMissionDrone": true
+        },
+        {
+          "x": 78115.11775145233,
+          "y": 201.8451325452799,
+          "z": -97865.93079543715,
+          "qx": -0.002032283242887691,
+          "qy": -0.9888000774591794,
+          "qz": -0.010287378333068687,
+          "qw": -0.14887728667942948,
+          "hp": 100,
+          "maxHp": 100,
+          "isMissionDrone": true
+        }
+      ]
+    },
+    "mission2": {
+      "active": false,
+      "stage": 0,
+      "enemiesDestroyed": 0,
+      "enemies": []
+    },
+    "mission3": {
+      "active": false
+    },
+    "upgrades": {
+      "blasters": {
+        "level": 3,
+        "cost": 15000
+      },
+      "shields": {
+        "level": 4,
+        "cost": 22000
+      },
+      "thrusters": {
+        "level": 3,
+        "cost": 18000
+      },
+      "sensors": {
+        "level": 4,
+        "cost": 12000
+      }
+    }
+  },
+  "keyBindings": {
+    "KeyW": "KeyW",
+    "KeyS": "KeyS",
+    "KeyA": "KeyA",
+    "KeyD": "KeyD",
+    "PitchUp": "ArrowUp",
+    "PitchDown": "ArrowDown",
+    "YawLeft": "ArrowLeft",
+    "YawRight": "ArrowRight",
+    "Space": "Space",
+    "KeyM": "KeyM",
+    "KeyL": "KeyL",
+    "KeyC": "KeyC",
+    "Escape": "Escape"
+  }
+}
