@@ -912,34 +912,35 @@
                 }
             }
             
-            // Spawn Dark Textured Irregular Asteroids (300% Expanded Spread)
-            const astGeo = (typeof createIrregularAsteroidGeometry === 'function') 
-                ? createIrregularAsteroidGeometry(150, 2) 
-                : new THREE.IcosahedronGeometry(150, 2);
+            // Spawn Dark Textured Irregular Asteroids (4 AI-Generated PBR Material Variants & Geometries)
+            const geometries = [
+                (typeof createIrregularAsteroidGeometry === 'function') ? createIrregularAsteroidGeometry(150, 2, 0) : new THREE.IcosahedronGeometry(150, 2),
+                (typeof createIrregularAsteroidGeometry === 'function') ? createIrregularAsteroidGeometry(150, 2, 1) : new THREE.IcosahedronGeometry(150, 2),
+                (typeof createIrregularAsteroidGeometry === 'function') ? createIrregularAsteroidGeometry(150, 2, 2) : new THREE.IcosahedronGeometry(150, 2),
+                (typeof createIrregularAsteroidGeometry === 'function') ? createIrregularAsteroidGeometry(150, 2, 3) : new THREE.IcosahedronGeometry(150, 2)
+            ];
 
-            const fallbackTex = (typeof createAsteroidRockTexture === 'function') ? createAsteroidRockTexture() : null;
-            const astMat = new THREE.MeshStandardMaterial({ 
-                color: 0x5a5550, 
-                roughness: 0.88, 
-                metalness: 0.12, 
-                bumpScale: 0.45,
-                map: fallbackTex,
-                bumpMap: fallbackTex,
-                flatShading: true 
-            });
+            const materials = [
+                (typeof createAsteroidMaterial === 'function') ? createAsteroidMaterial(0) : new THREE.MeshStandardMaterial({ color: 0x22201e, roughness: 0.92, metalness: 0.1 }),
+                (typeof createAsteroidMaterial === 'function') ? createAsteroidMaterial(1) : new THREE.MeshStandardMaterial({ color: 0x32302e, roughness: 0.60, metalness: 0.6 }),
+                (typeof createAsteroidMaterial === 'function') ? createAsteroidMaterial(2) : new THREE.MeshStandardMaterial({ color: 0x1a1918, roughness: 0.90, metalness: 0.18 }),
+                (typeof createAsteroidMaterial === 'function') ? createAsteroidMaterial(3) : new THREE.MeshStandardMaterial({ color: 0x282624, roughness: 0.86, metalness: 0.22 })
+            ];
             
-            for(let i=0; i<300; i++) {
-                const ast = new THREE.Mesh(astGeo, astMat);
+            for(let i=0; i<320; i++) {
+                const geoIdx = Math.floor(Math.random() * geometries.length);
+                const matIdx = Math.floor(Math.random() * materials.length);
+                const ast = new THREE.Mesh(geometries[geoIdx], materials[matIdx]);
                 ast.position.set(
                     100000 + (Math.random() - 0.5) * 45000,
                     (Math.random() - 0.5) * 12000,
                     100000 + (Math.random() - 0.5) * 45000
                 );
-                const astScale = Math.pow(Math.random(), 2.2) * 4.5 + 0.3;
+                const astScale = Math.pow(Math.random(), 2.2) * 4.8 + 0.35;
                 ast.scale.set(
-                    astScale * (0.4 + Math.random() * 1.2),
-                    astScale * (0.4 + Math.random() * 1.2),
-                    astScale * (0.4 + Math.random() * 1.2)
+                    astScale * (0.6 + Math.random() * 1.0),
+                    astScale * (0.6 + Math.random() * 1.0),
+                    astScale * (0.6 + Math.random() * 1.0)
                 );
                 ast.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
                 

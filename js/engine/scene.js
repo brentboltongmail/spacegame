@@ -677,43 +677,81 @@
             return texture;
         }
 
-        function createAsteroidRockTexture() {
+        let asteroidTextureCache = null;
+
+        function getAsteroidTextures() {
+            if (asteroidTextureCache) return asteroidTextureCache;
+            const texLoader = new THREE.TextureLoader();
+            const textureFiles = [
+                'docs/images/asteroid_carbon_dark.jpg',
+                'docs/images/asteroid_iron_meteorite.jpg',
+                'docs/images/asteroid_basalt_crag.jpg',
+                'docs/images/asteroid_dark_mineral.jpg'
+            ];
+
+            asteroidTextureCache = textureFiles.map((file, idx) => {
+                const tex = texLoader.load(file);
+                tex.wrapS = THREE.RepeatWrapping;
+                tex.wrapT = THREE.RepeatWrapping;
+                tex.colorSpace = THREE.SRGBColorSpace;
+                return tex;
+            });
+            return asteroidTextureCache;
+        }
+        window.getAsteroidTextures = getAsteroidTextures;
+
+        function createAsteroidRockTexture(variant = 0) {
             const canvas = document.createElement('canvas');
-            canvas.width = 512;
-            canvas.height = 512;
+            canvas.width = 1024;
+            canvas.height = 1024;
             const ctx = canvas.getContext('2d');
 
-            // Dark silicate rock base gradient
-            const grad = ctx.createLinearGradient(0, 0, 512, 512);
-            grad.addColorStop(0, '#262422');
-            grad.addColorStop(0.5, '#3b3734');
-            grad.addColorStop(1.0, '#1c1b1a');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, 512, 512);
+            // 4 distinct dark base palettes
+            const palettes = [
+                ['#121110', '#22201e', '#0e0d0c'], // Dark Carbonaceous Chondrite
+                ['#1c1a19', '#2f2c2a', '#141312'], // Metallic Nickel-Iron
+                ['#0d0d0e', '#1c1b1c', '#0a0a0b'], // Volcanic Basalt / Obsidian
+                ['#1a1715', '#2a2623', '#131110']  // Pitted Silicate Regolith
+            ];
+            const p = palettes[variant % palettes.length];
 
-            // Add rocky noise, mineral specks, and pitting
-            const imgData = ctx.getImageData(0, 0, 512, 512);
+            const grad = ctx.createLinearGradient(0, 0, 1024, 1024);
+            grad.addColorStop(0, p[0]);
+            grad.addColorStop(0.5, p[1]);
+            grad.addColorStop(1.0, p[2]);
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 1024, 1024);
+
+            // Add fine multi-octave surface grain & mineral specks
+            const imgData = ctx.getImageData(0, 0, 1024, 1024);
             const data = imgData.data;
             for (let i = 0; i < data.length; i += 4) {
-                const noise = (Math.random() - 0.5) * 35;
+                const noise = (Math.random() - 0.5) * 28;
                 data[i] = Math.min(255, Math.max(0, data[i] + noise));
                 data[i+1] = Math.min(255, Math.max(0, data[i+1] + noise));
                 data[i+2] = Math.min(255, Math.max(0, data[i+2] + noise));
             }
             ctx.putImageData(imgData, 0, 0);
 
-            // Draw craters & impact indentations
-            for (let c = 0; c < 45; c++) {
-                const cx = Math.random() * 512;
-                const cy = Math.random() * 512;
-                const r = 8 + Math.random() * 32;
+            // Layered impact craters & rocky fissures
+            for (let c = 0; c < 65; c++) {
+                const cx = Math.random() * 1024;
+                const cy = Math.random() * 1024;
+                const r = 6 + Math.random() * 48;
 
-                ctx.strokeStyle = 'rgba(15, 14, 13, 0.6)';
-                ctx.fillStyle = 'rgba(25, 23, 21, 0.4)';
-                ctx.lineWidth = 3;
+                ctx.strokeStyle = 'rgba(8, 7, 6, 0.7)';
+                ctx.fillStyle = 'rgba(18, 16, 15, 0.45)';
+                ctx.lineWidth = 2 + Math.random() * 4;
                 ctx.beginPath();
                 ctx.arc(cx, cy, r, 0, Math.PI * 2);
                 ctx.fill();
+                ctx.stroke();
+
+                // Raised sunlit rim edge
+                ctx.strokeStyle = 'rgba(80, 75, 70, 0.22)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.arc(cx - 2, cy - 2, r + 1, Math.PI * 0.7, Math.PI * 1.8);
                 ctx.stroke();
             }
 
@@ -724,35 +762,63 @@
         }
         window.createAsteroidRockTexture = createAsteroidRockTexture;
 
-        function createIrregularAsteroidGeometry(radius = 1, detail = 2) {
+        function createAsteroidMaterial(variant = 0) {
+            const textures = getAsteroidTextures();
+            const tex = textures[variant % textures.length] || createAsteroidRockTexture(variant);
+            
+            // 4 distinct dark material archetypes with tuned PBR properties
+            const configs = [
+                { color: 0x22201e, roughness: 0.92, metalness: 0.10, bumpScale: 0.85 }, // Carbonaceous Chondrite
+                { color: 0x32302e, roughness: 0.60, metalness: 0.60, bumpScale: 1.15 }, // Metallic Nickel-Iron Meteorite
+                { color: 0x1a1918, roughness: 0.90, metalness: 0.18, bumpScale: 0.95 }, // Volcanic Basalt / Obsidian
+                { color: 0x282624, roughness: 0.86, metalness: 0.22, bumpScale: 0.75 }  // Dark Mineral Regolith
+            ];
+            
+            const cfg = configs[variant % configs.length];
+            return new THREE.MeshStandardMaterial({
+                color: cfg.color,
+                roughness: cfg.roughness,
+                metalness: cfg.metalness,
+                bumpScale: cfg.bumpScale,
+                map: tex,
+                bumpMap: tex,
+                flatShading: true
+            });
+        }
+        window.createAsteroidMaterial = createAsteroidMaterial;
+
+        function createIrregularAsteroidGeometry(radius = 1, detail = 2, variant = 0) {
             const geo = new THREE.IcosahedronGeometry(radius, detail);
             const pos = geo.attributes.position;
             const uvs = geo.attributes.uv;
             const v = new THREE.Vector3();
             const dir = new THREE.Vector3();
 
+            const freqMult = 1.0 + (variant % 4) * 0.35;
+            const lobeAsym = variant === 1 ? 1.4 : (variant === 2 ? 0.8 : 1.0);
+
             for (let i = 0; i < pos.count; i++) {
                 v.fromBufferAttribute(pos, i);
                 dir.copy(v).normalize();
                 
-                // Low-dynamic-range harmonic noise layers for a natural, solid, rocky asteroid shape
-                // 1. Broad oblong lobe asymmetry (subtle ±8%)
-                const n1 = Math.sin(dir.x * 2.2 + 0.4) * Math.cos(dir.y * 1.8) * Math.sin(dir.z * 1.6) * 0.08;
-                // 2. Medium rock facet undulation (subtle ±4%)
-                const n2 = Math.sin(dir.x * 4.5 + dir.y * 4.5 + dir.z * 4.5) * 0.04;
-                // 3. Fine rocky surface facet (subtle ±2%)
-                const n3 = Math.cos(dir.x * 8.0 - dir.z * 8.0) * 0.02;
-                // 4. Gentle shallow crater depression (max 3%)
-                const crater = Math.pow(Math.max(0, Math.sin(dir.x * 3.5 + dir.y * 3.5)), 3) * 0.03;
+                // Multi-harmonic noise layers for natural rocky asteroid contours
+                // 1. Broad oblong lobe asymmetry (±10%)
+                const n1 = Math.sin(dir.x * 2.2 * freqMult + 0.4) * Math.cos(dir.y * 1.8 * freqMult) * Math.sin(dir.z * 1.6) * 0.10 * lobeAsym;
+                // 2. Medium rock facet undulation (±5%)
+                const n2 = Math.sin(dir.x * 4.5 + dir.y * 4.5 + dir.z * 4.5) * 0.05;
+                // 3. Fine rocky surface facet (±3%)
+                const n3 = Math.cos(dir.x * 8.0 * freqMult - dir.z * 8.0) * 0.03;
+                // 4. Crater impact depression
+                const crater = Math.pow(Math.max(0, Math.sin(dir.x * 3.5 + dir.y * 3.5)), 3) * 0.04;
                 
-                // Tight dynamic range variation (strictly clamped between 0.88 and 1.12)
-                const smoothScale = THREE.MathUtils.clamp(1.0 + n1 + n2 + n3 - crater, 0.88, 1.12);
+                // Clamped dynamic range for solid watertight meshes
+                const smoothScale = THREE.MathUtils.clamp(1.0 + n1 + n2 + n3 - crater, 0.85, 1.15);
                 v.multiplyScalar(smoothScale);
                 pos.setXYZ(i, v.x, v.y, v.z);
 
-                // Natural texture UV mapping variety without extreme stretching
+                // Natural texture UV mapping variety
                 if (uvs) {
-                    const texScale = 1.0 + Math.abs(Math.sin(dir.x * 3.0) * 0.35);
+                    const texScale = 1.0 + Math.abs(Math.sin(dir.x * 3.0 + variant) * 0.30);
                     uvs.setXY(i, uvs.getX(i) * texScale, uvs.getY(i) * texScale);
                 }
             }
