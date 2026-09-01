@@ -103,6 +103,23 @@
                     return enemyLaserPool[i];
                 }
             }
+            if (typeof scene !== 'undefined') {
+                const eBoltGroup = new THREE.Group();
+                const eCoreMesh = new THREE.Mesh(sharedLaserCoreGeo, sharedLaserCoreMat);
+                eBoltGroup.add(eCoreMesh);
+                const eAuraMat = new THREE.MeshBasicMaterial({ color: 0xff3b5c, transparent: true, opacity: 0.85 });
+                const eAuraMesh = new THREE.Mesh(sharedLaserAuraGeo, eAuraMat);
+                eBoltGroup.add(eAuraMesh);
+                const eTipMat = new THREE.MeshBasicMaterial({ color: 0xff3b5c });
+                const eTipMesh = new THREE.Mesh(sharedLaserTipGeo, eTipMat);
+                eTipMesh.position.set(0, 0, -6.2);
+                eBoltGroup.add(eTipMesh);
+                eBoltGroup.visible = false;
+                eBoltGroup.userData = { active: true, isEnemy: true, velocity: new THREE.Vector3(), prevPos: new THREE.Vector3() };
+                scene.add(eBoltGroup);
+                enemyLaserPool.push(eBoltGroup);
+                return eBoltGroup;
+            }
             return null;
         }
 

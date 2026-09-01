@@ -842,99 +842,107 @@ const _targetWorldPos = new THREE.Vector3();
             const fwdDir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerShip.quaternion);
             const playerVel = fwdDir.clone().negate().multiplyScalar(currentSpeed);
 
-            // Calculate dynamic enemy speed multiplier from options menu (Default: 50% = half speed)
+            // Calculate dynamic enemy speed multiplier from options menu
             let _eSpeedVal = (typeof gameMechanicsConfig !== 'undefined' && gameMechanicsConfig.enemySpeedMult !== undefined) ? gameMechanicsConfig.enemySpeedMult : 50;
-            const eSpeedFactor = (_eSpeedVal / 100) * 0.50;
+            const enemySpeedMult = Math.max(0.5, _eSpeedVal / 50.0);
 
             enemyShips.forEach(e => {
                 if (e.userData && e.userData.hp > 0 && playerShip) {
                     const toPlayer = playerShip.position.clone().sub(e.position);
                     const dist = toPlayer.length();
                     
-                    // Only engage in pursuit runs if within 14,000 units (14 km) tactical aggro radius or damaged
-                    const isAggroed = (dist < 14000) || (e.userData.hp < (e.userData.maxHp || 100));
+                    // Engage in pursuit runs if within 25,000 units (25 km) or damaged
+                    const isAggroed = (dist < 25000) || (e.userData.hp < (e.userData.maxHp || 100));
                     if (dist > 0 && isAggroed) {
                         e.userData.attackState = e.userData.attackState || 'intercept';
                         e.userData.breakawayTimer = e.userData.breakawayTimer || 0;
                         e.userData.burstCount = e.userData.burstCount || 0;
 
-                        const enemyTurnRate = 0.004 * (_eSpeedVal / 50) * dtFactor;
+                        // Fast agile turn rate (0.045 rad/frame ~ 2.7 rad/s) for responsive dogfighting
+                        const enemyTurnRate = 0.045 * enemySpeedMult * dtFactor;
 
                         if (e.userData.attackState === 'breakaway') {
-                            // 🚀 EXTENSION / BREAKAWAY (ZOOM) PHASE
-                            // Fly along a fixed banking arc away from player to gain distance & energy
-                            e.userData.breakawayTimer -= timeDelta;
+                            // Quick tactical evasive jink/pass (0.6 - 1.2s)
+                            e.userData.breakawayTimer -= (typeof timeDelta !== 'undefined' ? timeDelta : 0.016);
 
                             if (!e.userData.breakawayTargetQuat) {
-                                // Calculate a fixed world breakaway heading (bank 45 degrees up/side away from player)
                                 const sideSign = (e.id % 2 === 0) ? 1 : -1;
-                                const upSign = (e.id % 3 === 0) ? 0.6 : -0.3;
-                                const localBreakDir = new THREE.Vector3(sideSign * 0.8, upSign, 0.6).normalize();
+                                const upSign = (e.id % 3 === 0) ? 0.5 : -0.4;
+                                const localBreakDir = new THREE.Vector3(sideSign * 0.7, upSign, 0.4).normalize();
                                 const worldBreakDir = localBreakDir.applyQuaternion(e.quaternion).normalize();
                                 e.userData.breakawayTargetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), worldBreakDir);
                             }
 
-                            // Smooth capped turn rate into breakaway vector
-                            e.quaternion.rotateTowards(e.userData.breakawayTargetQuat, enemyTurnRate);
+                            e.quaternion.rotateTowards(e.userData.breakawayTargetQuat, enemyTurnRate * 1.2);
+                            e.translateZ(-4.5 * enemySpeedMult * dtFactor);
 
-                            // Slower momentum cruise speed
-                            e.translateZ(-2.33 * eSpeedFactor * dtFactor);
-
-                            if (e.userData.breakawayTimer <= 0 || dist > 2600) {
+                            if (e.userData.breakawayTimer <= 0 || dist > 1400) {
                                 e.userData.attackState = 'intercept';
                                 e.userData.breakawayTargetQuat = null;
                             }
                         } else {
-                            // 🎯 LEAD PURSUIT (BOOM RUN) ATTACK PHASE
-                            // Predict target lead position based on player velocity and laser flight time
-                            const leadTime = Math.min(dist / 1400, 2.5);
-                            const predictedLeadPos = playerShip.position.clone().add(playerVel.clone().multiplyScalar(leadTime));
+                            // 🎯 AGGRESSIVE LEAD PURSUIT ATTACK RUN
+                            // Calculate intercept lead vector based on player movement
+                            const leadTime = Math.min(dist / 1800, 1.8);
+                            const predictedLeadPos = (typeof playerVel !== 'undefined')
+                                ? playerShip.position.clone().add(playerVel.clone().multiplyScalar(leadTime))
+                                : playerShip.position.clone();
                             const toLead = predictedLeadPos.sub(e.position);
                             const leadDir = toLead.clone().normalize();
 
-                            // Smooth turn towards predicted lead position
+                            // Smooth agile tracking towards player lead
                             const targetQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), leadDir);
                             e.quaternion.rotateTowards(targetQuat, enemyTurnRate);
 
-                            // Slower attack run speed
-                            const attackSpeed = Math.min(2.83, 1.83 + (dist / 3000)) * eSpeedFactor * dtFactor;
-                            e.translateZ(-attackSpeed);
+                            // Dynamic combat throttle (accelerate to close gap, match dogfight speed)
+                            const combatThrottle = Math.max(3.2, Math.min(7.5, 3.2 + (dist / 1200))) * enemySpeedMult * dtFactor;
+                            e.translateZ(-combatThrottle);
 
-                            // Initiate breakaway if closing under 350 units to prevent collision or close-range snapping
-                            if (dist < 350) {
+                            // Close-quarters jink only if dangerously close (< 180 units)
+                            if (dist < 180) {
                                 e.userData.attackState = 'breakaway';
-                                e.userData.breakawayTimer = 2.5 + Math.random() * 1.5;
+                                e.userData.breakawayTimer = 0.6 + Math.random() * 0.5;
                                 e.userData.breakawayTargetQuat = null;
                             }
 
-                            // Rhythmic Plasma Cannon Bursts when in lead alignment (< 25 degrees) and in effective range (< 1400 units)
+                            // ⚡ AGGRESSIVE TWIN PLASMA CANNON ATTACK
+                            // Fire whenever within range (< 3200 units) and roughly facing the target (< 42 degrees)
                             const currentFwd = new THREE.Vector3(0, 0, -1).applyQuaternion(e.quaternion);
                             const aimAngle = currentFwd.angleTo(leadDir);
-                            if (dist < 1400 && aimAngle < 0.44) {
+                            
+                            if (dist < 3200 && aimAngle < 0.72) {
+                                const nowMs = Date.now();
                                 e.userData.lastFireTime = e.userData.lastFireTime || 0;
-                                if (Date.now() - e.userData.lastFireTime > 900 + Math.random() * 600) {
-                                    e.userData.lastFireTime = Date.now();
+                                
+                                // Tighter aim = faster rapid burst firing
+                                const fireInterval = (aimAngle < 0.30) ? 220 : 380;
+                                
+                                if (nowMs - e.userData.lastFireTime > fireInterval) {
+                                    e.userData.lastFireTime = nowMs;
                                     const eLaser = getPooledEnemyLaserBolt();
                                     if (eLaser) {
                                         eLaser.visible = true;
                                         eLaser.scale.set(1, 1, 1);
                                         eLaser.quaternion.copy(e.quaternion);
+                                        
+                                        // Alternating twin laser hardpoints
                                         const side = (e.userData.burstCount % 2 === 0) ? -2.4 : 2.4;
                                         e.userData.burstCount++;
                                         const offset = new THREE.Vector3(side, -0.1, -2.4).applyQuaternion(e.quaternion);
                                         eLaser.position.copy(e.position).add(offset);
                                         eLaser.userData.prevPos.copy(eLaser.position);
                                         eLaser.userData.distanceTraveled = 0;
-                                        eLaser.userData.velocity.copy(currentFwd).multiplyScalar(16);
+                                        // High-velocity red plasma bolts (28 units/frame + ship velocity)
+                                        eLaser.userData.velocity.copy(currentFwd).multiplyScalar(28 + combatThrottle);
                                         if (!enemyLaserProjectiles.includes(eLaser)) enemyLaserProjectiles.push(eLaser);
                                     }
                                 }
                             }
                         }
                     } else {
-                        // Unaggroed Asteroid Belt Patrol: Smooth cruise around Saturn's ring system
-                        e.translateZ(-2.0 * eSpeedFactor * dtFactor);
-                        e.rotateY(0.002 * dtFactor * (_eSpeedVal / 50));
+                        // Patrol cruise around planetary sector
+                        e.translateZ(-2.5 * enemySpeedMult * dtFactor);
+                        e.rotateY(0.003 * dtFactor);
                     }
 
                     // Target Lock Candidate Check
@@ -1265,9 +1273,9 @@ const _targetWorldPos = new THREE.Vector3();
                 const eStepDist = laser.userData.velocity ? laser.userData.velocity.length() : 16;
                 laser.userData.distanceTraveled = (laser.userData.distanceTraveled || 0) + eStepDist;
 
-                // Smooth enemy laser dissipation over the final third of its range (700 to 1100 units)
-                const maxEnemyRange = 1100;
-                const enemyFadeStart = 700;
+                // Smooth enemy laser dissipation over the final third of its range (2400 to 3500 units)
+                const maxEnemyRange = 3500;
+                const enemyFadeStart = 2400;
                 if (laser.userData.distanceTraveled > enemyFadeStart) {
                     const eFade = Math.max(0.01, 1.0 - ((laser.userData.distanceTraveled - enemyFadeStart) / (maxEnemyRange - enemyFadeStart)));
                     laser.scale.set(eFade, eFade, eFade);
@@ -1275,12 +1283,14 @@ const _targetWorldPos = new THREE.Vector3();
                     laser.scale.set(1, 1, 1);
                 }
 
+                const prevLaserPos = (laser.userData.prevPos || laser.position).clone();
                 laser.position.add(laser.userData.velocity);
+                laser.userData.prevPos.copy(laser.position);
 
                 let hitPlayer = false;
-                const distToPlayer = laser.position.distanceTo(playerShip.position);
+                const segDistToPlayer = pointToSegmentDistance(playerShip.position, prevLaserPos, laser.position);
                 
-                if (distToPlayer < 12) {
+                if (segDistToPlayer < 24) {
                     hitPlayer = true;
                     if (isShipInvincible || isTitanCinematicActive) {
                         // 100% Invulnerable during cinematic / showcase mode!
