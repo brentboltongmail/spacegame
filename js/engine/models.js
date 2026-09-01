@@ -439,6 +439,27 @@
 
                     console.log("[THE CREST HANGER] GLB Model & Atmospheric Force Field Loaded!");
                     
+                    // If player is currently docked in hangar, snap playerShip to the landing pad
+                    if (typeof landingPhase !== 'undefined' && landingPhase === 6 && typeof playerShip !== 'undefined' && playerShip) {
+                        const landWP = new THREE.Vector3(-0.55, -0.38, 0.75).applyMatrix4(hangerModel.matrixWorld);
+                        const outwardQuat = hangerModel.getWorldQuaternion(new THREE.Quaternion()).multiply(
+                            new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI)
+                        );
+                        playerShip.position.copy(landWP);
+                        playerShip.quaternion.copy(outwardQuat);
+                        const launchBtn = document.getElementById('btn-ready-launch');
+                        if (launchBtn) launchBtn.style.display = 'block';
+                        if (camera) {
+                            const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
+                            camera.up.copy(localUp);
+                            const initCamOffset = new THREE.Vector3(0, 6.0, 22.0).applyQuaternion(playerShip.quaternion);
+                            camera.position.copy(playerShip.position).add(initCamOffset);
+                            const targetLookAt = playerShip.position.clone().add(new THREE.Vector3(0, 0, -50).applyQuaternion(playerShip.quaternion));
+                            camera.lookAt(targetLookAt);
+                            camera.updateMatrixWorld();
+                        }
+                    }
+                    
                     // Add 3 parked Void Interceptors inside the hanger bay!
                     // Wait for the voidInterceptorTemplate to load, then spawn them.
                     const checkInterval = setInterval(() => {

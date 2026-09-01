@@ -435,6 +435,10 @@
                 playerCredits: (typeof playerCredits !== 'undefined') ? playerCredits : 125000,
                 playerHp: (typeof playerHp !== 'undefined') ? playerHp : 100,
                 shieldPercent: (typeof shieldPercent !== 'undefined') ? shieldPercent : 100,
+                landingPhase: (typeof landingPhase !== 'undefined') ? landingPhase : 0,
+                isLandingSequenceActive: (typeof isLandingSequenceActive !== 'undefined') ? isLandingSequenceActive : false,
+                inHangerZone: (typeof window.inHangerZone !== 'undefined') ? !!window.inHangerZone : false,
+                stationRotationY: (typeof theCrestStation !== 'undefined' && theCrestStation) ? theCrestStation.rotation.y : 0,
                 shipPosition: (typeof playerShip !== 'undefined' && playerShip && playerShip.position) ? {
                     x: playerShip.position.x,
                     y: playerShip.position.y,
@@ -472,6 +476,14 @@
                 return;
             }
             const prog = currentProfile.progress;
+
+            // 0. Restore station rotation if saved
+            if (typeof prog.stationRotationY === 'number' && typeof theCrestStation !== 'undefined' && theCrestStation) {
+                theCrestStation.rotation.y = prog.stationRotationY;
+                if (typeof theCrestStation.userData.updateClippingPlanes === 'function') {
+                    theCrestStation.userData.updateClippingPlanes();
+                }
+            }
 
             // 1. Restore Player Credits
             if (typeof prog.playerCredits === 'number') {
@@ -516,11 +528,46 @@
             // 4. Restore Active Mission & Position
             const targetMission = prog.currentMission || 'Mission 1';
 
+            // Check if docked in hangar or if saved position is inside the Crest Station structure
+            const isDocked = (prog.landingPhase === 6 || prog.isDocked === true);
+            let isInsideStation = false;
+            if (prog.shipPosition && typeof theCrestStation !== 'undefined' && theCrestStation && theCrestStation.position) {
+                const pVec = new THREE.Vector3(prog.shipPosition.x, prog.shipPosition.y, prog.shipPosition.z);
+                if (pVec.distanceTo(theCrestStation.position) < 950) {
+                    isInsideStation = true;
+                }
+            }
+
+            if (isDocked || isInsideStation) {
+                landingPhase = 6;
+                isLandingSequenceActive = true;
+                window.inHangerZone = true;
+                const launchBtn = document.getElementById('btn-ready-launch');
+                if (launchBtn) launchBtn.style.display = 'block';
+
+                if (theCrestStation && theCrestStation.userData.hangerModel && typeof playerShip !== 'undefined' && playerShip) {
+                    const hangerModel = theCrestStation.userData.hangerModel;
+                    hangerModel.updateMatrixWorld(true);
+                    const landWP = new THREE.Vector3(-0.55, -0.38, 0.75).applyMatrix4(hangerModel.matrixWorld);
+                    const outwardQuat = hangerModel.getWorldQuaternion(new THREE.Quaternion()).multiply(
+                        new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI)
+                    );
+                    playerShip.position.copy(landWP);
+                    playerShip.quaternion.copy(outwardQuat);
+                } else if (typeof playerShip !== 'undefined' && playerShip && typeof theCrestStation !== 'undefined' && theCrestStation) {
+                    playerShip.position.set(theCrestStation.position.x + 800, theCrestStation.position.y, theCrestStation.position.z);
+                    playerShip.rotation.set(0, 0, 0);
+                    playerShip.quaternion.set(0, 0, 0, 1);
+                    playerShip.lookAt(theCrestStation.position);
+                    playerShip.rotateY(Math.PI);
+                }
+            }
+
             if (targetMission === 'Mission 3') {
                 if (typeof window.startMission3 === 'function') {
                     window.startMission3();
                 }
-                if (prog.shipPosition && typeof playerShip !== 'undefined' && playerShip) {
+                if (!isDocked && !isInsideStation && prog.shipPosition && typeof playerShip !== 'undefined' && playerShip) {
                     playerShip.position.set(prog.shipPosition.x, prog.shipPosition.y, prog.shipPosition.z);
                     if (prog.shipQuaternion) {
                         playerShip.quaternion.set(prog.shipQuaternion.x, prog.shipQuaternion.y, prog.shipQuaternion.z, prog.shipQuaternion.w);
@@ -533,7 +580,7 @@
                         window.mission2Stage = prog.mission2.stage || 0;
                         window.mission2EnemiesDestroyed = prog.mission2.enemiesDestroyed || 0;
                     }
-                    if (prog.shipPosition && typeof playerShip !== 'undefined' && playerShip) {
+                    if (!isDocked && !isInsideStation && prog.shipPosition && typeof playerShip !== 'undefined' && playerShip) {
                         playerShip.position.set(prog.shipPosition.x, prog.shipPosition.y, prog.shipPosition.z);
                         if (prog.shipQuaternion) {
                             playerShip.quaternion.set(prog.shipQuaternion.x, prog.shipQuaternion.y, prog.shipQuaternion.z, prog.shipQuaternion.w);
@@ -547,9 +594,9 @@
                         stage: prog.mission1?.stage || 0,
                         enemiesDestroyed: prog.mission1?.enemiesDestroyed || 0,
                         clearedRings: prog.mission1?.clearedRings || [],
-                        hasSavedPos: !!prog.shipPosition
+                        hasSavedPos: (!isDocked && !isInsideStation && !!prog.shipPosition)
                     });
-                    if (prog.shipPosition && typeof playerShip !== 'undefined' && playerShip) {
+                    if (!isDocked && !isInsideStation && prog.shipPosition && typeof playerShip !== 'undefined' && playerShip) {
                         playerShip.position.set(prog.shipPosition.x, prog.shipPosition.y, prog.shipPosition.z);
                         if (prog.shipQuaternion) {
                             playerShip.quaternion.set(prog.shipQuaternion.x, prog.shipQuaternion.y, prog.shipQuaternion.z, prog.shipQuaternion.w);
@@ -559,6 +606,17 @@
                         checkMission1Progress();
                     }
                 }
+            }
+
+            // Update camera to follow playerShip accurately
+            if (camera && typeof playerShip !== 'undefined' && playerShip) {
+                const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
+                camera.up.copy(localUp);
+                const initCamOffset = new THREE.Vector3(0, 6.0, 22.0).applyQuaternion(playerShip.quaternion);
+                camera.position.copy(playerShip.position).add(initCamOffset);
+                const targetLookAt = playerShip.position.clone().add(new THREE.Vector3(0, 0, -50).applyQuaternion(playerShip.quaternion));
+                camera.lookAt(targetLookAt);
+                camera.updateMatrixWorld();
             }
         };
 
