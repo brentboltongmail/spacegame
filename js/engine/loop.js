@@ -1213,17 +1213,33 @@ const _targetWorldPos = new THREE.Vector3();
                                 cap.userData.isDead = true;
                                 cap.visible = false;
                                 
-                                // Huge sequence of explosions!
-                                for (let ex=0; ex<18; ex++) {
+                                // Colossal 50x 5s-longer capital ship explosion!
+                                if (typeof createColossalCapitalExplosionFX === 'function') {
+                                    createColossalCapitalExplosionFX(cap.position.clone(), 50.0);
+                                } else {
+                                    createFieryExplosionFX(cap.position.clone());
+                                }
+                                
+                                // Secondary cascading ruptures across dreadnought frame over 4 seconds
+                                for (let ex = 0; ex < 8; ex++) {
                                     setTimeout(() => {
-                                        createFieryExplosionFX(cap.position.clone().add(new THREE.Vector3((Math.random()-0.5)*1200, (Math.random()-0.5)*800, (Math.random()-0.5)*1200)));
-                                    }, Math.random() * 2500);
+                                        const subOffset = new THREE.Vector3(
+                                            (Math.random() - 0.5) * 1600,
+                                            (Math.random() - 0.5) * 800,
+                                            (Math.random() - 0.5) * 1600
+                                        );
+                                        if (typeof createColossalCapitalExplosionFX === 'function') {
+                                            createColossalCapitalExplosionFX(cap.position.clone().add(subOffset), 25.0);
+                                        } else {
+                                            createFieryExplosionFX(cap.position.clone().add(subOffset));
+                                        }
+                                    }, 350 + ex * 450);
                                 }
                                 
                                 playerCredits += 25000;
                                 const credDisp = document.getElementById('hangar-credits-display');
                                 if (credDisp) credDisp.innerText = `${playerCredits.toLocaleString()}`;
-                                // removed toast line
+                                showToast("💥 DOMINION CAPITAL DREADNOUGHT DESTROYED! +25,000 SC AWARDED!");
                             }
                             break;
                         }
@@ -1329,7 +1345,7 @@ const _targetWorldPos = new THREE.Vector3();
             }
 
             // --- ANIMATE & DECAY REALISTIC EXPLOSION & FIRE PARTICLES ---
-            while (explosionParticles.length > 900) {
+            while (explosionParticles.length > 2400) {
                 const oldP = explosionParticles.shift();
                 if (oldP && !oldP.userData.isShipDebris) {
                     scene.remove(oldP);
@@ -1351,8 +1367,8 @@ const _targetWorldPos = new THREE.Vector3();
 
                 // 1. Dynamic Explosion Point Light
                 if (p.userData.isExpLight) {
-                    p.userData.life -= 0.05 * dtFactor;
-                    p.intensity = Math.max(0, (p.userData.baseIntensity || 9.0) * (p.userData.life / (p.userData.maxLife || 0.35)));
+                    p.userData.life -= (p.userData.decayRate || 0.02) * dtFactor;
+                    p.intensity = Math.max(0, (p.userData.baseIntensity || 9.0) * Math.min(1.0, p.userData.life / (p.userData.maxLife || 0.85)));
                     if (p.userData.life <= 0) {
                         scene.remove(p);
                         explosionParticles.splice(i, 1);
@@ -1363,26 +1379,26 @@ const _targetWorldPos = new THREE.Vector3();
                 else if (p.userData.isFirePuff) {
                     if (p.userData.vel) {
                         p.position.addScaledVector(p.userData.vel, dtFactor * 0.08);
-                        p.userData.vel.multiplyScalar(0.96);
+                        p.userData.vel.multiplyScalar(p.userData.drag !== undefined ? p.userData.drag : 0.975);
                     }
-                    p.scale.addScalar((p.userData.expandRate || 0.5) * dtFactor);
+                    p.scale.addScalar((p.userData.expandRate || 0.4) * dtFactor);
                     if (p.material) {
                         p.material.rotation += (p.userData.rotSpeed || 0.03) * dtFactor;
                         
                         // Fire temperature cooling color ramp
                         const life = p.userData.life;
-                        if (life > 0.65) {
+                        if (life > 0.70) {
                             p.material.color.setHex(0xffffff); // Incandescent white-hot
-                        } else if (life > 0.40) {
-                            p.material.color.setHex(0xff9900); // Blazing solar orange
-                        } else if (life > 0.20) {
-                            p.material.color.setHex(0xcc2900); // Deep fiery ember
+                        } else if (life > 0.45) {
+                            p.material.color.setHex(0xffaa11); // Blazing solar orange
+                        } else if (life > 0.22) {
+                            p.material.color.setHex(0xdd3300); // Deep fiery ember
                         } else {
                             p.material.color.setHex(0x551100); // Charred ash / cooling soot
                         }
-                        p.material.opacity = Math.max(0, life * (p.userData.maxOpacity || 0.95));
+                        p.material.opacity = Math.max(0, Math.min(1.0, life * 1.25) * (p.userData.maxOpacity || 0.95));
                     }
-                    p.userData.life -= (p.userData.decayRate || 0.015) * dtFactor;
+                    p.userData.life -= (p.userData.decayRate || 0.008) * dtFactor;
                     if (p.userData.life <= 0) {
                         scene.remove(p);
                         if (p.material) p.material.dispose();
@@ -1394,14 +1410,14 @@ const _targetWorldPos = new THREE.Vector3();
                 else if (p.userData.isSmokePuff) {
                     if (p.userData.vel) {
                         p.position.addScaledVector(p.userData.vel, dtFactor * 0.08);
-                        p.userData.vel.multiplyScalar(0.97);
+                        p.userData.vel.multiplyScalar(p.userData.drag !== undefined ? p.userData.drag : 0.98);
                     }
-                    p.scale.addScalar((p.userData.expandRate || 0.35) * dtFactor);
+                    p.scale.addScalar((p.userData.expandRate || 0.3) * dtFactor);
                     if (p.material) {
                         p.material.rotation += (p.userData.rotSpeed || 0.02) * dtFactor;
-                        p.material.opacity = Math.max(0, p.userData.life * (p.userData.maxOpacity || 0.65));
+                        p.material.opacity = Math.max(0, Math.min(1.0, p.userData.life * 1.2) * (p.userData.maxOpacity || 0.65));
                     }
-                    p.userData.life -= (p.userData.decayRate || 0.008) * dtFactor;
+                    p.userData.life -= (p.userData.decayRate || 0.004) * dtFactor;
                     if (p.userData.life <= 0) {
                         scene.remove(p);
                         if (p.material) p.material.dispose();
@@ -1413,7 +1429,7 @@ const _targetWorldPos = new THREE.Vector3();
                 else if (p.userData.isShrapnel) {
                     if (p.userData.vel) {
                         p.position.addScaledVector(p.userData.vel, dtFactor * 0.08);
-                        p.userData.vel.multiplyScalar(0.99);
+                        p.userData.vel.multiplyScalar(p.userData.drag !== undefined ? p.userData.drag : 0.992);
                     }
                     if (p.userData.rotVel) {
                         p.rotation.x += p.userData.rotVel.x * dtFactor;
@@ -1421,9 +1437,9 @@ const _targetWorldPos = new THREE.Vector3();
                         p.rotation.z += p.userData.rotVel.z * dtFactor;
                     }
                     if (p.material && p.material.emissive) {
-                        p.material.emissiveIntensity = Math.max(0, p.userData.life * 3.5);
+                        p.material.emissiveIntensity = Math.max(0, p.userData.life * (p.userData.emissiveBase || 3.5));
                     }
-                    p.userData.life -= (p.userData.decayRate || 0.01) * dtFactor;
+                    p.userData.life -= (p.userData.decayRate || 0.005) * dtFactor;
                     if (p.userData.life <= 0) {
                         scene.remove(p);
                         if (p.material) p.material.dispose();
@@ -1435,13 +1451,13 @@ const _targetWorldPos = new THREE.Vector3();
                 else if (p.userData.isSpark) {
                     if (p.userData.vel) {
                         p.position.addScaledVector(p.userData.vel, dtFactor * 0.08);
-                        p.userData.vel.multiplyScalar(0.97);
+                        p.userData.vel.multiplyScalar(0.975);
                     }
-                    p.scale.multiplyScalar(0.985);
+                    p.scale.multiplyScalar(0.993);
                     if (p.material) {
-                        p.material.opacity = Math.max(0, p.userData.life);
+                        p.material.opacity = Math.max(0, Math.min(1.0, p.userData.life * 1.3));
                     }
-                    p.userData.life -= (p.userData.decayRate || 0.02) * dtFactor;
+                    p.userData.life -= (p.userData.decayRate || 0.01) * dtFactor;
                     if (p.userData.life <= 0) {
                         scene.remove(p);
                         if (p.material) p.material.dispose();
@@ -1455,8 +1471,8 @@ const _targetWorldPos = new THREE.Vector3();
                         p.scale.addScalar(0.4 * dtFactor);
                         if (p.material) p.material.opacity -= 0.003 * dtFactor;
                     } else {
-                        p.scale.addScalar(0.35 * dtFactor);
-                        if (p.material) p.material.opacity -= 0.015 * dtFactor;
+                        p.scale.addScalar((p.userData.expandRate || 0.35) * dtFactor);
+                        if (p.material) p.material.opacity -= (p.userData.fadeRate || 0.007) * dtFactor;
                     }
                     if (p.material && p.material.opacity <= 0) {
                         scene.remove(p);
