@@ -52,11 +52,11 @@
     "landingPhase": 0,
     "isLandingSequenceActive": false,
     "inHangerZone": false,
-    "stationRotationY": 3.0671250000008756,
+    "stationRotationY": 4.394375000001096,
     "shipPosition": {
-      "x": 81815.07844918109,
-      "y": -1917.0030749776747,
-      "z": -80610.0427570026
+      "x": 81881.58927866328,
+      "y": -1604.6029961016832,
+      "z": -71022.90179443957
     },
     "shipQuaternion": {
       "x": -0.06430834000297317,

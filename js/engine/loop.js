@@ -1579,6 +1579,14 @@ const _targetWorldPos = new THREE.Vector3();
             } catch (hudErr) {
                 console.warn("[HUD RENDER ERROR]", hudErr);
             }
+
+            // --- 🧭 REAL-SPACE NAV WAYPOINT (WHITE CROSS) & 🚨 OFF-SCREEN ENEMY RED ARROW ---
+            try {
+                updateNavWaypointAndDogfightHUD();
+            } catch (navErr) {
+                console.warn("[NAV HUD ERROR]", navErr);
+            }
+
             renderer.render(scene, camera);
         }
 
@@ -2033,7 +2041,239 @@ const _targetWorldPos = new THREE.Vector3();
                     }
                 });
             }
+
+            // 🧭 Draw Nav Waypoint White Cross on Radar
+            const navTarget = getActiveNavTarget();
+            if (navTarget && navTarget.position) {
+                _radarRelPos.copy(navTarget.position).sub(playerShip.position).applyQuaternion(_radarInvQuat);
+                const dist = _radarRelPos.length();
+                if (dist >= 1 && dist <= MAX_RADAR_DIST) {
+                    const isBehind = _radarRelPos.z > 0;
+                    const nx = _radarRelPos.x / dist;
+                    const ny = _radarRelPos.y / dist;
+
+                    let rx, ry;
+                    if (!isBehind) {
+                        const fovOffset = Math.hypot(nx, ny);
+                        const radarRadius = fovOffset * (cx * 0.88);
+                        const angle = Math.atan2(-ny, nx);
+                        rx = cx + Math.cos(angle) * radarRadius;
+                        ry = cy + Math.sin(angle) * radarRadius;
+                    } else {
+                        const angle = Math.atan2(-ny, nx);
+                        rx = cx + Math.cos(angle) * (cx * 0.92);
+                        ry = cy + Math.sin(angle) * (cy * 0.92);
+                    }
+
+                    ctx.save();
+                    // Draw Crisp Glowing White Cross on Radar
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.fillStyle = '#ffffff';
+                    ctx.shadowColor = '#ffffff';
+                    ctx.shadowBlur = 10;
+                    ctx.lineWidth = 2.2;
+
+                    const crossSize = 6.0;
+                    ctx.beginPath();
+                    ctx.moveTo(rx - crossSize, ry);
+                    ctx.lineTo(rx + crossSize, ry);
+                    ctx.moveTo(rx, ry - crossSize);
+                    ctx.lineTo(rx, ry + crossSize);
+                    ctx.stroke();
+
+                    // Subtle white target box around cross
+                    ctx.lineWidth = 1.0;
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+                    ctx.strokeRect(rx - crossSize - 1, ry - crossSize - 1, (crossSize + 1) * 2, (crossSize + 1) * 2);
+
+                    ctx.restore();
+                }
+            }
         }
+
+        function getActiveNavTarget() {
+            if (!playerShip) return null;
+
+            // 1. Mission 1 Docking Phase (Stage 4, 5, or returning to Crest)
+            if (typeof mission1Active !== 'undefined' && mission1Active) {
+                if (typeof mission1Stage !== 'undefined' && mission1Stage >= 4 && mission1Stage <= 5) {
+                    if (typeof theCrestStation !== 'undefined' && theCrestStation && theCrestStation.position) {
+                        return {
+                            position: theCrestStation.position,
+                            name: "THE CREST [DOCKING BAY]"
+                        };
+                    }
+                }
+                // 2. Mission 1 Ring Phase (next uncleared ring)
+                if (typeof mission1Rings !== 'undefined' && Array.isArray(mission1Rings)) {
+                    for (let i = 0; i < mission1Rings.length; i++) {
+                        const ring = mission1Rings[i];
+                        if (ring && (!ring.userData || !ring.userData.cleared)) {
+                            return {
+                                position: ring.position,
+                                name: `TRAINING RING [${i + 1}/4]`
+                            };
+                        }
+                    }
+                }
+            }
+
+            // 3. Mission 2 Ceres Freighter Phase
+            if (typeof window.mission2Active !== 'undefined' && window.mission2Active) {
+                if (window.mission2Stage === 0 && window.mission2Freighter && window.mission2Freighter.position) {
+                    return {
+                        position: window.mission2Freighter.position,
+                        name: "CERES FREIGHTER"
+                    };
+                }
+            }
+
+            // 4. Mission 3 Precursor Gate Phase
+            if (typeof ancientGoldenGate !== 'undefined' && ancientGoldenGate && ancientGoldenGate.visible && ancientGoldenGate.position) {
+                if (typeof window.mission3Active !== 'undefined' && window.mission3Active) {
+                    return {
+                        position: ancientGoldenGate.position,
+                        name: "PRECURSOR GATE"
+                    };
+                }
+            }
+
+            // 5. Objective mentions Crest or Docking
+            const objElem = document.getElementById('hud-objective');
+            if (objElem && objElem.innerText && (objElem.innerText.toLowerCase().includes('crest') || objElem.innerText.toLowerCase().includes('dock'))) {
+                if (typeof theCrestStation !== 'undefined' && theCrestStation && theCrestStation.position) {
+                    return {
+                        position: theCrestStation.position,
+                        name: "THE CREST [DOCKING BAY]"
+                    };
+                }
+            }
+
+            return null;
+        }
+        window.getActiveNavTarget = getActiveNavTarget;
+
+        const _navProjVec = new THREE.Vector3();
+        const _enemyProjVec = new THREE.Vector3();
+
+        function updateNavWaypointAndDogfightHUD() {
+            if (!camera || !playerShip) return;
+
+            const screenW = window.innerWidth;
+            const screenH = window.innerHeight;
+            const cx = screenW / 2;
+            const cy = screenH / 2;
+
+            // --- 1. 🧭 3D REAL-SPACE NAV WAYPOINT (WHITE CROSS) ---
+            const navTarget = getActiveNavTarget();
+            const navElem = document.getElementById('hud-nav-waypoint');
+            const navTitleElem = document.getElementById('hud-nav-title');
+            const navDistElem = document.getElementById('hud-nav-dist');
+            const navArrowElem = document.getElementById('nav-pointer-arrow');
+
+            if (navTarget && navTarget.position && navElem && (!isTitanCinematicActive)) {
+                const dist = playerShip.position.distanceTo(navTarget.position);
+                const distText = dist >= 1000 ? (dist / 100).toFixed(1) + ' KM' : Math.round(dist) + ' M';
+
+                if (navTitleElem) navTitleElem.innerText = navTarget.name;
+                if (navDistElem) navDistElem.innerText = distText;
+
+                _navProjVec.copy(navTarget.position).project(camera);
+                const isBehind = _navProjVec.z > 1.0;
+                const isOnScreen = !isBehind && Math.abs(_navProjVec.x) <= 0.88 && Math.abs(_navProjVec.y) <= 0.88;
+
+                navElem.style.display = 'flex';
+
+                if (isOnScreen) {
+                    const px = (_navProjVec.x * 0.5 + 0.5) * screenW;
+                    const py = (-_navProjVec.y * 0.5 + 0.5) * screenH;
+                    navElem.style.left = px + 'px';
+                    navElem.style.top = py + 'px';
+                    if (navArrowElem) navArrowElem.style.display = 'none';
+                } else {
+                    let dirX = _navProjVec.x;
+                    let dirY = -_navProjVec.y;
+                    if (isBehind) {
+                        dirX = -dirX;
+                        dirY = -dirY;
+                    }
+                    const angle = Math.atan2(dirY, dirX);
+                    const marginX = screenW * 0.44;
+                    const marginY = screenH * 0.42;
+                    const px = cx + Math.cos(angle) * marginX;
+                    const py = cy + Math.sin(angle) * marginY;
+
+                    navElem.style.left = px + 'px';
+                    navElem.style.top = py + 'px';
+                    if (navArrowElem) {
+                        navArrowElem.style.display = 'block';
+                        navArrowElem.style.transform = `rotate(${angle * 180 / Math.PI}deg)`;
+                    }
+                }
+            } else if (navElem) {
+                navElem.style.display = 'none';
+            }
+
+            // --- 2. 🚨 DOGFIGHT OFF-SCREEN ENEMY DIRECTIONAL RED ARROW ---
+            const enemyArrowElem = document.getElementById('hud-offscreen-enemy');
+            const enemyArrowSvg = document.getElementById('offscreen-enemy-arrow');
+            const enemyDistElem = document.getElementById('hud-offscreen-enemy-dist');
+
+            let nearestHostile = null;
+            let nearestDist = Infinity;
+
+            if (typeof enemyShips !== 'undefined' && Array.isArray(enemyShips)) {
+                for (let i = 0; i < enemyShips.length; i++) {
+                    const e = enemyShips[i];
+                    if (e && e.position && e.userData && e.userData.hp > 0 && e.visible) {
+                        const d = e.position.distanceTo(playerShip.position);
+                        if (d < nearestDist) {
+                            nearestDist = d;
+                            nearestHostile = e;
+                        }
+                    }
+                }
+            }
+
+            if (nearestHostile && enemyArrowElem && (!isTitanCinematicActive)) {
+                _enemyProjVec.copy(nearestHostile.position).project(camera);
+                const isBehind = _enemyProjVec.z > 1.0;
+                const isOnScreen = !isBehind && Math.abs(_enemyProjVec.x) <= 0.85 && Math.abs(_enemyProjVec.y) <= 0.85;
+
+                if (isOnScreen) {
+                    // Hostile is already visible in front of player
+                    enemyArrowElem.style.display = 'none';
+                } else {
+                    // Hostile is OFF SCREEN: display glowing red directional pointer arrow
+                    enemyArrowElem.style.display = 'flex';
+
+                    let dirX = _enemyProjVec.x;
+                    let dirY = -_enemyProjVec.y;
+                    if (isBehind) {
+                        dirX = -dirX;
+                        dirY = -dirY;
+                    }
+                    const angle = Math.atan2(dirY, dirX);
+                    const marginX = screenW * 0.40;
+                    const marginY = screenH * 0.38;
+                    const px = cx + Math.cos(angle) * marginX;
+                    const py = cy + Math.sin(angle) * marginY;
+
+                    enemyArrowElem.style.left = px + 'px';
+                    enemyArrowElem.style.top = py + 'px';
+
+                    if (enemyArrowSvg) {
+                        enemyArrowSvg.style.transform = `rotate(${angle * 180 / Math.PI}deg)`;
+                    }
+                    if (enemyDistElem) {
+                        enemyDistElem.innerText = nearestDist >= 1000 ? (nearestDist / 100).toFixed(1) + ' KM' : Math.round(nearestDist) + ' M';
+                    }
+                }
+            } else if (enemyArrowElem) {
+                enemyArrowElem.style.display = 'none';
+            }
+        }
+        window.updateNavWaypointAndDogfightHUD = updateNavWaypointAndDogfightHUD;
 
         function updateBlastDoors(dtFactor) {
             if (!theCrestStation || !theCrestStation.userData.hangerModel) return;
