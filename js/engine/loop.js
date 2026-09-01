@@ -1287,7 +1287,6 @@ const _targetWorldPos = new THREE.Vector3();
             }
 
             // --- ANIMATE & DECAY REALISTIC EXPLOSION & FIRE PARTICLES ---
-            const dtFactor = timeDelta * 60;
             while (explosionParticles.length > 900) {
                 const oldP = explosionParticles.shift();
                 if (oldP && !oldP.userData.isShipDebris) {
