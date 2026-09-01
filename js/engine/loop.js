@@ -2135,17 +2135,28 @@ const _targetWorldPos = new THREE.Vector3();
         function getActiveNavTarget() {
             if (!playerShip) return null;
 
+            // Hide nav waypoint during cinematics or while docked/landing inside hangar
+            if ((typeof isTitanCinematicActive !== 'undefined' && isTitanCinematicActive) || 
+                (typeof isLandingSequenceActive !== 'undefined' && isLandingSequenceActive) ||
+                (typeof window.inHangerZone !== 'undefined' && window.inHangerZone) || 
+                (typeof landingPhase !== 'undefined' && landingPhase === 6)) {
+                return null;
+            }
+
             // 1. Mission 1 Docking Phase (Stage 4, 5, or returning to Crest)
             if (typeof mission1Active !== 'undefined' && mission1Active) {
                 if (typeof mission1Stage !== 'undefined' && mission1Stage >= 4 && mission1Stage <= 5) {
                     if (typeof theCrestStation !== 'undefined' && theCrestStation && theCrestStation.position) {
-                        return {
-                            position: theCrestStation.position,
-                            name: "THE CREST [DOCKING BAY]"
-                        };
+                        const distToCrest = playerShip.position.distanceTo(theCrestStation.position);
+                        if (distToCrest > 800) {
+                            return {
+                                position: theCrestStation.position,
+                                name: "THE CREST [DOCKING BAY]"
+                            };
+                        }
                     }
                 }
-                // 2. Mission 1 Ring Phase (next uncleared ring)
+                // 2. Mission 1 Ring Phase (next uncleared ring destination)
                 if (typeof mission1Rings !== 'undefined' && Array.isArray(mission1Rings)) {
                     for (let i = 0; i < mission1Rings.length; i++) {
                         const ring = mission1Rings[i];
@@ -2159,55 +2170,45 @@ const _targetWorldPos = new THREE.Vector3();
                 }
             }
 
-            // 3. Mission 2 Asteroid Belt / Pirate Patrol Phase
+            // 3. Mission 2 Asteroid Belt Phase (Hide once arrived inside the asteroid field)
             if (typeof window.mission2Active !== 'undefined' && window.mission2Active) {
                 if (window.mission2Stage === 0) {
-                    let nearestPirate = null;
-                    let minPirateDist = Infinity;
-                    if (typeof window.mission2Enemies !== 'undefined' && Array.isArray(window.mission2Enemies)) {
-                        for (let i = 0; i < window.mission2Enemies.length; i++) {
-                            const p = window.mission2Enemies[i];
-                            if (p && p.position && p.userData && p.userData.hp > 0 && p.parent) {
-                                const dist = playerShip.position.distanceTo(p.position);
-                                if (dist < minPirateDist) {
-                                    minPirateDist = dist;
-                                    nearestPirate = p;
-                                }
-                            }
-                        }
-                    }
-                    if (nearestPirate && minPirateDist < 8000) {
+                    const beltCenter = new THREE.Vector3(100000, 0, 100000);
+                    const distToBelt = playerShip.position.distanceTo(beltCenter);
+                    // Guide player to Asteroid Belt from afar, but hide waypoint once inside the combat field (> 22,000m away = show)
+                    if (distToBelt > 22000) {
                         return {
-                            position: nearestPirate.position,
-                            name: "PIRATE RAIDER"
-                        };
-                    } else {
-                        return {
-                            position: new THREE.Vector3(100000, 0, 100000),
+                            position: beltCenter,
                             name: "ASTEROID BELT"
                         };
                     }
                 }
             }
 
-            // 4. Mission 3 Precursor Gate Phase
+            // 4. Mission 3 Precursor Gate Phase (Hide once arrived near the gate)
             if (typeof ancientGoldenGate !== 'undefined' && ancientGoldenGate && ancientGoldenGate.visible && ancientGoldenGate.position) {
                 if (typeof window.mission3Active !== 'undefined' && window.mission3Active) {
-                    return {
-                        position: ancientGoldenGate.position,
-                        name: "PRECURSOR GATE"
-                    };
+                    const distToGate = playerShip.position.distanceTo(ancientGoldenGate.position);
+                    if (distToGate > 3500) {
+                        return {
+                            position: ancientGoldenGate.position,
+                            name: "PRECURSOR GATE"
+                        };
+                    }
                 }
             }
 
-            // 5. Objective mentions Crest or Docking
+            // 5. Objective mentions Crest or Docking (return to base)
             const objElem = document.getElementById('hud-objective');
-            if (objElem && objElem.innerText && (objElem.innerText.toLowerCase().includes('crest') || objElem.innerText.toLowerCase().includes('dock'))) {
+            if (objElem && objElem.innerText && (objElem.innerText.toLowerCase().includes('crest') || objElem.innerText.toLowerCase().includes('dock') || objElem.innerText.toLowerCase().includes('return'))) {
                 if (typeof theCrestStation !== 'undefined' && theCrestStation && theCrestStation.position) {
-                    return {
-                        position: theCrestStation.position,
-                        name: "THE CREST [DOCKING BAY]"
-                    };
+                    const distToCrest = playerShip.position.distanceTo(theCrestStation.position);
+                    if (distToCrest > 800) {
+                        return {
+                            position: theCrestStation.position,
+                            name: "THE CREST [DOCKING BAY]"
+                        };
+                    }
                 }
             }
 
