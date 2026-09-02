@@ -12,7 +12,7 @@ if sys.stdout is None:
 if sys.stderr is None:
     sys.stderr = open(os.devnull, 'w')
 
-PORT = 8088
+PORT = int(os.environ.get("PORT", 8088))
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data" / "users"
 
