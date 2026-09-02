@@ -378,14 +378,6 @@
             box-shadow: 0 0 8px var(--cyan-primary);
         }
 
-        .tab-badge {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.72rem;
-            color: var(--cyan-primary);
-            letter-spacing: 1px;
-            margin-bottom: 2px;
-        }
-
         .tab-title {
             font-family: 'Orbitron', sans-serif;
             font-size: 0.88rem;
@@ -867,7 +859,6 @@
                 btn.className = `act-tab-btn ${idx === currentActIndex ? 'active' : ''}`;
                 btn.onclick = () => loadAct(idx, true);
                 btn.innerHTML = `
-                    <div class="tab-badge">${act.actNum}</div>
                     <div class="tab-title">${act.title}</div>
                     <div class="tab-subtitle">${act.subtitle}</div>
                 `;
