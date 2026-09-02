@@ -407,19 +407,22 @@
             gap: 20px;
         }
 
-        /* Concept Art Slideshow */
+        /* Concept Art Slideshow - ALWAYS STICKY AT TOP */
         .art-showcase-card {
             background: var(--bg-card);
             border: 1px solid var(--border-glass);
             border-radius: 14px;
             overflow: hidden;
-            position: relative;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            position: sticky;
+            top: 82px;
+            z-index: 90;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(16px);
         }
 
         .art-display-wrapper {
             width: 100%;
-            height: 440px;
+            height: min(350px, 40vh);
             background: #020408;
             position: relative;
             display: flex;
@@ -440,7 +443,7 @@
             bottom: 0;
             left: 0;
             right: 0;
-            padding: 16px 20px;
+            padding: 14px 20px;
             background: linear-gradient(to top, rgba(6, 9, 19, 0.95), transparent);
             display: flex;
             justify-content: space-between;
@@ -493,12 +496,15 @@
             font-size: 1.15rem;
             user-select: text;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            position: relative;
+            z-index: 10;
         }
 
         .story-paragraph {
             margin-bottom: 22px;
             color: var(--text-main);
             transition: color 0.3s ease;
+            scroll-margin-top: 460px;
         }
 
         .story-paragraph.reading-highlight {
