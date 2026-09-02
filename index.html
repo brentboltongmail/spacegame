@@ -293,6 +293,29 @@
                 </div>
             </div>
 
+            <!-- Game Over / Vessel Destroyed Modal -->
+            <div id="game-over-modal" class="game-over-modal" style="display: none;">
+                <div class="game-over-card">
+                    <div class="game-over-skull">💀</div>
+                    <div class="game-over-tag">VESSEL COMPROMISED — PILOT MIA</div>
+                    <h2 class="game-over-title">GAME OVER</h2>
+                    <p class="game-over-desc">
+                        Your starship suffered catastrophic hull failure and detonated in deep space. Tactical telemetry has gone dark.
+                    </p>
+                    <div class="game-over-mission-info" id="game-over-mission-info">
+                        ACTIVE OPERATION: <span id="game-over-mission-name" style="color: var(--accent-cyan);">MISSION 1</span>
+                    </div>
+                    <div class="game-over-actions">
+                        <button class="sim-btn btn-restart-mission" onclick="restartActiveMission()">
+                            🔄 RESTART MISSION
+                        </button>
+                        <button class="sim-btn btn-exit-profiles" onclick="exitToProfileSelect()">
+                            🚪 EXIT TO PROFILES
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- 🎬 WING COMMANDER 3 INSPIRED SEAMLESS FLIGHT DECK DEBRIEF & TRANSITION HUB -->
             <div id="flight-deck-debrief-overlay" class="flight-deck-debrief-overlay" style="display: none;">
                 <div class="debrief-panel-card">

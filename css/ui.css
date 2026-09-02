@@ -1004,6 +1004,139 @@
             box-shadow: 0 0 45px rgba(168, 85, 247, 0.35);
         }
 
+        /* 💀 Game Over Modal */
+        .game-over-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(3, 5, 12, 0.94);
+            backdrop-filter: blur(22px);
+            z-index: 100000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            box-sizing: border-box;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            pointer-events: auto;
+        }
+
+        .game-over-modal.active {
+            opacity: 1;
+        }
+
+        .game-over-card {
+            background: linear-gradient(180deg, rgba(22, 10, 20, 0.98), rgba(8, 12, 24, 0.98));
+            border: 1.5px solid rgba(255, 59, 92, 0.6);
+            border-radius: 16px;
+            max-width: 580px;
+            width: 100%;
+            padding: 36px 32px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(255, 59, 92, 0.35), inset 0 0 25px rgba(255, 59, 92, 0.1);
+            animation: pulseWarningBorder 3s infinite alternate ease-in-out;
+        }
+
+        @keyframes pulseWarningBorder {
+            0% { border-color: rgba(255, 59, 92, 0.5); box-shadow: 0 0 35px rgba(255, 59, 92, 0.25); }
+            100% { border-color: rgba(255, 59, 92, 0.9); box-shadow: 0 0 65px rgba(255, 59, 92, 0.5); }
+        }
+
+        .game-over-skull {
+            font-size: 3rem;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 0 12px rgba(255, 59, 92, 0.8));
+        }
+
+        .game-over-tag {
+            font-family: var(--font-head, Orbitron), sans-serif;
+            font-size: 0.82rem;
+            letter-spacing: 3px;
+            font-weight: 700;
+            color: #ff3b5c;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .game-over-title {
+            font-family: var(--font-head, Orbitron), sans-serif;
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 2px;
+            margin: 0 0 14px 0;
+            text-shadow: 0 0 20px rgba(255, 59, 92, 0.8);
+        }
+
+        .game-over-desc {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .game-over-mission-info {
+            font-family: var(--font-head, Orbitron), sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: #cbd5e1;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 18px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 28px;
+            display: inline-block;
+        }
+
+        .game-over-actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn-restart-mission {
+            background: linear-gradient(135deg, rgba(255, 59, 92, 0.6), rgba(234, 88, 12, 0.6)) !important;
+            border: 1px solid #ff3b5c !important;
+            color: #fff !important;
+            font-weight: 800 !important;
+            font-size: 0.95rem !important;
+            padding: 12px 26px !important;
+            border-radius: 8px !important;
+            box-shadow: 0 0 20px rgba(255, 59, 92, 0.4) !important;
+            cursor: pointer;
+            transition: all 0.25s ease !important;
+        }
+
+        .btn-restart-mission:hover {
+            background: linear-gradient(135deg, rgba(255, 59, 92, 0.85), rgba(234, 88, 12, 0.85)) !important;
+            box-shadow: 0 0 30px rgba(255, 59, 92, 0.7) !important;
+            transform: translateY(-2px);
+        }
+
+        .btn-exit-profiles {
+            background: rgba(15, 23, 42, 0.8) !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            color: #cbd5e1 !important;
+            font-weight: 700 !important;
+            font-size: 0.95rem !important;
+            padding: 12px 24px !important;
+            border-radius: 8px !important;
+            cursor: pointer;
+            transition: all 0.25s ease !important;
+        }
+
+        .btn-exit-profiles:hover {
+            border-color: #00f0ff !important;
+            color: #00f0ff !important;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3) !important;
+            transform: translateY(-2px);
+        }
+
         /* 🎬 Wing Commander 3 Seamless Flight Deck Overlay */
         .flight-deck-debrief-overlay {
             position: fixed;

@@ -120,6 +120,11 @@
         let cameraMode = 0; // 0: Cockpit View (Default), 1: Follow (close), 2: Follow (far), 3: Cinematic Showcase (Invincible)
         let isShipInvincible = false;
         let isPlayerDead = false;
+        let deathSequenceActive = false;
+        let deathSequenceTimer = 0;
+        const deathOriginPos = new THREE.Vector3();
+        const deathCameraStartPos = new THREE.Vector3();
+        let nextSecondaryExplosionTime = 0;
         let cinematicAngle = 0;
 
         let isGamePaused = false;

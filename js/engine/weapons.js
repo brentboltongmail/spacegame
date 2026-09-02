@@ -124,8 +124,8 @@
         }
 
         function firePlasmaLaser() {
-            if (isTacticalMapOpen || isGamePaused || isOptionsOpen) return;
-            if (!playerShip) return;
+            if (isTacticalMapOpen || isGamePaused || isOptionsOpen || isPlayerDead || deathSequenceActive) return;
+            if (!playerShip || !playerShip.visible) return;
 
             // Reuse pre-allocated helper vectors - ZERO GC allocations!
             _fwdDir.set(0, 0, -1).applyQuaternion(playerShip.quaternion);
@@ -546,15 +546,58 @@
         sharedRingGeo.rotateX(Math.PI / 2);
         const sharedRingMat = new THREE.MeshBasicMaterial({ color: 0xf97316, side: THREE.DoubleSide, transparent: true, opacity: 1.0, blending: THREE.AdditiveBlending });
 
+        function triggerPlayerDeath() {
+            if (isPlayerDead || deathSequenceActive) return;
+            isPlayerDead = true;
+            deathSequenceActive = true;
+            deathSequenceTimer = 10.0;
+            if (typeof isFlightLocked !== 'undefined') isFlightLocked = true;
+            if (typeof currentSpeed !== 'undefined') currentSpeed = 0;
+            if (typeof targetSpeed !== 'undefined') targetSpeed = 0;
+            if (typeof playerHp !== 'undefined') playerHp = 0;
+            if (typeof shieldPercent !== 'undefined') shieldPercent = 0;
+
+            if (playerShip && playerShip.position) {
+                deathOriginPos.copy(playerShip.position);
+            } else if (camera) {
+                deathOriginPos.copy(camera.position);
+            }
+
+            if (camera) {
+                deathCameraStartPos.copy(camera.position);
+            }
+            nextSecondaryExplosionTime = 9.0;
+
+            // Stop engine audio pitch/muffle
+            if (typeof updateEngineAudio === 'function') {
+                updateEngineAudio(0, false);
+            }
+
+            // Hide HUD elements smoothly
+            const crosshair = document.querySelector('.hud-center-crosshair');
+            if (crosshair) crosshair.style.opacity = '0';
+            const lockZone = document.getElementById('target-lock-zone');
+            if (lockZone) lockZone.style.opacity = '0';
+            const speedElem = document.getElementById('hud-speed');
+            if (speedElem) {
+                speedElem.innerText = "HULL CRITICAL: DESTROYED";
+                speedElem.style.color = '#ff3b5c';
+            }
+
+            showToast("💥 VESSEL DESTROYED — CATASTROPHIC DETONATION");
+            createEpicPlayerDeathExplosion(deathOriginPos);
+        }
+        window.triggerPlayerDeath = triggerPlayerDeath;
+
         function createEpicPlayerDeathExplosion(pos) {
-            // Trigger massive real fiery detonation
+            // 1. Primary massive fiery detonation
             createFieryExplosionFX(pos);
 
-            // Secondary multiple exploding shockwaves
-            for (let i = 0; i < 4; i++) {
+            // 2. Secondary expanding shockwave rings
+            for (let i = 0; i < 6; i++) {
                 setTimeout(() => {
                     const shockwave = new THREE.Mesh(sharedRingGeo, sharedRingMat.clone());
-                    const colorChoices = [0xffffff, 0xffaa22, 0xff4400];
+                    const colorChoices = [0xffffff, 0xffaa22, 0xff3b5c, 0xff0044];
                     shockwave.material.color.setHex(colorChoices[i % colorChoices.length]);
                     shockwave.position.copy(pos);
                     shockwave.rotation.set(Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2);
@@ -563,74 +606,104 @@
                     scene.add(shockwave);
                     explosionParticles.push(shockwave);
                     playExplosionAudio();
-                }, i * 300);
+                }, i * 220);
             }
-            
-            // --- 20 ROUNDS OF AWESOME SHIP FRACTURING ---
-            if (playerShip) {
-                // Step out to make the view cinematic
-                cameraMode = 3; 
-                const crosshair = document.querySelector('.hud-center-crosshair');
-                if (crosshair) crosshair.style.opacity = '0';
-                const lockZone = document.getElementById('target-lock-zone');
-                if (lockZone) lockZone.style.opacity = '0';
-                
-                window.deathTimeDilation = 0.1; // Slow motion matrix effect
-                window.deathCameraShake = 5.0; // Massive camera shake
-                
-                // Massive whiteout screen flash
-                const whiteout = document.createElement('div');
-                whiteout.style.position = 'fixed'; whiteout.style.top = '0'; whiteout.style.left = '0'; whiteout.style.width = '100%'; whiteout.style.height = '100%'; whiteout.style.backgroundColor = '#ffffff'; whiteout.style.zIndex = '99999'; whiteout.style.pointerEvents = 'none'; whiteout.style.transition = 'opacity 3s ease-out';
-                document.body.appendChild(whiteout);
-                setTimeout(() => { whiteout.style.opacity = '0'; setTimeout(() => whiteout.remove(), 3000); }, 50);
 
-                const pieces = [];
+            // 3. Screen flash effect
+            const whiteout = document.createElement('div');
+            whiteout.style.position = 'fixed'; whiteout.style.top = '0'; whiteout.style.left = '0'; whiteout.style.width = '100%'; whiteout.style.height = '100%'; whiteout.style.backgroundColor = 'rgba(255, 59, 92, 0.4)'; whiteout.style.zIndex = '99999'; whiteout.style.pointerEvents = 'none'; whiteout.style.transition = 'opacity 2.5s ease-out';
+            document.body.appendChild(whiteout);
+            setTimeout(() => { whiteout.style.opacity = '0'; setTimeout(() => whiteout.remove(), 2500); }, 50);
+
+            // 4. Disintegrate ship into superheated outward-flying shards without destroying the playerShip root
+            if (playerShip) {
+                window.deathCameraShake = 5.0; // Initial violent camera jolt
+
+                // Collect meshes to clone as fiery debris
+                const meshesToClone = [];
                 playerShip.traverse((child) => {
                     if (child.isMesh && !child.userData.isShield && child !== playerShieldBubble) {
-                        pieces.push(child);
+                        meshesToClone.push(child);
                     }
                 });
-                
-                pieces.forEach((piece) => {
+
+                meshesToClone.forEach((origMesh) => {
                     const wp = new THREE.Vector3();
                     const wq = new THREE.Quaternion();
                     const ws = new THREE.Vector3();
-                    piece.getWorldPosition(wp);
-                    piece.getWorldQuaternion(wq);
-                    piece.getWorldScale(ws);
-                    
-                    scene.add(piece); // Detach into world
-                    piece.position.copy(wp);
-                    piece.quaternion.copy(wq);
-                    piece.scale.copy(ws);
-                    
-                    // Calculate outward trajectory from center of explosion
+                    origMesh.getWorldPosition(wp);
+                    origMesh.getWorldQuaternion(wq);
+                    origMesh.getWorldScale(ws);
+
+                    // Create cloned piece
+                    const debrisPiece = origMesh.clone();
+                    debrisPiece.position.copy(wp);
+                    debrisPiece.quaternion.copy(wq);
+                    debrisPiece.scale.copy(ws);
+
+                    // Calculate outward velocity from epicenter
                     const outward = wp.clone().sub(pos).normalize();
-                    outward.x += (Math.random() - 0.5) * 2;
-                    outward.y += (Math.random() - 0.5) * 2;
-                    outward.z += (Math.random() - 0.5) * 2;
-                    outward.normalize();
-                    
-                    const speed = 100 + Math.random() * 200; // Violently fast
-                    piece.userData.vel = outward.multiplyScalar(speed);
-                    
-                    piece.userData.rotVel = new THREE.Vector3(
-                        (Math.random() - 0.5) * 0.8,
-                        (Math.random() - 0.5) * 0.8,
-                        (Math.random() - 0.5) * 0.8
+                    if (outward.lengthSq() < 0.001) {
+                        outward.set((Math.random() - 0.5), (Math.random() - 0.5), (Math.random() - 0.5)).normalize();
+                    } else {
+                        outward.x += (Math.random() - 0.5) * 1.5;
+                        outward.y += (Math.random() - 0.5) * 1.5;
+                        outward.z += (Math.random() - 0.5) * 1.5;
+                        outward.normalize();
+                    }
+
+                    const speed = 40 + Math.random() * 120;
+                    debrisPiece.userData.vel = outward.multiplyScalar(speed);
+                    debrisPiece.userData.rotVel = new THREE.Vector3(
+                        (Math.random() - 0.5) * 1.2,
+                        (Math.random() - 0.5) * 1.2,
+                        (Math.random() - 0.5) * 1.2
                     );
-                    
-                    // Make the piece glow superheated orange/yellow
-                    piece.material = piece.material.clone();
-                    piece.material.emissive = new THREE.Color(0xff4400);
-                    piece.material.emissiveIntensity = 4.0; // Blinding hot
-                    
-                    piece.userData.isShipDebris = true;
-                    piece.userData.life = 5.0; 
-                    explosionParticles.push(piece);
+
+                    debrisPiece.material = origMesh.material ? origMesh.material.clone() : new THREE.MeshBasicMaterial({ color: 0xff4400 });
+                    if (debrisPiece.material.emissive) {
+                        debrisPiece.material.emissive = new THREE.Color(0xff4400);
+                        debrisPiece.material.emissiveIntensity = 4.0;
+                    }
+                    debrisPiece.userData.isShipDebris = true;
+                    debrisPiece.userData.life = 9.0; // Persists during majority of 10s animation
+
+                    scene.add(debrisPiece);
+                    explosionParticles.push(debrisPiece);
                 });
-                
-                playerShip.visible = false; // Hide the root group
+
+                // Spawning additional hull fracture shrapnel shards
+                const shrapnelGeo = getShrapnelGeometry();
+                for (let k = 0; k < 18; k++) {
+                    const shardMat = new THREE.MeshStandardMaterial({
+                        color: 0x1e293b,
+                        emissive: 0xff3b00,
+                        emissiveIntensity: 3.0,
+                        roughness: 0.6,
+                        metalness: 0.8
+                    });
+                    const shard = new THREE.Mesh(shrapnelGeo, shardMat);
+                    shard.position.copy(pos);
+                    const sScale = 1.0 + Math.random() * 2.5;
+                    shard.scale.set(sScale, sScale, sScale);
+
+                    const sDir = new THREE.Vector3((Math.random() - 0.5), (Math.random() - 0.5), (Math.random() - 0.5)).normalize();
+                    shard.userData.vel = sDir.multiplyScalar(30 + Math.random() * 90);
+                    shard.userData.rotVel = new THREE.Vector3((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2);
+                    shard.userData.isShrapnel = true;
+                    shard.userData.life = 1.0;
+                    shard.userData.decayRate = 0.0018; // ~9 seconds duration
+                    shard.userData.emissiveBase = 3.0;
+
+                    scene.add(shard);
+                    explosionParticles.push(shard);
+                }
+
+                // Completely hide player ship so the ship is no more
+                playerShip.visible = false;
+                if (playerShip.userData && playerShip.userData.engineLights) {
+                    playerShip.userData.engineLights.forEach(l => l.visible = false);
+                }
             }
         }
 

@@ -1180,3 +1180,176 @@
 
             if (typeof cameraMode !== 'undefined') cameraMode = 1;
         }
+
+        // =========================================================================
+        // 💀 GAME OVER & MISSION RESTART / PROFILE FLOW
+        // =========================================================================
+        function showGameOverModal() {
+            const modal = document.getElementById('game-over-modal');
+            if (!modal) return;
+
+            let activeMissionName = "MISSION 1";
+            if (window.mission3Active || window.isMission3Active) {
+                activeMissionName = "MISSION 3: THE DOMINION ARMADA";
+            } else if (window.mission2Active) {
+                activeMissionName = "MISSION 2: ASTEROID BELT DEFENSE";
+            } else {
+                activeMissionName = "MISSION 1: SATURN ORBITAL PATROL";
+            }
+
+            const infoEl = document.getElementById('game-over-mission-name');
+            if (infoEl) infoEl.innerText = activeMissionName;
+
+            modal.style.display = 'flex';
+            requestAnimationFrame(() => {
+                modal.classList.add('active');
+            });
+        }
+        window.showGameOverModal = showGameOverModal;
+
+        function hideGameOverModal() {
+            const modal = document.getElementById('game-over-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
+        }
+        window.hideGameOverModal = hideGameOverModal;
+
+        function restartActiveMission() {
+            hideGameOverModal();
+
+            // Reset core gameplay flags
+            isPlayerDead = false;
+            deathSequenceActive = false;
+            deathSequenceTimer = 0;
+            isFlightLocked = false;
+            isGamePaused = false;
+
+            playerHp = 100;
+            shieldPercent = 100;
+            currentSpeed = 0;
+            targetSpeed = 0;
+
+            // Clean up old debris & explosion particles
+            if (typeof explosionParticles !== 'undefined' && Array.isArray(explosionParticles)) {
+                for (let i = explosionParticles.length - 1; i >= 0; i--) {
+                    const p = explosionParticles[i];
+                    if (p && p.parent) p.parent.remove(p);
+                }
+                explosionParticles.length = 0;
+            }
+
+            // Restore player ship and its visual elements
+            if (typeof playerShip !== 'undefined' && playerShip) {
+                playerShip.visible = true;
+                playerShip.traverse((child) => {
+                    if (child.isMesh) child.visible = true;
+                });
+                if (playerShip.userData && playerShip.userData.engineLights) {
+                    playerShip.userData.engineLights.forEach(l => l.visible = true);
+                }
+            }
+
+            // Restore HUD displays
+            const crosshair = document.querySelector('.hud-center-crosshair');
+            if (crosshair) crosshair.style.opacity = '0.6';
+            const lockZone = document.getElementById('target-lock-zone');
+            if (lockZone) lockZone.style.opacity = '0.6';
+            const speedElem = document.getElementById('hud-speed');
+            if (speedElem) {
+                speedElem.innerText = 'SPEED: 0 km/s';
+                speedElem.style.color = '#00f0ff';
+            }
+
+            // Check which mission to restart
+            if (window.mission3Active || window.isMission3Active) {
+                if (typeof window.startMission3 === 'function') {
+                    window.startMission3();
+                }
+            } else if (window.mission2Active) {
+                if (typeof startMission2 === 'function') {
+                    startMission2();
+                }
+            } else {
+                if (typeof window.startMission1 === 'function') {
+                    window.startMission1();
+                }
+            }
+
+            // Reset camera to standard follow mode smoothly
+            if (typeof setCameraMode === 'function') {
+                setCameraMode(1);
+            } else if (typeof cameraMode !== 'undefined') {
+                cameraMode = 1;
+            }
+
+            showToast("🚀 MISSION RESTARTED — ALL SYSTEMS RESTORED");
+        }
+        window.restartActiveMission = restartActiveMission;
+
+        function exitToProfileSelect() {
+            hideGameOverModal();
+
+            let activeMissionName = "Mission 1";
+            if (window.mission3Active || window.isMission3Active) {
+                activeMissionName = "Mission 3";
+            } else if (window.mission2Active) {
+                activeMissionName = "Mission 2";
+            } else {
+                activeMissionName = "Mission 1";
+            }
+
+            // Update profile progress so the default resume starts at this last mission
+            if (typeof currentProfile !== 'undefined' && currentProfile && currentProfile.progress) {
+                currentProfile.progress.currentMission = activeMissionName;
+                currentProfile.progress.playerHp = 100;
+                currentProfile.progress.shieldPercent = 100;
+                currentProfile.progress.currentSpeed = 0;
+                currentProfile.progress.targetSpeed = 0;
+                currentProfile.progress.isDocked = true;
+                currentProfile.progress.landingPhase = 6;
+                currentProfile.progress.inHangerZone = true;
+                
+                if (typeof saveProfileToServerSilent === 'function') {
+                    saveProfileToServerSilent();
+                }
+            }
+
+            // Reset simulation flags
+            isGameSessionActive = false;
+            isGamePaused = false;
+            isPlayerDead = false;
+            deathSequenceActive = false;
+            deathSequenceTimer = 0;
+
+            // Restore player ship visibility
+            if (typeof playerShip !== 'undefined' && playerShip) {
+                playerShip.visible = true;
+                playerShip.traverse((child) => {
+                    if (child.isMesh) child.visible = true;
+                });
+            }
+
+            // Stop engine audio
+            if (typeof updateEngineAudio === 'function') {
+                updateEngineAudio(0, false);
+            }
+
+            // Clean up particles
+            if (typeof explosionParticles !== 'undefined' && Array.isArray(explosionParticles)) {
+                for (let i = explosionParticles.length - 1; i >= 0; i--) {
+                    const p = explosionParticles[i];
+                    if (p && p.parent) p.parent.remove(p);
+                }
+                explosionParticles.length = 0;
+            }
+
+            // Return to profile selection screen
+            if (typeof initProfileScreen === 'function') {
+                initProfileScreen();
+            }
+        }
+        window.exitToProfileSelect = exitToProfileSelect;

@@ -25,7 +25,10 @@ const _targetWorldPos = new THREE.Vector3();
                 return;
             }
 
-            if (isTitanCinematicActive || isLandingSequenceActive) {
+            if (deathSequenceActive || isPlayerDead) {
+                currentSpeed = 0;
+                targetSpeed = 0;
+            } else if (isTitanCinematicActive || isLandingSequenceActive) {
                 // Automatic cinematic engine throttle management
                 currentSpeed += (targetSpeed - currentSpeed) * Math.min(1.0, 0.05 * dtFactor);
             } else {
@@ -194,6 +197,8 @@ const _targetWorldPos = new THREE.Vector3();
                     const speedMult = (titanCinematicIndex >= 9 || isTitanCinematicEnteringGate) ? 1.0 : 1.35;
                     frameDisplacement = dirToGate.clone().multiplyScalar(currentSpeed * 0.0064 * speedMult * dtFactor);
                 }
+            } else if (deathSequenceActive || isPlayerDead) {
+                frameDisplacement = new THREE.Vector3(0, 0, 0);
             } else if (isLandingSequenceActive) {
                 frameDisplacement = new THREE.Vector3(0, 0, 0); // Position is fully controlled by updateLandingSequence
             } else {
@@ -375,6 +380,11 @@ const _targetWorldPos = new THREE.Vector3();
                                 playerHp = Math.max(0, playerHp - damageAmt);
                             }
                             
+                            if (playerHp <= 0 && !isPlayerDead && typeof triggerPlayerDeath === 'function') {
+                                triggerPlayerDeath();
+                                return;
+                            }
+
                             if (Math.random() < 0.2) showToast("💥 COLLISION WARNING: VESSEL IMPACT!");
                         }
                     }
@@ -515,68 +525,139 @@ const _targetWorldPos = new THREE.Vector3();
                 camera.position.add(trueDisplacement);
             }
 
-            // Keep starfield celestial dome anchored to player position so stars stay far off on horizon
-            if (starfield) starfield.position.copy(playerShip.position);
+            if (deathSequenceActive) {
+                deathSequenceTimer -= (typeof timeDelta !== 'undefined' ? timeDelta : 0.016);
+                const t = Math.max(0, Math.min(1.0, 1.0 - (deathSequenceTimer / 10.0))); // 0.0 -> 1.0
 
-            // --- Multi-Mode Camera System (Cockpit / Close / Far / Cinematic Showcase) ---
-            let targetCamPos;
-            let targetLookAtPos = playerShip.position.clone().add(new THREE.Vector3(0, 0, -10).applyQuaternion(playerShip.quaternion));
+                // Anchor starfield to death origin
+                if (starfield) starfield.position.copy(deathOriginPos);
 
-            if (cameraMode === 0) {
-                // Mode 0: Cockpit View (First-Person) - Hide exterior ship model & engine lights so they do not block cockpit view (unless cinematic is active)
-                const isCinematic = (typeof isTitanCinematicActive !== 'undefined' && isTitanCinematicActive);
-                playerShip.visible = isCinematic;
-                if (playerShip.userData && playerShip.userData.engineLights) {
-                    playerShip.userData.engineLights.forEach(l => l.visible = isCinematic);
+                // Completely ensure playerShip and engine lights are hidden ("the ship is no more")
+                if (playerShip) {
+                    playerShip.visible = false;
+                    if (playerShip.userData && playerShip.userData.engineLights) {
+                        playerShip.userData.engineLights.forEach(l => l.visible = false);
+                    }
                 }
-                targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 0.45, -0.1).applyQuaternion(playerShip.quaternion));
-                targetLookAtPos = playerShip.position.clone().add(new THREE.Vector3(0, 0.45, -25).applyQuaternion(playerShip.quaternion));
-            } else {
-                playerShip.visible = true;
-                if (playerShip.userData && playerShip.userData.engineLights) {
-                    playerShip.userData.engineLights.forEach(l => l.visible = true);
-                }
-                if (cameraMode === 1) {
-                    // Mode 1: Rear Third-Person Close
-                    targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 2.2, 7.5).applyQuaternion(playerShip.quaternion));
-                } else if (cameraMode === 2) {
-                    // Mode 2: Rear Third-Person Far
-                    targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 6.0, 22.0).applyQuaternion(playerShip.quaternion));
-                } else if (cameraMode === 3) {
-                    // Mode 3: Cinematic Orbiting Showcase (Ship Invincible, 2x Faster Panning)
-                    cinematicAngle += 0.0030; // Sped up 2x for faster cinematic sweeps
-                    const radius = 9;
-                    const height = Math.sin(cinematicAngle * 0.7) * 2 + 1.5;
-                    const orbitOffset = new THREE.Vector3(
-                        Math.cos(cinematicAngle) * radius,
-                        height,
-                        Math.sin(cinematicAngle) * radius
+
+                // Timed cascading secondary micro-explosions throughout the 10 seconds
+                if (deathSequenceTimer <= nextSecondaryExplosionTime && deathSequenceTimer > 0.4) {
+                    nextSecondaryExplosionTime -= 1.25;
+                    const secOffset = new THREE.Vector3(
+                        (Math.random() - 0.5) * 32,
+                        (Math.random() - 0.5) * 20,
+                        (Math.random() - 0.5) * 32
                     );
-                    targetCamPos = playerShip.position.clone().add(orbitOffset);
-                    targetLookAtPos = playerShip.position.clone();
+                    const secPos = deathOriginPos.clone().add(secOffset);
+                    if (typeof createFieryExplosionFX === 'function') {
+                        createFieryExplosionFX(secPos);
+                    }
+                    if (typeof spawnLaserImpactSparks === 'function') {
+                        spawnLaserImpactSparks(secPos);
+                    }
+                    if (typeof playExplosionAudio === 'function') {
+                        playExplosionAudio();
+                    }
                 }
-            }
 
-            const dynamicLerp = 0.01 + ((100 - gameMechanicsConfig.cameraLag) / 100) * 0.20;
+                // Smooth cinematic zoom-out and orbit around death origin
+                const zoomDist = 22.0 + (t * 90.0); // Expands from 22 to 112 units away
+                const zoomHeight = 8.0 + (t * 26.0); // Elevates from 8 to 34 units high
+                const orbitAngle = t * 0.95;
 
-            // Apply camera lag to the roll as well (lerp camera.up smoothly to ship's local up vector)
-            const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
-            if (cameraMode === 0 || (typeof isLandingSequenceActive !== 'undefined' && isLandingSequenceActive)) {
-                // In Cockpit View OR during landing, keep orientation locked 1:1 with cockpit frame / perfectly smooth
-                camera.up.copy(localUp);
+                const camOffset = new THREE.Vector3(
+                    Math.sin(orbitAngle) * zoomDist,
+                    zoomHeight,
+                    Math.cos(orbitAngle) * zoomDist
+                );
+
+                const targetCamPos = deathOriginPos.clone().add(camOffset);
+
+                // Decaying camera shake
+                if (window.deathCameraShake && window.deathCameraShake > 0.01) {
+                    const shakeAmt = window.deathCameraShake * (1.0 - t);
+                    targetCamPos.x += (Math.random() - 0.5) * shakeAmt;
+                    targetCamPos.y += (Math.random() - 0.5) * shakeAmt;
+                    targetCamPos.z += (Math.random() - 0.5) * shakeAmt;
+                    window.deathCameraShake = Math.max(0, window.deathCameraShake - (timeDelta || 0.016) * 0.7);
+                }
+
+                camera.position.lerp(targetCamPos, 0.08);
+                camera.up.set(0, 1, 0);
+                camera.lookAt(deathOriginPos);
+                camera.updateMatrixWorld();
+
+                if (deathSequenceTimer <= 0) {
+                    deathSequenceActive = false;
+                    isGamePaused = true;
+                    if (typeof window.showGameOverModal === 'function') {
+                        window.showGameOverModal();
+                    }
+                }
             } else {
-                // In Third-Person (Close/Far) & Cinematic modes, apply smooth roll lag
-                const rollLerp = cameraMode === 3 ? 0.01 : dynamicLerp;
-                camera.up.lerp(localUp, rollLerp).normalize();
-            }
+                // Keep starfield celestial dome anchored to player position so stars stay far off on horizon
+                if (starfield) starfield.position.copy(playerShip.position);
 
-            if (typeof isLandingSequenceActive !== 'undefined' && isLandingSequenceActive) {
-                camera.position.copy(targetCamPos);
-            } else {
-                camera.position.lerp(targetCamPos, cameraMode === 3 ? 0.08 : dynamicLerp);
+                // --- Multi-Mode Camera System (Cockpit / Close / Far / Cinematic Showcase) ---
+                let targetCamPos;
+                let targetLookAtPos = playerShip.position.clone().add(new THREE.Vector3(0, 0, -10).applyQuaternion(playerShip.quaternion));
+
+                if (cameraMode === 0) {
+                    // Mode 0: Cockpit View (First-Person) - Hide exterior ship model & engine lights so they do not block cockpit view (unless cinematic is active)
+                    const isCinematic = (typeof isTitanCinematicActive !== 'undefined' && isTitanCinematicActive);
+                    playerShip.visible = isCinematic;
+                    if (playerShip.userData && playerShip.userData.engineLights) {
+                        playerShip.userData.engineLights.forEach(l => l.visible = isCinematic);
+                    }
+                    targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 0.45, -0.1).applyQuaternion(playerShip.quaternion));
+                    targetLookAtPos = playerShip.position.clone().add(new THREE.Vector3(0, 0.45, -25).applyQuaternion(playerShip.quaternion));
+                } else {
+                    playerShip.visible = true;
+                    if (playerShip.userData && playerShip.userData.engineLights) {
+                        playerShip.userData.engineLights.forEach(l => l.visible = true);
+                    }
+                    if (cameraMode === 1) {
+                        // Mode 1: Rear Third-Person Close
+                        targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 2.2, 7.5).applyQuaternion(playerShip.quaternion));
+                    } else if (cameraMode === 2) {
+                        // Mode 2: Rear Third-Person Far
+                        targetCamPos = playerShip.position.clone().add(new THREE.Vector3(0, 6.0, 22.0).applyQuaternion(playerShip.quaternion));
+                    } else if (cameraMode === 3) {
+                        // Mode 3: Cinematic Orbiting Showcase (Ship Invincible, 2x Faster Panning)
+                        cinematicAngle += 0.0030; // Sped up 2x for faster cinematic sweeps
+                        const radius = 9;
+                        const height = Math.sin(cinematicAngle * 0.7) * 2 + 1.5;
+                        const orbitOffset = new THREE.Vector3(
+                            Math.cos(cinematicAngle) * radius,
+                            height,
+                            Math.sin(cinematicAngle) * radius
+                        );
+                        targetCamPos = playerShip.position.clone().add(orbitOffset);
+                        targetLookAtPos = playerShip.position.clone();
+                    }
+                }
+
+                const dynamicLerp = 0.01 + ((100 - gameMechanicsConfig.cameraLag) / 100) * 0.20;
+
+                // Apply camera lag to the roll as well (lerp camera.up smoothly to ship's local up vector)
+                const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(playerShip.quaternion);
+                if (cameraMode === 0 || (typeof isLandingSequenceActive !== 'undefined' && isLandingSequenceActive)) {
+                    // In Cockpit View OR during landing, keep orientation locked 1:1 with cockpit frame / perfectly smooth
+                    camera.up.copy(localUp);
+                } else {
+                    // In Third-Person (Close/Far) & Cinematic modes, apply smooth roll lag
+                    const rollLerp = cameraMode === 3 ? 0.01 : dynamicLerp;
+                    camera.up.lerp(localUp, rollLerp).normalize();
+                }
+
+                if (typeof isLandingSequenceActive !== 'undefined' && isLandingSequenceActive) {
+                    camera.position.copy(targetCamPos);
+                } else {
+                    camera.position.lerp(targetCamPos, cameraMode === 3 ? 0.08 : dynamicLerp);
+                }
+                camera.lookAt(targetLookAtPos);
+                camera.updateMatrixWorld(); // Force matrix update so 2D UI projections have zero frame lag
             }
-            camera.lookAt(targetLookAtPos);
-            camera.updateMatrixWorld(); // Force matrix update so 2D UI projections have zero frame lag
 
             // --- ANIMATE ACTIVE HYPERSPACE RIFTS ---
             const nowPerf = performance.now();
@@ -1368,10 +1449,14 @@ const _targetWorldPos = new THREE.Vector3();
                                 if (speedElem && playerHp > 0) speedElem.style.color = '#00f0ff'; 
                             }, 500);
                         }
-                        if (playerHp <= 0 && !isFlightLocked) {
-                            isFlightLocked = true;
-                            showToast("CRITICAL HULL FAILURE - SHIP DESTROYED");
-                            createEpicPlayerDeathExplosion(playerShip.position);
+                        if (playerHp <= 0 && !isPlayerDead) {
+                            if (typeof triggerPlayerDeath === 'function') {
+                                triggerPlayerDeath();
+                            } else {
+                                isFlightLocked = true;
+                                showToast("CRITICAL HULL FAILURE - SHIP DESTROYED");
+                                createEpicPlayerDeathExplosion(playerShip.position);
+                            }
                         }
                     }
                 }
