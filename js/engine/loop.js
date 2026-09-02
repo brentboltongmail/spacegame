@@ -343,8 +343,12 @@ const _targetWorldPos = new THREE.Vector3();
                 }
             }
 
-            // Prevent flying through Enemy Fighters
-            if (!isShipInvincible && !isPlayerDead && typeof enemyShips !== 'undefined') {
+            // Prevent flying through Enemy Fighters (disabled while docked / inside hangar)
+            const isPlayerInHangar = (typeof window.inHangerZone !== 'undefined' && window.inHangerZone) ||
+                                     (typeof landingPhase !== 'undefined' && landingPhase === 6) ||
+                                     (typeof isLandingSequenceActive !== 'undefined' && isLandingSequenceActive);
+
+            if (!isShipInvincible && !isPlayerDead && !isPlayerInHangar && typeof enemyShips !== 'undefined') {
                 const fighterCollisionRadius = 18; 
                 for (let i = 0; i < enemyShips.length; i++) {
                     const enemy = enemyShips[i];
@@ -846,13 +850,17 @@ const _targetWorldPos = new THREE.Vector3();
             let _eSpeedVal = (typeof gameMechanicsConfig !== 'undefined' && gameMechanicsConfig.enemySpeedMult !== undefined) ? gameMechanicsConfig.enemySpeedMult : 50;
             const enemySpeedMult = Math.max(0.1, _eSpeedVal / 50.0);
 
+            const isPlayerInsideHangar = (typeof window.inHangerZone !== 'undefined' && window.inHangerZone) ||
+                                         (typeof landingPhase !== 'undefined' && landingPhase === 6) ||
+                                         (typeof isLandingSequenceActive !== 'undefined' && isLandingSequenceActive);
+
             enemyShips.forEach(e => {
                 if (e.userData && e.userData.hp > 0 && playerShip) {
                     const toPlayer = playerShip.position.clone().sub(e.position);
                     const dist = toPlayer.length();
                     
-                    // Engage in pursuit runs if within 25,000 units (25 km) or damaged
-                    const isAggroed = (dist < 25000) || (e.userData.hp < (e.userData.maxHp || 100));
+                    // Engage in pursuit runs if within 25,000 units (25 km) or damaged — only if player is outside the hangar
+                    const isAggroed = !isPlayerInsideHangar && ((dist < 25000) || (e.userData.hp < (e.userData.maxHp || 100)));
                     if (dist > 0 && isAggroed) {
                         e.userData.attackState = e.userData.attackState || 'intercept';
                         e.userData.breakawayTimer = e.userData.breakawayTimer || 0;
@@ -910,7 +918,7 @@ const _targetWorldPos = new THREE.Vector3();
                             const currentFwd = new THREE.Vector3(0, 0, -1).applyQuaternion(e.quaternion);
                             const aimAngle = currentFwd.angleTo(leadDir);
                             
-                            if (dist < 3200 && aimAngle < 0.72) {
+                            if (!isPlayerInsideHangar && dist < 3200 && aimAngle < 0.72) {
                                 const nowMs = Date.now();
                                 e.userData.lastFireTime = e.userData.lastFireTime || 0;
                                 
@@ -940,19 +948,37 @@ const _targetWorldPos = new THREE.Vector3();
                             }
                         }
                     } else {
+                        // Reset attack state when player is in hangar or disengaged
+                        if (e.userData.attackState && e.userData.attackState !== 'patrol') {
+                            e.userData.attackState = 'patrol';
+                            e.userData.breakawayTargetQuat = null;
+                        }
+
+                        // Steer away if getting too close to The Crest Station (< 1800 units)
+                        if (typeof theCrestStation !== 'undefined' && theCrestStation && theCrestStation.position) {
+                            const distToStation = e.position.distanceTo(theCrestStation.position);
+                            if (distToStation < 1800) {
+                                const awayDir = e.position.clone().sub(theCrestStation.position).normalize();
+                                const avoidQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), awayDir);
+                                e.quaternion.rotateTowards(avoidQuat, 0.045 * dtFactor);
+                            }
+                        }
+
                         // Patrol cruise around planetary sector
                         e.translateZ(-1.25 * enemySpeedMult * dtFactor);
                         e.rotateY(0.003 * dtFactor);
                     }
 
                     // Target Lock Candidate Check
-                    const toEnemy = e.position.clone().sub(playerShip.position);
-                    const distToEnemy = toEnemy.length();
-                    if (distToEnemy > 0) {
-                        const dot = toEnemy.clone().normalize().dot(fwdDir);
-                        if (distToEnemy < closestDist && dot > 0.99) {
-                            closestDist = distToEnemy;
-                            closestEnemy = e;
+                    if (!isPlayerInsideHangar) {
+                        const toEnemy = e.position.clone().sub(playerShip.position);
+                        const distToEnemy = toEnemy.length();
+                        if (distToEnemy > 0) {
+                            const dot = toEnemy.clone().normalize().dot(fwdDir);
+                            if (distToEnemy < closestDist && dot > 0.99) {
+                                closestDist = distToEnemy;
+                                closestEnemy = e;
+                            }
                         }
                     }
                 }
@@ -1292,9 +1318,13 @@ const _targetWorldPos = new THREE.Vector3();
                 
                 if (segDistToPlayer < 24) {
                     hitPlayer = true;
-                    if (isShipInvincible || isTitanCinematicActive) {
-                        // 100% Invulnerable during cinematic / showcase mode!
-                        triggerPlayerShieldHit();
+                    const isInsideHangar = (typeof window.inHangerZone !== 'undefined' && window.inHangerZone) ||
+                                           (typeof landingPhase !== 'undefined' && landingPhase === 6) ||
+                                           (typeof isLandingSequenceActive !== 'undefined' && isLandingSequenceActive);
+
+                    if (isShipInvincible || isTitanCinematicActive || isInsideHangar) {
+                        // 100% Invulnerable during cinematic / showcase mode / inside hangar!
+                        if (!isInsideHangar) triggerPlayerShieldHit();
                         laser.visible = false;
                         laser.userData.active = false;
                         enemyLaserProjectiles.splice(i, 1);
@@ -2324,7 +2354,11 @@ const _targetWorldPos = new THREE.Vector3();
                 }
             }
 
-            if (nearestHostile && enemyArrowElem && (!isTitanCinematicActive)) {
+            const isPlayerInHangarZone = (typeof window.inHangerZone !== 'undefined' && window.inHangerZone) ||
+                                         (typeof landingPhase !== 'undefined' && landingPhase === 6) ||
+                                         (typeof isLandingSequenceActive !== 'undefined' && isLandingSequenceActive);
+
+            if (nearestHostile && enemyArrowElem && (!isTitanCinematicActive) && (!isPlayerInHangarZone)) {
                 _enemyProjVec.copy(nearestHostile.position).project(camera);
                 const isBehind = _enemyProjVec.z > 1.0;
                 const isOnScreen = !isBehind && Math.abs(_enemyProjVec.x) <= 0.85 && Math.abs(_enemyProjVec.y) <= 0.85;
